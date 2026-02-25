@@ -1,125 +1,114 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+<meta charset="UTF-8">
 
-  <!-- MOBILE FIRST + ZOOM DISABLED -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- Mobile first + zoom disabled -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <title>Union Musicale de La Compassion Lubumbashi</title>
+<title>MyUm</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0F2C59',
-            secondary: '#1B4F9C',
-            accent: '#3FA9F5',
-            lightBlue: '#E6F2FF'
-          },
-          fontFamily: {
-            display: ['Inter', 'sans-serif']
-          }
-        }
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        darkbg: '#0F172A',
+        card1: '#6D28D9',
+        card2: '#7C3AED',
+        softbtn: '#E9D5FF'
+      },
+      fontFamily: {
+        display: ['Inter', 'sans-serif']
       }
     }
-  </script>
+  }
+}
+</script>
+
 </head>
 
-<body class="bg-gradient-to-br from-primary via-secondary to-accent min-h-screen font-display text-white">
+<body class="bg-darkbg min-h-screen text-white font-display">
 
-  <!-- CONTAINER -->
-  <div class="flex flex-col min-h-screen px-6 py-8">
+<div class="min-h-screen flex flex-col px-6 py-10">
 
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-12">
-      <div>
-        <h1 class="text-lg font-bold leading-tight">
-          Union Musicale<br>
-          <span class="font-light text-sm opacity-80">La Compassion Lubumbashi</span>
-        </h1>
-      </div>
+<!-- Top -->
+<header class="flex justify-between items-center mb-14">
 
-      <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-lg flex items-center justify-center">
-        <i class="bi bi-music-note-beamed text-2xl"></i>
-      </div>
-    </header>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">MyUm</h1>
+    <p class="text-xs text-white/50">Union Musicale</p>
+  </div>
 
-    <!-- HERO CARD -->
-    <div class="bg-white/15 backdrop-blur-xl rounded-3xl p-6 shadow-2xl mb-10">
+  <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+    <i class="bi bi-music-note-beamed text-sm opacity-70"></i>
+  </div>
 
-      <h2 class="text-2xl font-extrabold mb-4">
-        Bienvenue
-      </h2>
+</header>
 
-      <p class="text-sm opacity-90 leading-relaxed mb-6">
-        Une union de voix, une mission, un impact.  
-        Rejoignez notre espace dédié aux membres et à la gestion musicale.
-      </p>
+<!-- Main Card -->
+<section class="mb-10">
 
-      <div class="flex flex-col gap-4">
+  <div class="rounded-3xl p-8 bg-gradient-to-br from-card1 to-card2 shadow-2xl relative overflow-hidden">
 
-        <a href="login.html"
-           class="bg-white text-primary font-semibold py-4 rounded-2xl flex items-center justify-center gap-3 shadow-lg hover:scale-105 transition duration-300">
-          <i class="bi bi-box-arrow-in-right text-xl"></i>
-          Se connecter
-        </a>
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
 
-        <a href="register.html"
-           class="border border-white/50 py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-white hover:text-primary transition duration-300">
-          <i class="bi bi-person-plus text-xl"></i>
-          Créer un compte
-        </a>
+    <h2 class="text-3xl font-semibold mb-4 leading-snug">
+      Connectez-vous<br>
+      à votre réseau
+    </h2>
 
-      </div>
-    </div>
+    <p class="text-sm text-white/70 mb-8 max-w-xs">
+      L’espace social privé de votre communauté musicale.
+    </p>
 
-    <!-- CHORALES SECTION -->
-    <div class="flex flex-col gap-4 mb-12">
+    <div class="flex flex-col gap-4">
 
-      <h3 class="text-sm uppercase tracking-widest opacity-70 mb-2">
-        Nos Chorales
-      </h3>
+      <a href="register.html"
+         class="bg-softbtn text-card1 py-3 rounded-xl text-sm font-medium text-center hover:opacity-90 transition">
+         Créer un compte
+      </a>
 
-      <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-          <i class="bi bi-mic-fill text-2xl"></i>
-        </div>
-        <span class="font-semibold">Prophetic Choir</span>
-      </div>
-
-      <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-          <i class="bi bi-soundwave text-2xl"></i>
-        </div>
-        <span class="font-semibold">Wake-Up Song</span>
-      </div>
-
-      <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-          <i class="bi bi-music-player-fill text-2xl"></i>
-        </div>
-        <span class="font-semibold">Vent Nouveau</span>
-      </div>
+      <a href="login.html"
+         class="border border-white/30 py-3 rounded-xl text-sm text-center text-white/80 hover:bg-white/10 transition">
+         Se connecter
+      </a>
 
     </div>
-
-    <!-- FOOTER -->
-    <footer class="mt-auto text-center text-xs opacity-60">
-      © 2026 Union Musicale de La Compassion Lubumbashi
-    </footer>
 
   </div>
+
+</section>
+
+<!-- Subtle Secondary Info -->
+<section class="space-y-4 text-white/40 text-xs">
+
+  <div class="flex justify-between items-center">
+    <span>Communauté privée</span>
+    <i class="bi bi-lock text-xs"></i>
+  </div>
+
+  <div class="flex justify-between items-center">
+    <span>Publications & annonces</span>
+    <i class="bi bi-chat-left-text text-xs"></i>
+  </div>
+
+  <div class="flex justify-between items-center">
+    <span>Gestion musicale</span>
+    <i class="bi bi-folder2-open text-xs"></i>
+  </div>
+
+</section>
+
+<footer class="mt-auto pt-16 text-center text-[10px] text-white/30">
+  © 2026 MyUm
+</footer>
+
+</div>
 
 </body>
 </html>
