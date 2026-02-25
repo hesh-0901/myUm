@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Créer un compte - MyUm</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1A3668',
+        medium: '#2596D9',
+        lightblue: '#3FA9F5',
+        softgray: '#E0E0E0'
+      },
+      fontFamily: {
+        display: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+</head>
+
+<body class="bg-primary min-h-screen text-white font-display flex flex-col">
+
+<div class="px-6 py-10 flex flex-col flex-grow">
+
+<h1 class="text-2xl font-semibold mb-10">Créer un compte</h1>
+
+<form id="registerForm" class="space-y-6">
+
+<!-- Prénom -->
+<div>
+<label class="text-xs text-softgray">Prénom</label>
+<input type="text" id="firstName" required
+class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+</div>
+
+<!-- Nom -->
+<div>
+<label class="text-xs text-softgray">Nom</label>
+<input type="text" id="lastName" required
+class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+</div>
+
+<!-- Chorale -->
+<div>
+<label class="text-xs text-softgray">Chorale</label>
+<select id="chorale" required
+class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+<option value="">Sélectionner</option>
+<option>Prophetic Choir</option>
+<option>Wake up song</option>
+<option>Vent Nouveau</option>
+<option>Instrumentiste</option>
+<option>Administration</option>
+<option>Visiteur</option>
+</select>
+</div>
+
+<!-- Téléphone -->
+<div>
+<label class="text-xs text-softgray">Numéro de téléphone</label>
+<input type="tel" id="phone" required
+class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+</div>
+
+<!-- Mot de passe -->
+<div class="relative">
+<label class="text-xs text-softgray">Mot de passe</label>
+<input type="password" id="password" required
+class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm pr-8">
+<i class="bi bi-eye togglePassword absolute right-0 top-8 cursor-pointer text-softgray"></i>
+</div>
+
+<!-- Confirmer -->
+<div class="relative">
+<label class="text-xs text-softgray">Confirmer le mot de passe</label>
+<input type="password" id="confirmPassword" required
+class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm pr-8">
+<i class="bi bi-eye togglePassword absolute right-0 top-8 cursor-pointer text-softgray"></i>
+</div>
+
+<button type="submit"
+class="w-full mt-8 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-sm font-semibold shadow-lg active:scale-95 transition">
+Créer mon compte
+</button>
+
+</form>
+
+</div>
+
+<script type="module" src="js/register.js"></script>
+
+</body>
+</html>
