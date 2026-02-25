@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Connexion - MyUm</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1A3668',
+        medium: '#2596D9',
+        lightblue: '#3FA9F5',
+        softgray: '#E0E0E0'
+      },
+      fontFamily: {
+        display: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center font-display">
+
+<div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+  <!-- Partie haute -->
+  <div class="bg-primary p-10 text-white relative">
+
+    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-lightblue opacity-20 rounded-full"></div>
+
+    <div class="mb-6">
+      <i class="bi bi-music-note-beamed text-3xl"></i>
+    </div>
+
+    <h1 class="text-2xl font-semibold">Bienvenue</h1>
+    <p class="text-sm text-white/80 mt-1">Connectez-vous pour continuer</p>
+
+  </div>
+
+  <!-- Formulaire -->
+  <div class="p-8">
+
+    <form id="loginForm" class="space-y-6">
+
+      <!-- Username -->
+      <div>
+        <label class="text-xs text-gray-500">Nom d'utilisateur</label>
+        <input type="text" id="username" required
+        class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-medium text-sm">
+      </div>
+
+      <!-- Password -->
+      <div class="relative">
+        <label class="text-xs text-gray-500">Mot de passe</label>
+        <input type="password" id="password" required
+        class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-medium text-sm pr-10">
+
+        <i class="bi bi-eye absolute right-3 top-9 text-gray-400 cursor-pointer togglePassword"></i>
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit"
+      class="w-full py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-medium transition active:scale-95">
+        Se connecter
+      </button>
+
+    </form>
+
+    <!-- Liens -->
+    <div class="flex justify-between mt-6 text-xs text-gray-500">
+      <a href="register.html" class="hover:text-primary">Créer un compte</a>
+      <a href="#" class="hover:text-primary">Mot de passe oublié</a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// Toggle password
+document.querySelector(".togglePassword").addEventListener("click", function(){
+    const input = document.getElementById("password");
+    if(input.type === "password"){
+        input.type = "text";
+        this.classList.replace("bi-eye","bi-eye-slash");
+    } else {
+        input.type = "password";
+        this.classList.replace("bi-eye-slash","bi-eye");
+    }
+});
+</script>
+
+</body>
+</html>
