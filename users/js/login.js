@@ -1,5 +1,9 @@
 // users/js/login.js
 
+import { db } from "../../mains.js/firebase-config.js";
+import { collection, query, where, getDocs }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const form = document.getElementById("loginForm");
@@ -7,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        const username = document.getElementById("username").value.trim();
+        const username = document.getElementById("username").value.trim().toUpperCase();
         const password = document.getElementById("password").value;
 
         if (!username || !password) {
@@ -16,33 +20,57 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ username, password })
-            });
 
-            const data = await response.json();
+            // Chercher utilisateur
+            const q = query(
+                collection(db, "users"),
+                where("username", "==", username)
+            );
 
-            if (!response.ok) {
-                alert(data.message || "Erreur de connexion.");
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                alert("Utilisateur introuvable.");
                 return;
             }
 
-            // 🔐 Stocker le token
-            localStorage.setItem("myum_token", data.token);
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data();
+
+            // Hasher mot de passe saisi
+            const hashedInputPassword = await hashPassword(password);
+
+            // Comparer hash
+            if (hashedInputPassword !== userData.passwordHash) {
+                alert("Mot de passe incorrect.");
+                return;
+            }
+
+            // ✅ Créer session locale
+            localStorage.setItem("myum_user", JSON.stringify({
+                id: userDoc.id,
+                username: userData.username,
+                chorale: userData.chorale
+            }));
 
             alert("Connexion réussie !");
-
-            // Redirection vers dashboard
             window.location.href = "../dashboard.html";
 
         } catch (error) {
-            console.error("Erreur:", error);
-            alert("Impossible de se connecter au serveur.");
+            console.error(error);
+            alert("Erreur lors de la connexion.");
         }
+
     });
 
 });
+
+
+// 🔐 Fonction SHA-256
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
