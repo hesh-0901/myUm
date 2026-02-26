@@ -17,7 +17,8 @@ tailwind.config = {
       colors: {
         primary: '#1A3668',
         medium: '#2596D9',
-        lightblue: '#3FA9F5'
+        lightblue: '#3FA9F5',
+        softbg: '#F4F6FA'
       },
       fontFamily: {
         display: ['Inter', 'sans-serif']
@@ -26,77 +27,106 @@ tailwind.config = {
   }
 }
 </script>
+
+<style>
+.glass {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+}
+</style>
+
 </head>
 
-<body class="bg-gray-100 font-display">
+<body class="bg-softbg font-display">
 
-<!-- COVER -->
-<div class="relative">
-  <div class="h-40 bg-gradient-to-r from-primary to-medium"></div>
+<div class="max-w-md mx-auto min-h-screen pb-20">
 
-  <div class="absolute -bottom-12 left-6">
-    <img src="https://i.pravatar.cc/150" 
-         class="w-24 h-24 rounded-2xl border-4 border-white shadow-xl">
+  <!-- HEADER -->
+  <div class="relative bg-gradient-to-r from-primary to-medium p-6 rounded-b-3xl shadow-lg text-white">
+
+    <div class="flex justify-between items-center">
+      <div>
+        <p class="text-sm opacity-80">Tableau de bord</p>
+        <h1 class="text-xl font-bold">MyUm</h1>
+      </div>
+      <img src="https://i.pravatar.cc/100"
+           class="w-14 h-14 rounded-2xl border-2 border-white shadow-lg">
+    </div>
+
   </div>
-</div>
-
-<!-- CONTENT -->
-<div class="pt-16 px-6 pb-20">
-
-  <h1 class="text-xl font-bold text-gray-800">Bienvenue, <span id="usernameDisplay">Utilisateur</span></h1>
-  <p class="text-xs text-gray-500 mb-6">Tableau de bord personnel</p>
 
   <!-- SCORE CENTRAL -->
-  <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
-    <h2 class="text-sm text-gray-500 mb-4">Cotation de Participation</h2>
-    <canvas id="participationChart"></canvas>
+  <div class="px-6 -mt-12">
+
+    <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
+
+      <h2 class="text-sm text-gray-500 mb-4">Cotation Participation</h2>
+
+      <div class="relative w-44 h-44 mx-auto">
+        <canvas id="participationChart"></canvas>
+        <div class="absolute inset-0 flex items-center justify-center flex-col">
+          <span class="text-3xl font-bold text-primary">87%</span>
+          <span class="text-xs text-gray-400">Présence</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DISCIPLINE -->
+    <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
+
+      <h2 class="text-sm text-gray-500 mb-4">Cotation Disciplinaire</h2>
+
+      <canvas id="disciplineChart" height="120"></canvas>
+
+    </div>
+
   </div>
 
-  <!-- DISCIPLINE -->
-  <div class="bg-white rounded-3xl shadow-xl p-6 mb-8">
-    <h2 class="text-sm text-gray-500 mb-4">Cotation Disciplinaire</h2>
-    <canvas id="disciplineChart"></canvas>
-  </div>
+  <!-- ACTIONS -->
+  <div class="px-6">
 
-  <!-- ACTIONS RAPIDES -->
-  <h3 class="text-sm text-gray-500 mb-4">Actions rapides</h3>
+    <h3 class="text-sm text-gray-500 mb-4">Actions rapides</h3>
 
-  <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-3 gap-4">
 
-    <button class="bg-blue-500 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-2">
-      <i class="bi bi-calendar-week text-2xl"></i>
-      <span class="text-xs">Week Agenda</span>
-    </button>
+      <div class="bg-blue-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
+        <i class="bi bi-calendar-week text-3xl mb-2"></i>
+        <span class="text-xs">Agenda</span>
+      </div>
 
-    <button class="bg-purple-500 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-2">
-      <i class="bi bi-megaphone text-2xl"></i>
-      <span class="text-xs">Publication</span>
-    </button>
+      <div class="bg-purple-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
+        <i class="bi bi-megaphone text-3xl mb-2"></i>
+        <span class="text-xs">Publication</span>
+      </div>
 
-    <button class="bg-green-500 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-2">
-      <i class="bi bi-check2-square text-2xl"></i>
-      <span class="text-xs">Salon Présence</span>
-    </button>
+      <div class="bg-green-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
+        <i class="bi bi-check2-circle text-3xl mb-2"></i>
+        <span class="text-xs">Présence</span>
+      </div>
 
-    <button class="bg-red-500 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-2">
-      <i class="bi bi-exclamation-circle text-2xl"></i>
-      <span class="text-xs">Justification</span>
-    </button>
+      <div class="bg-red-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
+        <i class="bi bi-exclamation-circle text-3xl mb-2"></i>
+        <span class="text-xs">Justification</span>
+      </div>
 
-    <button class="bg-indigo-500 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-2">
-      <i class="bi bi-chat-dots text-2xl"></i>
-      <span class="text-xs">Chat</span>
-    </button>
+      <div class="bg-indigo-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
+        <i class="bi bi-chat-dots text-3xl mb-2"></i>
+        <span class="text-xs">Chat</span>
+      </div>
 
-    <button class="bg-gray-800 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-2">
-      <i class="bi bi-person text-2xl"></i>
-      <span class="text-xs">Mes infos</span>
-    </button>
+      <div class="bg-gray-800 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
+        <i class="bi bi-person text-3xl mb-2"></i>
+        <span class="text-xs">Mes infos</span>
+      </div>
+
+    </div>
 
   </div>
 
 </div>
 
 <script src="js/dashboard.js"></script>
+
 </body>
 </html>
