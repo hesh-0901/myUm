@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - MyUm</title>
+<title>MyUm Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,7 +18,10 @@ tailwind.config = {
         primary: '#1A3668',
         medium: '#2596D9',
         lightblue: '#3FA9F5',
-        softbg: '#F4F6FA'
+        bgsoft: '#F3F6FA'
+      },
+      borderRadius: {
+        xl2: "24px"
       },
       fontFamily: {
         display: ['Inter', 'sans-serif']
@@ -27,97 +30,105 @@ tailwind.config = {
   }
 }
 </script>
-
-<style>
-.glass {
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-}
-</style>
-
 </head>
 
-<body class="bg-softbg font-display">
+<body class="bg-bgsoft font-display">
 
-<div class="max-w-md mx-auto min-h-screen pb-20">
+<div class="max-w-md mx-auto min-h-screen pb-28">
 
   <!-- HEADER -->
-  <div class="relative bg-gradient-to-r from-primary to-medium p-6 rounded-b-3xl shadow-lg text-white">
+  <div class="bg-gradient-to-r from-primary to-medium p-6 rounded-b-[32px] text-white shadow-lg">
 
     <div class="flex justify-between items-center">
       <div>
-        <p class="text-sm opacity-80">Tableau de bord</p>
-        <h1 class="text-xl font-bold">MyUm</h1>
+        <p class="text-sm opacity-80">Bienvenue</p>
+        <h1 class="text-xl font-bold" id="usernameDisplay">Utilisateur</h1>
       </div>
-      <img src="https://i.pravatar.cc/100"
-           class="w-14 h-14 rounded-2xl border-2 border-white shadow-lg">
+      <img src="https://i.pravatar.cc/150"
+           class="w-14 h-14 rounded-xl border-2 border-white shadow-md">
     </div>
 
   </div>
 
-  <!-- SCORE CENTRAL -->
-  <div class="px-6 -mt-12">
+  <!-- HERO CARD -->
+  <div class="px-6 -mt-10">
 
-    <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
+    <div class="bg-white rounded-xl2 shadow-xl p-6 mb-6">
 
-      <h2 class="text-sm text-gray-500 mb-4">Cotation Participation</h2>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-sm text-gray-500">Cotation Participation</h2>
+        <span class="text-xs bg-blue-100 text-primary px-3 py-1 rounded-full">
+          Niveau Argent
+        </span>
+      </div>
 
-      <div class="relative w-44 h-44 mx-auto">
+      <div class="relative w-48 h-48 mx-auto">
         <canvas id="participationChart"></canvas>
-        <div class="absolute inset-0 flex items-center justify-center flex-col">
-          <span class="text-3xl font-bold text-primary">87%</span>
-          <span class="text-xs text-gray-400">Présence</span>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span class="text-4xl font-extrabold text-primary">87%</span>
+          <span class="text-xs text-gray-400">Présence globale</span>
         </div>
       </div>
 
     </div>
 
-    <!-- DISCIPLINE -->
-    <div class="bg-white rounded-3xl shadow-xl p-6 mb-6">
+    <!-- STATS GRID -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
 
-      <h2 class="text-sm text-gray-500 mb-4">Cotation Disciplinaire</h2>
+      <div class="bg-white rounded-xl2 shadow-md p-5">
+        <p class="text-xs text-gray-400 mb-2">Discipline</p>
+        <p class="text-2xl font-bold text-green-500">92%</p>
+      </div>
 
-      <canvas id="disciplineChart" height="120"></canvas>
+      <div class="bg-white rounded-xl2 shadow-md p-5">
+        <p class="text-xs text-gray-400 mb-2">Moyenne mensuelle</p>
+        <p class="text-2xl font-bold text-primary">+4%</p>
+      </div>
 
     </div>
 
-  </div>
+    <!-- GRAPH EVOLUTION -->
+    <div class="bg-white rounded-xl2 shadow-xl p-6 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-sm text-gray-500">Évolution</h2>
+        <span class="text-xs text-gray-400">6 derniers mois</span>
+      </div>
+      <canvas id="evolutionChart" height="100"></canvas>
+    </div>
 
-  <!-- ACTIONS -->
-  <div class="px-6">
-
+    <!-- ACTIONS -->
     <h3 class="text-sm text-gray-500 mb-4">Actions rapides</h3>
 
     <div class="grid grid-cols-3 gap-4">
 
-      <div class="bg-blue-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
-        <i class="bi bi-calendar-week text-3xl mb-2"></i>
+      <div class="bg-blue-500 text-white p-5 rounded-xl2 shadow-md text-center">
+        <i class="bi bi-calendar-week text-2xl mb-2 block"></i>
         <span class="text-xs">Agenda</span>
       </div>
 
-      <div class="bg-purple-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
-        <i class="bi bi-megaphone text-3xl mb-2"></i>
+      <div class="bg-purple-500 text-white p-5 rounded-xl2 shadow-md text-center">
+        <i class="bi bi-megaphone text-2xl mb-2 block"></i>
         <span class="text-xs">Publication</span>
       </div>
 
-      <div class="bg-green-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
-        <i class="bi bi-check2-circle text-3xl mb-2"></i>
+      <div class="bg-green-500 text-white p-5 rounded-xl2 shadow-md text-center">
+        <i class="bi bi-check2-circle text-2xl mb-2 block"></i>
         <span class="text-xs">Présence</span>
       </div>
 
-      <div class="bg-red-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
-        <i class="bi bi-exclamation-circle text-3xl mb-2"></i>
+      <div class="bg-red-500 text-white p-5 rounded-xl2 shadow-md text-center">
+        <i class="bi bi-exclamation-circle text-2xl mb-2 block"></i>
         <span class="text-xs">Justification</span>
       </div>
 
-      <div class="bg-indigo-500 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
-        <i class="bi bi-chat-dots text-3xl mb-2"></i>
+      <div class="bg-indigo-500 text-white p-5 rounded-xl2 shadow-md text-center">
+        <i class="bi bi-chat-dots text-2xl mb-2 block"></i>
         <span class="text-xs">Chat</span>
       </div>
 
-      <div class="bg-gray-800 text-white p-5 rounded-2xl shadow-md flex flex-col items-center">
-        <i class="bi bi-person text-3xl mb-2"></i>
-        <span class="text-xs">Mes infos</span>
+      <div class="bg-gray-800 text-white p-5 rounded-xl2 shadow-md text-center">
+        <i class="bi bi-person text-2xl mb-2 block"></i>
+        <span class="text-xs">Infos</span>
       </div>
 
     </div>
