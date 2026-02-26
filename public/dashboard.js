@@ -1,21 +1,21 @@
 // public/js/dashboard.js
 
-// Vérifier session
+// ================= SESSION =================
 const user = JSON.parse(localStorage.getItem("myum_user"));
 if (!user) {
   window.location.href = "../users/login.html";
 }
+document.getElementById("usernameDisplay").textContent = user.username;
 
-// =========================
-// 🎯 PARTICIPATION DONUT
-// =========================
+
+// ================= PARTICIPATION DONUT =================
 
 const participationCtx = document.getElementById("participationChart").getContext("2d");
 
-// Gradient premium
-const gradientParticipation = participationCtx.createLinearGradient(0, 0, 200, 200);
+// Gradient circulaire premium
+const gradientParticipation = participationCtx.createLinearGradient(0, 0, 300, 300);
 gradientParticipation.addColorStop(0, "#2596D9");
-gradientParticipation.addColorStop(1, "#3FA9F5");
+gradientParticipation.addColorStop(1, "#1A3668");
 
 new Chart(participationCtx, {
   type: "doughnut",
@@ -24,17 +24,17 @@ new Chart(participationCtx, {
       data: [87, 13],
       backgroundColor: [
         gradientParticipation,
-        "#E5E7EB"
+        "#EDF2F7"
       ],
       borderWidth: 0,
-      hoverOffset: 6
+      hoverOffset: 0
     }]
   },
   options: {
-    cutout: "78%",
+    cutout: "82%",
     animation: {
-      animateRotate: true,
-      duration: 1500
+      duration: 1800,
+      easing: "easeOutCubic"
     },
     plugins: {
       legend: { display: false },
@@ -43,31 +43,33 @@ new Chart(participationCtx, {
   }
 });
 
-// =========================
-// 📊 DISCIPLINE BAR CHART
-// =========================
 
-const disciplineCtx = document.getElementById("disciplineChart").getContext("2d");
+// ================= EVOLUTION LINE CHART =================
 
-// Gradient vertical premium
-const gradientDiscipline = disciplineCtx.createLinearGradient(0, 0, 0, 200);
-gradientDiscipline.addColorStop(0, "#1A3668");
-gradientDiscipline.addColorStop(1, "#3FA9F5");
+const evolutionCtx = document.getElementById("evolutionChart").getContext("2d");
 
-new Chart(disciplineCtx, {
-  type: "bar",
+// Gradient fintech fill
+const gradientEvolution = evolutionCtx.createLinearGradient(0, 0, 0, 200);
+gradientEvolution.addColorStop(0, "rgba(37,150,217,0.4)");
+gradientEvolution.addColorStop(1, "rgba(37,150,217,0)");
+
+new Chart(evolutionCtx, {
+  type: "line",
   data: {
     labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"],
     datasets: [{
-      data: [90, 85, 88, 92, 87, 94],
-      backgroundColor: gradientDiscipline,
-      borderRadius: 12,
-      barThickness: 18
+      data: [72, 78, 80, 85, 83, 87],
+      borderColor: "#2596D9",
+      backgroundColor: gradientEvolution,
+      tension: 0.45,
+      fill: true,
+      pointRadius: 0,
+      borderWidth: 3
     }]
   },
   options: {
     animation: {
-      duration: 1800,
+      duration: 2000,
       easing: "easeOutQuart"
     },
     plugins: {
@@ -76,13 +78,13 @@ new Chart(disciplineCtx, {
     scales: {
       y: {
         display: false,
-        beginAtZero: true,
+        min: 60,
         max: 100
       },
       x: {
         grid: { display: false },
         ticks: {
-          color: "#6B7280",
+          color: "#94A3B8",
           font: { size: 11 }
         }
       }
