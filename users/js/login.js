@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
-            // Chercher utilisateur
+            // 🔎 Chercher utilisateur
             const q = query(
                 collection(db, "users"),
                 where("username", "==", username)
@@ -37,19 +37,21 @@ document.addEventListener("DOMContentLoaded", function () {
             const userDoc = querySnapshot.docs[0];
             const userData = userDoc.data();
 
-            // Hasher mot de passe saisi
+            // 🔐 Hasher mot de passe saisi
             const hashedInputPassword = await hashPassword(password);
 
-            // Comparer hash
+            // 🔍 Comparer hash
             if (hashedInputPassword !== userData.passwordHash) {
                 alert("Mot de passe incorrect.");
                 return;
             }
 
-            // ✅ Créer session locale
+            // ✅ Créer session locale complète
             localStorage.setItem("myum_user", JSON.stringify({
                 id: userDoc.id,
                 username: userData.username,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
                 chorale: userData.chorale
             }));
 
@@ -57,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
             window.location.href = "../public/dashboard.html";
 
         } catch (error) {
-            console.error(error);
+            console.error("Erreur login :", error);
             alert("Erreur lors de la connexion.");
         }
 
