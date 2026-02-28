@@ -2,7 +2,7 @@
 
   <div class="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
 
-    <!-- LEFT : Menu / Branding -->
+    <!-- LEFT -->
     <div class="flex items-center gap-3">
 
       <button id="menuBtn"
@@ -14,13 +14,13 @@
       <div>
         <p class="text-xs text-gray-500">Bienvenue</p>
         <h1 id="userName" class="text-sm font-semibold text-gray-800">
-          Chargement...
+          ...
         </h1>
       </div>
 
     </div>
 
-    <!-- RIGHT : Notifications + Avatar -->
+    <!-- RIGHT -->
     <div class="flex items-center gap-3">
 
       <!-- Notifications -->
@@ -30,7 +30,6 @@
 
         <i class="bi bi-bell text-lg text-gray-700"></i>
 
-        <!-- Badge -->
         <span id="notificationBadge"
           class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden">
         </span>
@@ -42,7 +41,6 @@
         class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-medium 
                text-white flex items-center justify-center 
                font-semibold text-sm shadow-md active:scale-95 transition">
-        SA
       </button>
 
     </div>
@@ -51,36 +49,37 @@
 
 </header>
 
-<script type="module">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-// ===== SIMULATION USER =====
-// À remplacer par Firebase plus tard
-const user = {
-  firstName: "Sami",
-  lastName: "Ahmed",
-  notifications: 2
-};
+  const storedUser = localStorage.getItem("myum_user");
 
-// Nom utilisateur
-document.getElementById("userName").innerText =
-  user.firstName + " " + user.lastName;
+  // 🔒 Protection accès
+  if (!storedUser) {
+    window.location.href = "../users/login.html";
+    return;
+  }
 
-// Avatar initiales
-document.getElementById("profileBtn").innerText =
-  user.firstName[0] + user.lastName[0];
+  const user = JSON.parse(storedUser);
 
-// Badge notification
-if (user.notifications > 0) {
-  document.getElementById("notificationBadge").classList.remove("hidden");
-}
+  // Nom complet
+  const userNameEl = document.getElementById("userName");
+  const profileBtn = document.getElementById("profileBtn");
 
-// Actions
-document.getElementById("profileBtn").onclick = () => {
-  window.location.href = "profile.html";
-};
+  if (userNameEl && profileBtn) {
+    userNameEl.innerText = user.firstName + " " + user.lastName;
+    profileBtn.innerText =
+      user.firstName.charAt(0) + user.lastName.charAt(0);
+  }
 
-document.getElementById("notificationBtn").onclick = () => {
-  window.location.href = "notifications.html";
-};
+  // Navigation
+  document.getElementById("profileBtn").onclick = () => {
+    window.location.href = "profile.html";
+  };
 
+  document.getElementById("notificationBtn").onclick = () => {
+    window.location.href = "notifications.html";
+  };
+
+});
 </script>
