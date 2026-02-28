@@ -28,6 +28,7 @@ tailwind.config = {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/nav.js"></script>
 
 </head>
 
@@ -163,6 +164,28 @@ new Chart(ctx, {
       legend: { display: false }
     }
   }
+});
+</script>
+<script>
+document.querySelectorAll(".nav-item").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("text-primary"));
+    btn.classList.add("text-primary");
+  });
+});
+</script>
+
+  <script>
+const presenceBtn = document.getElementById("presenceBtn");
+
+presenceBtn.addEventListener("click", async () => {
+
+  // 1️⃣ Vérifier si un salon de présence est actif (Firestore)
+  // 2️⃣ Vérifier distance GPS si activée
+  // 3️⃣ Marquer présence si validé
+
+  alert("Recherche d'un salon de présence actif...");
+
 });
 </script>
 
