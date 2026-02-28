@@ -188,25 +188,106 @@ new Chart(ctx, {
 
 // ===== ACTIONS RAPIDES =====
 
-document.getElementById("btnMessage").onclick = () => {
-  window.location.href = "messagerie.html";
-};
+<!-- 5️⃣ Actions rapides premium -->
+<div class="bg-white rounded-3xl shadow-md p-5">
 
-document.getElementById("btnAgenda").onclick = () => {
-  window.location.href = "agenda.html";
-};
+  <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
 
-document.getElementById("btnPublication").onclick = () => {
-  window.location.href = "publication.html";
-};
+  <div class="grid grid-cols-2 gap-4">
 
-document.getElementById("btnPresenceRoom").onclick = () => {
-  window.location.href = "presence-room.html";
-};
+    <!-- Messagerie -->
+    <button id="btnMessage"
+      class="flex items-center gap-4 p-4 rounded-2xl 
+             bg-gradient-to-br from-medium to-lightblue 
+             text-white shadow-lg active:scale-95 transition">
 
-document.getElementById("btnJustification").onclick = () => {
-  window.location.href = "justification.html";
-};
+      <div class="w-12 h-12 rounded-full bg-white/20 
+                  flex items-center justify-center backdrop-blur">
+        <i class="bi bi-chat-dots-fill text-lg"></i>
+      </div>
+
+      <div class="text-left">
+        <p class="font-semibold text-sm">Messagerie</p>
+        <p class="text-xs text-white/80">Discuter</p>
+      </div>
+
+    </button>
+
+    <!-- Agenda -->
+    <button id="btnAgenda"
+      class="flex items-center gap-4 p-4 rounded-2xl 
+             bg-white shadow-md border border-gray-100
+             active:scale-95 transition">
+
+      <div class="w-12 h-12 rounded-full bg-primary/10 
+                  flex items-center justify-center">
+        <i class="bi bi-calendar-week text-primary text-lg"></i>
+      </div>
+
+      <div class="text-left">
+        <p class="font-semibold text-sm text-gray-800">Agenda</p>
+        <p class="text-xs text-gray-500">Planning</p>
+      </div>
+
+    </button>
+
+    <!-- Publication -->
+    <button id="btnPublication"
+      class="flex items-center gap-4 p-4 rounded-2xl 
+             bg-white shadow-md border border-gray-100
+             active:scale-95 transition">
+
+      <div class="w-12 h-12 rounded-full bg-medium/10 
+                  flex items-center justify-center">
+        <i class="bi bi-pencil-square text-medium text-lg"></i>
+      </div>
+
+      <div class="text-left">
+        <p class="font-semibold text-sm text-gray-800">Publication</p>
+        <p class="text-xs text-gray-500">Créer un post</p>
+      </div>
+
+    </button>
+
+    <!-- Salon Présence -->
+    <button id="btnPresenceRoom"
+      class="flex items-center gap-4 p-4 rounded-2xl 
+             bg-gradient-to-br from-primary to-medium 
+             text-white shadow-lg active:scale-95 transition">
+
+      <div class="w-12 h-12 rounded-full bg-white/20 
+                  flex items-center justify-center backdrop-blur">
+        <i class="bi bi-clipboard-check text-lg"></i>
+      </div>
+
+      <div class="text-left">
+        <p class="font-semibold text-sm">Salon présence</p>
+        <p class="text-xs text-white/80">Valider</p>
+      </div>
+
+    </button>
+
+    <!-- Justification -->
+    <button id="btnJustification"
+      class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
+             bg-white shadow-md border border-gray-100
+             active:scale-95 transition">
+
+      <div class="w-12 h-12 rounded-full bg-danger/10 
+                  flex items-center justify-center">
+        <i class="bi bi-file-earmark-text text-danger text-lg"></i>
+      </div>
+
+      <div class="text-left">
+        <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
+        <p class="text-xs text-gray-500">Envoyer un document</p>
+      </div>
+
+    </button>
+
+  </div>
+
+</div>
 
 </script>
 
