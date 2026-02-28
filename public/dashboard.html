@@ -32,9 +32,6 @@ tailwind.config = {
 
 <body class="bg-gray-100 font-display text-gray-800 pb-24">
 
-<!-- NAVBAR -->
-<div id="navbar-container"></div>
-
 <!-- HEADER -->
 <div id="header-container"></div>
 
@@ -42,7 +39,7 @@ tailwind.config = {
 <div class="px-4 py-6 space-y-6 max-w-md mx-auto">
 
   <!-- 1️⃣ Taux de participation -->
-  <div class="bg-white rounded-2xl shadow-md p-5">
+  <div class="bg-white rounded-3xl shadow-md p-5">
 
     <div class="flex items-center gap-2 mb-4">
       <i class="bi bi-pie-chart-fill text-primary text-lg"></i>
@@ -52,21 +49,21 @@ tailwind.config = {
     <div class="flex justify-center relative">
       <canvas id="participationChart" width="180" height="180"></canvas>
       <div id="percentageLabel"
-           class="absolute text-lg font-semibold text-primary">
+           class="absolute text-xl font-bold text-primary">
       </div>
     </div>
 
   </div>
 
   <!-- 2️⃣ Prochains rendez-vous -->
-  <div class="bg-white rounded-2xl shadow-md p-5">
+  <div class="bg-white rounded-3xl shadow-md p-5">
 
     <div class="flex items-center gap-2 mb-4">
       <i class="bi bi-calendar-event text-primary text-lg"></i>
       <h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
     </div>
 
-    <div id="upcomingEvents" class="space-y-3 text-sm">
+    <div class="space-y-3 text-sm">
 
       <div class="border rounded-xl p-3">
         <p class="font-medium">Répétition générale</p>
@@ -83,68 +80,123 @@ tailwind.config = {
   </div>
 
   <!-- 3️⃣ Annonce -->
-  <div class="bg-white rounded-2xl shadow-md p-5">
+  <div class="bg-white rounded-3xl shadow-md p-5">
 
     <div class="flex items-center gap-2 mb-4">
       <i class="bi bi-megaphone-fill text-primary text-lg"></i>
       <h2 class="font-semibold text-sm">Annonce</h2>
     </div>
 
-    <p id="announcementText" class="text-sm text-gray-600">
+    <p class="text-sm text-gray-600">
       Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
     </p>
 
   </div>
 
   <!-- 4️⃣ Alerte -->
-  <div class="bg-white rounded-2xl shadow-md p-5 border-l-4 border-danger">
+  <div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
 
     <div class="flex items-center gap-2 mb-2">
       <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
       <h2 class="font-semibold text-sm text-danger">Alerte</h2>
     </div>
 
-    <p id="alertText" class="text-sm text-gray-600">
+    <p class="text-sm text-gray-600">
       Vous avez 2 absences consécutives.
     </p>
 
   </div>
 
-  <!-- 5️⃣ Actions rapides -->
-  <div class="bg-white rounded-2xl shadow-md p-5">
+  <!-- 5️⃣ Actions rapides premium -->
+  <div class="bg-white rounded-3xl shadow-md p-5">
 
-    <h2 class="font-semibold text-sm mb-4">Actions rapides</h2>
+    <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
 
-    <div class="grid grid-cols-3 gap-4 text-center text-xs">
+    <div class="grid grid-cols-2 gap-4">
 
       <button id="btnMessage"
-        class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
-        <i class="bi bi-chat-dots-fill text-xl text-primary"></i>
-        Messagerie
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-gradient-to-br from-medium to-lightblue 
+               text-white shadow-lg active:scale-95 transition">
+
+        <div class="w-12 h-12 rounded-full bg-white/20 
+                    flex items-center justify-center backdrop-blur">
+          <i class="bi bi-chat-dots-fill text-lg"></i>
+        </div>
+
+        <div class="text-left">
+          <p class="font-semibold text-sm">Messagerie</p>
+          <p class="text-xs text-white/80">Discuter</p>
+        </div>
+
       </button>
 
       <button id="btnAgenda"
-        class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
-        <i class="bi bi-calendar-week text-xl text-primary"></i>
-        Agenda
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-white shadow-md border border-gray-100
+               active:scale-95 transition">
+
+        <div class="w-12 h-12 rounded-full bg-primary/10 
+                    flex items-center justify-center">
+          <i class="bi bi-calendar-week text-primary text-lg"></i>
+        </div>
+
+        <div class="text-left">
+          <p class="font-semibold text-sm text-gray-800">Agenda</p>
+          <p class="text-xs text-gray-500">Planning</p>
+        </div>
+
       </button>
 
       <button id="btnPublication"
-        class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
-        <i class="bi bi-pencil-square text-xl text-primary"></i>
-        Publication
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-white shadow-md border border-gray-100
+               active:scale-95 transition">
+
+        <div class="w-12 h-12 rounded-full bg-medium/10 
+                    flex items-center justify-center">
+          <i class="bi bi-pencil-square text-medium text-lg"></i>
+        </div>
+
+        <div class="text-left">
+          <p class="font-semibold text-sm text-gray-800">Publication</p>
+          <p class="text-xs text-gray-500">Créer un post</p>
+        </div>
+
       </button>
 
       <button id="btnPresenceRoom"
-        class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
-        <i class="bi bi-clipboard-check text-xl text-primary"></i>
-        Salon présence
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-gradient-to-br from-primary to-medium 
+               text-white shadow-lg active:scale-95 transition">
+
+        <div class="w-12 h-12 rounded-full bg-white/20 
+                    flex items-center justify-center backdrop-blur">
+          <i class="bi bi-clipboard-check text-lg"></i>
+        </div>
+
+        <div class="text-left">
+          <p class="font-semibold text-sm">Salon présence</p>
+          <p class="text-xs text-white/80">Valider</p>
+        </div>
+
       </button>
 
       <button id="btnJustification"
-        class="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-gray-100 transition active:scale-95">
-        <i class="bi bi-file-earmark-text text-xl text-primary"></i>
-        Justification
+        class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
+               bg-white shadow-md border border-gray-100
+               active:scale-95 transition">
+
+        <div class="w-12 h-12 rounded-full bg-danger/10 
+                    flex items-center justify-center">
+          <i class="bi bi-file-earmark-text text-danger text-lg"></i>
+        </div>
+
+        <div class="text-left">
+          <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
+          <p class="text-xs text-gray-500">Envoyer un document</p>
+        </div>
+
       </button>
 
     </div>
@@ -153,11 +205,25 @@ tailwind.config = {
 
 </div>
 
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
 <script type="module">
 
-// ===== DONUT PARTICIPATION =====
+// ===== LOAD HEADER + NAV =====
+async function loadPartials() {
+  const header = await fetch("../partials/header.html");
+  document.getElementById("header-container").innerHTML = await header.text();
 
-const participation = 75; // à remplacer par valeur Firestore
+  const nav = await fetch("../partials/nav.html");
+  document.getElementById("navbar-container").innerHTML = await nav.text();
+}
+
+loadPartials();
+
+
+// ===== DONUT PARTICIPATION =====
+const participation = 75; // dynamique plus tard
 
 const ctx = document.getElementById('participationChart').getContext('2d');
 
@@ -187,107 +253,11 @@ new Chart(ctx, {
 
 
 // ===== ACTIONS RAPIDES =====
-
-<!-- 5️⃣ Actions rapides premium -->
-<div class="bg-white rounded-3xl shadow-md p-5">
-
-  <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
-
-  <div class="grid grid-cols-2 gap-4">
-
-    <!-- Messagerie -->
-    <button id="btnMessage"
-      class="flex items-center gap-4 p-4 rounded-2xl 
-             bg-gradient-to-br from-medium to-lightblue 
-             text-white shadow-lg active:scale-95 transition">
-
-      <div class="w-12 h-12 rounded-full bg-white/20 
-                  flex items-center justify-center backdrop-blur">
-        <i class="bi bi-chat-dots-fill text-lg"></i>
-      </div>
-
-      <div class="text-left">
-        <p class="font-semibold text-sm">Messagerie</p>
-        <p class="text-xs text-white/80">Discuter</p>
-      </div>
-
-    </button>
-
-    <!-- Agenda -->
-    <button id="btnAgenda"
-      class="flex items-center gap-4 p-4 rounded-2xl 
-             bg-white shadow-md border border-gray-100
-             active:scale-95 transition">
-
-      <div class="w-12 h-12 rounded-full bg-primary/10 
-                  flex items-center justify-center">
-        <i class="bi bi-calendar-week text-primary text-lg"></i>
-      </div>
-
-      <div class="text-left">
-        <p class="font-semibold text-sm text-gray-800">Agenda</p>
-        <p class="text-xs text-gray-500">Planning</p>
-      </div>
-
-    </button>
-
-    <!-- Publication -->
-    <button id="btnPublication"
-      class="flex items-center gap-4 p-4 rounded-2xl 
-             bg-white shadow-md border border-gray-100
-             active:scale-95 transition">
-
-      <div class="w-12 h-12 rounded-full bg-medium/10 
-                  flex items-center justify-center">
-        <i class="bi bi-pencil-square text-medium text-lg"></i>
-      </div>
-
-      <div class="text-left">
-        <p class="font-semibold text-sm text-gray-800">Publication</p>
-        <p class="text-xs text-gray-500">Créer un post</p>
-      </div>
-
-    </button>
-
-    <!-- Salon Présence -->
-    <button id="btnPresenceRoom"
-      class="flex items-center gap-4 p-4 rounded-2xl 
-             bg-gradient-to-br from-primary to-medium 
-             text-white shadow-lg active:scale-95 transition">
-
-      <div class="w-12 h-12 rounded-full bg-white/20 
-                  flex items-center justify-center backdrop-blur">
-        <i class="bi bi-clipboard-check text-lg"></i>
-      </div>
-
-      <div class="text-left">
-        <p class="font-semibold text-sm">Salon présence</p>
-        <p class="text-xs text-white/80">Valider</p>
-      </div>
-
-    </button>
-
-    <!-- Justification -->
-    <button id="btnJustification"
-      class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
-             bg-white shadow-md border border-gray-100
-             active:scale-95 transition">
-
-      <div class="w-12 h-12 rounded-full bg-danger/10 
-                  flex items-center justify-center">
-        <i class="bi bi-file-earmark-text text-danger text-lg"></i>
-      </div>
-
-      <div class="text-left">
-        <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
-        <p class="text-xs text-gray-500">Envoyer un document</p>
-      </div>
-
-    </button>
-
-  </div>
-
-</div>
+document.getElementById("btnMessage").onclick = () => window.location.href = "messagerie.html";
+document.getElementById("btnAgenda").onclick = () => window.location.href = "agenda.html";
+document.getElementById("btnPublication").onclick = () => window.location.href = "publication.html";
+document.getElementById("btnPresenceRoom").onclick = () => window.location.href = "presence-room.html";
+document.getElementById("btnJustification").onclick = () => window.location.href = "justification.html";
 
 </script>
 
