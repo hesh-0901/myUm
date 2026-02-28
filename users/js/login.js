@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }));
 
             alert("Connexion réussie !");
-            window.location.href = "../../public/dashboard.html";
+            window.location.href = "myUm/public/dashboard.html";
 
         } catch (error) {
             console.error(error);
