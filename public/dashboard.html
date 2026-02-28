@@ -211,10 +211,18 @@ tailwind.config = {
 <script type="module">
 
 // ===== LOAD HEADER + NAV =====
+import { initHeader } from "../partials/js/header.js";
+
 async function loadPartials() {
+
+  // Charger header
   const header = await fetch("../partials/header.html");
   document.getElementById("header-container").innerHTML = await header.text();
 
+  // Initialiser header APRÈS injection
+  await initHeader();
+
+  // Charger nav
   const nav = await fetch("../partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
 }
