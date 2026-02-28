@@ -1,1 +1,86 @@
+<header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-100">
 
+  <div class="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+
+    <!-- LEFT : Menu / Branding -->
+    <div class="flex items-center gap-3">
+
+      <button id="menuBtn"
+        class="w-10 h-10 rounded-full flex items-center justify-center 
+               hover:bg-gray-100 transition active:scale-95">
+        <i class="bi bi-list text-xl text-gray-700"></i>
+      </button>
+
+      <div>
+        <p class="text-xs text-gray-500">Bienvenue</p>
+        <h1 id="userName" class="text-sm font-semibold text-gray-800">
+          Chargement...
+        </h1>
+      </div>
+
+    </div>
+
+    <!-- RIGHT : Notifications + Avatar -->
+    <div class="flex items-center gap-3">
+
+      <!-- Notifications -->
+      <button id="notificationBtn"
+        class="relative w-10 h-10 rounded-full flex items-center justify-center 
+               hover:bg-gray-100 transition active:scale-95">
+
+        <i class="bi bi-bell text-lg text-gray-700"></i>
+
+        <!-- Badge -->
+        <span id="notificationBadge"
+          class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden">
+        </span>
+
+      </button>
+
+      <!-- Avatar -->
+      <button id="profileBtn"
+        class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-medium 
+               text-white flex items-center justify-center 
+               font-semibold text-sm shadow-md active:scale-95 transition">
+        SA
+      </button>
+
+    </div>
+
+  </div>
+
+</header>
+
+<script type="module">
+
+// ===== SIMULATION USER =====
+// À remplacer par Firebase plus tard
+const user = {
+  firstName: "Sami",
+  lastName: "Ahmed",
+  notifications: 2
+};
+
+// Nom utilisateur
+document.getElementById("userName").innerText =
+  user.firstName + " " + user.lastName;
+
+// Avatar initiales
+document.getElementById("profileBtn").innerText =
+  user.firstName[0] + user.lastName[0];
+
+// Badge notification
+if (user.notifications > 0) {
+  document.getElementById("notificationBadge").classList.remove("hidden");
+}
+
+// Actions
+document.getElementById("profileBtn").onclick = () => {
+  window.location.href = "profile.html";
+};
+
+document.getElementById("notificationBtn").onclick = () => {
+  window.location.href = "notifications.html";
+};
+
+</script>
