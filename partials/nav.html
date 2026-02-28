@@ -1,1 +1,54 @@
+<!-- BOTTOM NAVIGATION -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
 
+  <div class="relative max-w-md mx-auto">
+
+    <!-- Container nav -->
+    <div class="flex justify-between items-center px-6 py-3 text-xs text-gray-500">
+
+      <!-- Accueil -->
+      <button class="flex flex-col items-center gap-1 nav-item">
+        <i class="bi bi-house-door text-lg"></i>
+        Accueil
+      </button>
+
+      <!-- Posts -->
+      <button class="flex flex-col items-center gap-1 nav-item">
+        <i class="bi bi-newspaper text-lg"></i>
+        Posts
+      </button>
+
+      <!-- Espace central -->
+      <div class="w-16"></div>
+
+      <!-- Chat -->
+      <button class="flex flex-col items-center gap-1 nav-item">
+        <i class="bi bi-chat-dots text-lg"></i>
+        Chat
+      </button>
+
+      <!-- Profil -->
+      <button class="flex flex-col items-center gap-1 nav-item">
+        <i class="bi bi-person text-lg"></i>
+        Profil
+      </button>
+
+    </div>
+
+    <!-- BOUTON CENTRAL PRESENCE -->
+    <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+
+      <button id="presenceBtn"
+        class="w-16 h-16 rounded-full bg-gradient-to-r from-medium to-lightblue 
+               text-white flex items-center justify-center shadow-xl 
+               active:scale-95 transition duration-200">
+
+        <i class="bi bi-check2-circle text-2xl"></i>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</nav>
