@@ -208,7 +208,12 @@ tailwind.config = {
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
+  
+
 <script type="module">
+  import { checkAuth } from "../mains.js/auth-guard.js";
+
+const currentUser = checkAuth();
 
 // ===== LOAD HEADER + NAV =====
 import { initHeader } from "../partials/js/header.js";
