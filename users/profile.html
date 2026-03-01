@@ -199,17 +199,18 @@ async function initProfile() {
   const nav = await fetch("/myUm/partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
 
-  // MODULES
+  // INFORMATIONS
   const infos = await fetch("/myUm/partials/informations.html");
   document.getElementById("informations-container").innerHTML = await infos.text();
 
+  await initInformations(); // ✅ DOIT ÊTRE ICI
+
+  // AMIS
   const amis = await fetch("/myUm/partials/amis.html");
   document.getElementById("amis-container").innerHTML = await amis.text();
 }
-  await initInformations();
 
 initProfile();
-
 </script>
 
 </body>
