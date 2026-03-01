@@ -32,114 +32,113 @@ tailwind.config = {
 <body class="bg-gray-100 font-display text-gray-800 pb-24">
 
 <!-- HEADER -->
-<div id="header-container"></div>
-
-<!-- SIDEBAR -->
-<div id="sidebar-container"></div>
-
+<!-- ========================= -->
 <!-- PROFILE -->
+<!-- ========================= -->
 
-<div class="max-w-md mx-auto">
+<div class="max-w-md mx-auto bg-white min-h-screen">
 
+  <!-- ========================= -->
   <!-- COVER -->
-  <div class="relative h-40 bg-gray-300 overflow-hidden">
-    <img src="../assets/cover.jpg"
+  <!-- ========================= -->
+  <div class="relative h-44 overflow-hidden">
+
+    <img src="/myUm/assets/cover.jpg"
          class="w-full h-full object-cover">
 
-    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+    <!-- Gradient overlay premium -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
   </div>
 
-  <!-- PROFILE PHOTO -->
-<!-- ========================= -->
-<!-- COVER + AVATAR PREMIUM -->
-<!-- ========================= -->
 
-<div class="relative">
-
-  <!-- COVER -->
-  <div class="h-40 w-full overflow-hidden">
-    <img src="/myUm/assets/cover.jpg"
-         class="w-full h-full object-cover brightness-95">
-  </div>
-
+  <!-- ========================= -->
   <!-- AVATAR FLOAT -->
-  <div class="absolute -bottom-14 left-6">
+  <!-- ========================= -->
+  <div class="relative px-6">
 
-    <div class="relative w-28 h-28">
+    <div class="absolute -top-16">
 
-      <!-- PHOTO -->
-      <img id="profilePhoto"
-           src=""
-           class="w-28 h-28 rounded-full border-4 border-white 
-                  object-cover shadow-2xl bg-white">
+      <div class="relative w-32 h-32">
 
-      <!-- UPLOAD BUTTON -->
-      <label for="photoInput"
-        class="absolute bottom-1 right-1 w-9 h-9 
-               bg-primary text-white 
-               rounded-full flex items-center justify-center 
-               shadow-lg cursor-pointer 
-               hover:scale-105 active:scale-95 transition">
+        <!-- PHOTO -->
+        <img id="profilePhoto"
+             src=""
+             class="w-32 h-32 rounded-full border-4 border-white 
+                    object-cover shadow-2xl bg-white">
 
-        <i class="bi bi-camera-fill text-sm"></i>
-      </label>
+        <!-- UPLOAD BUTTON -->
+        <label for="photoInput"
+          class="absolute bottom-2 right-2 w-9 h-9 
+                 bg-primary text-white 
+                 rounded-full flex items-center justify-center 
+                 shadow-lg cursor-pointer 
+                 hover:scale-105 active:scale-95 transition">
 
-      <input type="file"
-             id="photoInput"
-             accept="image/*"
-             class="hidden">
+          <i class="bi bi-camera-fill text-sm"></i>
+        </label>
+
+        <input type="file"
+               id="photoInput"
+               accept="image/*"
+               class="hidden">
+
+      </div>
 
     </div>
 
   </div>
 
-</div>
 
+  <!-- ========================= -->
   <!-- USER INFO -->
- <div class="mt-20 px-6">
+  <!-- ========================= -->
+  <div class="mt-20 px-6 pb-6">
 
-  <!-- NOM -->
-  <h1 id="fullName"
-      class="text-2xl font-bold text-gray-900 tracking-tight">
-      Chargement...
-  </h1>
+    <!-- NOM -->
+    <h1 id="fullName"
+        class="text-2xl font-bold text-gray-900 tracking-tight">
+        Chargement...
+    </h1>
 
-  <!-- FONCTION -->
-  <p id="userFunction"
-     class="text-sm font-semibold text-primary mt-1">
-  </p>
+    <!-- FONCTION -->
+    <p id="userFunction"
+       class="text-sm font-semibold text-primary mt-1">
+    </p>
 
-  <!-- USERNAME -->
-  <p id="username"
-     class="text-sm text-gray-400 mt-1">
-  </p>
+    <!-- USERNAME -->
+    <p id="username"
+       class="text-sm text-gray-400 mt-1">
+    </p>
 
-  <!-- BADGES -->
-  <div class="flex items-center gap-2 mt-4">
+    <!-- BADGES -->
+    <div class="flex items-center gap-2 mt-4">
 
-    <span id="roleBadge"
-      class="px-3 py-1 text-[11px] rounded-full 
-             bg-black/5 text-gray-700 font-medium backdrop-blur-sm">
-    </span>
+      <span id="roleBadge"
+        class="px-3 py-1 text-[11px] rounded-full 
+               bg-black/5 text-gray-700 font-medium">
+      </span>
 
-    <span id="choraleBadge"
-      class="px-3 py-1 text-[11px] rounded-full 
-             bg-primary/10 text-primary font-medium">
-    </span>
+      <span id="choraleBadge"
+        class="px-3 py-1 text-[11px] rounded-full 
+               bg-primary/10 text-primary font-medium">
+      </span>
 
-  </div>
-
-  <!-- STATS -->
-  <div class="flex items-center gap-6 mt-6 text-sm">
-
-    <div>
-      <span id="friendsCount" class="font-semibold text-gray-900">0</span>
-      <span class="text-gray-400">amis</span>
     </div>
 
-    <div>
-      <span id="postsCount" class="font-semibold text-gray-900">0</span>
-      <span class="text-gray-400">posts</span>
+    <!-- STATS -->
+    <div class="flex items-center gap-6 mt-6 text-sm">
+
+      <div>
+        <span id="friendsCount" class="font-semibold text-gray-900">0</span>
+        <span class="text-gray-400">amis</span>
+      </div>
+
+      <div>
+        <span id="postsCount" class="font-semibold text-gray-900">0</span>
+        <span class="text-gray-400">posts</span>
+      </div>
+
     </div>
 
   </div>
