@@ -5,18 +5,29 @@ export function initSidebar() {
 
   const user = JSON.parse(storedUser);
 
-  if (user.role !== "admin" && user.role !== "super_admin") {
-    return;
-  }
-
   const sidebar = document.getElementById("adminSidebar");
   const overlay = document.getElementById("sidebarOverlay");
   const menuBtn = document.getElementById("menuBtn");
 
-  // Afficher bouton menu si admin
-  if (menuBtn) {
+  // ✅ Afficher le bouton seulement si admin ou super_admin
+  if (user.role === "admin" || user.role === "super_admin") {
+
     menuBtn.classList.remove("hidden");
+
+    // Ouvrir
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.remove("-translate-x-full");
+      overlay.classList.remove("hidden");
+    });
+
+    // Fermer
+    overlay.addEventListener("click", () => {
+      sidebar.classList.add("-translate-x-full");
+      overlay.classList.add("hidden");
+    });
+
   }
+}
 
   // Ouvrir
   menuBtn.addEventListener("click", () => {
