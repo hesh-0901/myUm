@@ -1,4 +1,4 @@
-// partials/js/header.js
+/// partials/js/header.js
 
 import { db } from "../../mains.js/firebase-config.js";
 import { collection, query, where, getDocs }
