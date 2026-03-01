@@ -1,3 +1,7 @@
+// ===============================
+// INFORMATIONS MODULE - MYUM
+// ===============================
+
 import { db } from "/myUm/mains.js/firebase-config.js";
 import {
   doc,
@@ -8,47 +12,75 @@ import {
 let currentUserId = null;
 let currentUserData = null;
 
+// ===============================
+// INIT MODULE
+// ===============================
 export async function initInformations() {
 
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) return;
 
   const sessionUser = JSON.parse(storedUser);
+
+  if (!sessionUser.id) {
+    console.error("User ID manquant");
+    return;
+  }
+
   currentUserId = sessionUser.id;
 
   await loadInformations();
   initEditableFields();
 }
 
-// =====================
-// LOAD DATA
-// =====================
+
+// ===============================
+// LOAD USER DATA
+// ===============================
 async function loadInformations() {
 
-  const userRef = doc(db, "users", currentUserId);
-  const snap = await getDoc(userRef);
+  try {
 
-  if (!snap.exists()) return;
+    const userRef = doc(db, "users", currentUserId);
+    const snap = await getDoc(userRef);
 
-  currentUserData = snap.data();
+    if (!snap.exists()) {
+      console.error("Utilisateur introuvable");
+      return;
+    }
 
-  setField("bio", currentUserData.bio);
-  setField("phone", currentUserData.phone);
-  setField("birthday", currentUserData.birthday);
-  setField("age", currentUserData.age);
-  setField("fonction", currentUserData.fonction);
-}
+    currentUserData = snap.data();
 
-function setField(field, value) {
-  const el = document.getElementById("info-" + field);
-  if (el) {
-    el.innerText = value || "—";
+    setField("bio", currentUserData.bio);
+    setField("phone", currentUserData.phone);
+    setField("birthday", currentUserData.birthday);
+    setField("age", currentUserData.age);
+    setField("fonction", currentUserData.fonction);
+
+  } catch (error) {
+    console.error("Erreur chargement informations :", error);
   }
+
 }
 
-// =====================
-// EDIT BIO + PHONE
-// =====================
+
+// ===============================
+// SET FIELD VALUE
+// ===============================
+function setField(field, value) {
+
+  const el = document.getElementById("info-" + field);
+
+  if (!el) return;
+
+  el.innerText = value || "—";
+
+}
+
+
+// ===============================
+// EDITABLE FIELDS (BIO + PHONE)
+// ===============================
 function initEditableFields() {
 
   document.querySelectorAll(".edit-btn").forEach(btn => {
@@ -56,40 +88,61 @@ function initEditableFields() {
     btn.addEventListener("click", async () => {
 
       const field = btn.dataset.field;
-      const el = document.getElementById("info-" + field);
+      const valueEl = document.getElementById("info-" + field);
 
-      const currentValue = el.innerText === "—" ? "" : el.innerText;
+      if (!valueEl) return;
 
+      // Empêche double édition
+      if (valueEl.tagName === "INPUT") return;
+
+      const currentValue =
+        valueEl.innerText === "—" ? "" : valueEl.innerText;
+
+      // Création input
       const input = document.createElement("input");
       input.type = "text";
       input.value = currentValue;
       input.className =
         "w-full mt-1 p-2 text-sm border rounded-lg focus:outline-none focus:border-primary";
 
-      el.replaceWith(input);
+      valueEl.replaceWith(input);
       input.id = "info-" + field;
 
-      btn.innerHTML = '<i class="bi bi-check-lg text-primary"></i>';
+      // Changer icône en check
+      btn.innerHTML =
+        '<i class="bi bi-check-lg text-primary"></i>';
 
-      btn.onclick = async () => {
+      // Sauvegarde au second clic
+      btn.addEventListener("click", async function saveHandler() {
 
         const newValue = input.value.trim();
 
-        await updateDoc(doc(db, "users", currentUserId), {
-          [field]: newValue
-        });
+        try {
 
-        const newText = document.createElement("p");
-        newText.id = "info-" + field;
-        newText.className = "text-sm mt-1";
-        newText.innerText = newValue || "—";
+          await updateDoc(doc(db, "users", currentUserId), {
+            [field]: newValue
+          });
 
-        input.replaceWith(newText);
+          // Remettre texte
+          const newText = document.createElement("p");
+          newText.id = "info-" + field;
+          newText.className = "text-sm mt-1";
+          newText.innerText = newValue || "—";
 
-        btn.innerHTML = '<i class="bi bi-pencil"></i>';
+          input.replaceWith(newText);
 
-        initEditableFields();
-      };
+          // Restaurer icône pencil
+          btn.innerHTML =
+            '<i class="bi bi-pencil"></i>';
+
+          // Supprimer listener save pour éviter duplication
+          btn.removeEventListener("click", saveHandler);
+
+        } catch (error) {
+          console.error("Erreur mise à jour :", error);
+        }
+
+      }, { once: true });
 
     });
 
