@@ -37,42 +37,30 @@ tailwind.config = {
 <div id="sidebar-container"></div>
 
 
-<div class="max-w-md mx-auto bg-white min-h-screen">
+<div class="max-w-md mx-auto bg-white">
 
-  <!-- ========================= -->
   <!-- COVER -->
-  <!-- ========================= -->
-  <div class="relative h-44 overflow-hidden">
+  <div class="relative h-44">
 
     <img src="/myUm/assets/cover.jpg"
          class="w-full h-full object-cover">
 
-    <!-- Gradient overlay premium -->
     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 
-  </div>
+    <!-- AVATAR -->
+    <div class="absolute -bottom-16 left-6">
 
+      <div class="relative w-28 h-28">
 
-  <!-- ========================= -->
-  <!-- AVATAR FLOAT -->
-  <!-- ========================= -->
-  <div class="relative px-6">
-
-    <div class="absolute -top-16">
-
-      <div class="relative w-32 h-32">
-
-        <!-- PHOTO -->
         <img id="profilePhoto"
              src=""
-             class="w-32 h-32 rounded-full border-4 border-white 
+             class="w-28 h-28 rounded-full border-4 border-white 
                     object-cover shadow-2xl bg-white">
 
-        <!-- UPLOAD BUTTON -->
         <label for="photoInput"
-          class="absolute bottom-2 right-2 w-9 h-9 
-                 bg-primary text-white 
-                 rounded-full flex items-center justify-center 
+          class="absolute bottom-1 right-1 w-9 h-9 
+                 bg-primary text-white rounded-full 
+                 flex items-center justify-center 
                  shadow-lg cursor-pointer 
                  hover:scale-105 active:scale-95 transition">
 
@@ -91,28 +79,21 @@ tailwind.config = {
   </div>
 
 
-  <!-- ========================= -->
-  <!-- USER INFO -->
-  <!-- ========================= -->
-  <div class="mt-20 px-6 pb-6">
+  <!-- INFOS -->
+  <div class="pt-20 px-6 pb-6">
 
-    <!-- NOM -->
     <h1 id="fullName"
         class="text-2xl font-bold text-gray-900 tracking-tight">
-        Chargement...
     </h1>
 
-    <!-- FONCTION -->
     <p id="userFunction"
        class="text-sm font-semibold text-primary mt-1">
     </p>
 
-    <!-- USERNAME -->
     <p id="username"
        class="text-sm text-gray-400 mt-1">
     </p>
 
-    <!-- BADGES -->
     <div class="flex items-center gap-2 mt-4">
 
       <span id="roleBadge"
@@ -127,7 +108,6 @@ tailwind.config = {
 
     </div>
 
-    <!-- STATS -->
     <div class="flex items-center gap-6 mt-6 text-sm">
 
       <div>
