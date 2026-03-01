@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil - MyUm</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1A3668',
+        medium: '#2596D9',
+        lightblue: '#3FA9F5',
+        danger: '#DC2626'
+      },
+      fontFamily: {
+        display: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+
+</head>
+
+<body class="bg-gray-100 font-display text-gray-800 pb-24">
+
+<!-- HEADER -->
+<div id="header-container"></div>
+
+<!-- SIDEBAR -->
+<div id="sidebar-container"></div>
+
+<!-- PROFILE -->
+
+<div class="max-w-md mx-auto">
+
+  <!-- COVER -->
+  <div class="relative h-40 bg-gray-300 overflow-hidden">
+    <img src="../assets/cover.jpg"
+         class="w-full h-full object-cover">
+
+    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+  </div>
+
+  <!-- PROFILE PHOTO -->
+  <div class="relative px-4">
+
+    <div class="absolute -top-14 left-4">
+
+      <div class="relative w-28 h-28">
+
+        <img id="profilePhoto"
+             src=""
+             class="w-28 h-28 rounded-full border-4 border-white object-cover shadow-xl bg-white">
+
+        <!-- Upload button -->
+        <label for="photoInput"
+          class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white 
+                 rounded-full flex items-center justify-center 
+                 shadow-md cursor-pointer active:scale-95 transition">
+
+          <i class="bi bi-camera text-sm"></i>
+        </label>
+
+        <input type="file"
+               id="photoInput"
+               accept="image/*"
+               class="hidden">
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- USER INFO -->
+  <div class="mt-16 px-4">
+
+    <h1 id="fullName"
+        class="text-lg font-bold text-gray-900">
+        Chargement...
+    </h1>
+
+    <p id="username"
+       class="text-sm text-gray-500">
+    </p>
+
+    <div class="flex items-center gap-2 mt-2">
+
+      <span id="roleBadge"
+            class="px-3 py-1 text-xs rounded-full font-medium">
+      </span>
+
+      <span id="choraleBadge"
+            class="px-3 py-1 text-xs rounded-full bg-primary/10 text-primary">
+      </span>
+
+    </div>
+
+  </div>
+
+  <!-- MODULE INFORMATIONS -->
+  <div id="informations-container" class="mt-6 px-4"></div>
+
+  <!-- MODULE AMIS -->
+  <div id="amis-container" class="mt-6 px-4"></div>
+
+  <!-- SECURITY -->
+  <div class="mt-6 px-4">
+
+    <div class="bg-white rounded-3xl shadow-md p-5 space-y-4">
+
+      <h2 class="font-semibold text-sm">Sécurité</h2>
+
+      <button id="changePasswordBtn"
+        class="w-full flex items-center justify-between p-3 
+               rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+
+        <span class="text-sm">Changer mot de passe</span>
+        <i class="bi bi-chevron-right text-gray-400"></i>
+      </button>
+
+      <button id="logoutBtn"
+        class="w-full flex items-center justify-between p-3 
+               rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+
+        <span class="text-sm">Déconnexion</span>
+        <i class="bi bi-box-arrow-right text-gray-400"></i>
+      </button>
+
+      <button id="deleteAccountBtn"
+        class="w-full flex items-center justify-between p-3 
+               rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition">
+
+        <span class="text-sm font-medium">Supprimer le compte</span>
+        <i class="bi bi-trash text-danger"></i>
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+
+<!-- SCRIPT -->
+
+<script type="module">
+
+import { checkAuth } from "../mains.js/auth-guard.js";
+import { initHeader } from "../partials/js/header.js";
+import { initSidebar } from "../partials/js/sidebar.js";
+
+checkAuth();
+
+async function initProfile() {
+
+  // HEADER
+  const header = await fetch("../partials/header.html");
+  document.getElementById("header-container").innerHTML = await header.text();
+  await initHeader();
+
+  // SIDEBAR
+  const sidebar = await fetch("../partials/sidebar.html");
+  document.getElementById("sidebar-container").innerHTML = await sidebar.text();
+  initSidebar();
+
+  // NAVBAR
+  const nav = await fetch("../partials/nav.html");
+  document.getElementById("navbar-container").innerHTML = await nav.text();
+
+  // MODULES
+  const infos = await fetch("../partials/informations.html");
+  document.getElementById("informations-container").innerHTML = await infos.text();
+
+  const amis = await fetch("../partials/amis.html");
+  document.getElementById("amis-container").innerHTML = await amis.text();
+
+}
+
+initProfile();
+
+</script>
+
+</body>
+</html>
