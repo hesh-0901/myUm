@@ -1,0 +1,128 @@
+<!-- OVERLAY -->
+<div id="sidebarOverlay"
+     class="fixed inset-0 bg-black/40 hidden z-40"></div>
+
+<!-- SIDEBAR -->
+<aside id="adminSidebar"
+       class="fixed top-0 left-0 h-full w-72 bg-white shadow-xl
+              transform -translate-x-full transition-transform duration-300
+              z-50 flex flex-col">
+
+  <!-- HEADER -->
+  <div class="p-6 border-b border-gray-100">
+    <h2 class="font-semibold text-lg text-gray-800">Administration</h2>
+    <p class="text-xs text-gray-500">Centre de gestion</p>
+  </div>
+
+  <!-- NAV -->
+  <nav class="flex-1 overflow-y-auto p-4 space-y-6 text-sm">
+
+    <!-- VUE GENERALE -->
+    <div>
+      <p class="text-xs uppercase text-gray-400 mb-2">Vue générale</p>
+
+      <button class="sidebar-link" data-link="admin-dashboard.html">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard Admin
+      </button>
+
+      <button class="sidebar-link" data-link="statistics.html">
+        <i class="bi bi-bar-chart-line"></i>
+        Statistiques
+      </button>
+    </div>
+
+    <!-- GESTION -->
+    <div>
+      <p class="text-xs uppercase text-gray-400 mb-2">Gestion</p>
+
+      <button class="sidebar-link" data-link="users-management.html">
+        <i class="bi bi-people"></i>
+        Utilisateurs
+      </button>
+
+      <button class="sidebar-link" data-link="presence-management.html">
+        <i class="bi bi-clipboard-check"></i>
+        Présences
+      </button>
+
+      <button class="sidebar-link" data-link="events-management.html">
+        <i class="bi bi-calendar-event"></i>
+        Événements
+      </button>
+
+      <button class="sidebar-link" data-link="recordings-management.html">
+        <i class="bi bi-music-note-beamed"></i>
+        Enregistrements
+      </button>
+
+      <button class="sidebar-link" data-link="announcements-management.html">
+        <i class="bi bi-megaphone"></i>
+        Annonces
+      </button>
+    </div>
+
+    <!-- COMMUNICATION -->
+    <div>
+      <p class="text-xs uppercase text-gray-400 mb-2">Communication</p>
+
+      <button class="sidebar-link" data-link="moderation.html">
+        <i class="bi bi-shield-check"></i>
+        Modération Posts
+      </button>
+
+      <button class="sidebar-link" data-link="admin-messaging.html">
+        <i class="bi bi-chat-left-dots"></i>
+        Messagerie Admin
+      </button>
+    </div>
+
+    <!-- SUPER ADMIN -->
+    <div id="superAdminSection" class="hidden">
+      <p class="text-xs uppercase text-gray-400 mb-2">Système</p>
+
+      <button class="sidebar-link" data-link="roles-management.html">
+        <i class="bi bi-person-gear"></i>
+        Gestion des rôles
+      </button>
+
+      <button class="sidebar-link" data-link="system-settings.html">
+        <i class="bi bi-gear"></i>
+        Paramètres généraux
+      </button>
+
+      <button class="sidebar-link" data-link="activity-logs.html">
+        <i class="bi bi-file-earmark-text"></i>
+        Logs d’activité
+      </button>
+
+      <button class="sidebar-link" data-link="security-config.html">
+        <i class="bi bi-lock"></i>
+        Configuration sécurité
+      </button>
+    </div>
+
+  </nav>
+
+</aside>
+
+<style>
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link i {
+  font-size: 16px;
+}
+
+.sidebar-link:hover {
+  background-color: #F3F4F6;
+}
+</style>
