@@ -268,7 +268,7 @@ function createCheckboxGroup(key, currentValue) {
   wrapper.className = "value mt-2 space-y-2 text-sm";
 
   const options = [
-    "Élève", "Étudiant(e)", "Libéral(e)", "Femme au foyer"
+    "Élève", "Étudiant(e)", "Libéral(e)", "Femme au foyer", "Travailleur(se)"
   ];
 
   let selected = currentValue
