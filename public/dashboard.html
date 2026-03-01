@@ -27,6 +27,7 @@ tailwind.config = {
   }
 }
 </script>
+
 </head>
 
 <body class="bg-gray-100 font-display text-gray-800 pb-24 pt-20">
@@ -34,12 +35,13 @@ tailwind.config = {
 <!-- HEADER -->
 <div id="header-container"></div>
 
-<!-- SIDEBAR (AJOUT IMPORTANT) -->
+<!-- SIDEBAR -->
 <div id="sidebar-container"></div>
 
 <!-- ========================= -->
-<!-- 🔥 TON CONTENU DASHBOARD -->
+<!-- 🔥 COLLE TON CONTENU DASHBOARD ICI -->
 <!-- ========================= -->
+  <!-- CONTENU DASHBOARD -->
 <div class="px-4 py-6 space-y-6 max-w-md mx-auto">
   <!-- 1️⃣ Taux de participation -->
   <div class="bg-white rounded-3xl shadow-md p-5">
@@ -164,14 +166,12 @@ tailwind.config = {
   </div>
 </div>
 
-</div>
-
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
 
 <!-- ========================= -->
-<!-- 🔥 SCRIPT PROPRE GLOBAL -->
+<!-- 🔥 SCRIPT GLOBAL -->
 <!-- ========================= -->
 
 <script type="module">
@@ -180,27 +180,33 @@ import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
-// 🔐 Sécurité
+// 🔐 Vérification session
 checkAuth();
 
-// Chargement propre et ordonné
+// Initialisation complète propre
 async function initApp() {
 
-  // HEADER
-  const header = await fetch("../partials/header.html");
-  document.getElementById("header-container").innerHTML = await header.text();
-  await initHeader();
+  try {
 
-  // SIDEBAR
-  const sidebar = await fetch("../partials/sidebar.html");
-  document.getElementById("sidebar-container").innerHTML = await sidebar.text();
-  initSidebar();
+    // HEADER
+    const header = await fetch("../partials/header.html");
+    document.getElementById("header-container").innerHTML = await header.text();
+    await initHeader();
 
-  // NAVBAR
-  const nav = await fetch("../partials/nav.html");
-  document.getElementById("navbar-container").innerHTML = await nav.text();
+    // SIDEBAR
+    const sidebar = await fetch("../partials/sidebar.html");
+    document.getElementById("sidebar-container").innerHTML = await sidebar.text();
+    initSidebar();
 
-  initDashboard();
+    // NAVBAR
+    const nav = await fetch("../partials/nav.html");
+    document.getElementById("navbar-container").innerHTML = await nav.text();
+
+    initDashboard();
+
+  } catch (error) {
+    console.error("Erreur chargement dashboard :", error);
+  }
 }
 
 initApp();
@@ -211,40 +217,58 @@ initApp();
 // =========================
 function initDashboard() {
 
-  const participation = 75;
+  const participationCanvas = document.getElementById('participationChart');
 
-  const ctx = document.getElementById('participationChart').getContext('2d');
+  if (participationCanvas) {
 
-  document.getElementById("percentageLabel").innerText = participation + "%";
+    const participation = 75;
 
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      datasets: [{
-        data: [participation, 100 - participation],
-        backgroundColor: [
-          participation >= 80 ? '#16A34A' :
-          participation >= 60 ? '#F59E0B' : '#DC2626',
-          '#E5E7EB'
-        ],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      cutout: '70%',
-      plugins: {
-        tooltip: { enabled: false },
-        legend: { display: false }
+    const ctx = participationCanvas.getContext('2d');
+
+    const percentageLabel = document.getElementById("percentageLabel");
+    if (percentageLabel) {
+      percentageLabel.innerText = participation + "%";
+    }
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [participation, 100 - participation],
+          backgroundColor: [
+            participation >= 80 ? '#16A34A' :
+            participation >= 60 ? '#F59E0B' : '#DC2626',
+            '#E5E7EB'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: '70%',
+        plugins: {
+          tooltip: { enabled: false },
+          legend: { display: false }
+        }
       }
+    });
+  }
+
+  // Actions rapides (si présents)
+  const routes = {
+    btnMessage: "messagerie.html",
+    btnAgenda: "agenda.html",
+    btnPublication: "publication.html",
+    btnPresenceRoom: "presence-room.html",
+    btnJustification: "justification.html"
+  };
+
+  Object.keys(routes).forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.onclick = () => window.location.href = routes[id];
     }
   });
 
-  // Actions rapides
-  document.getElementById("btnMessage").onclick = () => window.location.href = "messagerie.html";
-  document.getElementById("btnAgenda").onclick = () => window.location.href = "agenda.html";
-  document.getElementById("btnPublication").onclick = () => window.location.href = "publication.html";
-  document.getElementById("btnPresenceRoom").onclick = () => window.location.href = "presence-room.html";
-  document.getElementById("btnJustification").onclick = () => window.location.href = "justification.html";
 }
 
 </script>
