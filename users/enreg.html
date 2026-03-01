@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enregistrement - MyUm</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1A3668',
+        medium: '#2596D9',
+        lightblue: '#3FA9F5',
+        danger: '#DC2626'
+      },
+      fontFamily: {
+        display: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+</head>
+
+<body class="bg-gray-100 font-display text-gray-800 pb-24">
+
+<!-- HEADER -->
+<div id="header-container"></div>
+
+<!-- SIDEBAR -->
+<div id="sidebar-container"></div>
+
+<div class="max-w-md mx-auto px-4 py-6 space-y-6">
+
+<!-- =============================== -->
+<!-- PROFIL RESUME -->
+<!-- =============================== -->
+
+<div class="bg-white rounded-3xl shadow-md p-5">
+
+  <div class="flex items-center gap-4">
+
+    <img id="profilePhoto"
+         class="w-16 h-16 rounded-full object-cover bg-gray-200">
+
+    <div>
+      <h1 id="fullName" class="font-bold text-lg"></h1>
+      <p id="username" class="text-sm text-gray-400"></p>
+      <p id="userFunction" class="text-xs text-primary font-medium"></p>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- =============================== -->
+<!-- INFORMATIONS PERSONNELLES -->
+<!-- =============================== -->
+
+<div class="bg-white rounded-3xl shadow-md p-5 space-y-5">
+
+<h2 class="font-semibold text-sm">Informations personnelles</h2>
+
+<!-- Genre -->
+<div class="field" data-field="genre" data-type="radio" data-required="true">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-xs text-gray-500">Genre <span class="text-danger">*</span></p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Etat Civil -->
+<div class="field" data-field="etatCivil" data-type="radio" data-required="true">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-xs text-gray-500">État civil <span class="text-danger">*</span></p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Statut Relationnel -->
+<div class="field hidden" id="statutRelationnelWrapper"
+     data-field="statutRelationnel" data-type="select">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-xs text-gray-500">Statut relationnel</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Vie Seculiere -->
+<div class="field" data-field="vieSeculiere" data-type="checkbox">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-xs text-gray-500">Vie séculière (max 2)</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Commune -->
+<div class="field" data-field="commune" data-type="select" data-required="true">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-xs text-gray-500">Commune <span class="text-danger">*</span></p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Avenue -->
+<div class="field" data-field="avenue" data-type="text">
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-xs text-gray-500">Avenue / Référence</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+</div>
+
+<!-- =============================== -->
+<!-- INFORMATIONS ECCLESIASTIQUES -->
+<!-- =============================== -->
+
+<div class="bg-white rounded-3xl shadow-md p-5 space-y-5">
+
+<h2 class="font-semibold text-sm">Informations ecclésiastiques</h2>
+
+<div class="field" data-field="egliseProvenance" data-type="text">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Église de provenance</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="field" data-field="anneeBapteme" data-type="year">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Année de baptême</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="field" data-field="typeBapteme" data-type="radio">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Type de baptême</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="field" data-field="statutAffermissement" data-type="select">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Statut d'affermissement</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="field" data-field="ancienneFonction" data-type="text">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Fonction ancienne église</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="field" data-field="responsableMinistere" data-type="radio">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Responsable d’un ministère ?</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+</div>
+
+<!-- =============================== -->
+<!-- COMPETENCES MUSICALES -->
+<!-- =============================== -->
+
+<div class="bg-white rounded-3xl shadow-md p-5 space-y-5">
+
+<h2 class="font-semibold text-sm">Compétences musicales</h2>
+
+<div class="field" data-field="registreVoix" data-type="select">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Registre de voix</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="field" data-field="groupeMusique" data-type="radio">
+  <div class="flex justify-between">
+    <div>
+      <p class="text-xs text-gray-500">Évolue dans un groupe ?</p>
+      <p class="value text-sm mt-1">—</p>
+    </div>
+    <button class="edit-btn text-gray-400 hover:text-primary">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+</div>
+
+</div>
+
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+<script type="module" src="/myUm/users/js/enreg.js"></script>
+
+</body>
+</html>
