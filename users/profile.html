@@ -206,26 +206,25 @@ checkAuth();
 async function initProfile() {
 
   // HEADER
-  const header = await fetch("../partials/header.html");
+  const header = await fetch("/myUm/partials/header.html");
   document.getElementById("header-container").innerHTML = await header.text();
   await initHeader();
 
   // SIDEBAR
-  const sidebar = await fetch("../partials/sidebar.html");
+  const sidebar = await fetch("/myUm/partials/sidebar.html");
   document.getElementById("sidebar-container").innerHTML = await sidebar.text();
   initSidebar();
 
   // NAVBAR
-  const nav = await fetch("../partials/nav.html");
+  const nav = await fetch("/myUm/partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
 
   // MODULES
-  const infos = await fetch("../partials/informations.html");
+  const infos = await fetch("/myUm/partials/informations.html");
   document.getElementById("informations-container").innerHTML = await infos.text();
 
-  const amis = await fetch("../partials/amis.html");
+  const amis = await fetch("/myUm/partials/amis.html");
   document.getElementById("amis-container").innerHTML = await amis.text();
-
 }
 
 initProfile();
