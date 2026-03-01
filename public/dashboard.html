@@ -208,26 +208,29 @@ tailwind.config = {
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
-  
+  <script type="module">
 
-<script type="module">
-  import { checkAuth } from "../mains.js/auth-guard.js";
-
-const currentUser = checkAuth();
-
-// ===== LOAD HEADER + NAV =====
+import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
+import { initSidebar } from "../partials/js/sidebar.js";
 
+// 🔐 Vérification session
+checkAuth();
+
+// ===== LOAD HEADER + SIDEBAR + NAV =====
 async function loadPartials() {
 
-  // Charger header
+  // HEADER
   const header = await fetch("../partials/header.html");
   document.getElementById("header-container").innerHTML = await header.text();
-
-  // Initialiser header APRÈS injection
   await initHeader();
 
-  // Charger nav
+  // SIDEBAR
+  const sidebar = await fetch("../partials/sidebar.html");
+  document.getElementById("sidebar-container").innerHTML = await sidebar.text();
+  initSidebar();
+
+  // NAVBAR
   const nav = await fetch("../partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
 }
@@ -236,7 +239,7 @@ loadPartials();
 
 
 // ===== DONUT PARTICIPATION =====
-const participation = 75; // dynamique plus tard
+const participation = 75;
 
 const ctx = document.getElementById('participationChart').getContext('2d');
 
