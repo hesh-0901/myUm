@@ -44,29 +44,51 @@ async function loadUserProfile() {
   currentUserData = snap.data();
 
   // Header
-  document.getElementById("fullName").innerText =
-    currentUserData.firstName + " " + currentUserData.lastName;
+// ===============================
+// HEADER PROFIL
+// ===============================
 
-  document.getElementById("username").innerText =
-    "@" + currentUserData.username;
+// Nom complet
+document.getElementById("fullName").innerText =
+  `${currentUserData.firstName} ${currentUserData.lastName}`;
 
-  document.getElementById("choraleBadge").innerText =
-    currentUserData.chorale;
+// Fonction (poste)
+const functionEl = document.getElementById("userFunction");
+if (functionEl) {
+  functionEl.innerText = currentUserData.fonction || "";
+}
 
-  const roleBadge = document.getElementById("roleBadge");
-  roleBadge.innerText = currentUserData.role;
+// Username
+document.getElementById("username").innerText =
+  `@${currentUserData.username}`;
 
-  // Role style
-  if (currentUserData.role === "super_admin") {
+// Chorale badge
+const choraleBadge = document.getElementById("choraleBadge");
+choraleBadge.innerText = currentUserData.chorale || "";
+choraleBadge.className =
+  "px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-medium";
+
+// Role badge
+const roleBadge = document.getElementById("roleBadge");
+roleBadge.innerText = currentUserData.role || "";
+
+// 🎨 Style dynamique du rôle
+switch (currentUserData.role) {
+
+  case "super_admin":
     roleBadge.className =
-      "px-3 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-medium";
-  } else if (currentUserData.role === "admin") {
+      "px-3 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-semibold";
+    break;
+
+  case "admin":
     roleBadge.className =
-      "px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-medium";
-  } else {
+      "px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-semibold";
+    break;
+
+  default:
     roleBadge.className =
       "px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 font-medium";
-  }
+}
 
   // Photo
   const profilePhoto = document.getElementById("profilePhoto");
