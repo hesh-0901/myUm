@@ -1,0 +1,70 @@
+<div class="bg-white rounded-3xl shadow-md p-5">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-semibold text-sm">Amis</h2>
+    <span id="friendsCount"
+          class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+      0
+    </span>
+  </div>
+
+  <!-- TABS -->
+  <div class="flex mb-4 bg-gray-100 rounded-xl p-1 text-xs font-medium">
+    <button class="flex-1 py-2 rounded-lg bg-white shadow-sm tab-btn"
+            data-tab="friendsTab">
+      Amis
+    </button>
+    <button class="flex-1 py-2 rounded-lg tab-btn"
+            data-tab="requestsTab">
+      Demandes
+    </button>
+    <button class="flex-1 py-2 rounded-lg tab-btn"
+            data-tab="discoverTab">
+      Découvrir
+    </button>
+  </div>
+
+  <!-- ===================== -->
+  <!-- AMIS -->
+  <!-- ===================== -->
+  <div id="friendsTab" class="space-y-4">
+
+    <div id="friendsList" class="space-y-3">
+      <!-- Amis injectés dynamiquement -->
+    </div>
+
+  </div>
+
+  <!-- ===================== -->
+  <!-- DEMANDES -->
+  <!-- ===================== -->
+  <div id="requestsTab" class="hidden space-y-4">
+
+    <div id="requestsList" class="space-y-3">
+      <!-- Demandes injectées dynamiquement -->
+    </div>
+
+  </div>
+
+  <!-- ===================== -->
+  <!-- DECOUVRIR -->
+  <!-- ===================== -->
+  <div id="discoverTab" class="hidden space-y-4">
+
+    <!-- Recherche -->
+    <div class="relative">
+      <i class="bi bi-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+      <input type="text"
+             id="searchUserInput"
+             placeholder="Rechercher un utilisateur"
+             class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+    </div>
+
+    <div id="discoverList" class="space-y-3">
+      <!-- Suggestions dynamiques -->
+    </div>
+
+  </div>
+
+</div>
