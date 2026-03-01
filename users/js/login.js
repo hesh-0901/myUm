@@ -52,7 +52,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 username: userData.username,
                 firstName: userData.firstName,
                 lastName: userData.lastName,
-                chorale: userData.chorale
+                chorale: userData.chorale,
+                role: userData.role
             }));
 
             alert("Connexion réussie !");
