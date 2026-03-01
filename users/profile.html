@@ -176,7 +176,7 @@ tailwind.config = {
 <!-- SCRIPT -->
 <script type="module" src="/myUm/users/js/profile.js"></script>
 <script type="module">
-
+import { initInformations } from "../partials/js/informations.js";
 import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
@@ -206,6 +206,7 @@ async function initProfile() {
   const amis = await fetch("/myUm/partials/amis.html");
   document.getElementById("amis-container").innerHTML = await amis.text();
 }
+  await initInformations();
 
 initProfile();
 
