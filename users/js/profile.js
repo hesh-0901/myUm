@@ -89,6 +89,12 @@ switch (currentUserData.role) {
     roleBadge.className =
       "px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 font-medium";
 }
+  // freindaccount
+  document.getElementById("friendsCount").innerText =
+  currentUserData.friendsCount || 0;
+
+document.getElementById("postsCount").innerText =
+  currentUserData.postsCount || 0;
 
   // Photo
   const profilePhoto = document.getElementById("profilePhoto");
