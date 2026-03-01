@@ -4,66 +4,63 @@ import { db } from "../../mains.js/firebase-config.js";
 import {
   doc,
   getDoc,
-  collection,
-  getDocs,
-  query,
-  where
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ===============================
-// INIT PROFILE
-// ===============================
+let currentUserId = null;
+let currentUserData = null;
 
+// ===============================
+// INIT
+// ===============================
 document.addEventListener("DOMContentLoaded", async () => {
 
   const storedUser = localStorage.getItem("myum_user");
+
   if (!storedUser) {
-    window.location.href = "../users/login.html";
+    window.location.href = "/myUm/users/login.html";
     return;
   }
 
   const sessionUser = JSON.parse(storedUser);
+  currentUserId = sessionUser.id;
 
-  await loadUserProfile(sessionUser.id);
-  initTabs();
+  await loadUserProfile();
+  initEditButtons();
   initLogout();
 
 });
 
 // ===============================
-// LOAD USER PROFILE
+// LOAD USER DATA
 // ===============================
+async function loadUserProfile() {
 
-async function loadUserProfile(userId) {
+  const userRef = doc(db, "users", currentUserId);
+  const snap = await getDoc(userRef);
 
-  const userRef = doc(db, "users", userId);
-  const userSnap = await getDoc(userRef);
+  if (!snap.exists()) return;
 
-  if (!userSnap.exists()) return;
+  currentUserData = snap.data();
 
-  const user = userSnap.data();
-
-  // Full name
+  // Header
   document.getElementById("fullName").innerText =
-    `${user.firstName} ${user.lastName}`;
+    currentUserData.firstName + " " + currentUserData.lastName;
 
-  // Username
   document.getElementById("username").innerText =
-    `@${user.username}`;
+    "@" + currentUserData.username;
 
-  // Chorale badge
   document.getElementById("choraleBadge").innerText =
-    user.chorale;
+    currentUserData.chorale;
 
-  // Role badge
   const roleBadge = document.getElementById("roleBadge");
+  roleBadge.innerText = currentUserData.role;
 
-  roleBadge.innerText = user.role;
-
-  if (user.role === "super_admin") {
+  // Role style
+  if (currentUserData.role === "super_admin") {
     roleBadge.className =
       "px-3 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-medium";
-  } else if (user.role === "admin") {
+  } else if (currentUserData.role === "admin") {
     roleBadge.className =
       "px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-medium";
   } else {
@@ -71,118 +68,105 @@ async function loadUserProfile(userId) {
       "px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 font-medium";
   }
 
-  // Profile photo
+  // Photo
   const profilePhoto = document.getElementById("profilePhoto");
 
-  if (user.photoURL) {
-    profilePhoto.src = user.photoURL;
+  if (currentUserData.photoURL) {
+    profilePhoto.src = currentUserData.photoURL;
   } else {
     profilePhoto.src =
       "https://ui-avatars.com/api/?name=" +
-      user.firstName +
+      currentUserData.firstName +
       "+" +
-      user.lastName +
+      currentUserData.lastName +
       "&background=1A3668&color=fff";
   }
 
-  // Friends count
-  document.getElementById("friendsCount").innerText =
-    user.friendsCount || 0;
-
-  // Load friends data
-  await loadFriends(userId);
-  await loadFriendRequests(userId);
-
-}
-
-// ===============================
-// LOAD FRIENDS
-// ===============================
-
-async function loadFriends(userId) {
-
-  const friendsList = document.getElementById("friendsList");
-  friendsList.innerHTML = "";
-
-  const friendsRef = collection(db, "users", userId, "friends");
-  const snapshot = await getDocs(friendsRef);
-
-  for (const docSnap of snapshot.docs) {
-
-    const friendId = docSnap.id;
-    const friendDoc = await getDoc(doc(db, "users", friendId));
-
-    if (!friendDoc.exists()) continue;
-
-    const friend = friendDoc.data();
-
-    friendsList.innerHTML += createFriendItem({
-      id: friendId,
-      ...friend
-    });
-
-  }
+  // Informations module
+  setField("bio", currentUserData.bio);
+  setField("phone", currentUserData.phone);
+  setField("birthday", currentUserData.birthday);
+  setField("age", currentUserData.age);
+  setField("fonction", currentUserData.fonction);
 
 }
 
 // ===============================
-// LOAD FRIEND REQUESTS
+// SET FIELD
 // ===============================
-
-async function loadFriendRequests(userId) {
-
-  const requestsList = document.getElementById("requestsList");
-  requestsList.innerHTML = "";
-
-  const q = query(
-    collection(db, "friendRequests"),
-    where("toUserId", "==", userId),
-    where("status", "==", "pending")
-  );
-
-  const snapshot = await getDocs(q);
-
-  for (const request of snapshot.docs) {
-
-    const data = request.data();
-    const senderDoc = await getDoc(doc(db, "users", data.fromUserId));
-
-    if (!senderDoc.exists()) continue;
-
-    const sender = senderDoc.data();
-
-    requestsList.innerHTML += createRequestItem({
-      requestId: request.id,
-      id: data.fromUserId,
-      ...sender
-    });
-
-  }
-
+function setField(field, value) {
+  const el = document.getElementById("info-" + field);
+  if (!el) return;
+  el.innerText = value || "—";
 }
 
 // ===============================
-// UI TABS
+// EDIT BUTTONS
 // ===============================
+function initEditButtons() {
 
-function initTabs() {
+  document.querySelectorAll(".edit-btn").forEach(btn => {
 
-  const tabs = document.querySelectorAll(".tab-btn");
+    btn.addEventListener("click", async () => {
 
-  tabs.forEach(btn => {
-    btn.addEventListener("click", () => {
+      const field = btn.dataset.field;
+      const valueElement = document.getElementById("info-" + field);
 
-      document.querySelectorAll("#friendsTab, #requestsTab, #discoverTab")
-        .forEach(tab => tab.classList.add("hidden"));
+      const currentValue = valueElement.innerText === "—"
+        ? ""
+        : valueElement.innerText;
 
-      tabs.forEach(t => t.classList.remove("bg-white", "shadow-sm"));
+      // Si déjà en mode input → sauvegarder
+      if (valueElement.tagName === "INPUT" || valueElement.tagName === "TEXTAREA") {
+        return;
+      }
 
-      btn.classList.add("bg-white", "shadow-sm");
+      // Remplacer par input
+      let input;
 
-      document.getElementById(btn.dataset.tab)
-        .classList.remove("hidden");
+      if (field === "bio") {
+        input = document.createElement("textarea");
+        input.className =
+          "w-full mt-1 p-2 text-sm border rounded-lg focus:outline-none focus:border-primary";
+      } else {
+        input = document.createElement("input");
+        input.type = "text";
+        input.className =
+          "w-full mt-1 p-2 text-sm border rounded-lg focus:outline-none focus:border-primary";
+      }
+
+      input.value = currentValue;
+
+      valueElement.replaceWith(input);
+      input.id = "info-" + field;
+
+      // Changer icône
+      btn.innerHTML = '<i class="bi bi-check-lg text-primary"></i>';
+
+      btn.onclick = async () => {
+
+        const newValue = input.value.trim();
+
+        await updateDoc(doc(db, "users", currentUserId), {
+          [field]: newValue
+        });
+
+        currentUserData[field] = newValue;
+
+        const newText = document.createElement("p");
+        newText.id = "info-" + field;
+        newText.className = "text-sm mt-1";
+        newText.innerText = newValue || "—";
+
+        input.replaceWith(newText);
+
+        btn.innerHTML = '<i class="bi bi-pencil"></i>';
+        initEditButtons(); // rebind
+
+      };
 
     });
+
   });
 
 }
@@ -190,7 +174,6 @@ function initTabs() {
 // ===============================
 // LOGOUT
 // ===============================
-
 function initLogout() {
 
   const logoutBtn = document.getElementById("logoutBtn");
@@ -199,61 +182,7 @@ function initLogout() {
 
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("myum_user");
-    window.location.href = "../users/login.html";
+    window.location.href = "/myUm/users/login.html";
   });
 
-}
-
-// ===============================
-// TEMPLATES
-// ===============================
-
-function createFriendItem(user) {
-  return `
-    <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition">
-
-      <div class="flex items-center gap-3">
-        <img src="${user.photoURL || ''}"
-             class="w-12 h-12 rounded-full object-cover bg-gray-200">
-
-        <div>
-          <p class="text-sm font-medium">${user.firstName} ${user.lastName}</p>
-          <p class="text-xs text-gray-500">${user.fonction || ''} • ${user.chorale}</p>
-        </div>
-      </div>
-
-      <button data-id="${user.id}"
-              class="text-xs text-danger font-medium hover:underline">
-        Supprimer
-      </button>
-
-    </div>
-  `;
-}
-
-function createRequestItem(user) {
-  return `
-    <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition">
-
-      <div class="flex items-center gap-3">
-        <img src="${user.photoURL || ''}"
-             class="w-12 h-12 rounded-full object-cover bg-gray-200">
-
-        <div>
-          <p class="text-sm font-medium">${user.firstName} ${user.lastName}</p>
-          <p class="text-xs text-gray-500">${user.fonction || ''}</p>
-        </div>
-      </div>
-
-      <div class="flex gap-2">
-        <button class="px-3 py-1 text-xs bg-primary text-white rounded-lg">
-          Accepter
-        </button>
-        <button class="px-3 py-1 text-xs bg-gray-200 rounded-lg">
-          Refuser
-        </button>
-      </div>
-
-    </div>
-  `;
 }
