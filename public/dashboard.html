@@ -27,7 +27,6 @@ tailwind.config = {
   }
 }
 </script>
-
 </head>
 
 <body class="bg-gray-100 font-display text-gray-800 pb-24 pt-20">
@@ -35,12 +34,18 @@ tailwind.config = {
 <!-- HEADER -->
 <div id="header-container"></div>
 
+<!-- SIDEBAR (AJOUT IMPORTANT) -->
+<div id="sidebar-container"></div>
+
+<!-- ========================= -->
+<!-- 🔥 TON CONTENU DASHBOARD -->
+<!-- ========================= -->
+
 <!-- CONTENU DASHBOARD -->
 <div class="px-4 py-6 space-y-6 max-w-md mx-auto">
 
   <!-- 1️⃣ Taux de participation -->
   <div class="bg-white rounded-3xl shadow-md p-5">
-
     <div class="flex items-center gap-2 mb-4">
       <i class="bi bi-pie-chart-fill text-primary text-lg"></i>
       <h2 class="font-semibold text-sm">Taux de participation</h2>
@@ -52,173 +57,154 @@ tailwind.config = {
            class="absolute text-xl font-bold text-primary">
       </div>
     </div>
-
   </div>
 
+<!-- CONTENU DASHBOARD -->
+<div class="px-4 py-6 space-y-6 max-w-md mx-auto">
+  <!-- 1️⃣ Taux de participation -->
+  <div class="bg-white rounded-3xl shadow-md p-5">
+    <div class="flex items-center gap-2 mb-4">
+      <i class="bi bi-pie-chart-fill text-primary text-lg"></i>
+      <h2 class="font-semibold text-sm">Taux de participation</h2>
+    </div>
+    <div class="flex justify-center relative">
+      <canvas id="participationChart" width="180" height="180"></canvas>
+      <div id="percentageLabel"
+           class="absolute text-xl font-bold text-primary">
+      </div>
+    </div>
+  </div>
   <!-- 2️⃣ Prochains rendez-vous -->
   <div class="bg-white rounded-3xl shadow-md p-5">
-
     <div class="flex items-center gap-2 mb-4">
       <i class="bi bi-calendar-event text-primary text-lg"></i>
       <h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
     </div>
-
     <div class="space-y-3 text-sm">
-
       <div class="border rounded-xl p-3">
         <p class="font-medium">Répétition générale</p>
         <p class="text-gray-500">15 Juin • 18h00</p>
       </div>
-
       <div class="border rounded-xl p-3">
         <p class="font-medium">Concert spécial</p>
         <p class="text-gray-500">28 Juin • 20h00</p>
       </div>
-
     </div>
-
   </div>
-
   <!-- 3️⃣ Annonce -->
   <div class="bg-white rounded-3xl shadow-md p-5">
-
     <div class="flex items-center gap-2 mb-4">
       <i class="bi bi-megaphone-fill text-primary text-lg"></i>
       <h2 class="font-semibold text-sm">Annonce</h2>
     </div>
-
     <p class="text-sm text-gray-600">
       Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
     </p>
-
   </div>
-
   <!-- 4️⃣ Alerte -->
   <div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
-
     <div class="flex items-center gap-2 mb-2">
       <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
       <h2 class="font-semibold text-sm text-danger">Alerte</h2>
     </div>
-
     <p class="text-sm text-gray-600">
       Vous avez 2 absences consécutives.
     </p>
-
   </div>
-
   <!-- 5️⃣ Actions rapides premium -->
   <div class="bg-white rounded-3xl shadow-md p-5">
-
     <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
-
     <div class="grid grid-cols-2 gap-4">
-
       <button id="btnMessage"
         class="flex items-center gap-4 p-4 rounded-2xl 
                bg-gradient-to-br from-medium to-lightblue 
                text-white shadow-lg active:scale-95 transition">
-
         <div class="w-12 h-12 rounded-full bg-white/20 
                     flex items-center justify-center backdrop-blur">
           <i class="bi bi-chat-dots-fill text-lg"></i>
         </div>
-
         <div class="text-left">
           <p class="font-semibold text-sm">Messagerie</p>
           <p class="text-xs text-white/80">Discuter</p>
         </div>
-
       </button>
-
       <button id="btnAgenda"
         class="flex items-center gap-4 p-4 rounded-2xl 
                bg-white shadow-md border border-gray-100
                active:scale-95 transition">
-
         <div class="w-12 h-12 rounded-full bg-primary/10 
                     flex items-center justify-center">
           <i class="bi bi-calendar-week text-primary text-lg"></i>
         </div>
-
         <div class="text-left">
           <p class="font-semibold text-sm text-gray-800">Agenda</p>
           <p class="text-xs text-gray-500">Planning</p>
         </div>
-
       </button>
-
       <button id="btnPublication"
         class="flex items-center gap-4 p-4 rounded-2xl 
                bg-white shadow-md border border-gray-100
                active:scale-95 transition">
-
         <div class="w-12 h-12 rounded-full bg-medium/10 
                     flex items-center justify-center">
           <i class="bi bi-pencil-square text-medium text-lg"></i>
         </div>
-
         <div class="text-left">
           <p class="font-semibold text-sm text-gray-800">Publication</p>
           <p class="text-xs text-gray-500">Créer un post</p>
         </div>
-
       </button>
-
       <button id="btnPresenceRoom"
         class="flex items-center gap-4 p-4 rounded-2xl 
                bg-gradient-to-br from-primary to-medium 
                text-white shadow-lg active:scale-95 transition">
-
         <div class="w-12 h-12 rounded-full bg-white/20 
                     flex items-center justify-center backdrop-blur">
           <i class="bi bi-clipboard-check text-lg"></i>
         </div>
-
         <div class="text-left">
           <p class="font-semibold text-sm">Salon présence</p>
           <p class="text-xs text-white/80">Valider</p>
         </div>
-
       </button>
-
       <button id="btnJustification"
         class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
                bg-white shadow-md border border-gray-100
                active:scale-95 transition">
-
         <div class="w-12 h-12 rounded-full bg-danger/10 
                     flex items-center justify-center">
           <i class="bi bi-file-earmark-text text-danger text-lg"></i>
         </div>
-
         <div class="text-left">
           <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
           <p class="text-xs text-gray-500">Envoyer un document</p>
         </div>
-
       </button>
-
     </div>
-
   </div>
+</div>
 
 </div>
 
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
-  <script type="module">
+
+<!-- ========================= -->
+<!-- 🔥 SCRIPT PROPRE GLOBAL -->
+<!-- ========================= -->
+
+<script type="module">
 
 import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
-// 🔐 Vérification session
+// 🔐 Sécurité
 checkAuth();
 
-// ===== LOAD HEADER + SIDEBAR + NAV =====
-async function loadPartials() {
+// Chargement propre et ordonné
+async function initApp() {
 
   // HEADER
   const header = await fetch("../partials/header.html");
@@ -233,47 +219,53 @@ async function loadPartials() {
   // NAVBAR
   const nav = await fetch("../partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
+
+  initDashboard();
 }
 
-loadPartials();
+initApp();
 
 
-// ===== DONUT PARTICIPATION =====
-const participation = 75;
+// =========================
+// DASHBOARD LOGIC
+// =========================
+function initDashboard() {
 
-const ctx = document.getElementById('participationChart').getContext('2d');
+  const participation = 75;
 
-document.getElementById("percentageLabel").innerText = participation + "%";
+  const ctx = document.getElementById('participationChart').getContext('2d');
 
-new Chart(ctx, {
-  type: 'doughnut',
-  data: {
-    datasets: [{
-      data: [participation, 100 - participation],
-      backgroundColor: [
-        participation >= 80 ? '#16A34A' :
-        participation >= 60 ? '#F59E0B' : '#DC2626',
-        '#E5E7EB'
-      ],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    cutout: '70%',
-    plugins: {
-      tooltip: { enabled: false },
-      legend: { display: false }
+  document.getElementById("percentageLabel").innerText = participation + "%";
+
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [participation, 100 - participation],
+        backgroundColor: [
+          participation >= 80 ? '#16A34A' :
+          participation >= 60 ? '#F59E0B' : '#DC2626',
+          '#E5E7EB'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: '70%',
+      plugins: {
+        tooltip: { enabled: false },
+        legend: { display: false }
+      }
     }
-  }
-});
+  });
 
-
-// ===== ACTIONS RAPIDES =====
-document.getElementById("btnMessage").onclick = () => window.location.href = "messagerie.html";
-document.getElementById("btnAgenda").onclick = () => window.location.href = "agenda.html";
-document.getElementById("btnPublication").onclick = () => window.location.href = "publication.html";
-document.getElementById("btnPresenceRoom").onclick = () => window.location.href = "presence-room.html";
-document.getElementById("btnJustification").onclick = () => window.location.href = "justification.html";
+  // Actions rapides
+  document.getElementById("btnMessage").onclick = () => window.location.href = "messagerie.html";
+  document.getElementById("btnAgenda").onclick = () => window.location.href = "agenda.html";
+  document.getElementById("btnPublication").onclick = () => window.location.href = "publication.html";
+  document.getElementById("btnPresenceRoom").onclick = () => window.location.href = "presence-room.html";
+  document.getElementById("btnJustification").onclick = () => window.location.href = "justification.html";
+}
 
 </script>
 
