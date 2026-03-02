@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Détails Présence - MyUm</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1A3668',
+        medium: '#2596D9',
+        lightblue: '#3FA9F5',
+        danger: '#DC2626'
+      },
+      fontFamily: {
+        display: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+</head>
+
+<body class="bg-gray-100 font-display text-gray-800 p-6">
+
+<div class="max-w-6xl mx-auto space-y-6">
+
+  <!-- HEADER -->
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-semibold">Détails du Salon</h1>
+    <button onclick="window.history.back()"
+      class="bg-primary text-white px-4 py-2 rounded-xl text-sm shadow-sm">
+      ← Retour
+    </button>
+  </div>
+
+  <!-- INFOS SALON -->
+  <div id="roomInfo"
+    class="bg-white rounded-3xl shadow-md p-5 space-y-2 text-sm">
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="flex justify-end">
+    <button id="exportXLS"
+      class="bg-primary text-white px-4 py-2 rounded-xl text-sm shadow-sm">
+      Export XLS
+    </button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="bg-white rounded-3xl shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-6 py-4 text-left">Nom</th>
+            <th class="px-6 py-4 text-left">Username</th>
+            <th class="px-6 py-4 text-center">Genre</th>
+            <th class="px-6 py-4 text-left">Méthode</th>
+            <th class="px-6 py-4 text-left">Horodatage</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceTableBody"
+          class="divide-y divide-gray-100">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="/myUm/admin/js/presence-details.js"></script>
+</body>
+</html>
