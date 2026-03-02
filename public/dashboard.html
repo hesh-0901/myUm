@@ -255,12 +255,12 @@ function initDashboard() {
 
   // Actions rapides (si présents)
   const routes = {
-    btnMessage: "messagerie.html",
-    btnAgenda: "agenda.html",
-    btnPublication: "publication.html",
-    btnPresenceRoom: "presence-room.html",
-    btnJustification: "justification.html"
-  };
+  btnMessage: "../chat/index.html",
+  btnAgenda: "agenda.html",
+  btnPublication: "../posts/index.html",
+  btnPresenceRoom: "presence-room.html",
+  btnJustification: "justification.html"
+};
 
   Object.keys(routes).forEach(id => {
     const btn = document.getElementById(id);
