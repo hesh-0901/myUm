@@ -1,117 +1,284 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Créer un compte - MyUm</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Créer un compte - MyUm</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        softgray: '#E0E0E0'
-      },
-      fontFamily: {
-        display: ['Inter', 'sans-serif']
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1A3668',
+            medium: '#2596D9',
+            lightblue: '#3FA9F5',
+            softgray: '#E0E0E0',
+            danger: '#DC2626'
+          },
+          fontFamily: { display: ['Inter', 'sans-serif'] },
+          keyframes: {
+            floaty: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-8px)' }
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: '0.65', transform: 'scale(1)' },
+              '50%': { opacity: '1', transform: 'scale(1.06)' }
+            },
+            micBounce: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            starTwinkle: {
+              '0%, 100%': { opacity: '0.25' },
+              '50%': { opacity: '0.9' }
+            }
+          },
+          animation: {
+            floaty: 'floaty 2.6s ease-in-out infinite',
+            pulseGlow: 'pulseGlow 1.4s ease-in-out infinite',
+            micBounce: 'micBounce 1.2s ease-in-out infinite',
+            starTwinkle: 'starTwinkle 1.8s ease-in-out infinite'
+          }
+        }
       }
     }
-  }
-}
-</script>
+  </script>
 </head>
 
 <body class="bg-primary min-h-screen text-white font-display flex flex-col">
 
-<div class="px-6 py-10 flex flex-col flex-grow">
+  <!-- Toast (succès/erreur) -->
+  <div id="toast"
+       class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden max-w-[92vw] w-[420px]
+              rounded-2xl border border-white/10 bg-white/10 backdrop-blur-xl shadow-xl px-4 py-3">
+    <div class="flex items-start gap-3">
+      <div id="toastIcon"
+           class="mt-0.5 w-9 h-9 rounded-xl flex items-center justify-center bg-lightblue/20 text-lightblue">
+        <i class="bi bi-info-circle"></i>
+      </div>
+      <div class="flex-1">
+        <p id="toastTitle" class="font-semibold text-sm">Info</p>
+        <p id="toastMessage" class="text-xs text-white/80 mt-1 leading-relaxed">
+          Message...
+        </p>
+      </div>
+      <button id="toastClose" class="text-white/70 hover:text-white transition">
+        <i class="bi bi-x-lg text-sm"></i>
+      </button>
+    </div>
+  </div>
 
-<h1 class="text-2xl font-semibold mb-10">Créer un compte</h1>
+  <!-- Overlay "Début de voyage" -->
+  <div id="journeyOverlay"
+       class="fixed inset-0 z-40 hidden items-center justify-center bg-[#07152e]/85 backdrop-blur-sm">
+    <div class="relative w-[92vw] max-w-md rounded-3xl border border-white/10 bg-white/10 shadow-2xl p-6 overflow-hidden">
 
-<form id="registerForm" class="space-y-6">
+      <!-- étoiles -->
+      <div class="absolute inset-0 pointer-events-none">
+        <span class="absolute top-10 left-10 w-1.5 h-1.5 rounded-full bg-white/70 animate-starTwinkle"></span>
+        <span class="absolute top-16 right-14 w-1 h-1 rounded-full bg-white/60 animate-starTwinkle" style="animation-delay:.2s"></span>
+        <span class="absolute bottom-16 left-20 w-1 h-1 rounded-full bg-white/60 animate-starTwinkle" style="animation-delay:.45s"></span>
+        <span class="absolute bottom-10 right-10 w-1.5 h-1.5 rounded-full bg-white/70 animate-starTwinkle" style="animation-delay:.7s"></span>
+      </div>
 
-<!-- Prénom -->
-<div>
-<label class="text-xs text-softgray">Prénom</label>
-<input type="text" id="firstName" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
-</div>
+      <div class="flex flex-col items-center text-center gap-4">
+        <!-- Micro + halo -->
+        <div class="relative mt-1">
+          <div class="absolute inset-0 -z-10 blur-2xl rounded-full bg-lightblue/30 animate-pulseGlow w-28 h-28"></div>
+          <div class="w-24 h-24 rounded-3xl bg-white/10 border border-white/10 flex items-center justify-center animate-floaty">
+            <i class="bi bi-mic-fill text-4xl text-lightblue animate-micBounce"></i>
+          </div>
+        </div>
 
-<!-- Nom -->
-<div>
-<label class="text-xs text-softgray">Nom</label>
-<input type="text" id="lastName" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
-</div>
+        <div class="space-y-1">
+          <h2 class="text-lg font-semibold">Bienvenue dans MyUm ✨</h2>
+          <p id="journeySubtitle" class="text-xs text-white/75 leading-relaxed">
+            Ton compte est prêt. Prépare-toi à commencer l’aventure avec la chorale 🎶
+          </p>
+        </div>
 
-<!-- Date de naissance -->
-<div>
-<label class="text-xs text-softgray">Date de naissance</label>
-<input type="date" id="birthday" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
-</div>
+        <div class="w-full bg-white/10 rounded-2xl p-4 border border-white/10">
+          <p class="text-xs text-white/70">Ton username</p>
+          <p id="journeyUsername" class="mt-1 font-semibold tracking-wide text-sm">—</p>
+        </div>
 
-<!-- Âge -->
-<div>
-<label class="text-xs text-softgray">Âge (min 17 ans)</label>
-<input type="number" id="age" min="17" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
-</div>
+        <div class="w-full">
+          <div class="flex items-center justify-between text-[11px] text-white/60 mb-2">
+            <span>Redirection vers la connexion…</span>
+            <span id="countdown">3s</span>
+          </div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div id="progressBar" class="h-2 rounded-full bg-gradient-to-r from-medium to-lightblue w-0 transition-all duration-300"></div>
+          </div>
+        </div>
 
-<!-- Chorale -->
-<div>
-<label class="text-xs text-softgray">Chorale</label>
-<select id="chorale" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
-<option value="">Sélectionner</option>
-<option value="PC">Prophetic Choir</option>
-<option value="WS">Wake up song</option>
-<option value="VN">Vent Nouveau</option>
-<option value="IN">Instrumentiste</option>
-<option value="ID">Administration</option>
-<option value="GT">Visiteur</option>
-</select>
-</div>
+        <button id="goLoginNow"
+                class="mt-2 w-full py-3 rounded-2xl bg-gradient-to-r from-medium to-lightblue text-sm font-semibold shadow-lg active:scale-95 transition">
+          Aller à la connexion maintenant
+        </button>
+      </div>
+    </div>
+  </div>
 
-<!-- Téléphone -->
-<div>
-<label class="text-xs text-softgray">Numéro de téléphone</label>
-<input type="tel" id="phone" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
-</div>
+  <div class="px-6 py-10 flex flex-col flex-grow">
+    <h1 class="text-2xl font-semibold mb-10">Créer un compte</h1>
 
-<!-- Mot de passe -->
-<div class="relative">
-<label class="text-xs text-softgray">Mot de passe</label>
-<input type="password" id="password" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm pr-8">
-<i class="bi bi-eye togglePassword absolute right-0 top-8 cursor-pointer text-softgray"></i>
-</div>
+    <form id="registerForm" class="space-y-6">
 
-<!-- Confirmer -->
-<div class="relative">
-<label class="text-xs text-softgray">Confirmer le mot de passe</label>
-<input type="password" id="confirmPassword" required
-class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm pr-8">
-<i class="bi bi-eye togglePassword absolute right-0 top-8 cursor-pointer text-softgray"></i>
-</div>
+      <!-- Prénom -->
+      <div>
+        <label class="text-xs text-softgray">Prénom</label>
+        <input type="text" id="firstName" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+      </div>
 
-<button type="submit"
-class="w-full mt-8 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-sm font-semibold shadow-lg active:scale-95 transition">
-Créer mon compte
-</button>
+      <!-- Nom -->
+      <div>
+        <label class="text-xs text-softgray">Nom</label>
+        <input type="text" id="lastName" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+      </div>
 
-</form>
+      <!-- Date de naissance -->
+      <div>
+        <label class="text-xs text-softgray">Date de naissance</label>
+        <input type="date" id="birthday" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+      </div>
 
-</div>
+      <!-- Âge -->
+      <div>
+        <label class="text-xs text-softgray">Âge (min 17 ans)</label>
+        <input type="number" id="age" min="17" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+      </div>
 
-<script type="module" src="js/register.js"></script>
+      <!-- Chorale -->
+      <div>
+        <label class="text-xs text-softgray">Chorale</label>
+        <select id="chorale" required
+                class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+          <option value="">Sélectionner</option>
+          <option value="PC">Prophetic Choir</option>
+          <option value="WS">Wake up song</option>
+          <option value="VN">Vent Nouveau</option>
+          <option value="IN">Instrumentiste</option>
+          <option value="ID">Administration</option>
+          <option value="GT">Visiteur</option>
+        </select>
+      </div>
 
+      <!-- Téléphone -->
+      <div>
+        <label class="text-xs text-softgray">Numéro de téléphone</label>
+        <input type="tel" id="phone" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm">
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="relative">
+        <label class="text-xs text-softgray">Mot de passe</label>
+        <input type="password" id="password" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm pr-8">
+        <i class="bi bi-eye togglePassword absolute right-0 top-8 cursor-pointer text-softgray"></i>
+      </div>
+
+      <!-- Confirmer -->
+      <div class="relative">
+        <label class="text-xs text-softgray">Confirmer le mot de passe</label>
+        <input type="password" id="confirmPassword" required
+               class="w-full mt-2 bg-transparent border-b border-white/40 focus:border-lightblue focus:outline-none py-2 text-sm pr-8">
+        <i class="bi bi-eye togglePassword absolute right-0 top-8 cursor-pointer text-softgray"></i>
+      </div>
+
+      <button id="registerBtn" type="submit"
+              class="w-full mt-8 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-sm font-semibold shadow-lg active:scale-95 transition">
+        Créer mon compte
+      </button>
+    </form>
+  </div>
+
+  <script type="module" src="js/register.js"></script>
+
+  <!-- Helper UI (toast + overlay) : utilisé par register.js -->
+  <script>
+    (function () {
+      const toast = document.getElementById("toast");
+      const toastTitle = document.getElementById("toastTitle");
+      const toastMessage = document.getElementById("toastMessage");
+      const toastIcon = document.getElementById("toastIcon");
+      const toastClose = document.getElementById("toastClose");
+
+      window.MyUmUI = {
+        showToast(type, title, message) {
+          toast.classList.remove("hidden");
+          toastTitle.textContent = title || (type === "success" ? "Succès" : type === "error" ? "Erreur" : "Info");
+          toastMessage.textContent = message || "";
+
+          // icon + color
+          toastIcon.className =
+            "mt-0.5 w-9 h-9 rounded-xl flex items-center justify-center " +
+            (type === "success"
+              ? "bg-green-500/15 text-green-300"
+              : type === "error"
+              ? "bg-red-500/15 text-red-300"
+              : "bg-lightblue/20 text-lightblue");
+
+          toastIcon.innerHTML =
+            type === "success"
+              ? '<i class="bi bi-check2-circle"></i>'
+              : type === "error"
+              ? '<i class="bi bi-exclamation-triangle"></i>'
+              : '<i class="bi bi-info-circle"></i>';
+
+          // auto hide
+          clearTimeout(window.__toastTimer);
+          window.__toastTimer = setTimeout(() => toast.classList.add("hidden"), 4200);
+        },
+
+        showJourney(username, loginUrl) {
+          const overlay = document.getElementById("journeyOverlay");
+          const usernameEl = document.getElementById("journeyUsername");
+          const countdownEl = document.getElementById("countdown");
+          const bar = document.getElementById("progressBar");
+          const goNowBtn = document.getElementById("goLoginNow");
+
+          usernameEl.textContent = username || "—";
+          overlay.classList.remove("hidden");
+          overlay.classList.add("flex");
+
+          let seconds = 3;
+          countdownEl.textContent = `${seconds}s`;
+          bar.style.width = "0%";
+
+          const total = 3;
+          const tick = setInterval(() => {
+            seconds -= 1;
+            const progress = ((total - seconds) / total) * 100;
+            bar.style.width = `${Math.min(100, progress)}%`;
+            countdownEl.textContent = `${Math.max(0, seconds)}s`;
+
+            if (seconds <= 0) {
+              clearInterval(tick);
+              window.location.href = loginUrl;
+            }
+          }, 1000);
+
+          goNowBtn.onclick = () => {
+            clearInterval(tick);
+            window.location.href = loginUrl;
+          };
+        }
+      };
+
+      toastClose.addEventListener("click", () => toast.classList.add("hidden"));
+    })();
+  </script>
 </body>
 </html>
