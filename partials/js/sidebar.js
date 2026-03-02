@@ -11,18 +11,18 @@ export function initSidebar() {
 
   if (!sidebar || !overlay || !menuBtn) return;
 
-  // Afficher bouton seulement admin/super_admin
+  // Admin uniquement
   if (user.role === "admin" || user.role === "super_admin") {
 
     menuBtn.classList.remove("hidden");
 
-    // Ouvrir sidebar
+    // OPEN
     menuBtn.addEventListener("click", () => {
       sidebar.classList.remove("-translate-x-full");
       overlay.classList.remove("hidden");
     });
 
-    // Fermer sidebar
+    // CLOSE
     overlay.addEventListener("click", () => {
       sidebar.classList.add("-translate-x-full");
       overlay.classList.add("hidden");
@@ -35,14 +35,11 @@ export function initSidebar() {
       });
     });
 
-    // Section super_admin
+    // Super admin section
     if (user.role === "super_admin") {
-      const superAdminSection = document.getElementById("superAdminSection");
-      if (superAdminSection) {
-        superAdminSection.classList.remove("hidden");
-      }
+      const section = document.getElementById("superAdminSection");
+      if (section) section.classList.remove("hidden");
     }
 
   }
-
 }
