@@ -1,6 +1,6 @@
 <!-- OVERLAY -->
 <div id="sidebarOverlay"
-     class="fixed inset-0 bg-black/40 hidden z-40"></div>
+     class="fixed inset-0 bg-black/40 hidden z-40 transition-opacity"></div>
 
 <!-- SIDEBAR -->
 <aside id="adminSidebar"
@@ -21,12 +21,12 @@
     <div>
       <p class="text-xs uppercase text-gray-400 mb-2">Vue générale</p>
 
-      <button class="sidebar-link" data-link="admin-dashboard.html">
+      <button class="sidebar-link" data-link="/myUm/admin/admin-dashboard.html">
         <i class="bi bi-speedometer2"></i>
         Dashboard Admin
       </button>
 
-      <button class="sidebar-link" data-link="statistics.html">
+      <button class="sidebar-link" data-link="/myUm/admin/statistics.html">
         <i class="bi bi-bar-chart-line"></i>
         Statistiques
       </button>
@@ -36,27 +36,27 @@
     <div>
       <p class="text-xs uppercase text-gray-400 mb-2">Gestion</p>
 
-      <button class="sidebar-link" data-link="users-management.html">
+      <button class="sidebar-link" data-link="/myUm/admin/users-management.html">
         <i class="bi bi-people"></i>
         Utilisateurs
       </button>
 
-      <button class="sidebar-link" data-link="presence-management.html">
+      <button class="sidebar-link" data-link="/myUm/admin/presence-management.html">
         <i class="bi bi-clipboard-check"></i>
         Présences
       </button>
 
-      <button class="sidebar-link" data-link="events-management.html">
+      <button class="sidebar-link" data-link="/myUm/admin/events-management.html">
         <i class="bi bi-calendar-event"></i>
         Événements
       </button>
 
-      <button class="sidebar-link" data-link="recordings-management.html">
+      <button class="sidebar-link" data-link="/myUm/admin/recordings-management.html">
         <i class="bi bi-music-note-beamed"></i>
         Enregistrements
       </button>
 
-      <button class="sidebar-link" data-link="announcements-management.html">
+      <button class="sidebar-link" data-link="/myUm/admin/announcements-management.html">
         <i class="bi bi-megaphone"></i>
         Annonces
       </button>
@@ -66,12 +66,12 @@
     <div>
       <p class="text-xs uppercase text-gray-400 mb-2">Communication</p>
 
-      <button class="sidebar-link" data-link="moderation.html">
+      <button class="sidebar-link" data-link="/myUm/admin/moderation.html">
         <i class="bi bi-shield-check"></i>
         Modération Posts
       </button>
 
-      <button class="sidebar-link" data-link="admin-messaging.html">
+      <button class="sidebar-link" data-link="/myUm/admin/admin-messaging.html">
         <i class="bi bi-chat-left-dots"></i>
         Messagerie Admin
       </button>
@@ -81,22 +81,22 @@
     <div id="superAdminSection" class="hidden">
       <p class="text-xs uppercase text-gray-400 mb-2">Système</p>
 
-      <button class="sidebar-link" data-link="roles-management.html">
+      <button class="sidebar-link" data-link="/myUm/admin/roles-management.html">
         <i class="bi bi-person-gear"></i>
         Gestion des rôles
       </button>
 
-      <button class="sidebar-link" data-link="system-settings.html">
+      <button class="sidebar-link" data-link="/myUm/admin/system-settings.html">
         <i class="bi bi-gear"></i>
         Paramètres généraux
       </button>
 
-      <button class="sidebar-link" data-link="activity-logs.html">
+      <button class="sidebar-link" data-link="/myUm/admin/activity-logs.html">
         <i class="bi bi-file-earmark-text"></i>
         Logs d’activité
       </button>
 
-      <button class="sidebar-link" data-link="security-config.html">
+      <button class="sidebar-link" data-link="/myUm/admin/security-config.html">
         <i class="bi bi-lock"></i>
         Configuration sécurité
       </button>
@@ -115,14 +115,21 @@
   padding: 10px 14px;
   border-radius: 12px;
   color: #374151;
+  font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .sidebar-link i {
   font-size: 16px;
+  opacity: 0.85;
 }
 
 .sidebar-link:hover {
   background-color: #F3F4F6;
+  transform: translateX(4px);
+}
+
+.sidebar-link:active {
+  transform: scale(0.97);
 }
 </style>
