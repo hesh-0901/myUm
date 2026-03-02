@@ -1,1 +1,57 @@
-ttyyj
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat - Amis | MyUm</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- (Optionnel) containers pour partials -->
+  <div id="header-container"></div>
+  <div id="nav-container"></div>
+  <div id="sidebar-container"></div>
+
+  <main class="max-w-xl mx-auto p-4 space-y-4 pb-24">
+
+    <!-- Search -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <h1 class="font-semibold text-lg">Trouver un membre</h1>
+      <p class="text-sm text-gray-500 mt-1">Recherche exacte par <b>username</b> ou <b>téléphone</b>.</p>
+
+      <div class="mt-3 flex gap-2">
+        <input id="searchInput"
+               class="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+               placeholder="Ex: ABBA1205-PC ou +243..." />
+        <button id="searchBtn"
+                class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold active:scale-95 transition">
+          Rechercher
+        </button>
+      </div>
+
+      <div id="searchResults" class="mt-3 space-y-2"></div>
+    </section>
+
+    <!-- Incoming requests -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <h2 class="font-semibold">Demandes reçues</h2>
+      <div id="incomingList" class="mt-3 space-y-2"></div>
+    </section>
+
+    <!-- Friends list -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <h2 class="font-semibold">Mes amis</h2>
+      <div id="friendsList" class="mt-3 space-y-2"></div>
+    </section>
+
+  </main>
+
+  <!-- Guard (si ton auth-guard redirige déjà, garde-le) -->
+  <script type="module" src="../mains.js/auth-guard.js"></script>
+  <script type="module" src="js/friends.js"></script>
+</body>
+</html>
