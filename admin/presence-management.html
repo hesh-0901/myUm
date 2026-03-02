@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Présences - MyUm</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1A3668',
+            medium: '#2596D9',
+            lightblue: '#3FA9F5',
+            danger: '#DC2626'
+          },
+          fontFamily: {
+            display: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+</head>
+
+<body class="bg-gray-100 font-display text-gray-800 p-6">
+
+  <div class="max-w-6xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-semibold">Fichier des Présences</h1>
+
+      <button onclick="window.history.back()"
+        class="bg-primary text-white text-sm px-4 py-2 rounded-xl shadow-sm hover:opacity-90 transition">
+        ← Retour
+      </button>
+    </div>
+
+    <!-- TABLE CONTAINER -->
+    <div class="bg-white rounded-3xl shadow-md overflow-hidden">
+
+      <div class="overflow-x-auto">
+
+        <table class="min-w-full text-sm">
+
+          <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+            <tr>
+              <th class="px-6 py-4 text-left">Date</th>
+              <th class="px-6 py-4 text-left">Chorale</th>
+              <th class="px-6 py-4 text-left">Motif</th>
+              <th class="px-6 py-4 text-left">Ouvert par</th>
+              <th class="px-6 py-4 text-center">Participants</th>
+              <th class="px-6 py-4 text-center">Statut</th>
+            </tr>
+          </thead>
+
+          <tbody id="roomsTableBody" class="divide-y divide-gray-100">
+            <!-- Injecté dynamiquement -->
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="/myUm/admin/js/presence-management.js"></script>
+
+</body>
+</html>
