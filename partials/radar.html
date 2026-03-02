@@ -1,0 +1,66 @@
+<!-- RADAR MODAL -->
+<div id="radarModal"
+     class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden
+            flex items-center justify-center z-50">
+
+  <div class="relative w-80 h-80">
+
+    <!-- CLOSE -->
+    <button id="closeRadar"
+      class="absolute -top-12 right-0 text-white text-xl">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <!-- RADAR CIRCLE -->
+    <div class="relative w-full h-full flex items-center justify-center">
+
+      <!-- OUTER RING -->
+      <div class="absolute w-full h-full rounded-full border border-green-500/30"></div>
+      <div class="absolute w-64 h-64 rounded-full border border-green-500/30"></div>
+      <div class="absolute w-40 h-40 rounded-full border border-green-500/30"></div>
+
+      <!-- SWEEP LINE -->
+      <div id="radarSweep"
+           class="absolute w-full h-full rounded-full"></div>
+
+      <!-- CENTER DOT -->
+      <div class="w-4 h-4 bg-green-400 rounded-full animate-ping"></div>
+
+      <!-- INFO -->
+      <div class="absolute bottom-6 text-center text-white space-y-1">
+        <p class="text-xs uppercase tracking-wider opacity-70">
+          Salon actif
+        </p>
+        <p id="radarCountdown"
+           class="text-lg font-semibold">
+           00:00
+        </p>
+        <p class="text-xs opacity-70">
+          Présences enregistrées
+        </p>
+        <p id="radarCount"
+           class="text-2xl font-bold text-green-400">
+           0
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+#radarSweep {
+  background: conic-gradient(
+    rgba(34,197,94,0.4) 0deg,
+    rgba(34,197,94,0.2) 20deg,
+    transparent 60deg
+  );
+  animation: rotateRadar 2s linear infinite;
+}
+
+@keyframes rotateRadar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>
