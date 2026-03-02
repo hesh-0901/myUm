@@ -99,6 +99,7 @@ tailwind.config = {
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
 
@@ -191,7 +192,6 @@ function renderUsers(users) {
       </td>
 
       <td class="px-4 py-3 text-center">
-
         <div class="flex justify-center gap-3">
 
           <button onclick="toggleActive('${user.id}')"
@@ -210,7 +210,6 @@ function renderUsers(users) {
           </button>
 
         </div>
-
       </td>
     `;
 
@@ -237,6 +236,8 @@ searchInput.addEventListener("input", () => {
 // FILTER CHORALE
 // =========================
 function populateChoraleFilter() {
+
+  choraleFilter.innerHTML = `<option value="all">Toutes les chorales</option>`;
 
   const chorales = [...new Set(allUsers.map(u => u.chorale).filter(Boolean))];
 
@@ -296,7 +297,11 @@ exportBtn.addEventListener("click", () => {
 
   if (allUsers.length === 0) return;
 
-  // Transformer les données pour Excel
+  if (typeof XLSX === "undefined") {
+    alert("La librairie XLSX n'est pas chargée.");
+    return;
+  }
+
   const formattedData = allUsers.map(user => ({
     ID: user.id,
     Username: user.username,
@@ -307,18 +312,27 @@ exportBtn.addEventListener("click", () => {
     Statut: user.isActive ? "Actif" : "Inactif"
   }));
 
-  // Création feuille
   const worksheet = XLSX.utils.json_to_sheet(formattedData);
 
-  // Création classeur
+  // Largeur colonnes
+  worksheet["!cols"] = [
+    { wch: 24 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 16 },
+    { wch: 20 },
+    { wch: 12 }
+  ];
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Utilisateurs");
 
-  // Export fichier
-  XLSX.writeFile(workbook, "users_export.xlsx");
+  const today = new Date().toISOString().split("T")[0];
+
+  XLSX.writeFile(workbook, `users_export_${today}.xlsx`);
 });
 
 </script>
-
 </body>
 </html>
