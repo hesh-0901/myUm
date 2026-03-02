@@ -152,19 +152,34 @@ openRoomBtn.addEventListener("click", async () => {
       endTimestamp = new Date(Date.now() + minutes * 60000);
     }
 
-    const roomRef = await addDoc(collection(db, "presenceRooms"), {
-      date,
-      chorale,
-      type,
-      description,
-      mode,
-      startTime: startTimestamp,
-      endTime: endTimestamp,
-      latitude,   // ✅ AJOUT IMPORTANT
-      longitude,  // ✅ AJOUT IMPORTANT
-      status: "active",
-      createdAt: serverTimestamp()
-    });
+// 🔥 Récupération admin connecté
+const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+if (!storedUser) {
+  alert("Session invalide.");
+  return;
+}
+
+const userId = storedUser.id;
+const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
+
+const roomRef = await addDoc(collection(db, "presenceRooms"), {
+  date,
+  chorale,
+  type,
+  description,
+  mode,
+  startTime: startTimestamp,
+  endTime: endTimestamp,
+  latitude,
+  longitude,
+  status: "active",
+
+  // ✅ NOUVEAUX CHAMPS
+  createdBy: userId,
+  createdByName: fullName,
+
+  createdAt: serverTimestamp()
+});
 
     activeRoomId = roomRef.id;
 
