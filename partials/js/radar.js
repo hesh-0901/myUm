@@ -2,11 +2,11 @@ import { db } from "/myUm/mains.js/firebase-config.js";
 import {
   doc,
   getDoc,
+  setDoc,
   collection,
-  addDoc,
   serverTimestamp,
   onSnapshot,
-  query
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let countdownInterval = null;
@@ -19,11 +19,9 @@ export async function openRadar(roomId) {
   const counterEl = document.getElementById("radarCount");
   const scanBtn = document.getElementById("radarScanBtn");
 
-  modal.classList.remove("hidden");
+  if (!modal || !countdownEl || !counterEl || !scanBtn) return;
 
-  // ==============================
-  // LOAD ROOM DATA
-  // ==============================
+  modal.classList.remove("hidden");
 
   const roomRef = doc(db, "presenceRooms", roomId);
   const roomSnap = await getDoc(roomRef);
@@ -43,22 +41,31 @@ export async function openRadar(roomId) {
   });
 
   // ==============================
-  // COUNTDOWN
+  // COUNTDOWN + AUTO CLOSE
   // ==============================
 
   function startCountdown() {
 
-    countdownInterval = setInterval(() => {
+    countdownInterval = setInterval(async () => {
 
       const now = new Date();
       const end = roomData.endTime.toDate();
-
       const diff = end - now;
 
       if (diff <= 0) {
+
         clearInterval(countdownInterval);
+
+        // Ferme officiellement le salon
+        await updateDoc(roomRef, {
+          status: "closed"
+        });
+
         countdownEl.innerText = "00:00";
         scanBtn.disabled = true;
+
+        closeRadar(); // 🔥 fermeture automatique
+
         return;
       }
 
@@ -93,54 +100,56 @@ export async function openRadar(roomId) {
       return;
     }
 
-    // ==============================
-    // GPS CHECK 7 METERS
-    // ==============================
+    if (!roomData.latitude || !roomData.longitude) {
+      alert("Coordonnées GPS du salon manquantes.");
+      return;
+    }
 
-    navigator.geolocation.getCurrentPosition(async (position) => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
 
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
 
-      const roomLat = roomData.latitude;
-      const roomLng = roomData.longitude;
+        const distance = getDistance(
+          userLat,
+          userLng,
+          roomData.latitude,
+          roomData.longitude
+        );
 
-      const distance = getDistance(userLat, userLng, roomLat, roomLng);
+        if (distance > 7) {
+          alert("Vous êtes hors rayon (7m).");
+          return;
+        }
 
-      if (distance > 7) {
-        alert("Vous êtes hors rayon (7m).");
-        return;
-      }
+        const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+        if (!storedUser) return;
 
-      // ==============================
-      // USER DATA
-      // ==============================
+        const userId = storedUser.id;
 
-      const storedUser = JSON.parse(localStorage.getItem("myum_user"));
-      if (!storedUser) return;
+        const userSnap = await getDoc(doc(db, "users", userId));
+        if (!userSnap.exists()) return;
 
-      const userId = storedUser.id;
+        const userData = userSnap.data();
 
-      const userSnap = await getDoc(doc(db, "users", userId));
-      const userData = userSnap.data();
+        const attendanceRef = doc(
+          db,
+          "presenceRooms",
+          roomId,
+          "attendances",
+          userId
+        );
 
-      const attendanceDoc = doc(db,
-        "presenceRooms",
-        roomId,
-        "attendances",
-        userId
-      );
+        const existing = await getDoc(attendanceRef);
 
-      const existing = await getDoc(attendanceDoc);
+        if (existing.exists()) {
+          alert("Déjà signé.");
+          return;
+        }
 
-      if (existing.exists()) {
-        alert("Déjà signé.");
-        return;
-      }
-
-      await addDoc(
-        collection(db, "presenceRooms", roomId, "attendances"),
-        {
+        // ✅ CORRECTION STRUCTURE OFFICIELLE
+        await setDoc(attendanceRef, {
           userId,
           username: userData.username,
           fullName: `${userData.firstName} ${userData.lastName}`,
@@ -148,17 +157,20 @@ export async function openRadar(roomId) {
           statut: "P",
           method: "auto",
           timestamp: serverTimestamp()
-        }
-      );
+        });
 
-    });
+      },
+      () => {
+        alert("Géolocalisation refusée.");
+      }
+    );
 
   };
-
 }
 
+
 // ==============================
-// DISTANCE CALCULATION
+// DISTANCE
 // ==============================
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -181,6 +193,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+
 // ==============================
 // CLOSE MODAL CLEANUP
 // ==============================
@@ -188,8 +201,17 @@ function getDistance(lat1, lon1, lat2, lon2) {
 export function closeRadar() {
 
   const modal = document.getElementById("radarModal");
+  if (!modal) return;
+
   modal.classList.add("hidden");
 
-  if (countdownInterval) clearInterval(countdownInterval);
-  if (attendanceUnsubscribe) attendanceUnsubscribe();
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+
+  if (attendanceUnsubscribe) {
+    attendanceUnsubscribe();
+    attendanceUnsubscribe = null;
+  }
 }
