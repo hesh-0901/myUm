@@ -85,17 +85,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // ✅ Message + redirection
       alert(
-        "Compte créé avec succès ✅\n\nVotre username est : " +
-          username +
-          "\n\nVous allez être redirigé vers la page de connexion."
-      );
+        // ✅ Toast + animation + redirect (chemin relatif)
+window.MyUmUI?.showToast(
+  "success",
+  "Compte créé ✅",
+  `Ton username est : ${username}`
+);
 
-      // (Optionnel) reset
-      form.reset();
+form.reset();
 
-      // ✅ Redirection vers login (adapte le chemin si besoin)
-      // Si ton fichier login est dans /myUm/users/login.html :
-      window.location.href = "/myUm/users/login.html";
+// Sur GitHub Pages, chemin relatif recommandé
+const loginUrl = "login.html";
+
+// Animation "début de voyage" puis redirection
+window.MyUmUI?.showJourney(username, loginUrl);
       // Sinon, utilise :
       // window.location.href = "login.html";
 
