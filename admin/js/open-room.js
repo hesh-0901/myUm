@@ -116,54 +116,66 @@ openRoomBtn.addEventListener("click", async () => {
     return;
   }
 
-  const date = document.getElementById("roomDate").value;
-  const chorale = document.getElementById("roomChorale").value;
-  const type = document.getElementById("roomType").value;
-  const description = document.getElementById("roomDescription").value;
+  // 🔥 On récupère la position GPS de l'admin
+  navigator.geolocation.getCurrentPosition(async (position) => {
 
-  const mode = document.querySelector("input[name='mode']:checked").value;
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
 
-  let startTimestamp = null;
-  let endTimestamp = null;
+    const date = document.getElementById("roomDate").value;
+    const chorale = document.getElementById("roomChorale").value;
+    const type = document.getElementById("roomType").value;
+    const description = document.getElementById("roomDescription").value;
 
-  if (mode === "hours") {
+    const mode = document.querySelector("input[name='mode']:checked").value;
 
-    const start = document.getElementById("startTime").value;
-    const end = document.getElementById("endTime").value;
+    let startTimestamp = null;
+    let endTimestamp = null;
 
-    startTimestamp = new Date(`${date}T${start}`);
-    endTimestamp = new Date(`${date}T${end}`);
+    if (mode === "hours") {
 
-  } else {
+      const start = document.getElementById("startTime").value;
+      const end = document.getElementById("endTime").value;
 
-    let minutes = document.getElementById("timerDuration").value;
+      startTimestamp = new Date(`${date}T${start}`);
+      endTimestamp = new Date(`${date}T${end}`);
 
-    if (minutes === "custom") {
-      minutes = document.getElementById("customTimer").value;
+    } else {
+
+      let minutes = document.getElementById("timerDuration").value;
+
+      if (minutes === "custom") {
+        minutes = document.getElementById("customTimer").value;
+      }
+
+      startTimestamp = new Date();
+      endTimestamp = new Date(Date.now() + minutes * 60000);
     }
 
-    startTimestamp = new Date();
-    endTimestamp = new Date(Date.now() + minutes * 60000);
-  }
+    const roomRef = await addDoc(collection(db, "presenceRooms"), {
+      date,
+      chorale,
+      type,
+      description,
+      mode,
+      startTime: startTimestamp,
+      endTime: endTimestamp,
+      latitude,   // ✅ AJOUT IMPORTANT
+      longitude,  // ✅ AJOUT IMPORTANT
+      status: "active",
+      createdAt: serverTimestamp()
+    });
 
-  const roomRef = await addDoc(collection(db, "presenceRooms"), {
-    date,
-    chorale,
-    type,
-    description,
-    mode,
-    startTime: startTimestamp,
-    endTime: endTimestamp,
-    status: "active",
-    createdAt: serverTimestamp()
+    activeRoomId = roomRef.id;
+
+    activeRoomStatus.innerText = "Salon actif.";
+    launchRadarBtn.classList.remove("hidden");
+
+    autoCloseRoom(roomRef.id, endTimestamp);
+
+  }, () => {
+    alert("Géolocalisation refusée. Impossible de créer le salon.");
   });
-
-  activeRoomId = roomRef.id;
-
-  activeRoomStatus.innerText = "Salon actif.";
-  launchRadarBtn.classList.remove("hidden");
-
-  autoCloseRoom(roomRef.id, endTimestamp);
 
 });
 
