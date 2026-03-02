@@ -291,7 +291,7 @@ window.changeRole = async function(id) {
 };
 
 // =========================
-// EXPORT XLSX
+// EXPORT XLSX STRUCTURÉ
 // =========================
 exportBtn.addEventListener("click", () => {
 
@@ -303,26 +303,64 @@ exportBtn.addEventListener("click", () => {
   }
 
   const formattedData = allUsers.map(user => ({
+
+    // =========================
+    // IDENTITÉ
+    // =========================
     ID: user.id,
-    Username: user.username,
-    Prénom: user.firstName,
-    Nom: user.lastName,
-    Rôle: user.role,
+    Username: user.username ?? "",
+    Prénom: user.firstName ?? "",
+    Nom: user.lastName ?? "",
+    Date_naissance: user.birthday ?? "",
+    Âge: user.age ?? "",
+    Téléphone: user.phone ?? "",
+    Genre: user.genre ?? "",
+
+    // =========================
+    // SITUATION PERSONNELLE
+    // =========================
+    État_civil: user.etatCivil ?? "",
+    Statut_relationnel: user.statutRelationnel ?? "",
+    Avenue: user.avenue ?? "",
+    Commune: user.commune ?? "",
+    Bio: user.bio ?? "",
+
+    // =========================
+    // INFORMATIONS ECCLÉSIASTIQUES
+    // =========================
     Chorale: user.chorale ?? "",
-    Statut: user.isActive ? "Actif" : "Inactif"
+    Fonction_actuelle: user.fonction ?? "",
+    Ancienne_fonction: user.ancienneFonction ?? "",
+    Église_provenance: user.egliseProvenance ?? "",
+    Année_baptême: user.anneeBapteme ?? "",
+    Type_baptême: user.typeBapteme ?? "",
+    Statut_affermissement: user.statutAffermissement ?? "",
+    Responsable_ministère: user.responsableMinistere ?? "",
+    Groupe_musique: user.groupeMusique ?? "",
+    Registre_voix: user.registreVoix ?? "",
+
+    // =========================
+    // SYSTÈME
+    // =========================
+    Rôle_système: user.role ?? "",
+    Nombre_amis: user.friendsCount ?? 0,
+    Vie_séculière: Array.isArray(user.vieSeculiere)
+      ? user.vieSeculiere.join(", ")
+      : ""
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(formattedData);
 
-  // Largeur colonnes
+  // Largeur propre des colonnes
   worksheet["!cols"] = [
-    { wch: 24 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 16 },
-    { wch: 20 },
-    { wch: 12 }
+    { wch: 28 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
+    { wch: 15 }, { wch: 8 },  { wch: 18 }, { wch: 12 },
+    { wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 15 },
+    { wch: 40 },
+    { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 25 },
+    { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 20 },
+    { wch: 18 }, { wch: 18 },
+    { wch: 18 }, { wch: 14 }, { wch: 30 }
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -330,7 +368,7 @@ exportBtn.addEventListener("click", () => {
 
   const today = new Date().toISOString().split("T")[0];
 
-  XLSX.writeFile(workbook, `users_export_${today}.xlsx`);
+  XLSX.writeFile(workbook, `users_export_complet_${today}.xlsx`);
 });
 
 </script>
