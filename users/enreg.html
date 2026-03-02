@@ -101,8 +101,133 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- Les autres champs restent EXACTEMENT identiques structurellement -->
-  <!-- Seul le style change (bg, radius, shadow, visibilité) -->
+<!-- ===================================================== -->
+<!-- INFORMATIONS ECCLESIASTIQUES -->
+<!-- ===================================================== -->
+
+<div class="bg-white rounded-3xl shadow-card border border-gray-100 p-6 space-y-6 relative">
+
+  <div class="absolute left-0 top-0 h-full w-1 bg-primary rounded-l-3xl"></div>
+
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 pl-4">
+    Informations ecclésiastiques
+  </h2>
+
+  <!-- Église de provenance -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="egliseProvenance" data-type="text">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Église de provenance
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Année de baptême -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="anneeBapteme" data-type="year">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Année de baptême
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Type de baptême -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="typeBapteme" data-type="radio">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Type de baptême
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Statut d'affermissement -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="statutAffermissement" data-type="select">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Statut d'affermissement
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Fonction ancienne église -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="ancienneFonction" data-type="text">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Fonction ancienne église
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Responsable d’un ministère -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="responsableMinistere" data-type="radio">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Responsable d’un ministère ?
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
 
   <!-- Etat Civil -->
   <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
@@ -123,7 +248,57 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- Continue exactement ce même pattern pour TOUS les autres .field -->
+<!-- ===================================================== -->
+<!-- COMPETENCES MUSICALES -->
+<!-- ===================================================== -->
+
+<div class="bg-white rounded-3xl shadow-card border border-gray-100 p-6 space-y-6 relative">
+
+  <div class="absolute left-0 top-0 h-full w-1 bg-primary rounded-l-3xl"></div>
+
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 pl-4">
+    Compétences musicales
+  </h2>
+
+  <!-- Registre de voix -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="registreVoix" data-type="select">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Registre de voix
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Évolue dans un groupe -->
+  <div class="field bg-gray-50 rounded-2xl p-4 transition hover:bg-gray-100"
+       data-field="groupeMusique" data-type="radio">
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Évolue dans un groupe ?
+        </p>
+        <p class="value text-sm mt-2 text-warning flex items-center gap-2">
+          <i class="bi bi-exclamation-circle"></i>
+          À compléter
+        </p>
+      </div>
+      <button class="edit-btn w-10 h-10 rounded-full bg-white shadow border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary hover:text-white transition">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
 
 </div>
 
