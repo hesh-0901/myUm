@@ -28,9 +28,11 @@ tailwind.config = {
 <div class="max-w-md mx-auto px-4 py-6 space-y-6">
 
   <!-- HEADER -->
-  <div class="bg-white rounded-3xl shadow-sm p-5">
+  <div class="bg-white rounded-3xl shadow-sm p-5 space-y-2">
     <h1 class="text-lg font-semibold">Ouvrir un salon de présence</h1>
-    <p id="activeRoomStatus" class="text-xs text-gray-500 mt-1"></p>
+    <p id="activeRoomStatus" class="text-xs text-gray-500">
+      Vérification du salon actif...
+    </p>
   </div>
 
   <!-- FORM -->
@@ -49,10 +51,10 @@ tailwind.config = {
       <select id="roomChorale"
         class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
         <option value="">Sélectionner</option>
-        <option>PC</option>
-        <option>WS</option>
-        <option>VN</option>
-        <option>UM</option>
+        <option value="PC">Chorale PC</option>
+        <option value="WS">Chorale WS</option>
+        <option value="VN">Chorale VN</option>
+        <option value="UM">Chorale UM</option>
       </select>
     </div>
 
@@ -75,27 +77,26 @@ tailwind.config = {
     <div>
       <label class="text-xs text-gray-500">Description</label>
       <textarea id="roomDescription"
-        class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary"
-        rows="3"></textarea>
+        rows="3"
+        class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary"></textarea>
     </div>
 
     <!-- MODE -->
     <div>
       <label class="text-xs text-gray-500">Mode de durée</label>
-
-      <div class="flex gap-4 mt-2">
-        <label class="flex items-center gap-2 text-sm">
+      <div class="flex gap-4 mt-2 text-sm">
+        <label class="flex items-center gap-2">
           <input type="radio" name="mode" value="hours">
           Heures fixes
         </label>
-        <label class="flex items-center gap-2 text-sm">
+        <label class="flex items-center gap-2">
           <input type="radio" name="mode" value="timer">
           Chronomètre
         </label>
       </div>
     </div>
 
-    <!-- HOURS MODE -->
+    <!-- HOURS -->
     <div id="hoursContainer" class="hidden grid grid-cols-2 gap-3">
       <input type="time" id="startTime"
         class="p-2 rounded-xl border border-gray-200">
@@ -103,8 +104,8 @@ tailwind.config = {
         class="p-2 rounded-xl border border-gray-200">
     </div>
 
-    <!-- TIMER MODE -->
-    <div id="timerContainer" class="hidden">
+    <!-- TIMER -->
+    <div id="timerContainer" class="hidden space-y-2">
       <select id="timerDuration"
         class="w-full p-2 rounded-xl border border-gray-200">
         <option value="">Durée</option>
@@ -115,141 +116,37 @@ tailwind.config = {
 
       <input type="number" id="customTimer"
         placeholder="Minutes personnalisées"
-        class="hidden mt-2 w-full p-2 rounded-xl border border-gray-200">
+        class="hidden w-full p-2 rounded-xl border border-gray-200">
     </div>
 
-    <!-- OPEN BUTTON -->
-    <button id="openRoomBtn"
-      class="w-full bg-primary text-white py-3 rounded-2xl shadow-md active:scale-95 transition">
-      Ouvrir le salon
-    </button>
+    <!-- ACTION BUTTONS -->
+    <div class="space-y-3 pt-2">
+
+      <button id="openRoomBtn"
+        class="w-full bg-primary text-white py-3 rounded-2xl shadow-md active:scale-95 transition">
+        Ouvrir le salon
+      </button>
+
+      <button id="launchRadarBtn"
+        class="hidden w-full bg-black text-white py-3 rounded-2xl shadow-md active:scale-95 transition">
+        Lancer le radar
+      </button>
+
+    </div>
 
   </div>
 
 </div>
 
+<!-- RADAR CONTAINER -->
+<div id="radarContainer"></div>
+
+<script type="module" src="/myUm/admin/js/open-room.js"></script>
+
 <script type="module">
-
-import { db } from "/myUm/mains.js/firebase-config.js";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  updateDoc,
-  doc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const currentUser = JSON.parse(localStorage.getItem("myum_user"));
-const openBtn = document.getElementById("openRoomBtn");
-
-let currentLat = null;
-let currentLng = null;
-
-// GPS
-navigator.geolocation.getCurrentPosition(pos => {
-  currentLat = pos.coords.latitude;
-  currentLng = pos.coords.longitude;
-});
-
-// MODE SWITCH
-document.querySelectorAll("input[name='mode']").forEach(radio => {
-  radio.addEventListener("change", e => {
-    if (e.target.value === "hours") {
-      hoursContainer.classList.remove("hidden");
-      timerContainer.classList.add("hidden");
-    } else {
-      timerContainer.classList.remove("hidden");
-      hoursContainer.classList.add("hidden");
-    }
-  });
-});
-
-// TIMER CUSTOM
-timerDuration.addEventListener("change", e => {
-  if (e.target.value === "custom") {
-    customTimer.classList.remove("hidden");
-  } else {
-    customTimer.classList.add("hidden");
-  }
-});
-
-// VALIDATION
-function validateForm(data) {
-  if (!data.date || !data.chorale || !data.type || !data.mode) return false;
-  if (data.mode === "hours" && (!data.startTime || !data.endTime)) return false;
-  return true;
-}
-
-// OPEN ROOM
-openBtn.addEventListener("click", async () => {
-
-  const activeCheck = await getDocs(
-    query(collection(db, "presence_rooms"),
-      where("status", "==", "active"))
-  );
-
-  if (!activeCheck.empty) {
-    alert("Un salon est déjà actif.");
-    return;
-  }
-
-  const mode = document.querySelector("input[name='mode']:checked")?.value;
-
-  const data = {
-    date: roomDate.value,
-    chorale: roomChorale.value,
-    type: roomType.value,
-    description: roomDescription.value,
-    mode,
-    startTime: startTime.value,
-    endTime: endTime.value
-  };
-
-  if (!validateForm(data)) {
-    alert("Veuillez remplir tous les champs obligatoires.");
-    return;
-  }
-
-  let startTimestamp = null;
-  let endTimestamp = null;
-
-  if (mode === "hours") {
-    startTimestamp = new Date(`${data.date}T${data.startTime}`);
-    endTimestamp = new Date(`${data.date}T${data.endTime}`);
-  } else {
-    let minutes = timerDuration.value === "custom"
-      ? parseInt(customTimer.value)
-      : parseInt(timerDuration.value);
-
-    startTimestamp = new Date();
-    endTimestamp = new Date(Date.now() + minutes * 60000);
-  }
-
-  await addDoc(collection(db, "presence_rooms"), {
-    ...data,
-    startTime: startTimestamp,
-    endTime: endTimestamp,
-    gps: {
-      latitude: currentLat,
-      longitude: currentLng,
-      radius: 7
-    },
-    status: "active",
-    submissionStatus: "recorded",
-    createdBy: currentUser.id,
-    createdAt: serverTimestamp(),
-    closedBy: null,
-    closedAt: null
-  });
-
-  alert("Salon ouvert avec succès.");
-  location.reload();
-
-});
-
+  // Injection dynamique du radar modal
+  const radar = await fetch("/myUm/partials/radar.html");
+  document.getElementById("radarContainer").innerHTML = await radar.text();
 </script>
 
 </body>
