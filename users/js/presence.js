@@ -20,11 +20,10 @@ let unsubscribe = null;
 let scanInterval = null;
 let progress = 0;
 
-const circumference = 2 * Math.PI * 90;
+const circumference = 2 * Math.PI * 100;
 
-// ================= LOAD ACTIVE ROOM =================
+// ===== LOAD ACTIVE ROOM =====
 async function loadActiveRoom(){
-
 const q = query(collection(db,"presenceRooms"),where("status","==","active"));
 const snap = await getDocs(q);
 
@@ -50,7 +49,7 @@ startTimer();
 }
 loadActiveRoom();
 
-// ================= TIMER =================
+// ===== TIMER =====
 function startTimer(){
 setInterval(()=>{
 if(!roomData) return;
@@ -62,7 +61,7 @@ immersiveTimer.innerText=`${m.toString().padStart(2,"0")}:${s.toString().padStar
 },1000);
 }
 
-// ================= ENTER ROOM =================
+// ===== ENTER =====
 enterRoomBtn?.addEventListener("click",()=>{
 immersiveModal.classList.remove("hidden");
 
@@ -70,33 +69,31 @@ unsubscribe = onSnapshot(
 collection(db,"presenceRooms",activeRoomId,"attendances"),
 snap=> liveCount.innerText=snap.size
 );
-
-bootSound();
 });
 
-// ================= BACK =================
+// ===== BACK =====
 backBtn?.addEventListener("click",()=>{
 immersiveModal.classList.add("hidden");
 if(unsubscribe) unsubscribe();
 });
 
-// ================= SCAN =================
+// ===== SCAN =====
 function startScan(e){
 e.preventDefault();
 progress=0;
 fingerprintBtn.classList.add("scanning");
 
 scanInterval=setInterval(()=>{
-progress+=2;
+progress+=1.5;
 updateProgress(progress);
 
-if(navigator.vibrate) navigator.vibrate(20);
+if(navigator.vibrate) navigator.vibrate(30);
 
 if(progress>=100){
 clearInterval(scanInterval);
 completeScan();
 }
-},60);
+},40);
 }
 
 function cancelScan(){
@@ -105,17 +102,17 @@ updateProgress(0);
 fingerprintBtn.classList.remove("scanning");
 }
 
-// update circle
 function updateProgress(value){
 const offset = circumference - (value/100)*circumference;
 progressCircle.style.strokeDashoffset=offset;
 }
 
-// ================= COMPLETE =================
+// ===== COMPLETE =====
 async function completeScan(){
 
-if(navigator.vibrate) navigator.vibrate([200,100,200]);
-successSound();
+if(navigator.vibrate) navigator.vibrate([300,150,300]);
+
+successSoundLong();
 
 await signPresence();
 
@@ -123,7 +120,7 @@ fingerprintBtn.innerHTML="<i class='bi bi-check-circle text-5xl text-green-400'>
 fingerprintBtn.classList.remove("scanning");
 }
 
-// ================= SIGNATURE =================
+// ===== SIGNATURE =====
 async function signPresence(){
 
 if(roomData.status!=="active") return;
@@ -147,28 +144,26 @@ timestamp:serverTimestamp()
 });
 }
 
-// ================= SOUNDS =================
-function bootSound(){
+// ===== LONG SUCCESS SOUND =====
+function successSoundLong(){
 const ctx=new(window.AudioContext||window.webkitAudioContext)();
 const osc=ctx.createOscillator();
-osc.type="square";
-osc.frequency.value=200;
-osc.connect(ctx.destination);
+const gain=ctx.createGain();
+osc.connect(gain);
+gain.connect(ctx.destination);
+
+osc.type="sawtooth";
+osc.frequency.setValueAtTime(400,ctx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.6);
+
+gain.gain.setValueAtTime(0.5,ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);
+
 osc.start();
-osc.stop(ctx.currentTime+0.15);
+osc.stop(ctx.currentTime+1.2);
 }
 
-function successSound(){
-const ctx=new(window.AudioContext||window.webkitAudioContext)();
-const osc=ctx.createOscillator();
-osc.type="sine";
-osc.frequency.value=800;
-osc.connect(ctx.destination);
-osc.start();
-osc.stop(ctx.currentTime+0.3);
-}
-
-// ================= EVENTS =================
+// ===== EVENTS =====
 fingerprintBtn?.addEventListener("mousedown",startScan);
 fingerprintBtn?.addEventListener("touchstart",startScan,{passive:false});
 fingerprintBtn?.addEventListener("mouseup",cancelScan);
