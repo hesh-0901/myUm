@@ -7,6 +7,8 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -17,7 +19,6 @@ tailwind.config = {
       colors: {
         primary: '#1A3668',
         medium: '#2596D9',
-        lightblue: '#3FA9F5',
         danger: '#DC2626'
       },
       fontFamily: {
@@ -29,30 +30,70 @@ tailwind.config = {
 </script>
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800 p-6">
+<body class="bg-gray-100 font-display text-gray-800 p-4 md:p-6">
 
 <div class="max-w-6xl mx-auto space-y-6">
 
   <!-- HEADER -->
   <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-semibold">Détails du Salon</h1>
+    <h1 class="text-xl md:text-2xl font-semibold">Détails du Salon</h1>
     <button onclick="window.history.back()"
-      class="bg-primary text-white px-4 py-2 rounded-xl text-sm shadow-sm">
-      ← Retour
+      class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow">
+      <i class="bi bi-arrow-left"></i>
     </button>
   </div>
 
-  <!-- INFOS SALON -->
+  <!-- INFOS -->
   <div id="roomInfo"
-    class="bg-white rounded-3xl shadow-md p-5 space-y-2 text-sm">
+    class="bg-white rounded-3xl shadow-md p-5 text-sm space-y-2">
   </div>
 
-  <!-- ACTIONS -->
-  <div class="flex justify-end">
-    <button id="exportXLS"
-      class="bg-primary text-white px-4 py-2 rounded-xl text-sm shadow-sm">
-      Export XLS
+  <!-- ACTIONS ADMIN -->
+  <div class="flex flex-wrap gap-3 justify-end">
+
+    <button id="reopenRoom"
+      class="hidden bg-medium text-white px-4 py-2 rounded-xl text-sm shadow flex items-center gap-2">
+      <i class="bi bi-unlock"></i> Réouvrir
     </button>
+
+    <button id="approveRoom"
+      class="hidden bg-green-600 text-white px-4 py-2 rounded-xl text-sm shadow flex items-center gap-2">
+      <i class="bi bi-check-circle"></i> Approuver
+    </button>
+
+    <button id="disapproveRoom"
+      class="hidden bg-danger text-white px-4 py-2 rounded-xl text-sm shadow flex items-center gap-2">
+      <i class="bi bi-x-circle"></i> Désapprouver
+    </button>
+
+    <button id="exportPDF"
+      class="bg-gray-700 text-white px-4 py-2 rounded-xl text-sm shadow flex items-center gap-2">
+      <i class="bi bi-file-earmark-pdf"></i>
+    </button>
+
+    <button id="exportXLS"
+      class="bg-primary text-white px-4 py-2 rounded-xl text-sm shadow flex items-center gap-2">
+      <i class="bi bi-file-earmark-excel"></i>
+    </button>
+
+  </div>
+
+  <!-- AJOUT MANUEL -->
+  <div id="manualAddSection"
+    class="hidden bg-white rounded-3xl shadow-md p-5 space-y-4">
+
+    <h3 class="font-semibold text-sm">Ajouter manuellement</h3>
+
+    <div class="flex gap-3">
+      <input type="text" id="manualUsername"
+        placeholder="Username"
+        class="border rounded-xl px-3 py-2 text-sm w-full">
+      <button id="addManual"
+        class="bg-medium text-white px-4 py-2 rounded-xl text-sm">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+    </div>
+
   </div>
 
   <!-- TABLE -->
@@ -61,11 +102,12 @@ tailwind.config = {
       <table class="min-w-full text-sm">
         <thead class="bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
-            <th class="px-6 py-4 text-left">Nom</th>
-            <th class="px-6 py-4 text-left">Username</th>
-            <th class="px-6 py-4 text-center">Genre</th>
-            <th class="px-6 py-4 text-left">Méthode</th>
-            <th class="px-6 py-4 text-left">Horodatage</th>
+            <th class="px-4 py-3 text-left">Nom</th>
+            <th class="px-4 py-3 text-left">Username</th>
+            <th class="px-4 py-3 text-center">Genre</th>
+            <th class="px-4 py-3 text-left">Méthode</th>
+            <th class="px-4 py-3 text-left">Horodatage</th>
+            <th class="px-4 py-3 text-center">Action</th>
           </tr>
         </thead>
         <tbody id="attendanceTableBody"
