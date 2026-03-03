@@ -180,50 +180,73 @@ import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
+// ==============================
 // 🔐 Vérification session
+// ==============================
+
 checkAuth();
 
-// Initialisation complète propre
+
+// ==============================
+// INITIALISATION APP
+// ==============================
+
 async function initApp() {
 
   try {
 
+    // ======================
     // HEADER
+    // ======================
     const header = await fetch("../partials/header.html");
     document.getElementById("header-container").innerHTML = await header.text();
     await initHeader();
 
+
+    // ======================
     // SIDEBAR
+    // ======================
     const sidebar = await fetch("../partials/sidebar.html");
     document.getElementById("sidebar-container").innerHTML = await sidebar.text();
     initSidebar();
 
+
+    // ======================
     // NAVBAR
+    // ======================
     const nav = await fetch("../partials/nav.html");
     document.getElementById("navbar-container").innerHTML = await nav.text();
 
+    // 🔥 IMPORTANT : charger la logique nav après injection
+    await import("../partials/js/nav.js");
+
+
+    // ======================
+    // DASHBOARD
+    // ======================
     initDashboard();
 
   } catch (error) {
     console.error("Erreur chargement dashboard :", error);
   }
+
 }
 
 initApp();
 
 
-// =========================
+// ==============================
 // DASHBOARD LOGIC
-// =========================
+// ==============================
+
 function initDashboard() {
 
-  const participationCanvas = document.getElementById('participationChart');
+  const participationCanvas = document.getElementById("participationChart");
 
   if (participationCanvas) {
 
     const participation = 75;
-
-    const ctx = participationCanvas.getContext('2d');
+    const ctx = participationCanvas.getContext("2d");
 
     const percentageLabel = document.getElementById("percentageLabel");
     if (percentageLabel) {
@@ -231,20 +254,21 @@ function initDashboard() {
     }
 
     new Chart(ctx, {
-      type: 'doughnut',
+      type: "doughnut",
       data: {
         datasets: [{
           data: [participation, 100 - participation],
           backgroundColor: [
-            participation >= 80 ? '#16A34A' :
-            participation >= 60 ? '#F59E0B' : '#DC2626',
-            '#E5E7EB'
+            participation >= 80 ? "#16A34A" :
+            participation >= 60 ? "#F59E0B" :
+            "#DC2626",
+            "#E5E7EB"
           ],
           borderWidth: 0
         }]
       },
       options: {
-        cutout: '70%',
+        cutout: "70%",
         plugins: {
           tooltip: { enabled: false },
           legend: { display: false }
@@ -253,19 +277,25 @@ function initDashboard() {
     });
   }
 
-  // Actions rapides (si présents)
+
+  // ======================
+  // ACTIONS RAPIDES
+  // ======================
+
   const routes = {
-  btnMessage: "../chat/index.html",
-  btnAgenda: "agenda.html",
-  btnPublication: "../posts/index.html",
-  btnPresenceRoom: "presence-room.html",
-  btnJustification: "justification.html"
-};
+    btnMessage: "../chat/index.html",
+    btnAgenda: "agenda.html",
+    btnPublication: "../posts/index.html",
+    btnPresenceRoom: "../users/presence.html",
+    btnJustification: "justification.html"
+  };
 
   Object.keys(routes).forEach(id => {
     const btn = document.getElementById(id);
     if (btn) {
-      btn.onclick = () => window.location.href = routes[id];
+      btn.addEventListener("click", () => {
+        window.location.href = routes[id];
+      });
     }
   });
 
