@@ -10,7 +10,9 @@
 
 <style>
 
-/* ===== ANTI-SELECTION ===== */
+/* ============================= */
+/* 🔒 ANTI-SELECTION MOBILE */
+/* ============================= */
 *{
   -webkit-user-select:none;
   user-select:none;
@@ -18,27 +20,42 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-/* ===== HUD BACKGROUND ===== */
+/* ============================= */
+/* 🌌 HUD BACKGROUND */
+/* ============================= */
 #immersiveModal{
-  background: radial-gradient(circle at center, #0a0f1f 0%, #000 90%);
+  background:
+    radial-gradient(circle at center, rgba(14,165,233,0.15), transparent 60%),
+    radial-gradient(circle at center, #0a0f1f 0%, #000 85%);
+  backdrop-filter: blur(8px);
 }
 
-/* ===== PROGRESS RING ===== */
+/* ============================= */
+/* 🔵 PROGRESS RING */
+/* ============================= */
 .progress-ring{
   transform: rotate(-90deg);
 }
 
 .progress-ring circle{
-  transition: stroke-dashoffset 0.05s linear;
+  transition: stroke-dashoffset 0.04s linear;
 }
 
-/* ===== LASER LINE ===== */
+/* ============================= */
+/* ⚡ LASER SCAN LINE */
+/* ============================= */
 #laserLine{
   position:absolute;
-  width:2px;
-  height:180px;
-  background:linear-gradient(to bottom, transparent, #38bdf8, transparent);
-  animation:laserMove 2s linear infinite;
+  width:3px;
+  height:200px;
+  background:linear-gradient(to bottom,
+    transparent,
+    #38bdf8,
+    #0ea5e9,
+    #38bdf8,
+    transparent);
+  box-shadow:0 0 20px #38bdf8;
+  animation:laserMove 1.6s linear infinite;
   opacity:0;
 }
 
@@ -47,18 +64,23 @@
 }
 
 @keyframes laserMove{
-  0%{transform:translateY(-90px)}
-  100%{transform:translateY(90px)}
+  0%{transform:translateY(-100px)}
+  100%{transform:translateY(100px)}
 }
 
-/* ===== HUD GRID ===== */
+/* ============================= */
+/* 🧠 HUD ROTATION OVERLAY */
+/* ============================= */
 #hudOverlay{
   position:absolute;
-  width:240px;
-  height:240px;
-  border:1px solid rgba(56,189,248,0.3);
+  width:260px;
+  height:260px;
+  border:1px solid rgba(56,189,248,0.4);
   border-radius:50%;
-  animation:rotateHud 8s linear infinite;
+  box-shadow:
+    0 0 25px rgba(56,189,248,0.4),
+    inset 0 0 20px rgba(56,189,248,0.2);
+  animation:rotateHud 10s linear infinite;
 }
 
 @keyframes rotateHud{
@@ -66,71 +88,149 @@
   to{transform:rotate(360deg)}
 }
 
-/* ===== GLOW ===== */
+/* ============================= */
+/* 🔥 SCANNING GLOW EFFECT */
+/* ============================= */
 .scanning{
-  box-shadow:0 0 60px rgba(56,189,248,0.9);
+  box-shadow:
+    0 0 40px rgba(56,189,248,0.9),
+    0 0 80px rgba(14,165,233,0.6);
+  transition: box-shadow 0.2s ease;
 }
 
 </style>
 </head>
 
-<body class="text-white font-sans">
+<body class="bg-black text-white font-sans overflow-hidden">
 
+<!-- 🔙 BACK BUTTON FUTURISTE -->
 <button id="backBtn"
-class="fixed top-4 left-4 z-50 text-gray-400 text-xl">
+class="fixed top-5 left-5 z-50
+       w-11 h-11 rounded-full
+       flex items-center justify-center
+       bg-slate-900/70 backdrop-blur-md
+       border border-sky-400/40
+       text-sky-400 text-lg
+       shadow-[0_0_15px_rgba(56,189,248,0.6)]
+       transition duration-300 hover:scale-110 hover:shadow-[0_0_25px_rgba(56,189,248,1)]">
 <i class="bi bi-arrow-left"></i>
 </button>
 
-<div class="max-w-md mx-auto px-4 py-6 space-y-6">
 
-<div id="roomInfo"
-class="bg-white text-black rounded-3xl shadow-md p-5 hidden">
+<!-- ================= MAIN PANEL ================= -->
+<div class="relative z-10 max-w-md mx-auto px-6 py-10 space-y-8">
+
+  <!-- 🧠 ROOM INFO HUD PANEL -->
+  <div id="roomInfo"
+       class="hidden
+              bg-slate-900/80 backdrop-blur-xl
+              border border-sky-400/30
+              rounded-3xl p-6
+              text-sky-300
+              shadow-[0_0_30px_rgba(56,189,248,0.25)]
+              relative overflow-hidden">
+
+    <!-- subtle animated grid -->
+    <div class="absolute inset-0 opacity-10
+                bg-[linear-gradient(rgba(56,189,248,0.4)_1px,transparent_1px),
+                    linear-gradient(90deg,rgba(56,189,248,0.4)_1px,transparent_1px)]
+                bg-[size:30px_30px]
+                animate-[gridMove_20s_linear_infinite]">
+    </div>
+
+  </div>
+
+
+  <!-- 🚪 ENTER SCANNER BUTTON -->
+  <button id="enterRoomBtn"
+    class="hidden w-full py-4 rounded-2xl
+           uppercase tracking-widest font-semibold
+           bg-gradient-to-r from-sky-500 to-blue-600
+           shadow-[0_0_20px_rgba(56,189,248,0.8)]
+           transition duration-300
+           hover:shadow-[0_0_40px_rgba(56,189,248,1)]
+           active:scale-95">
+
+    <i class="bi bi-door-open mr-2"></i>
+    Accéder au Scanner
+
+  </button>
+
 </div>
 
-<button id="enterRoomBtn"
-class="hidden w-full bg-blue-600 py-3 rounded-2xl shadow-md">
-Entrer dans le salon
-</button>
 
-</div>
-
-<!-- IMMERSIVE HUD -->
+<!-- ================= IMMERSIVE HUD ================= -->
 <div id="immersiveModal"
-class="fixed inset-0 hidden flex flex-col items-center justify-center">
+class="fixed inset-0 hidden flex flex-col items-center justify-center
+       bg-[radial-gradient(circle_at_center,#0a0f1f_0%,#000_85%)]
+       backdrop-blur-md">
 
-<p class="text-xs opacity-60 tracking-widest mb-2">SCAN BIOMÉTRIQUE</p>
-<p id="liveCount" class="text-4xl font-bold text-green-400 mb-10">0</p>
+  <!-- TITLE -->
+  <p class="text-xs tracking-[0.5em] opacity-60 mb-3">
+    BIOMETRIC AUTHORIZATION
+  </p>
 
-<div class="relative flex items-center justify-center">
+  <!-- LIVE COUNT -->
+  <p id="liveCount"
+     class="text-5xl font-bold text-green-400 mb-12
+            drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]">
+     0
+  </p>
 
-<div id="hudOverlay"></div>
-<div id="laserLine"></div>
+  <!-- SCAN ZONE -->
+  <div class="relative flex items-center justify-center">
 
-<svg class="progress-ring" width="240" height="240">
-<circle stroke="#1e293b" stroke-width="8" fill="transparent" r="100" cx="120" cy="120"/>
-<circle id="progressCircle"
-stroke="#38bdf8"
-stroke-width="8"
-fill="transparent"
-r="100"
-cx="120"
-cy="120"
-stroke-dasharray="628"
-stroke-dashoffset="628"/>
-</svg>
+    <!-- HUD ROTATION -->
+    <div id="hudOverlay"></div>
 
-<button id="fingerprintBtn"
-class="absolute w-28 h-28 rounded-full bg-blue-500 flex items-center justify-center transition">
-<i class="bi bi-fingerprint text-5xl"></i>
-</button>
+    <!-- LASER -->
+    <div id="laserLine"></div>
+
+    <!-- PROGRESS RING -->
+    <svg class="progress-ring" width="260" height="260">
+      <circle
+        stroke="#1e293b"
+        stroke-width="8"
+        fill="transparent"
+        r="110"
+        cx="130"
+        cy="130"/>
+      <circle
+        id="progressCircle"
+        stroke="#38bdf8"
+        stroke-width="8"
+        fill="transparent"
+        r="110"
+        cx="130"
+        cy="130"
+        stroke-dasharray="691"
+        stroke-dashoffset="691"/>
+    </svg>
+
+    <!-- FINGERPRINT BUTTON -->
+    <button id="fingerprintBtn"
+      class="absolute w-32 h-32 rounded-full
+             flex items-center justify-center
+             bg-gradient-to-br from-sky-500 to-blue-700
+             shadow-[0_0_40px_rgba(56,189,248,0.8)]
+             transition duration-200">
+
+      <i class="bi bi-fingerprint text-6xl"></i>
+
+    </button>
+
+  </div>
+
+  <!-- TIMER -->
+  <p id="immersiveTimer"
+     class="mt-12 text-lg tracking-widest opacity-80">
+     00:00
+  </p>
 
 </div>
 
-<p id="immersiveTimer"
-class="mt-10 text-lg tracking-widest">00:00</p>
-
-</div>
 
 <script type="module" src="/myUm/users/js/presence.js"></script>
+
 </body>
 </html>
