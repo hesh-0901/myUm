@@ -43,7 +43,7 @@ async function injectPartials() {
   try {
 
     // HEADER
-    const headerRes = await fetch("../partials/back-header.html");
+    const headerRes = await fetch("../partials/header-back.html");
     if (headerRes.ok) {
       document.getElementById("headerContainer").innerHTML =
         await headerRes.text();
