@@ -221,6 +221,27 @@ function autoCloseRoom(roomId, endTime) {
 }
 
 // ===============================
+// FORCE STOP
+// ===============================
+
+const forceStopBtn = document.getElementById("forceStopBtn");
+
+forceStopBtn.addEventListener("click", async () => {
+
+  if (!activeRoomId) return;
+
+  await updateDoc(doc(db, "presenceRooms", activeRoomId), {
+    status: "closed"
+  });
+
+  activeRoomStatus.innerText = "Salon arrêté manuellement.";
+
+  forceStopBtn.classList.add("hidden");
+  launchRadarBtn.classList.add("hidden");
+
+});
+
+// ===============================
 // LAUNCH RADAR
 // ===============================
 
