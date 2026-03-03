@@ -100,49 +100,122 @@ enterRoomBtn.addEventListener("click", () => {
 });
 
 // ==========================
-// LONG PRESS SIGNATURE
+// BIOMETRIC SCAN SIGNATURE
 // ==========================
 
-fingerprintBtn.addEventListener("mousedown", () => {
+const scanProgress = document.getElementById("scanProgress");
+const backBtn = document.getElementById("backBtn");
 
-  longPressTimer = setTimeout(async () => {
+let scanTimeout = null;
+let vibrationInterval = null;
 
-    const confirmSign = confirm("Confirmer votre présence ?");
-    if (!confirmSign) return;
+// Retour
+if (backBtn) {
+  backBtn.addEventListener("click", () => {
+    immersiveModal.classList.add("hidden");
+  });
+}
 
-    const storedUser = JSON.parse(localStorage.getItem("myum_user"));
-    if (!storedUser) return;
+// Support mobile + desktop
+function startScan() {
 
-    const attendanceRef = doc(
-      db,
-      "presenceRooms",
-      activeRoomId,
-      "attendances",
-      storedUser.id
-    );
+  scanProgress.classList.add("scanning");
 
-    const existing = await getDoc(attendanceRef);
-    if (existing.exists()) {
-      alert("Déjà signé.");
-      return;
+  let vibrationCount = 0;
+
+  vibrationInterval = setInterval(() => {
+    if (navigator.vibrate) {
+      navigator.vibrate(100);
+    }
+    vibrationCount++;
+  }, 1000);
+
+  scanTimeout = setTimeout(async () => {
+
+    clearInterval(vibrationInterval);
+
+    if (navigator.vibrate) {
+      navigator.vibrate([200, 100, 200]);
     }
 
-    await setDoc(attendanceRef, {
-      userId: storedUser.id,
-      username: storedUser.username,
-      fullName: `${storedUser.firstName} ${storedUser.lastName}`,
-      genre: storedUser.genre === "Homme" ? "M" : "F",
-      statut: "P",
-      method: "auto",
-      timestamp: serverTimestamp()
-    });
+    playBeep();
 
-    fingerprintBtn.innerHTML =
-      `<i class="bi bi-check-circle text-4xl text-green-400"></i>`;
+    await signPresence();
 
-  }, 800);
+    scanProgress.classList.remove("scanning");
 
-});
+  }, 3000); // 3 secondes
+}
 
-fingerprintBtn.addEventListener("mouseup", () => clearTimeout(longPressTimer));
-fingerprintBtn.addEventListener("mouseleave", () => clearTimeout(longPressTimer));
+function cancelScan() {
+  clearTimeout(scanTimeout);
+  clearInterval(vibrationInterval);
+  scanProgress.classList.remove("scanning");
+}
+
+fingerprintBtn.addEventListener("mousedown", startScan);
+fingerprintBtn.addEventListener("touchstart", startScan);
+
+fingerprintBtn.addEventListener("mouseup", cancelScan);
+fingerprintBtn.addEventListener("mouseleave", cancelScan);
+fingerprintBtn.addEventListener("touchend", cancelScan);
+
+
+// ==========================
+// SIGNATURE FUNCTION
+// ==========================
+
+async function signPresence() {
+
+  const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+  if (!storedUser) return;
+
+  const attendanceRef = doc(
+    db,
+    "presenceRooms",
+    activeRoomId,
+    "attendances",
+    storedUser.id
+  );
+
+  const existing = await getDoc(attendanceRef);
+  if (existing.exists()) return;
+
+  await setDoc(attendanceRef, {
+    userId: storedUser.id,
+    username: storedUser.username,
+    fullName: `${storedUser.firstName} ${storedUser.lastName}`,
+    genre: storedUser.genre === "Homme" ? "M" : "F",
+    statut: "P",
+    method: "auto",
+    timestamp: serverTimestamp()
+  });
+
+  fingerprintBtn.innerHTML =
+    `<i class="bi bi-check-circle text-5xl text-green-400"></i>`;
+}
+
+
+// ==========================
+// BEEP SOUND
+// ==========================
+
+function playBeep() {
+
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  oscillator.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  oscillator.type = "sine";
+  oscillator.frequency.value = 800;
+
+  oscillator.start();
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    audioCtx.currentTime + 0.5
+  );
+
+}
