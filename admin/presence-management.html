@@ -2,13 +2,14 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Fichier des Présences - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <script>
 tailwind.config = {
@@ -17,8 +18,7 @@ tailwind.config = {
       colors: {
         primary: '#1A3668',
         medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        danger: '#DC2626'
+        lightblue: '#3FA9F5'
       },
       fontFamily: {
         display: ['Inter', 'sans-serif']
@@ -27,66 +27,108 @@ tailwind.config = {
   }
 }
 </script>
+
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800 p-6">
+<body class="bg-gray-50 font-display text-gray-800 text-sm">
 
-<div class="max-w-7xl mx-auto space-y-6">
+<!-- HEADER INJECTÉ -->
+<div id="header-back-container"></div>
 
-  <!-- HEADER -->
-  <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-semibold">Fichier des Présences</h1>
-    <button onclick="window.history.back()"
-      class="bg-primary text-white px-4 py-2 rounded-xl text-sm shadow-sm">
-      ← Retour
-    </button>
+<div class="pt-20 px-4 pb-6 max-w-7xl mx-auto space-y-4">
+
+  <!-- TITRE MOBILE -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-lg font-semibold">Présences</h1>
+
+    <!-- Actions icônes -->
+    <div class="flex gap-2">
+      <button id="exportXLS"
+        class="w-9 h-9 flex items-center justify-center bg-primary text-white rounded-full shadow">
+        <i class="bi bi-download"></i>
+      </button>
+    </div>
   </div>
 
-  <!-- FILTRES -->
-  <div class="bg-white rounded-3xl shadow-md p-5 grid md:grid-cols-4 gap-4">
+  <!-- FILTRES MOBILE FIRST -->
+  <div class="bg-white rounded-2xl shadow-sm p-4 space-y-3">
 
-    <input type="date" id="filterDate"
-      class="border rounded-xl px-3 py-2 text-sm">
+    <!-- Recherche globale -->
+    <div class="relative">
+      <i class="bi bi-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+      <input type="text" id="globalSearch"
+        placeholder="Motif, description, personne..."
+        class="w-full pl-8 pr-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-primary">
+    </div>
 
-    <select id="filterChorale"
-      class="border rounded-xl px-3 py-2 text-sm">
-      <option value="">Toutes les chorales</option>
-    </select>
+    <div class="grid grid-cols-2 gap-3">
 
-    <button id="applyFilters"
-      class="bg-medium text-white rounded-xl px-4 py-2 text-sm">
-      Filtrer
-    </button>
+      <input type="date" id="filterDate"
+        class="border rounded-xl px-3 py-2 text-xs">
 
-    <button id="exportXLS"
-      class="bg-primary text-white rounded-xl px-4 py-2 text-sm">
-      Export XLS
-    </button>
+      <select id="filterChorale"
+        class="border rounded-xl px-3 py-2 text-xs">
+        <option value="">Chorales</option>
+      </select>
+
+    </div>
 
   </div>
 
-  <!-- TABLE -->
-  <div class="bg-white rounded-3xl shadow-md overflow-hidden">
+  <!-- TABLE RESPONSIVE -->
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+
     <div class="overflow-x-auto">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+
+      <table class="min-w-full text-xs">
+
+        <thead class="bg-gray-100 text-[10px] uppercase text-gray-500">
           <tr>
-            <th class="px-6 py-4 text-left">Date</th>
-            <th class="px-6 py-4 text-left">Chorale</th>
-            <th class="px-6 py-4 text-left">Motif</th>
-            <th class="px-6 py-4 text-left">Ouvert par</th>
-            <th class="px-6 py-4 text-center">Participants</th>
-            <th class="px-6 py-4 text-center">Statut</th>
-            <th class="px-6 py-4 text-center">Détails</th>
+            <th class="px-3 py-3 text-left">Date</th>
+            <th class="px-3 py-3 text-left">Chorale</th>
+            <th class="px-3 py-3 text-left">Motif</th>
+            <th class="px-3 py-3 text-left hidden md:table-cell">Description</th>
+            <th class="px-3 py-3 text-left hidden md:table-cell">Ouvert</th>
+            <th class="px-3 py-3 text-center">👥</th>
+            <th class="px-3 py-3 text-center">⚙</th>
           </tr>
         </thead>
+
         <tbody id="roomsTableBody" class="divide-y divide-gray-100"></tbody>
+
       </table>
+
     </div>
+
   </div>
 
 </div>
 
+<script type="module">
+
+import { initBackHeader } from "/myUm/partials/js/header-back.js";
+
+async function loadHeader(){
+  const cached = sessionStorage.getItem("backHeader");
+  if(cached){
+    document.getElementById("header-back-container").innerHTML = cached;
+    initBackHeader();
+    return;
+  }
+
+  const header = await fetch("/myUm/partials/header-back.html");
+  const html = await header.text();
+  document.getElementById("header-back-container").innerHTML = html;
+
+  sessionStorage.setItem("backHeader", html); // 🔥 cache mémoire
+  initBackHeader();
+}
+
+loadHeader();
+
+</script>
+
 <script type="module" src="/myUm/admin/js/presence-management.js"></script>
+
 </body>
 </html>
