@@ -17,11 +17,15 @@ const immersiveModal = document.getElementById("immersiveModal");
 const liveCount = document.getElementById("liveCount");
 const fingerprintBtn = document.getElementById("fingerprintBtn");
 const immersiveTimer = document.getElementById("immersiveTimer");
+const scanProgress = document.getElementById("scanProgress");
+const backBtn = document.getElementById("backBtn");
 
 let activeRoomId = null;
 let roomData = null;
-let longPressTimer = null;
 let unsubscribe = null;
+let scanTimeout = null;
+let vibrationInterval = null;
+
 
 // ==========================
 // LOAD ACTIVE ROOM
@@ -29,11 +33,16 @@ let unsubscribe = null;
 
 async function loadActiveRoom() {
 
-  const q = query(collection(db, "presenceRooms"), where("status", "==", "active"));
+  const q = query(
+    collection(db, "presenceRooms"),
+    where("status", "==", "active")
+  );
+
   const snap = await getDocs(q);
 
   if (snap.empty) {
-    roomInfo.innerHTML = `<p class="text-sm text-gray-500">Aucun salon actif.</p>`;
+    roomInfo.innerHTML =
+      `<p class="text-sm text-gray-500">Aucun salon actif.</p>`;
     roomInfo.classList.remove("hidden");
     return;
   }
@@ -56,6 +65,7 @@ async function loadActiveRoom() {
 
 loadActiveRoom();
 
+
 // ==========================
 // TIMER
 // ==========================
@@ -63,6 +73,8 @@ loadActiveRoom();
 function startTimer() {
 
   const interval = setInterval(() => {
+
+    if (!roomData) return;
 
     const now = new Date();
     const end = roomData.endTime.toDate();
@@ -83,53 +95,60 @@ function startTimer() {
   }, 1000);
 }
 
+
 // ==========================
 // ENTER ROOM
 // ==========================
 
-enterRoomBtn.addEventListener("click", () => {
+if (enterRoomBtn) {
+  enterRoomBtn.addEventListener("click", () => {
 
-  immersiveModal.classList.remove("hidden");
+    immersiveModal.classList.remove("hidden");
 
-  const attendanceRef = collection(db, "presenceRooms", activeRoomId, "attendances");
+    const attendanceRef = collection(
+      db,
+      "presenceRooms",
+      activeRoomId,
+      "attendances"
+    );
 
-  unsubscribe = onSnapshot(attendanceRef, snap => {
-    liveCount.innerText = snap.size;
+    unsubscribe = onSnapshot(attendanceRef, snap => {
+      liveCount.innerText = snap.size;
+    });
+
   });
+}
 
-});
 
 // ==========================
-// BIOMETRIC SCAN SIGNATURE
+// BACK BUTTON
 // ==========================
 
-const scanProgress = document.getElementById("scanProgress");
-const backBtn = document.getElementById("backBtn");
-
-let scanTimeout = null;
-let vibrationInterval = null;
-
-// Retour
 if (backBtn) {
   backBtn.addEventListener("click", () => {
     immersiveModal.classList.add("hidden");
   });
 }
 
-// Support mobile + desktop
+
+// ==========================
+// BIOMETRIC SCAN
+// ==========================
+
 function startScan() {
+
+  if (!scanProgress || !fingerprintBtn) return;
 
   scanProgress.classList.add("scanning");
 
-  let vibrationCount = 0;
-
+  // Vibrations progressives
   vibrationInterval = setInterval(() => {
     if (navigator.vibrate) {
       navigator.vibrate(100);
     }
-    vibrationCount++;
   }, 1000);
 
+  // 3 secondes
   scanTimeout = setTimeout(async () => {
 
     clearInterval(vibrationInterval);
@@ -144,28 +163,26 @@ function startScan() {
 
     scanProgress.classList.remove("scanning");
 
-  }, 3000); // 3 secondes
+  }, 3000);
 }
 
 function cancelScan() {
   clearTimeout(scanTimeout);
   clearInterval(vibrationInterval);
-  scanProgress.classList.remove("scanning");
+  if (scanProgress) {
+    scanProgress.classList.remove("scanning");
+  }
 }
-
-fingerprintBtn.addEventListener("mousedown", startScan);
-fingerprintBtn.addEventListener("touchstart", startScan);
-
-fingerprintBtn.addEventListener("mouseup", cancelScan);
-fingerprintBtn.addEventListener("mouseleave", cancelScan);
-fingerprintBtn.addEventListener("touchend", cancelScan);
 
 
 // ==========================
-// SIGNATURE FUNCTION
+// SIGNATURE
 // ==========================
 
 async function signPresence() {
+
+  if (!activeRoomId || !roomData) return;
+  if (roomData.status !== "active") return;
 
   const storedUser = JSON.parse(localStorage.getItem("myum_user"));
   if (!storedUser) return;
@@ -197,7 +214,7 @@ async function signPresence() {
 
 
 // ==========================
-// BEEP SOUND
+// AUDIO BEEP
 // ==========================
 
 function playBeep() {
@@ -213,9 +230,27 @@ function playBeep() {
   oscillator.frequency.value = 800;
 
   oscillator.start();
+
   gain.gain.exponentialRampToValueAtTime(
     0.0001,
     audioCtx.currentTime + 0.5
   );
+
+  oscillator.stop(audioCtx.currentTime + 0.5);
+}
+
+
+// ==========================
+// EVENT LISTENERS
+// ==========================
+
+if (fingerprintBtn && scanProgress) {
+
+  fingerprintBtn.addEventListener("mousedown", startScan);
+  fingerprintBtn.addEventListener("touchstart", startScan);
+
+  fingerprintBtn.addEventListener("mouseup", cancelScan);
+  fingerprintBtn.addEventListener("mouseleave", cancelScan);
+  fingerprintBtn.addEventListener("touchend", cancelScan);
 
 }
