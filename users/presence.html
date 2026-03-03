@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Salon de Présence - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -22,76 +22,103 @@ tailwind.config = {
   }
 }
 </script>
+
+<style>
+
+/* 🔥 ANTI SELECTION MOBILE */
+* {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+/* 🔥 SCAN EFFECT */
+#scanRing {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: radial-gradient(circle at center, rgba(37,150,217,0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scanning #scanRing {
+  opacity: 1;
+  animation: pulseScan 1s infinite;
+}
+
+@keyframes pulseScan {
+  0% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.6; }
+}
+
+</style>
+
 </head>
 
 <body class="bg-gray-100 text-gray-800 font-display">
+
+<!-- 🔙 Minimal Back Button -->
 <button id="backBtn"
-  class="fixed top-4 left-4 z-50 text-white/60 hover:text-white text-xl">
+  class="fixed top-4 left-4 z-50 text-gray-400 text-xl active:scale-90 transition">
   <i class="bi bi-arrow-left"></i>
 </button>
 
 <div class="max-w-md mx-auto px-4 py-6 space-y-6">
 
-  <!-- HEADER INFO -->
+  <!-- INFO SALON -->
   <div id="roomInfo"
        class="bg-white rounded-3xl shadow-md p-5 space-y-2 hidden">
   </div>
 
-  <!-- ENTER BUTTON -->
+  <!-- ENTRER -->
   <button id="enterRoomBtn"
     class="hidden w-full bg-primary text-white py-3 rounded-2xl shadow-md
-           flex items-center justify-center gap-2">
+           flex items-center justify-center gap-2 active:scale-95 transition">
     <i class="bi bi-door-open"></i>
   </button>
 
 </div>
 
-<!-- IMMERSIVE MODAL -->
+<!-- IMMERSIVE -->
 <div id="immersiveModal"
-     class="fixed inset-0 bg-black/90 hidden
-            flex flex-col items-center justify-center text-white">
+     class="fixed inset-0 bg-black flex-col items-center justify-center text-white hidden">
 
   <div class="text-center space-y-3 mb-8">
-    <p class="text-sm opacity-70">Participants</p>
+    <p class="text-xs opacity-60 tracking-widest">PARTICIPANTS</p>
     <p id="liveCount" class="text-4xl font-bold text-green-400">0</p>
   </div>
 
-  <!-- RADAR -->
   <div class="relative w-72 h-72 flex items-center justify-center">
 
-    <div class="absolute w-full h-full rounded-full border border-green-400/20"></div>
-    <div id="radarSweep"
-         class="absolute w-full h-full rounded-full"></div>
+    <div id="scanRing"></div>
 
     <button id="fingerprintBtn"
-      class="w-24 h-24 rounded-full bg-gradient-to-r from-medium to-lightblue
-             flex items-center justify-center shadow-xl active:scale-95 transition">
-      <i class="bi bi-fingerprint text-4xl"></i>
+      class="relative w-28 h-28 rounded-full bg-gradient-to-r from-medium to-lightblue
+             flex items-center justify-center shadow-2xl transition">
+      <i class="bi bi-fingerprint text-5xl"></i>
     </button>
 
   </div>
 
   <p id="immersiveTimer"
-     class="mt-8 text-lg font-semibold">00:00</p>
+     class="mt-8 text-lg font-semibold tracking-widest">00:00</p>
 
 </div>
 
-<style>
-#radarSweep {
-  background: conic-gradient(
-    rgba(34,197,94,0.4) 0deg,
-    rgba(34,197,94,0.2) 20deg,
-    transparent 60deg
-  );
-  animation: rotateRadar 2s linear infinite;
-}
-
-@keyframes rotateRadar {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-</style>
-
 <script type="module" src="/myUm/users/js/presence.js"></script>
+
 </body>
 </html>
