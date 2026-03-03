@@ -183,10 +183,14 @@ const roomRef = await addDoc(collection(db, "presenceRooms"), {
 
     activeRoomId = roomRef.id;
 
-    activeRoomStatus.innerText = "Salon actif.";
-    launchRadarBtn.classList.remove("hidden");
-
-    autoCloseRoom(roomRef.id, endTimestamp);
+      activeRoomStatus.innerText = "Salon actif.";
+      launchRadarBtn.classList.remove("hidden");
+      document.getElementById("forceStopBtn").classList.remove("hidden");
+      
+      autoCloseRoom(roomRef.id, endTimestamp);
+      
+      // 🔥 OUVERTURE AUTOMATIQUE DU RADAR
+      openRadar(roomRef.id);
 
   }, () => {
     alert("Géolocalisation refusée. Impossible de créer le salon.");
