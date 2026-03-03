@@ -3,16 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Salon de Présence - MyUm</title>
+<title>Scanner Biométrique - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <style>
 
-/* ===================== */
-/* ANTI SELECTION MOBILE */
-/* ===================== */
+/* ===== ANTI-SELECTION ===== */
 *{
   -webkit-user-select:none;
   user-select:none;
@@ -20,49 +18,57 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-body{
-  overscroll-behavior:none;
-}
-
-/* ===================== */
-/* HUD BACKGROUND */
-/* ===================== */
+/* ===== HUD BACKGROUND ===== */
 #immersiveModal{
-  background: radial-gradient(circle at center, #0f172a 0%, #000 80%);
+  background: radial-gradient(circle at center, #0a0f1f 0%, #000 90%);
 }
 
-/* ===================== */
-/* PROGRESS RING */
-/* ===================== */
+/* ===== PROGRESS RING ===== */
 .progress-ring{
   transform: rotate(-90deg);
 }
 
 .progress-ring circle{
-  transition: stroke-dashoffset 0.1s linear;
+  transition: stroke-dashoffset 0.05s linear;
 }
 
-/* ===================== */
-/* SCAN GLOW */
-/* ===================== */
+/* ===== LASER LINE ===== */
+#laserLine{
+  position:absolute;
+  width:2px;
+  height:180px;
+  background:linear-gradient(to bottom, transparent, #38bdf8, transparent);
+  animation:laserMove 2s linear infinite;
+  opacity:0;
+}
+
+.scanning #laserLine{
+  opacity:1;
+}
+
+@keyframes laserMove{
+  0%{transform:translateY(-90px)}
+  100%{transform:translateY(90px)}
+}
+
+/* ===== HUD GRID ===== */
+#hudOverlay{
+  position:absolute;
+  width:240px;
+  height:240px;
+  border:1px solid rgba(56,189,248,0.3);
+  border-radius:50%;
+  animation:rotateHud 8s linear infinite;
+}
+
+@keyframes rotateHud{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+
+/* ===== GLOW ===== */
 .scanning{
-  box-shadow: 0 0 40px rgba(37,150,217,0.9);
-}
-
-/* ===================== */
-/* GLITCH EFFECT */
-/* ===================== */
-@keyframes glitch{
-  0%{transform:translate(0)}
-  20%{transform:translate(-2px,2px)}
-  40%{transform:translate(-2px,-2px)}
-  60%{transform:translate(2px,2px)}
-  80%{transform:translate(2px,-2px)}
-  100%{transform:translate(0)}
-}
-
-.glitch{
-  animation:glitch 0.3s infinite;
+  box-shadow:0 0 60px rgba(56,189,248,0.9);
 }
 
 </style>
@@ -70,7 +76,6 @@ body{
 
 <body class="text-white font-sans">
 
-<!-- 🔙 Back minimal -->
 <button id="backBtn"
 class="fixed top-4 left-4 z-50 text-gray-400 text-xl">
 <i class="bi bi-arrow-left"></i>
@@ -93,35 +98,30 @@ Entrer dans le salon
 <div id="immersiveModal"
 class="fixed inset-0 hidden flex flex-col items-center justify-center">
 
-<p class="text-xs opacity-60 tracking-widest mb-2">PARTICIPANTS</p>
+<p class="text-xs opacity-60 tracking-widest mb-2">SCAN BIOMÉTRIQUE</p>
 <p id="liveCount" class="text-4xl font-bold text-green-400 mb-10">0</p>
 
 <div class="relative flex items-center justify-center">
 
-<!-- Progress SVG -->
-<svg class="progress-ring" width="220" height="220">
-<circle
-  stroke="#1e293b"
-  stroke-width="10"
-  fill="transparent"
-  r="90"
-  cx="110"
-  cy="110"/>
-<circle
-  id="progressCircle"
-  stroke="#38bdf8"
-  stroke-width="10"
-  fill="transparent"
-  r="90"
-  cx="110"
-  cy="110"
-  stroke-dasharray="565"
-  stroke-dashoffset="565"/>
+<div id="hudOverlay"></div>
+<div id="laserLine"></div>
+
+<svg class="progress-ring" width="240" height="240">
+<circle stroke="#1e293b" stroke-width="8" fill="transparent" r="100" cx="120" cy="120"/>
+<circle id="progressCircle"
+stroke="#38bdf8"
+stroke-width="8"
+fill="transparent"
+r="100"
+cx="120"
+cy="120"
+stroke-dasharray="628"
+stroke-dashoffset="628"/>
 </svg>
 
 <button id="fingerprintBtn"
 class="absolute w-28 h-28 rounded-full bg-blue-500 flex items-center justify-center transition">
-<i id="fingerIcon" class="bi bi-fingerprint text-5xl"></i>
+<i class="bi bi-fingerprint text-5xl"></i>
 </button>
 
 </div>
