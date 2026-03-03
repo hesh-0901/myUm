@@ -10,9 +10,19 @@ import { openRadar } from "/myUm/partials/js/radar.js";
 
 const presenceBtn = document.getElementById("presenceBtn");
 
-presenceBtn.addEventListener("click", async () => {
+if (presenceBtn) {
 
-  presenceBtn.classList.add("opacity-70");
+  presenceBtn.addEventListener("click", async () => {
+
+    presenceBtn.classList.add("opacity-70");
+
+    setTimeout(() => {
+      presenceBtn.classList.remove("opacity-70");
+    }, 150);
+
+  });
+
+}
 
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) {
