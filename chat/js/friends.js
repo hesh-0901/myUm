@@ -60,14 +60,12 @@ async function init() {
 }
 
 /* =========================
-   SEARCH USERS (ROBUST)
+   SEARCH USERS
 ========================= */
 
 async function onSearch() {
 
   let term = (searchInput.value || "");
-
-  // Nettoyage anti-collage (espaces invisibles / retour ligne)
   term = term.replace(/\s+/g, " ").trim();
 
   searchResults.innerHTML = "";
@@ -79,7 +77,6 @@ async function onSearch() {
 
   try {
 
-    // 🔎 Recherche par préfixe username
     const qUsername = query(
       usersRef,
       where("username", ">=", termUpper),
@@ -87,7 +84,6 @@ async function onSearch() {
       limit(10)
     );
 
-    // 📱 Recherche exacte téléphone
     const qPhone = query(
       usersRef,
       where("phone", "==", term),
@@ -131,19 +127,27 @@ async function onSearch() {
         user.username ? `@${user.username}` :
         user.phone || "";
 
+      const initials = getInitials(name);
+
       const card = document.createElement("div");
       card.className =
-        "border rounded-xl p-3 flex items-center justify-between bg-white";
+        "bg-gray-50 rounded-2xl p-4 flex items-center justify-between shadow-sm";
 
       card.innerHTML = `
-        <div>
-          <div class="font-semibold text-sm">${escapeHtml(name)}</div>
-          <div class="text-xs text-gray-500">${escapeHtml(sub)}</div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#3FA9F5] text-white flex items-center justify-center text-sm font-bold">
+            ${initials}
+          </div>
+          <div>
+            <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+            <div class="text-xs text-gray-500">${escapeHtml(sub)}</div>
+          </div>
         </div>
-        <button class="sendBtn px-3 py-2 rounded-xl text-sm font-semibold ${
+
+        <button class="sendBtn px-4 py-2 rounded-xl text-xs font-semibold transition active:scale-95 ${
           alreadyFriend ? "bg-gray-200 text-gray-500" :
           pending ? "bg-yellow-100 text-yellow-700" :
-          "bg-blue-600 text-white"
+          "bg-[#1A3668] text-white shadow-sm"
         }" ${alreadyFriend || pending ? "disabled" : ""}>
           ${alreadyFriend ? "Déjà ami" : pending ? "En attente" : "Ajouter"}
         </button>
@@ -158,9 +162,7 @@ async function onSearch() {
     }
 
   } catch (error) {
-    console.error("Erreur recherche(FULL) :", error);
-    alert(error?.message ||"Erreur recherche ");
-
+    console.error("Erreur recherche :", error);
     searchResults.innerHTML =
       `<div class="text-sm text-red-500">Erreur lors de la recherche.</div>`;
   }
@@ -191,8 +193,6 @@ async function sendFriendRequest(toUserId) {
     status: "pending",
     createdAt: serverTimestamp()
   });
-
-  alert("Demande envoyée ✅");
 
   await renderIncoming();
   await renderFriends();
@@ -232,15 +232,27 @@ async function renderIncoming() {
       || fromData.username
       || "Utilisateur";
 
+    const initials = getInitials(name);
+
     const row = document.createElement("div");
     row.className =
-      "border rounded-xl p-3 flex items-center justify-between";
+      "bg-gray-50 rounded-2xl p-4 flex items-center justify-between shadow-sm";
 
     row.innerHTML = `
-      <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">
+          ${initials}
+        </div>
+        <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+      </div>
+
       <div class="flex gap-2">
-        <button class="accept px-3 py-2 rounded-xl bg-green-600 text-white text-sm">Accepter</button>
-        <button class="reject px-3 py-2 rounded-xl bg-gray-200 text-sm">Refuser</button>
+        <button class="accept px-3 py-2 rounded-xl bg-green-600 text-white text-xs font-semibold shadow-sm active:scale-95">
+          Accepter
+        </button>
+        <button class="reject px-3 py-2 rounded-xl bg-gray-200 text-xs font-semibold active:scale-95">
+          Refuser
+        </button>
       </div>
     `;
 
@@ -274,8 +286,6 @@ async function acceptRequest(requestId, fromUserId) {
   await deleteDoc(doc(db, "users", fromUserId,
     "friendRequests", "outgoing", "items", requestId)).catch(() => {});
 
-  alert("Ami ajouté ✅");
-
   await renderIncoming();
   await renderFriends();
 }
@@ -287,8 +297,6 @@ async function rejectRequest(requestId, fromUserId) {
 
   await deleteDoc(doc(db, "users", fromUserId,
     "friendRequests", "outgoing", "items", requestId)).catch(() => {});
-
-  alert("Demande refusée.");
 
   await renderIncoming();
 }
@@ -324,15 +332,23 @@ async function renderFriends() {
       || friendData.username
       || "Utilisateur";
 
+    const initials = getInitials(name);
+
     const row = document.createElement("div");
     row.className =
-      "border rounded-xl p-3 flex items-center justify-between";
+      "bg-gray-50 rounded-2xl p-4 flex items-center justify-between shadow-sm";
 
     row.innerHTML = `
-      <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#1A3668] text-white flex items-center justify-center text-sm font-bold">
+          ${initials}
+        </div>
+        <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+      </div>
+
       <a href="room.html?uid=${friendUid}"
-         class="px-3 py-2 rounded-xl bg-blue-600 text-white text-sm">
-         Chatter
+         class="px-4 py-2 rounded-xl bg-[#2596D9] text-white text-xs font-semibold shadow-sm active:scale-95 transition">
+         <i class="bi bi-chat-dots"></i>
       </a>
     `;
 
@@ -360,6 +376,12 @@ async function hasPendingRequest(from, to) {
       limit(1)));
 
   return !snap.empty;
+}
+
+function getInitials(name) {
+  const parts = name.split(" ");
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() || "?";
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
 function escapeHtml(str) {
