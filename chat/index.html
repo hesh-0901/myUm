@@ -11,47 +11,62 @@
 
 <body class="bg-gray-100 text-gray-800">
 
-  <!-- (Optionnel) containers pour partials -->
   <div id="header-container"></div>
   <div id="nav-container"></div>
   <div id="sidebar-container"></div>
 
-  <main class="max-w-xl mx-auto p-4 space-y-4 pb-24">
+  <main class="max-w-xl mx-auto p-4 space-y-6 pb-24">
 
-    <!-- Search -->
-    <section class="bg-white rounded-2xl shadow p-4">
-      <h1 class="font-semibold text-lg">Trouver un membre</h1>
-      <p class="text-sm text-gray-500 mt-1">Recherche exacte par <b>username</b> ou <b>téléphone</b>.</p>
+    <!-- SEARCH -->
+    <section class="bg-white rounded-3xl shadow-sm p-5 space-y-4">
 
-      <div class="mt-3 flex gap-2">
-        <input id="searchInput"
-               class="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-               placeholder="Ex: ABBA1205-PC ou +243..." />
+      <div>
+        <h1 class="text-2xl font-bold text-[#1A3668]">Amis</h1>
+        <p class="text-sm text-gray-500">
+          Recherche par <span class="font-medium">username</span> ou téléphone
+        </p>
+      </div>
+
+      <div class="flex gap-2">
+        <div class="flex-1 relative">
+          <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <input id="searchInput"
+            class="w-full pl-9 pr-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3FA9F5]"
+            placeholder="Ex: ABBA1205-PC ou +243..." />
+        </div>
+
         <button id="searchBtn"
-                class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold active:scale-95 transition">
+          class="px-4 py-2 rounded-xl bg-[#1A3668] text-white text-sm font-semibold shadow-sm active:scale-95 transition">
           Rechercher
         </button>
       </div>
 
-      <div id="searchResults" class="mt-3 space-y-2"></div>
+      <div id="searchResults" class="space-y-3"></div>
+
     </section>
 
-    <!-- Incoming requests -->
-    <section class="bg-white rounded-2xl shadow p-4">
-      <h2 class="font-semibold">Demandes reçues</h2>
-      <div id="incomingList" class="mt-3 space-y-2"></div>
+    <!-- INCOMING -->
+    <section class="bg-white rounded-3xl shadow-sm p-5">
+      <h2 class="text-lg font-semibold text-[#1A3668]">
+        <i class="bi bi-person-plus mr-1"></i> Demandes reçues
+      </h2>
+
+      <div id="incomingList" class="mt-4 space-y-3"></div>
     </section>
 
-    <!-- Friends list -->
-    <section class="bg-white rounded-2xl shadow p-4">
-      <h2 class="font-semibold">Mes amis</h2>
-      <div id="friendsList" class="mt-3 space-y-2"></div>
+    <!-- FRIENDS -->
+    <section class="bg-white rounded-3xl shadow-sm p-5">
+      <h2 class="text-lg font-semibold text-[#1A3668]">
+        <i class="bi bi-people mr-1"></i> Mes amis
+      </h2>
+
+      <div id="friendsList" class="mt-4 space-y-3"></div>
     </section>
 
   </main>
 
-  <!-- Guard (si ton auth-guard redirige déjà, garde-le) -->
   <script type="module" src="../mains.js/auth-guard.js"></script>
   <script type="module" src="js/friends.js"></script>
+
 </body>
 </html>
