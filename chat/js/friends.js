@@ -1,4 +1,5 @@
 // chat/js/friends.js
+// chat/js/friends.js
 
 import { db } from "../../mains.js/firebase-config.js";
 import {
@@ -175,7 +176,7 @@ async function onSearch() {
 async function sendFriendRequest(toUserId) {
 
   const outgoingCol =
-    collection(db, "users", uid, "friendRequests", "outgoing", "items");
+    collection(db, "users", uid, "friendRequests", "outgoing");
 
   const newReq = await addDoc(outgoingCol, {
     fromUserId: uid,
@@ -185,7 +186,7 @@ async function sendFriendRequest(toUserId) {
   });
 
   const incomingRef =
-    doc(db, "users", toUserId, "friendRequests", "incoming", "items", newReq.id);
+    doc(db, "users", toUserId, "friendRequests", "incoming", newReq.id);
 
   await setDoc(incomingRef, {
     fromUserId: uid,
@@ -208,7 +209,7 @@ async function renderIncoming() {
   incomingList.innerHTML = "";
 
   const incomingCol =
-    collection(db, "users", uid, "friendRequests", "incoming", "items");
+    collection(db, "users", uid, "friendRequests", "incoming");
 
   const snap =
     await getDocs(query(incomingCol, orderBy("createdAt", "desc"), limit(30)));
@@ -272,19 +273,19 @@ async function renderIncoming() {
 
 async function acceptRequest(requestId, fromUserId) {
 
-  await setDoc(doc(db, "users", uid, "friends", "items", fromUserId), {
+  await setDoc(doc(db, "users", uid, "friends", fromUserId), {
     createdAt: serverTimestamp()
   });
 
-  await setDoc(doc(db, "users", fromUserId, "friends", "items", uid), {
+  await setDoc(doc(db, "users", fromUserId, "friends", uid), {
     createdAt: serverTimestamp()
   });
 
   await deleteDoc(doc(db, "users", uid,
-    "friendRequests", "incoming", "items", requestId)).catch(() => {});
+    "friendRequests", "incoming", requestId)).catch(() => {});
 
   await deleteDoc(doc(db, "users", fromUserId,
-    "friendRequests", "outgoing", "items", requestId)).catch(() => {});
+    "friendRequests", "outgoing", requestId)).catch(() => {});
 
   await renderIncoming();
   await renderFriends();
@@ -293,10 +294,10 @@ async function acceptRequest(requestId, fromUserId) {
 async function rejectRequest(requestId, fromUserId) {
 
   await deleteDoc(doc(db, "users", uid,
-    "friendRequests", "incoming", "items", requestId)).catch(() => {});
+    "friendRequests", "incoming", requestId)).catch(() => {});
 
   await deleteDoc(doc(db, "users", fromUserId,
-    "friendRequests", "outgoing", "items", requestId)).catch(() => {});
+    "friendRequests", "outgoing", requestId)).catch(() => {});
 
   await renderIncoming();
 }
@@ -310,7 +311,7 @@ async function renderFriends() {
   friendsList.innerHTML = "";
 
   const friendsCol =
-    collection(db, "users", uid, "friends", "items");
+    collection(db, "users", uid, "friends");
 
   const snap =
     await getDocs(query(friendsCol, orderBy("createdAt", "desc"), limit(60)));
@@ -361,13 +362,13 @@ async function renderFriends() {
 ========================= */
 
 async function isFriend(a, b) {
-  const d = await getDoc(doc(db, "users", a, "friends", "items", b));
+  const d = await getDoc(doc(db, "users", a, "friends", b));
   return d.exists();
 }
 
 async function hasPendingRequest(from, to) {
   const outCol =
-    collection(db, "users", from, "friendRequests", "outgoing", "items");
+    collection(db, "users", from, "friendRequests", "outgoing");
 
   const snap =
     await getDocs(query(outCol,
