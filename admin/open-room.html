@@ -120,18 +120,32 @@ tailwind.config = {
     </div>
 
     <!-- ACTION BUTTONS -->
-    <div class="space-y-3 pt-2">
+<div class="flex gap-3 pt-2">
 
+  <!-- OUVRIR -->
       <button id="openRoomBtn"
-        class="w-full bg-primary text-white py-3 rounded-2xl shadow-md active:scale-95 transition">
-        Ouvrir le salon
+        class="flex-1 flex items-center justify-center gap-2
+               bg-primary text-white py-3 rounded-2xl shadow-md
+               active:scale-95 transition">
+        <i class="bi bi-broadcast"></i>
       </button>
-
+    
+      <!-- RADAR -->
       <button id="launchRadarBtn"
-        class="hidden w-full bg-black text-white py-3 rounded-2xl shadow-md active:scale-95 transition">
-        Lancer le radar
+        class="hidden flex-1 flex items-center justify-center gap-2
+               bg-black text-white py-3 rounded-2xl shadow-md
+               active:scale-95 transition">
+        <i class="bi bi-radar"></i>
       </button>
-
+    
+      <!-- STOP FORCÉ -->
+      <button id="forceStopBtn"
+        class="hidden flex-1 flex items-center justify-center gap-2
+               bg-danger text-white py-3 rounded-2xl shadow-md
+               active:scale-95 transition">
+        <i class="bi bi-stop-circle"></i>
+      </button>
+    
     </div>
 
   </div>
