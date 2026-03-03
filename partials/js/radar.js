@@ -29,6 +29,9 @@ export async function openRadar(roomId) {
   if (!roomSnap.exists()) return;
 
   const roomData = roomSnap.data();
+  if (roomData.status !== "active") {
+  return;
+}
 
   // ==============================
   // LIVE COUNT
