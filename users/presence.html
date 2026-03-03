@@ -8,117 +8,129 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        danger: '#DC2626'
-      }
-    }
-  }
-}
-</script>
-
 <style>
 
-/* 🔥 ANTI SELECTION MOBILE */
-* {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
+/* ===================== */
+/* ANTI SELECTION MOBILE */
+/* ===================== */
+*{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
 }
 
-button {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
+body{
+  overscroll-behavior:none;
 }
 
-body {
-  overscroll-behavior: none;
+/* ===================== */
+/* HUD BACKGROUND */
+/* ===================== */
+#immersiveModal{
+  background: radial-gradient(circle at center, #0f172a 0%, #000 80%);
 }
 
-/* 🔥 SCAN EFFECT */
-#scanRing {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 9999px;
-  background: radial-gradient(circle at center, rgba(37,150,217,0.3), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+/* ===================== */
+/* PROGRESS RING */
+/* ===================== */
+.progress-ring{
+  transform: rotate(-90deg);
 }
 
-.scanning #scanRing {
-  opacity: 1;
-  animation: pulseScan 1s infinite;
+.progress-ring circle{
+  transition: stroke-dashoffset 0.1s linear;
 }
 
-@keyframes pulseScan {
-  0% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.15); opacity: 0.3; }
-  100% { transform: scale(1); opacity: 0.6; }
+/* ===================== */
+/* SCAN GLOW */
+/* ===================== */
+.scanning{
+  box-shadow: 0 0 40px rgba(37,150,217,0.9);
+}
+
+/* ===================== */
+/* GLITCH EFFECT */
+/* ===================== */
+@keyframes glitch{
+  0%{transform:translate(0)}
+  20%{transform:translate(-2px,2px)}
+  40%{transform:translate(-2px,-2px)}
+  60%{transform:translate(2px,2px)}
+  80%{transform:translate(2px,-2px)}
+  100%{transform:translate(0)}
+}
+
+.glitch{
+  animation:glitch 0.3s infinite;
 }
 
 </style>
-
 </head>
 
-<body class="bg-gray-100 text-gray-800 font-display">
+<body class="text-white font-sans">
 
-<!-- 🔙 Minimal Back Button -->
+<!-- 🔙 Back minimal -->
 <button id="backBtn"
-  class="fixed top-4 left-4 z-50 text-gray-400 text-xl active:scale-90 transition">
-  <i class="bi bi-arrow-left"></i>
+class="fixed top-4 left-4 z-50 text-gray-400 text-xl">
+<i class="bi bi-arrow-left"></i>
 </button>
 
 <div class="max-w-md mx-auto px-4 py-6 space-y-6">
 
-  <!-- INFO SALON -->
-  <div id="roomInfo"
-       class="bg-white rounded-3xl shadow-md p-5 space-y-2 hidden">
-  </div>
+<div id="roomInfo"
+class="bg-white text-black rounded-3xl shadow-md p-5 hidden">
+</div>
 
-  <!-- ENTRER -->
-  <button id="enterRoomBtn"
-    class="hidden w-full bg-primary text-white py-3 rounded-2xl shadow-md
-           flex items-center justify-center gap-2 active:scale-95 transition">
-    <i class="bi bi-door-open"></i>
-  </button>
+<button id="enterRoomBtn"
+class="hidden w-full bg-blue-600 py-3 rounded-2xl shadow-md">
+Entrer dans le salon
+</button>
 
 </div>
 
-<!-- IMMERSIVE -->
+<!-- IMMERSIVE HUD -->
 <div id="immersiveModal"
-     class="fixed inset-0 bg-black flex-col items-center justify-center text-white hidden">
+class="fixed inset-0 hidden flex flex-col items-center justify-center">
 
-  <div class="text-center space-y-3 mb-8">
-    <p class="text-xs opacity-60 tracking-widest">PARTICIPANTS</p>
-    <p id="liveCount" class="text-4xl font-bold text-green-400">0</p>
-  </div>
+<p class="text-xs opacity-60 tracking-widest mb-2">PARTICIPANTS</p>
+<p id="liveCount" class="text-4xl font-bold text-green-400 mb-10">0</p>
 
-  <div class="relative w-72 h-72 flex items-center justify-center">
+<div class="relative flex items-center justify-center">
 
-    <div id="scanRing"></div>
+<!-- Progress SVG -->
+<svg class="progress-ring" width="220" height="220">
+<circle
+  stroke="#1e293b"
+  stroke-width="10"
+  fill="transparent"
+  r="90"
+  cx="110"
+  cy="110"/>
+<circle
+  id="progressCircle"
+  stroke="#38bdf8"
+  stroke-width="10"
+  fill="transparent"
+  r="90"
+  cx="110"
+  cy="110"
+  stroke-dasharray="565"
+  stroke-dashoffset="565"/>
+</svg>
 
-    <button id="fingerprintBtn"
-      class="relative w-28 h-28 rounded-full bg-gradient-to-r from-medium to-lightblue
-             flex items-center justify-center shadow-2xl transition">
-      <i class="bi bi-fingerprint text-5xl"></i>
-    </button>
+<button id="fingerprintBtn"
+class="absolute w-28 h-28 rounded-full bg-blue-500 flex items-center justify-center transition">
+<i id="fingerIcon" class="bi bi-fingerprint text-5xl"></i>
+</button>
 
-  </div>
+</div>
 
-  <p id="immersiveTimer"
-     class="mt-8 text-lg font-semibold tracking-widest">00:00</p>
+<p id="immersiveTimer"
+class="mt-10 text-lg tracking-widest">00:00</p>
 
 </div>
 
 <script type="module" src="/myUm/users/js/presence.js"></script>
-
 </body>
 </html>
