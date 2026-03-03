@@ -1,5 +1,3 @@
-import { goBack } from "./navigation-stack.js";
-
 export function initBackHeader(customUrl = null) {
 
   const btn = document.getElementById("globalBackBtn");
@@ -12,7 +10,12 @@ export function initBackHeader(customUrl = null) {
       return;
     }
 
-    goBack("/dashboard.html");
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = "/myUm/admin/presence-management.html";
+    }
 
   });
+
 }
