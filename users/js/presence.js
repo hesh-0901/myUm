@@ -22,7 +22,7 @@ let progress = 0;
 
 const circumference = 2 * Math.PI * 100;
 
-// ===== LOAD ACTIVE ROOM =====
+/* ================= LOAD ROOM ================= */
 async function loadActiveRoom(){
 const q = query(collection(db,"presenceRooms"),where("status","==","active"));
 const snap = await getDocs(q);
@@ -49,7 +49,7 @@ startTimer();
 }
 loadActiveRoom();
 
-// ===== TIMER =====
+/* ================= TIMER ================= */
 function startTimer(){
 setInterval(()=>{
 if(!roomData) return;
@@ -61,7 +61,7 @@ immersiveTimer.innerText=`${m.toString().padStart(2,"0")}:${s.toString().padStar
 },1000);
 }
 
-// ===== ENTER =====
+/* ================= ENTER ================= */
 enterRoomBtn?.addEventListener("click",()=>{
 immersiveModal.classList.remove("hidden");
 
@@ -71,29 +71,30 @@ snap=> liveCount.innerText=snap.size
 );
 });
 
-// ===== BACK =====
+/* ================= BACK ================= */
 backBtn?.addEventListener("click",()=>{
 immersiveModal.classList.add("hidden");
 if(unsubscribe) unsubscribe();
 });
 
-// ===== SCAN =====
+/* ================= SCAN ================= */
 function startScan(e){
 e.preventDefault();
 progress=0;
 fingerprintBtn.classList.add("scanning");
 
 scanInterval=setInterval(()=>{
-progress+=1.5;
+progress+=1.2;
 updateProgress(progress);
+spawnParticle();
 
-if(navigator.vibrate) navigator.vibrate(30);
+if(navigator.vibrate) navigator.vibrate(20);
 
 if(progress>=100){
 clearInterval(scanInterval);
 completeScan();
 }
-},40);
+},35);
 }
 
 function cancelScan(){
@@ -107,12 +108,38 @@ const offset = circumference - (value/100)*circumference;
 progressCircle.style.strokeDashoffset=offset;
 }
 
-// ===== COMPLETE =====
+/* ================= PARTICLES ================= */
+function spawnParticle(){
+const particle=document.createElement("div");
+particle.style.position="absolute";
+particle.style.width="4px";
+particle.style.height="4px";
+particle.style.background="#38bdf8";
+particle.style.borderRadius="50%";
+particle.style.left=(110+Math.random()*40-20)+"px";
+particle.style.top=(110+Math.random()*40-20)+"px";
+particle.style.opacity="1";
+particle.style.transition="all 0.8s ease";
+
+immersiveModal.appendChild(particle);
+
+setTimeout(()=>{
+particle.style.transform="scale(3)";
+particle.style.opacity="0";
+},10);
+
+setTimeout(()=>{
+particle.remove();
+},800);
+}
+
+/* ================= COMPLETE ================= */
 async function completeScan(){
 
-if(navigator.vibrate) navigator.vibrate([300,150,300]);
+if(navigator.vibrate) navigator.vibrate([300,150,300,150,300]);
 
-successSoundLong();
+cinematicFlash();
+successSoundEpic();
 
 await signPresence();
 
@@ -120,7 +147,22 @@ fingerprintBtn.innerHTML="<i class='bi bi-check-circle text-5xl text-green-400'>
 fingerprintBtn.classList.remove("scanning");
 }
 
-// ===== SIGNATURE =====
+/* ================= FLASH ================= */
+function cinematicFlash(){
+const flash=document.createElement("div");
+flash.style.position="fixed";
+flash.style.inset="0";
+flash.style.background="white";
+flash.style.opacity="0.9";
+flash.style.transition="opacity 0.6s ease";
+flash.style.zIndex="9999";
+document.body.appendChild(flash);
+
+setTimeout(()=>flash.style.opacity="0",50);
+setTimeout(()=>flash.remove(),600);
+}
+
+/* ================= SIGNATURE ================= */
 async function signPresence(){
 
 if(roomData.status!=="active") return;
@@ -129,7 +171,6 @@ const storedUser = JSON.parse(localStorage.getItem("myum_user"));
 if(!storedUser) return;
 
 const attendanceRef = doc(db,"presenceRooms",activeRoomId,"attendances",storedUser.id);
-
 const existing = await getDoc(attendanceRef);
 if(existing.exists()) return;
 
@@ -144,8 +185,8 @@ timestamp:serverTimestamp()
 });
 }
 
-// ===== LONG SUCCESS SOUND =====
-function successSoundLong(){
+/* ================= EPIC SOUND ================= */
+function successSoundEpic(){
 const ctx=new(window.AudioContext||window.webkitAudioContext)();
 const osc=ctx.createOscillator();
 const gain=ctx.createGain();
@@ -153,17 +194,17 @@ osc.connect(gain);
 gain.connect(ctx.destination);
 
 osc.type="sawtooth";
-osc.frequency.setValueAtTime(400,ctx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.6);
+osc.frequency.setValueAtTime(300,ctx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(1200,ctx.currentTime+0.8);
 
-gain.gain.setValueAtTime(0.5,ctx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);
+gain.gain.setValueAtTime(0.7,ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5);
 
 osc.start();
-osc.stop(ctx.currentTime+1.2);
+osc.stop(ctx.currentTime+1.5);
 }
 
-// ===== EVENTS =====
+/* ================= EVENTS ================= */
 fingerprintBtn?.addEventListener("mousedown",startScan);
 fingerprintBtn?.addEventListener("touchstart",startScan,{passive:false});
 fingerprintBtn?.addEventListener("mouseup",cancelScan);
