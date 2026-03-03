@@ -11,17 +11,20 @@ document.querySelectorAll(".nav-item").forEach(btn => {
 const presenceBtn = document.getElementById("presenceBtn");
 
 if (presenceBtn) {
-  presenceBtn.addEventListener("click", async () => {
 
-    // Placeholder logique salon
-    console.log("Recherche salon de présence actif...");
+  presenceBtn.addEventListener("click", () => {
 
-    // Animation rapide feedback
+    // Animation feedback
     presenceBtn.classList.add("scale-110");
 
     setTimeout(() => {
       presenceBtn.classList.remove("scale-110");
+
+      // 🔥 Redirection vers la page salon
+      window.location.href = "/myUm/users/presence.html";
+
     }, 150);
 
   });
+
 }
