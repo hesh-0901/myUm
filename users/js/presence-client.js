@@ -16,61 +16,56 @@ if (presenceBtn) {
 
     presenceBtn.classList.add("opacity-70");
 
-    setTimeout(() => {
+    const storedUser = localStorage.getItem("myum_user");
+    if (!storedUser) {
+      alert("Session expirée.");
       presenceBtn.classList.remove("opacity-70");
-    }, 150);
+      return;
+    }
+
+    const user = JSON.parse(storedUser);
+
+    // ==========================
+    // CHERCHER SALON ACTIF
+    // ==========================
+
+    const q = query(
+      collection(db, "presenceRooms"),
+      where("status", "==", "active")
+    );
+
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      alert("Aucun salon actif pour le moment.");
+      presenceBtn.classList.remove("opacity-70");
+      return;
+    }
+
+    const roomDoc = snap.docs[0];
+    const roomData = roomDoc.data();
+
+    // ==========================
+    // VERIFIER CHORALE
+    // ==========================
+
+    if (
+      roomData.chorale !== user.chorale &&
+      roomData.chorale !== "UM"
+    ) {
+      alert("Ce salon ne concerne pas votre chorale.");
+      presenceBtn.classList.remove("opacity-70");
+      return;
+    }
+
+    // ==========================
+    // LANCER RADAR
+    // ==========================
+
+    openRadar(roomDoc.id);
+
+    presenceBtn.classList.remove("opacity-70");
 
   });
 
 }
-
-  const storedUser = localStorage.getItem("myum_user");
-  if (!storedUser) {
-    alert("Session expirée.");
-    return;
-  }
-
-  const user = JSON.parse(storedUser);
-
-  // ==========================
-  // CHERCHER SALON ACTIF
-  // ==========================
-
-  const q = query(
-    collection(db, "presenceRooms"),
-    where("status", "==", "active")
-  );
-
-  const snap = await getDocs(q);
-
-  if (snap.empty) {
-    alert("Aucun salon actif pour le moment.");
-    presenceBtn.classList.remove("opacity-70");
-    return;
-  }
-
-  const roomDoc = snap.docs[0];
-  const roomData = roomDoc.data();
-
-  // ==========================
-  // VERIFIER CHORALE
-  // ==========================
-
-  if (
-    roomData.chorale !== user.chorale &&
-    roomData.chorale !== "UM"
-  ) {
-    alert("Ce salon ne concerne pas votre chorale.");
-    presenceBtn.classList.remove("opacity-70");
-    return;
-  }
-
-  // ==========================
-  // LANCER RADAR
-  // ==========================
-
-  openRadar(roomDoc.id);
-
-  presenceBtn.classList.remove("opacity-70");
-
-});
