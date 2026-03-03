@@ -158,7 +158,9 @@ async function onSearch() {
     }
 
   } catch (error) {
-    console.error("Erreur recherche :", error);
+    console.error("Erreur recherche(FULL) :", error);
+    alert(error?.message ||"Erreur recherche ");
+
     searchResults.innerHTML =
       `<div class="text-sm text-red-500">Erreur lors de la recherche.</div>`;
   }
