@@ -3,18 +3,21 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ================= STATE ================= */
 
 let allRooms = [];
 let filteredRooms = [];
+let unsubscribe = null;
 
 /* ================= INIT ================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+  // 1️⃣ Charger cache instantané
   const cached = sessionStorage.getItem("presenceRoomsCache");
 
   if (cached) {
@@ -22,50 +25,62 @@ document.addEventListener("DOMContentLoaded", async () => {
     filteredRooms = [...allRooms];
     populateChoraleFilter();
     renderTable(filteredRooms);
-  } else {
-    await loadRooms();
   }
+
+  // 2️⃣ Activer écoute temps réel
+  activateRealtimeListener();
 
   initFilters();
 });
 
-/* ================= LOAD ROOMS ================= */
+/* ================= REALTIME ================= */
 
-async function loadRooms() {
+function activateRealtimeListener() {
 
   const q = query(
     collection(db, "presenceRooms"),
     orderBy("createdAt", "desc")
   );
 
-  const snapshot = await getDocs(q);
-  allRooms = [];
+  unsubscribe = onSnapshot(q, async (snapshot) => {
 
-  for (const docSnap of snapshot.docs) {
+    const updatedRooms = [];
 
-    const room = docSnap.data();
-    const roomId = docSnap.id;
+    for (const docSnap of snapshot.docs) {
 
-    const attendanceSnap = await getDocs(
-      collection(db, "presenceRooms", roomId, "attendances")
-    );
+      const room = docSnap.data();
+      const roomId = docSnap.id;
 
-    allRooms.push({
-      id: roomId,
-      ...room,
-      participants: attendanceSnap.size
-    });
-  }
+      const attendanceSnap = await getDocs(
+        collection(db, "presenceRooms", roomId, "attendances")
+      );
 
-  sessionStorage.setItem("presenceRoomsCache", JSON.stringify(allRooms));
+      updatedRooms.push({
+        id: roomId,
+        ...room,
+        participants: attendanceSnap.size
+      });
+    }
 
-  filteredRooms = [...allRooms];
+    // Vérifier si changement réel (évite re-render inutile)
+    if (JSON.stringify(updatedRooms) !== JSON.stringify(allRooms)) {
 
-  populateChoraleFilter();
-  renderTable(filteredRooms);
+      allRooms = updatedRooms;
+      filteredRooms = [...allRooms];
+
+      sessionStorage.setItem(
+        "presenceRoomsCache",
+        JSON.stringify(allRooms)
+      );
+
+      populateChoraleFilter();
+      renderTable(filteredRooms);
+    }
+
+  });
 }
 
-/* ================= RENDER TABLE ================= */
+/* ================= RENDER ================= */
 
 function renderTable(rooms) {
 
@@ -75,7 +90,7 @@ function renderTable(rooms) {
   if (!rooms.length) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center py-6 text-gray-400 text-xs">
+        <td colspan="8" class="text-center py-6 text-gray-400 text-xs">
           Aucun résultat.
         </td>
       </tr>
@@ -152,19 +167,21 @@ function initFilters() {
     renderTable(filteredRooms);
   }
 
-  dateInput.addEventListener("change", applyFilters);
-  choraleSelect.addEventListener("change", applyFilters);
-  globalSearch.addEventListener("input", applyFilters);
+  dateInput?.addEventListener("change", applyFilters);
+  choraleSelect?.addEventListener("change", applyFilters);
+  globalSearch?.addEventListener("input", applyFilters);
 
   document.getElementById("exportXLS")
-    .addEventListener("click", exportXLS);
+    ?.addEventListener("click", exportXLS);
 }
 
-/* ================= CHORALE FILTER ================= */
+/* ================= FILTER OPTIONS ================= */
 
 function populateChoraleFilter() {
 
   const select = document.getElementById("filterChorale");
+  if (!select) return;
+
   select.innerHTML = `<option value="">Chorales</option>`;
 
   const chorales = [...new Set(
@@ -176,7 +193,7 @@ function populateChoraleFilter() {
   });
 }
 
-/* ================= EXPORT XLS ================= */
+/* ================= EXPORT ================= */
 
 function exportXLS() {
 
