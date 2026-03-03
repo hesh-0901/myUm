@@ -5,16 +5,22 @@ export function initBackHeader(customUrl = null) {
 
   btn.addEventListener("click", () => {
 
+    // 1️⃣ Si URL forcée
     if (customUrl) {
       window.location.href = customUrl;
       return;
     }
 
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = "/";
+    // 2️⃣ Si page précédente mémorisée
+    const previousPage = sessionStorage.getItem("previousPage");
+
+    if (previousPage) {
+      window.location.href = previousPage;
+      return;
     }
+
+    // 3️⃣ Fallback sécurité
+    window.history.back();
 
   });
 
