@@ -6,12 +6,30 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+/* ================= STATE ================= */
+
 let allRooms = [];
+let filteredRooms = [];
+
+/* ================= INIT ================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadRooms();
+
+  const cached = sessionStorage.getItem("presenceRoomsCache");
+
+  if (cached) {
+    allRooms = JSON.parse(cached);
+    filteredRooms = [...allRooms];
+    populateChoraleFilter();
+    renderTable(filteredRooms);
+  } else {
+    await loadRooms();
+  }
+
   initFilters();
 });
+
+/* ================= LOAD ROOMS ================= */
 
 async function loadRooms() {
 
@@ -39,11 +57,15 @@ async function loadRooms() {
     });
   }
 
+  sessionStorage.setItem("presenceRoomsCache", JSON.stringify(allRooms));
+
+  filteredRooms = [...allRooms];
+
   populateChoraleFilter();
-  renderTable(allRooms);
+  renderTable(filteredRooms);
 }
 
-// ================= RENDER =================
+/* ================= RENDER TABLE ================= */
 
 function renderTable(rooms) {
 
@@ -53,7 +75,7 @@ function renderTable(rooms) {
   if (!rooms.length) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center py-6 text-gray-400">
+        <td colspan="7" class="text-center py-6 text-gray-400 text-xs">
           Aucun résultat.
         </td>
       </tr>
@@ -63,20 +85,31 @@ function renderTable(rooms) {
 
   rooms.forEach(room => {
 
+    const statusBadge = room.status === "closed"
+      ? `<span class="px-2 py-1 rounded-full bg-gray-200 text-gray-600 text-[10px]">Clos</span>`
+      : `<span class="px-2 py-1 rounded-full bg-green-100 text-green-600 text-[10px]">Actif</span>`;
+
     tableBody.innerHTML += `
-      <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4">${room.date || ""}</td>
-        <td class="px-6 py-4 font-medium">${room.chorale || ""}</td>
-        <td class="px-6 py-4">${room.type || ""}</td>
-        <td class="px-6 py-4">${room.createdByName || "Inconnu"}</td>
-        <td class="px-6 py-4 text-center font-semibold text-primary">
+      <tr class="hover:bg-gray-50 transition text-xs">
+        <td class="px-3 py-3">${room.date || ""}</td>
+        <td class="px-3 py-3 font-medium">${room.chorale || ""}</td>
+        <td class="px-3 py-3">${room.type || ""}</td>
+        <td class="px-3 py-3 hidden md:table-cell text-gray-500">
+          ${room.description || ""}
+        </td>
+        <td class="px-3 py-3 hidden md:table-cell">
+          ${room.createdByName || "Inconnu"}
+        </td>
+        <td class="px-3 py-3 text-center font-semibold text-primary">
           ${room.participants}
         </td>
-        <td class="px-6 py-4 text-center">${room.status}</td>
-        <td class="px-6 py-4 text-center">
+        <td class="px-3 py-3 text-center">
+          ${statusBadge}
+        </td>
+        <td class="px-3 py-3 text-center">
           <button onclick="window.location.href='presence-details.html?roomId=${room.id}'"
-            class="text-medium text-xs font-semibold">
-            Voir
+            class="text-medium text-sm">
+            <i class="bi bi-eye"></i>
           </button>
         </td>
       </tr>
@@ -84,49 +117,74 @@ function renderTable(rooms) {
   });
 }
 
-// ================= FILTRES =================
+/* ================= FILTERS ================= */
 
 function initFilters() {
 
-  document.getElementById("applyFilters").addEventListener("click", () => {
+  const dateInput = document.getElementById("filterDate");
+  const choraleSelect = document.getElementById("filterChorale");
+  const globalSearch = document.getElementById("globalSearch");
 
-    const date = document.getElementById("filterDate").value;
-    const chorale = document.getElementById("filterChorale").value;
+  function applyFilters() {
 
-    let filtered = allRooms;
+    let results = [...allRooms];
 
-    if (date) {
-      filtered = filtered.filter(r => r.date === date);
+    if (dateInput.value) {
+      results = results.filter(r => r.date === dateInput.value);
     }
 
-    if (chorale) {
-      filtered = filtered.filter(r => r.chorale === chorale);
+    if (choraleSelect.value) {
+      results = results.filter(r => r.chorale === choraleSelect.value);
     }
 
-    renderTable(filtered);
-  });
+    if (globalSearch.value.trim()) {
 
-  document.getElementById("exportXLS").addEventListener("click", exportXLS);
+      const search = globalSearch.value.toLowerCase();
+
+      results = results.filter(r =>
+        (r.type || "").toLowerCase().includes(search) ||
+        (r.description || "").toLowerCase().includes(search) ||
+        (r.createdByName || "").toLowerCase().includes(search)
+      );
+    }
+
+    filteredRooms = results;
+    renderTable(filteredRooms);
+  }
+
+  dateInput.addEventListener("change", applyFilters);
+  choraleSelect.addEventListener("change", applyFilters);
+  globalSearch.addEventListener("input", applyFilters);
+
+  document.getElementById("exportXLS")
+    .addEventListener("click", exportXLS);
 }
+
+/* ================= CHORALE FILTER ================= */
 
 function populateChoraleFilter() {
 
   const select = document.getElementById("filterChorale");
-  const chorales = [...new Set(allRooms.map(r => r.chorale).filter(Boolean))];
+  select.innerHTML = `<option value="">Chorales</option>`;
+
+  const chorales = [...new Set(
+    allRooms.map(r => r.chorale).filter(Boolean)
+  )];
 
   chorales.forEach(c => {
     select.innerHTML += `<option value="${c}">${c}</option>`;
   });
 }
 
-// ================= EXPORT XLS =================
+/* ================= EXPORT XLS ================= */
 
 function exportXLS() {
 
-  const data = allRooms.map(room => ({
+  const data = filteredRooms.map(room => ({
     Date: room.date,
     Chorale: room.chorale,
     Motif: room.type,
+    Description: room.description || "",
     "Ouvert par": room.createdByName,
     Participants: room.participants,
     Statut: room.status
