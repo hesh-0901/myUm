@@ -43,30 +43,35 @@ async function injectPartials() {
   try {
 
     // HEADER
-    const headerRes = await fetch("../partials/header-back.html");
+    const headerRes = await fetch("/myUm/partials/header-back.html");
+
     if (headerRes.ok) {
+
       document.getElementById("headerContainer").innerHTML =
         await headerRes.text();
+
+      // IMPORT dynamique du gestionnaire
+      const { initBackHeader } = await import(
+        "/myUm/partials/js/back-header.js"
+      );
+
+      // Initialise le bouton retour
+      initBackHeader();
+
     }
 
     // MODAL
-    const modalRes = await fetch("../partials/add-member.html");
+    const modalRes = await fetch("/myUm/partials/add-member.html");
+
     if (modalRes.ok) {
       document.getElementById("modalContainer").innerHTML =
         await modalRes.text();
-    }
-
-    // BACK BUTTON SAFE
-    const backBtn = document.getElementById("backBtn");
-    if (backBtn) {
-      backBtn.addEventListener("click", () => window.history.back());
     }
 
   } catch (error) {
     console.error("Erreur injection partials :", error);
   }
 }
-
 /* ================= LOAD ROOM ================= */
 
 async function loadRoom() {
