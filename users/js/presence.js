@@ -17,7 +17,6 @@ const immersiveModal = document.getElementById("immersiveModal");
 const liveCount = document.getElementById("liveCount");
 const fingerprintBtn = document.getElementById("fingerprintBtn");
 const immersiveTimer = document.getElementById("immersiveTimer");
-const scanProgress = document.getElementById("scanProgress");
 const backBtn = document.getElementById("backBtn");
 
 let activeRoomId = null;
@@ -127,6 +126,11 @@ if (enterRoomBtn) {
 if (backBtn) {
   backBtn.addEventListener("click", () => {
     immersiveModal.classList.add("hidden");
+
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+    }
   });
 }
 
@@ -135,20 +139,19 @@ if (backBtn) {
 // BIOMETRIC SCAN
 // ==========================
 
-function startScan() {
+function startScan(e) {
 
-  if (!scanProgress || !fingerprintBtn) return;
+  e.preventDefault();
 
-  scanProgress.classList.add("scanning");
+  if (!activeRoomId || !roomData) return;
 
-  // Vibrations progressives
+  fingerprintBtn.classList.add("scanning");
+
+  // vibration légère chaque seconde
   vibrationInterval = setInterval(() => {
-    if (navigator.vibrate) {
-      navigator.vibrate(100);
-    }
+    if (navigator.vibrate) navigator.vibrate(80);
   }, 1000);
 
-  // 3 secondes
   scanTimeout = setTimeout(async () => {
 
     clearInterval(vibrationInterval);
@@ -161,17 +164,17 @@ function startScan() {
 
     await signPresence();
 
-    scanProgress.classList.remove("scanning");
+    fingerprintBtn.classList.remove("scanning");
 
   }, 3000);
 }
 
+
 function cancelScan() {
+
   clearTimeout(scanTimeout);
   clearInterval(vibrationInterval);
-  if (scanProgress) {
-    scanProgress.classList.remove("scanning");
-  }
+  fingerprintBtn.classList.remove("scanning");
 }
 
 
@@ -181,7 +184,6 @@ function cancelScan() {
 
 async function signPresence() {
 
-  if (!activeRoomId || !roomData) return;
   if (roomData.status !== "active") return;
 
   const storedUser = JSON.parse(localStorage.getItem("myum_user"));
@@ -227,27 +229,27 @@ function playBeep() {
   gain.connect(audioCtx.destination);
 
   oscillator.type = "sine";
-  oscillator.frequency.value = 800;
+  oscillator.frequency.value = 900;
 
   oscillator.start();
 
   gain.gain.exponentialRampToValueAtTime(
     0.0001,
-    audioCtx.currentTime + 0.5
+    audioCtx.currentTime + 0.4
   );
 
-  oscillator.stop(audioCtx.currentTime + 0.5);
+  oscillator.stop(audioCtx.currentTime + 0.4);
 }
 
 
 // ==========================
-// EVENT LISTENERS
+// EVENTS
 // ==========================
 
-if (fingerprintBtn && scanProgress) {
+if (fingerprintBtn) {
 
   fingerprintBtn.addEventListener("mousedown", startScan);
-  fingerprintBtn.addEventListener("touchstart", startScan);
+  fingerprintBtn.addEventListener("touchstart", startScan, { passive: false });
 
   fingerprintBtn.addEventListener("mouseup", cancelScan);
   fingerprintBtn.addEventListener("mouseleave", cancelScan);
