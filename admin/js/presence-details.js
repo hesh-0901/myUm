@@ -163,7 +163,7 @@ window.removeAttendance = async function (userId) {
   await loadAttendances();
 };
 
-/* ================= ACTIONS ================= */
+/* ================= ACTIONS ================== */
 
 function initActions() {
 
