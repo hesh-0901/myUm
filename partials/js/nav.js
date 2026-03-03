@@ -20,7 +20,7 @@ if (presenceBtn) {
     setTimeout(() => {
       presenceBtn.classList.remove("scale-110");
 
-      // 🔥 Redirection vers la page salon
+      // 🔥 Chemin absolu (important car partial)
       window.location.href = "/myUm/users/presence.html";
 
     }, 150);
