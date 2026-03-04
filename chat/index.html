@@ -1,157 +1,176 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messagerie | MyUm</title>
 
-<title>Messagerie | MyUm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<script>
-tailwind.config = {
-theme:{
-extend:{
-colors:{
-primary:'#1A3668',
-medium:'#2596D9',
-lightblue:'#3FA9F5'
-},
-fontFamily:{
-display:['Inter','sans-serif']
-}
-}
-}
-}
-</script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1A3668",
+            medium: "#2596D9",
+            lightblue: "#3FA9F5"
+          },
+          fontFamily: {
+            display: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
 
 </head>
 
+
 <body class="bg-gray-100 font-display text-gray-800">
 
+
 <!-- HEADER -->
-<header class="sticky top-0 z-40 bg-white border-b border-gray-200">
 
-<div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+<header class="sticky top-0 bg-white border-b border-gray-200 z-40">
 
-<!-- Back -->
-<button onclick="goTo('public/dashboard.html')"
-class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100">
-<i class="bi bi-arrow-left text-lg"></i>
-</button>
+  <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
 
-<div class="text-sm font-semibold text-gray-700">
-Messagerie
-</div>
+    <!-- BACK -->
 
-<!-- Conversations -->
-<button onclick="window.location.href='list.html'"
-class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100">
+    <button onclick="history.back()"
+      class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
 
-<i class="bi bi-chat-dots text-lg"></i>
+      <i class="bi bi-arrow-left"></i>
 
-</button>
-
-</div>
+    </button>
 
 
-<!-- SEARCH BAR -->
-<div class="max-w-md mx-auto px-4 pb-3">
+    <div class="text-sm font-semibold text-gray-700">
+      Messagerie
+    </div>
 
-<div class="flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2">
 
-<i class="bi bi-search text-gray-500"></i>
+    <!-- CONVERSATIONS -->
 
-<input
-id="searchInput"
-class="flex-1 bg-transparent text-sm outline-none"
-placeholder="Rechercher un membre"
-/>
+    <button onclick="window.location.href='list.html'"
+      class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
 
-</div>
+      <i class="bi bi-chat-dots"></i>
 
-</div>
+    </button>
+
+  </div>
+
+
+
+  <!-- SEARCH BAR -->
+
+  <div class="max-w-md mx-auto px-4 pb-3">
+
+    <div class="flex items-center bg-gray-100 rounded-xl px-3 py-2">
+
+      <i class="bi bi-search text-gray-500 mr-2"></i>
+
+      <input
+        id="searchInput"
+        placeholder="Rechercher un membre"
+        class="bg-transparent outline-none text-sm w-full"
+      />
+
+    </div>
+
+  </div>
 
 </header>
 
 
+
 <main class="max-w-md mx-auto px-4 pt-4 pb-10">
 
-<!-- TABS -->
-<div class="flex gap-2 mb-4">
 
-<button id="tabIncoming"
-class="tabBtn flex-1 py-2 rounded-xl bg-primary text-white text-xs font-semibold">
+  <!-- TABS -->
 
-Demandes reçues
+  <div class="flex gap-2 mb-4">
 
-</button>
+    <button id="tabIncoming"
+      class="flex-1 py-2 rounded-xl bg-primary text-white text-xs font-semibold">
 
-<button id="tabOutgoing"
-class="tabBtn flex-1 py-2 rounded-xl bg-gray-200 text-xs font-semibold">
+      Demandes reçues
 
-Demandes envoyées
-
-</button>
-
-<button id="tabFriends"
-class="tabBtn flex-1 py-2 rounded-xl bg-gray-200 text-xs font-semibold">
-
-Amis
-
-</button>
-
-</div>
+    </button>
 
 
-<!-- INCOMING -->
-<section id="incomingSection" class="space-y-3"></section>
+    <button id="tabOutgoing"
+      class="flex-1 py-2 rounded-xl bg-gray-200 text-xs font-semibold">
 
-<!-- OUTGOING -->
-<section id="outgoingSection" class="space-y-3 hidden"></section>
+      Demandes envoyées
 
-<!-- FRIENDS -->
-<section id="friendsSection" class="space-y-3 hidden"></section>
+    </button>
+
+
+    <button id="tabFriends"
+      class="flex-1 py-2 rounded-xl bg-gray-200 text-xs font-semibold">
+
+      Amis
+
+    </button>
+
+  </div>
+
+
+
+  <!-- LISTES -->
+
+  <section id="incomingSection" class="space-y-3"></section>
+
+  <section id="outgoingSection" class="space-y-3 hidden"></section>
+
+  <section id="friendsSection" class="space-y-3 hidden"></section>
+
 
 </main>
 
 
+
 <!-- SEARCH MODAL -->
 
-<div
-id="searchModal"
-class="fixed inset-0 bg-black/40 hidden items-start justify-center pt-20 z-50"
->
+<div id="searchModal"
+  class="fixed inset-0 bg-black/40 hidden items-start justify-center pt-20 z-50">
 
-<div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-4">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-4">
 
-<div class="flex justify-between items-center mb-3">
+    <div class="flex items-center justify-between mb-3">
 
-<div class="font-semibold text-sm">
-Résultats
-</div>
+      <div class="font-semibold text-sm">
+        Résultats
+      </div>
 
-<button id="closeSearchModal">
-<i class="bi bi-x-lg"></i>
-</button>
+      <button id="closeSearchModal">
+        <i class="bi bi-x-lg"></i>
+      </button>
 
-</div>
+    </div>
 
-<div id="searchResults" class="space-y-3"></div>
+    <div id="searchResults" class="space-y-3"></div>
 
-</div>
+  </div>
 
 </div>
 
 
+
+<!-- BASE PATH HELPER -->
 
 <script>
 
 function getBasePath(){
+
 const {pathname}=window.location
 const parts=pathname.split("/").filter(Boolean)
 
@@ -160,6 +179,7 @@ return "/"+parts[0]+"/"
 }
 
 return "/"
+
 }
 
 function goTo(path){
@@ -169,8 +189,11 @@ window.location.href=getBasePath()+path
 </script>
 
 
+
 <script type="module" src="../mains.js/auth-guard.js"></script>
+
 <script type="module" src="js/friends.js"></script>
+
 
 </body>
 </html>
