@@ -200,25 +200,25 @@ async function onSearch() {
       card.className =
         "bg-gray-50 rounded-2xl p-4 flex justify-between items-center shadow-sm";
 
-          card.innerHTML = `
-            <div class="flex items-center gap-3">
-          
-              <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
-          
-                ${
-                  user.photoURL
-                  ? `<img src="${user.photoURL}" class="w-full h-full object-cover">`
-                  : `${(user.firstName?.charAt(0) || "")}${(user.lastName?.charAt(0) || "")}`
-                }
-          
-              </div>
-          
-              <div>
-                <div class="font-semibold text-sm">${escapeHtml(name)}</div>
-                <div class="text-xs text-gray-500">${escapeHtml(sub)}</div>
-              </div>
-          
-            </div>
+      card.innerHTML = `
+        <div class="flex items-center gap-3">
+
+          <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+
+            ${
+              user.photoURL
+              ? `<img src="${user.photoURL}" class="w-full h-full object-cover">`
+              : `${(user.firstName?.charAt(0) || "")}${(user.lastName?.charAt(0) || "")}`
+            }
+
+          </div>
+
+          <div>
+            <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+            <div class="text-xs text-gray-500">${escapeHtml(sub)}</div>
+          </div>
+
+        </div>
 
         <button class="addBtn px-3 py-2 rounded-xl text-xs font-semibold
         ${alreadyFriend ? "bg-gray-300 text-gray-600" :
@@ -243,6 +243,7 @@ async function onSearch() {
     console.error(e);
   }
 }
+
 
 /* =========================
    SEND REQUEST
@@ -295,6 +296,7 @@ async function sendFriendRequest(toUserId) {
   await renderOutgoing();
 }
 
+
 /* =========================
    INCOMING
 ========================= */
@@ -306,11 +308,13 @@ async function renderIncoming() {
   const col = collection(db, "users", uid, "friendRequests");
 
   const snap = await getDocs(
-    query(col,
+    query(
+      col,
       where("type", "==", "incoming"),
       where("status", "==", "pending"),
       orderBy("createdAt", "desc"),
-      limit(30))
+      limit(30)
+    )
   );
 
   if (snap.empty) {
@@ -318,12 +322,11 @@ async function renderIncoming() {
     return;
   }
 
-  snap.forEach(async docSnap => {
+  for (const docSnap of snap.docs) {
 
     const req = docSnap.data();
 
     const fromSnap = await getDoc(doc(db, "users", req.fromUserId));
-
     const u = fromSnap.exists() ? fromSnap.data() : {};
 
     const name =
@@ -336,22 +339,27 @@ async function renderIncoming() {
     row.className =
       "bg-gray-50 rounded-2xl p-3 flex justify-between items-center";
 
-row.innerHTML = `
-  <div class="flex items-center gap-3">
+    row.innerHTML = `
+      <div class="flex items-center gap-3">
 
-    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
 
-      ${
-        u.photoURL
-        ? `<img src="${u.photoURL}" class="w-full h-full object-cover">`
-        : `${(u.firstName?.charAt(0) || "")}${(u.lastName?.charAt(0) || "")}`
-      }
+          ${
+            u.photoURL
+            ? `<img src="${u.photoURL}" class="w-full h-full object-cover">`
+            : `${(u.firstName?.charAt(0) || "")}${(u.lastName?.charAt(0) || "")}`
+          }
 
-    </div>
+        </div>
 
-    <div class="text-sm font-semibold">${escapeHtml(name)}</div>
+        <div class="text-sm font-semibold">${escapeHtml(name)}</div>
 
-  </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="accept px-3 py-2 text-xs bg-green-600 text-white rounded-xl">Accepter</button>
+        <button class="reject px-3 py-2 text-xs bg-gray-200 rounded-xl">Refuser</button>
+      </div>
     `;
 
     row.querySelector(".accept")
@@ -366,8 +374,10 @@ row.innerHTML = `
 
     incomingSection.appendChild(row);
 
-  });
+  }
+
 }
+
 
 /* =========================
    OUTGOING
@@ -380,10 +390,12 @@ async function renderOutgoing() {
   const col = collection(db, "users", uid, "friendRequests");
 
   const snap = await getDocs(
-    query(col,
+    query(
+      col,
       where("type", "==", "outgoing"),
       where("status", "==", "pending"),
-      limit(30))
+      limit(30)
+    )
   );
 
   if (snap.empty) {
@@ -432,9 +444,10 @@ async function renderFriends() {
     const friendId = data.friendId || docSnap.id;
 
     let name = data.friendName || "";
+    let photoURL = data.photoURL || null;
 
-    // Si le nom n'existe pas → récupérer depuis users
-    if (!name) {
+    // Si nom ou photo manquant → récupérer depuis users
+    if (!name || !photoURL) {
 
       const friendSnap = await getDoc(doc(db, "users", friendId));
 
@@ -446,31 +459,41 @@ async function renderFriends() {
           `${u.firstName || ""} ${u.lastName || ""}`.trim()
           || u.username
           || friendId;
+
+        photoURL = u.photoURL || null;
       }
 
     }
+
+    const initials =
+      name
+        .split(" ")
+        .map(n => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
 
     const row = document.createElement("div");
 
     row.className =
       "bg-gray-50 rounded-2xl p-3 flex justify-between items-center";
 
-row.innerHTML = `
-  <div class="flex items-center gap-3">
+    row.innerHTML = `
+      <div class="flex items-center gap-3">
 
-    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
 
-      ${
-        data.photoURL
-        ? `<img src="${data.photoURL}" class="w-full h-full object-cover">`
-        : name.split(" ").map(n => n[0]).join("").slice(0,2)
-      }
+          ${
+            photoURL
+            ? `<img src="${photoURL}" class="w-full h-full object-cover">`
+            : initials
+          }
 
-    </div>
+        </div>
 
-    <div class="text-sm font-semibold">${escapeHtml(name)}</div>
+        <div class="text-sm font-semibold">${escapeHtml(name)}</div>
 
-  </div>
+      </div>
 
       <a href="room.html?uid=${encodeURIComponent(friendId)}"
       class="px-3 py-2 bg-blue-600 text-white text-xs rounded-xl">
@@ -481,9 +504,12 @@ row.innerHTML = `
     `;
 
     friendsSection.appendChild(row);
+
   }
 
 }
+
+
 /* =========================
    ACCEPT
 ========================= */
@@ -512,6 +538,7 @@ async function acceptRequest(requestId, fromUserId) {
     friendId: fromUserId,
     friendName: otherName,
     friendUsername: other.username || "",
+    photoURL: other.photoURL || null,
     createdAt: serverTimestamp()
   });
 
@@ -519,6 +546,7 @@ async function acceptRequest(requestId, fromUserId) {
     friendId: uid,
     friendName: myName,
     friendUsername: me.username || "",
+    photoURL: me.photoURL || null,
     createdAt: serverTimestamp()
   });
 
@@ -528,6 +556,7 @@ async function acceptRequest(requestId, fromUserId) {
   await renderIncoming();
   await renderFriends();
 }
+
 
 /* =========================
    REJECT
@@ -539,8 +568,8 @@ async function rejectRequest(requestId, fromUserId) {
   await deleteDoc(doc(db, "users", fromUserId, "friendRequests", requestId));
 
   await renderIncoming();
-}
 
+}
 /* =========================
    HELPERS
 ========================= */
