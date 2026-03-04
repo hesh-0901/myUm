@@ -90,12 +90,13 @@ async function loadChats() {
       const otherId = participants.find(p => p !== myId) || null;
 
       // fallback display
-      let display = otherId || "Discussion";
+       let display = otherId || "Discussion";
+      let u = null;
 
       if (otherId) {
         const otherSnap = await getDoc(doc(db, "users", otherId)).catch(() => null);
         if (otherSnap && otherSnap.exists()) {
-          const u = otherSnap.data();
+          u = otherSnap.data();
           display =
             (`${u.firstName || ""} ${u.lastName || ""}`).trim() ||
             u.username ||
