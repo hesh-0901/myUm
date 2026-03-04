@@ -5,11 +5,12 @@
 
     <div class="relative backdrop-blur-xl bg-white/80 border border-gray-200 rounded-3xl shadow-xl">
 
-      <div class="flex justify-between items-center px-6 py-3 text-xs font-medium text-gray-500">
+      <div class="flex justify-between items-center px-6 py-3 text-xs font-medium text-gray-400">
 
         <!-- Accueil -->
-        <button onclick="goTo('public/dashboard.html')"
-          class="flex flex-col items-center gap-1 transition active:scale-95 hover:text-primary">
+        <button data-page="dashboard"
+          onclick="goTo('public/dashboard.html')"
+          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
 
           <i class="bi bi-house-door text-lg"></i>
           <span>Accueil</span>
@@ -17,8 +18,9 @@
         </button>
 
         <!-- Posts -->
-        <button onclick="goTo('posts/index.html')"
-          class="flex flex-col items-center gap-1 transition active:scale-95 hover:text-primary">
+        <button data-page="posts"
+          onclick="goTo('posts/index.html')"
+          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
 
           <i class="bi bi-newspaper text-lg"></i>
           <span>Posts</span>
@@ -26,8 +28,9 @@
         </button>
 
         <!-- Chat -->
-        <button onclick="goTo('chat/index.html')"
-          class="flex flex-col items-center gap-1 transition active:scale-95 hover:text-primary">
+        <button data-page="chat"
+          onclick="goTo('chat/index.html')"
+          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
 
           <i class="bi bi-chat-dots text-lg"></i>
           <span>Chat</span>
@@ -35,8 +38,9 @@
         </button>
 
         <!-- Profil -->
-        <button onclick="goTo('users/profile.html')"
-          class="flex flex-col items-center gap-1 transition active:scale-95 hover:text-primary">
+        <button data-page="profile"
+          onclick="goTo('users/profile.html')"
+          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
 
           <i class="bi bi-person text-lg"></i>
           <span>Profil</span>
@@ -84,4 +88,28 @@ function goTo(path) {
   const base = getBasePath();
   window.location.href = base + path;
 }
+
+/* =========================
+   NAV ACTIVE STATE
+========================= */
+
+const path = window.location.pathname;
+
+let current = "";
+
+if (path.includes("dashboard")) current = "dashboard";
+if (path.includes("posts")) current = "posts";
+if (path.includes("chat")) current = "chat";
+if (path.includes("profile")) current = "profile";
+
+document.querySelectorAll(".nav-item").forEach(btn => {
+
+  if (btn.dataset.page === current) {
+
+    btn.classList.remove("text-gray-400");
+    btn.classList.add("text-primary");
+
+  }
+
+});
 </script>
