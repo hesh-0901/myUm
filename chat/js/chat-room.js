@@ -18,6 +18,7 @@ import {
 /* =========================
    SESSION
 ========================= */
+
 function getCurrentUser() {
   try {
     return JSON.parse(localStorage.getItem("myum_user"));
@@ -37,6 +38,7 @@ if (!myId) {
 /* =========================
    PARAMS
 ========================= */
+
 const params = new URLSearchParams(window.location.search);
 const friendId = params.get("uid");
 
@@ -48,6 +50,7 @@ if (!friendId) {
 /* =========================
    DOM
 ========================= */
+
 const backBtn = document.getElementById("backBtn");
 const dashBtn = document.getElementById("dashBtn");
 const roomTitle = document.getElementById("roomTitle");
@@ -63,18 +66,21 @@ dashBtn?.addEventListener("click", () => window.goTo?.("public/dashboard.html"))
 /* =========================
    CHAT ID
 ========================= */
+
 function buildChatId(a, b) {
   const [x, y] = [a, b].sort();
   return `chat_${x}_${y}`;
 }
 
 const chatId = buildChatId(myId, friendId);
+
 const chatRef = doc(db, "chats", chatId);
 const messagesRef = collection(db, "chats", chatId, "messages");
 
 /* =========================
    INIT
 ========================= */
+
 initRoom().catch((e) => {
   console.error("initRoom error:", e);
   alert("Erreur room : " + (e?.message || e));
@@ -92,8 +98,10 @@ async function initRoom() {
 /* =========================
    FRIENDS ONLY
 ========================= */
+
 async function guardFriendship() {
   const friendEdge = await getDoc(doc(db, "users", myId, "friends", friendId));
+
   if (!friendEdge.exists()) {
     alert("Chat disponible uniquement entre amis.");
     window.location.href = "index.html";
@@ -103,8 +111,11 @@ async function guardFriendship() {
 /* =========================
    HEADER
 ========================= */
+
 async function loadFriendHeader() {
+
   const friendSnap = await getDoc(doc(db, "users", friendId)).catch(() => null);
+
   const u = friendSnap && friendSnap.exists() ? friendSnap.data() : {};
 
   const name =
@@ -119,8 +130,11 @@ async function loadFriendHeader() {
 /* =========================
    ENSURE CHAT DOC
 ========================= */
+
 async function ensureChatDoc() {
+
   const snap = await getDoc(chatRef);
+
   if (snap.exists()) return;
 
   await setDoc(chatRef, {
@@ -134,12 +148,15 @@ async function ensureChatDoc() {
 /* =========================
    REALTIME MESSAGES
 ========================= */
+
 function listenMessages() {
+
   const q = query(messagesRef, orderBy("createdAt", "asc"), limit(300));
 
   onSnapshot(
     q,
     (snap) => {
+
       messagesEl.innerHTML = "";
 
       if (snap.empty) {
@@ -150,14 +167,19 @@ function listenMessages() {
       emptyState?.classList.add("hidden");
 
       snap.forEach((d) => {
+
         const m = d.data();
         const isMine = m.senderId === myId;
-        messagesEl.appendChild(renderBubble(m.text || "", isMine));
+
+        messagesEl.appendChild(
+          renderBubble(m.text || "", isMine)
+        );
+
       });
 
-      // scroll bas
-      window.scrollTo(0, document.body.scrollHeight);
+      scrollToBottom();
     },
+
     (err) => {
       console.error("onSnapshot error:", err);
       alert("Erreur écoute messages : " + (err?.message || err));
@@ -168,75 +190,102 @@ function listenMessages() {
 /* =========================
    BIND SEND
 ========================= */
-function bindSend() {
-  sendBtn?.addEventListener("click", () => sendMessage());
 
-  messageInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      sendMessage();
-    }
+function bindSend() {
+
+  sendBtn?.addEventListener("click", () => {
+    sendMessage();
   });
+
 }
 
 /* =========================
-   SEND MESSAGE (avec erreurs visibles)
+   SEND MESSAGE
 ========================= */
+
 let sending = false;
 
 async function sendMessage() {
+
   if (sending) return;
 
   const text = (messageInput?.value || "").trim();
   if (!text) return;
 
   sending = true;
+
   sendBtn?.setAttribute("disabled", "true");
   sendBtn?.classList.add("opacity-60");
 
   try {
-    // write message
+
     await addDoc(messagesRef, {
       senderId: myId,
       text,
       createdAt: serverTimestamp()
     });
 
-    // update parent chat meta
     await updateDoc(chatRef, {
       lastMessage: text.slice(0, 250),
       updatedAt: serverTimestamp()
     });
 
-    // reset input
     messageInput.value = "";
     messageInput.focus();
 
   } catch (e) {
+
     console.error("sendMessage error:", e);
     alert("Envoi impossible : " + (e?.message || e));
+
   } finally {
+
     sending = false;
+
     sendBtn?.removeAttribute("disabled");
     sendBtn?.classList.remove("opacity-60");
   }
 }
 
 /* =========================
+   SCROLL
+========================= */
+
+function scrollToBottom() {
+
+  const container = document.getElementById("messagesContainer");
+
+  if (!container) {
+    window.scrollTo(0, document.body.scrollHeight);
+    return;
+  }
+
+  container.scrollTop = container.scrollHeight;
+}
+
+/* =========================
    UI
 ========================= */
+
 function renderBubble(text, isMine) {
+
   const wrap = document.createElement("div");
-  wrap.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
+
+  wrap.className =
+    `flex ${isMine ? "justify-end" : "justify-start"}`;
 
   const bubble = document.createElement("div");
+
   bubble.className =
     `max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
-      isMine ? "bg-primary text-white rounded-br-md" : "bg-white text-gray-800 rounded-bl-md"
+      isMine
+        ? "bg-primary text-white rounded-br-md"
+        : "bg-white text-gray-800 rounded-bl-md border border-gray-200"
     }`;
 
   bubble.textContent = text;
 
   wrap.appendChild(bubble);
+
   return wrap;
 }
