@@ -199,6 +199,89 @@ function initEditButtons() {
 
 }
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const storage = getStorage();
+
+let cropper;
+const photoInput = document.getElementById("photoInput");
+const cropModal = document.getElementById("cropModal");
+const cropImage = document.getElementById("cropImage");
+
+photoInput.addEventListener("change", (e) => {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+
+    cropImage.src = reader.result;
+
+    cropModal.classList.remove("hidden");
+    cropModal.classList.add("flex");
+
+    if (cropper) cropper.destroy();
+
+    cropper = new Cropper(cropImage, {
+
+      aspectRatio: 1,
+      viewMode: 1,
+      dragMode: "move",
+      autoCropArea: 1,
+      background: false
+
+    });
+
+  };
+
+  reader.readAsDataURL(file);
+
+});
+
+document.getElementById("confirmCrop").addEventListener("click", async () => {
+
+  const canvas = cropper.getCroppedCanvas({
+    width: 400,
+    height: 400
+  });
+
+  const blob = await new Promise(resolve =>
+    canvas.toBlob(resolve, "image/jpeg", 0.9)
+  );
+
+  const storageRef = ref(storage, "profilePhotos/" + currentUserId);
+
+  await uploadBytes(storageRef, blob);
+
+  const downloadURL = await getDownloadURL(storageRef);
+
+  await updateDoc(doc(db, "users", currentUserId), {
+    photoURL: downloadURL
+  });
+
+  document.getElementById("profilePhoto").src = downloadURL;
+
+  cropModal.classList.add("hidden");
+
+});
+
+document.getElementById("cancelCrop").addEventListener("click", () => {
+
+  cropModal.classList.add("hidden");
+
+  if (cropper) {
+    cropper.destroy();
+  }
+
+});
+
 // ===============================
 // LOGOUT
 // ===============================
