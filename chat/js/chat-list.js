@@ -2,27 +2,13 @@
 
 import { db } from "../../mains.js/firebase-config.js";
 import {
-  collection,
-  doc,
-  getDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-  onSnapshot
+  collection, doc, getDoc, query, where, orderBy, limit, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* =========================
-   SESSION
-========================= */
 function getCurrentUser() {
-  try {
-    return JSON.parse(localStorage.getItem("myum_user"));
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(localStorage.getItem("myum_user")); }
+  catch { return null; }
 }
-
 const me = getCurrentUser();
 const myId = me?.id;
 
@@ -31,55 +17,33 @@ if (!myId) {
   window.location.href = "../users/login.html";
 }
 
-/* =========================
-   DOM
-========================= */
 const backBtn = document.getElementById("backBtn");
-const dashBtn = document.getElementById("dashBtn"); // retourne chats
+const dashBtn = document.getElementById("dashBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const filterInput = document.getElementById("filterInput");
 
 const chatList = document.getElementById("chatList");
 const emptyState = document.getElementById("emptyState");
 
-/* =========================
-   STATE (✅ declare before use)
-========================= */
-let cachedChats = [];
-const profileCache = new Map();
-let unsubscribeChats = null; // ✅ FIX: declared before listenChats()
-
-/* =========================
-   EVENTS
-========================= */
 backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
 dashBtn?.addEventListener("click", () => (window.location.href = "index.html"));
-refreshBtn?.addEventListener("click", () => {
-  // restart listener
-  listenChats(true);
-});
+refreshBtn?.addEventListener("click", () => listenChats(true));
 
-filterInput?.addEventListener("input", () => {
-  const v = (filterInput.value || "").trim().toLowerCase();
-  renderChats(
-    v
-      ? cachedChats.filter((c) => (c.display || "").toLowerCase().includes(v))
-      : cachedChats
-  );
-});
+let cachedChats = [];
+const profileCache = new Map();
+let unsubscribeChats = null;
 
-/* =========================
-   INIT
-========================= */
 init();
 
 function init() {
   listenChats(false);
+
+  filterInput?.addEventListener("input", () => {
+    const v = (filterInput.value || "").trim().toLowerCase();
+    renderChats(v ? cachedChats.filter(c => (c.display || "").toLowerCase().includes(v)) : cachedChats);
+  });
 }
 
-/* =========================
-   LISTEN CHATS (REALTIME)
-========================= */
 function listenChats(forceRestart = false) {
   if (forceRestart && unsubscribeChats) {
     unsubscribeChats();
@@ -90,8 +54,6 @@ function listenChats(forceRestart = false) {
   emptyState?.classList.add("hidden");
 
   const chatsRef = collection(db, "chats");
-
-  // ✅ Main query (requires index)
   const qOrdered = query(
     chatsRef,
     where("participants", "array-contains", myId),
@@ -99,118 +61,54 @@ function listenChats(forceRestart = false) {
     limit(50)
   );
 
-  // ✅ Fallback query (no orderBy, no index needed)
-  const qFallback = query(
-    chatsRef,
-    where("participants", "array-contains", myId),
-    limit(50)
-  );
-
-  subscribe(qOrdered, { clientSort: false, fallbackQuery: qFallback });
-}
-
-/* =========================
-   SUBSCRIBE helper
-========================= */
-function subscribe(q, options) {
-  // stop old listener
   if (unsubscribeChats) unsubscribeChats();
 
-  unsubscribeChats = onSnapshot(
-    q,
-    async (snap) => {
-      if (snap.empty) {
-        cachedChats = [];
-        renderChats([]);
-        return;
-      }
-
-      const items = await Promise.all(
-        snap.docs.map(async (d) => {
-          const c = d.data();
-          const participants = c.participants || [];
-          const otherId = participants.find((p) => p !== myId) || null;
-
-          let display = otherId || "Discussion";
-          let photoURL = null;
-          let firstName = "";
-          let lastName = "";
-
-          if (otherId) {
-            const profile = await getProfile(otherId);
-            display = profile.display || display;
-            photoURL = profile.photoURL || null;
-            firstName = profile.firstName || "";
-            lastName = profile.lastName || "";
-          }
-
-          return {
-            id: d.id,
-            otherId,
-            display,
-            photoURL,
-            firstName,
-            lastName,
-            lastMessage: c.lastMessage || "",
-            updatedAt: c.updatedAt || null
-          };
-        })
-      );
-
-      // client-side sort if fallback query used
-      if (options?.clientSort) {
-        items.sort((a, b) => {
-          const ta = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0;
-          const tb = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0;
-          return tb - ta;
-        });
-      }
-
-      cachedChats = items;
-
-      const v = (filterInput?.value || "").trim().toLowerCase();
-      renderChats(
-        v
-          ? cachedChats.filter((c) => (c.display || "").toLowerCase().includes(v))
-          : cachedChats
-      );
-    },
-    (err) => {
-      // If ordered fails (index), fallback automatically
-      const msg = err?.message || String(err);
-
-      console.error("onSnapshot error:", err);
-
-      // if we have a fallback and it's the common index issue
-      if (options?.fallbackQuery) {
-        // show a small hint then fallback
-        chatList.innerHTML = `
-          <div class="text-sm text-gray-600">Index requis ou erreur requête… bascule en mode fallback ✅</div>
-          <div class="text-xs text-gray-500 mt-2 break-words">${escapeHtml(msg)}</div>
-        `;
-        // subscribe fallback with client sorting
-        subscribe(options.fallbackQuery, { clientSort: true, fallbackQuery: null });
-        return;
-      }
-
-      showError(err);
+  unsubscribeChats = onSnapshot(qOrdered, async (snap) => {
+    if (snap.empty) {
+      cachedChats = [];
+      renderChats([]);
+      return;
     }
-  );
+
+    const items = await Promise.all(snap.docs.map(async (d) => {
+      const c = d.data();
+      const otherId = (c.participants || []).find(p => p !== myId) || null;
+
+      const profile = otherId ? await getProfile(otherId) : { display: "Discussion", photoURL: null, firstName: "", lastName: "", online: false };
+
+      const unreadMap = c.unreadCount || {};
+      const unread = unreadMap[myId] || 0;
+
+      return {
+        id: d.id,
+        otherId,
+        display: profile.display,
+        photoURL: profile.photoURL,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        online: profile.online,
+        lastMessage: c.lastMessage || "",
+        updatedAt: c.updatedAt || null,
+        unread
+      };
+    }));
+
+    cachedChats = items;
+
+    const v = (filterInput?.value || "").trim().toLowerCase();
+    renderChats(v ? cachedChats.filter(c => (c.display || "").toLowerCase().includes(v)) : cachedChats);
+
+  }, (err) => {
+    console.error("chat list onSnapshot:", err);
+    chatList.innerHTML = `<div class="text-sm text-red-600">Erreur chargement conversations</div>`;
+  });
 }
 
-/* =========================
-   PROFILE CACHE
-========================= */
 async function getProfile(uid) {
   if (profileCache.has(uid)) return profileCache.get(uid);
 
   const snap = await getDoc(doc(db, "users", uid)).catch(() => null);
-
-  let firstName = "";
-  let lastName = "";
-  let photoURL = null;
-  let username = "";
-  let display = uid;
+  let firstName = "", lastName = "", photoURL = null, username = "", display = uid, online = false;
 
   if (snap && snap.exists()) {
     const u = snap.data();
@@ -218,17 +116,15 @@ async function getProfile(uid) {
     lastName = u.lastName || "";
     photoURL = u.photoURL || null;
     username = u.username || "";
+    online = u.online === true;
     display = (`${firstName} ${lastName}`).trim() || username || uid;
   }
 
-  const value = { display, photoURL, firstName, lastName, username };
+  const value = { display, photoURL, firstName, lastName, username, online };
   profileCache.set(uid, value);
   return value;
 }
 
-/* =========================
-   RENDER
-========================= */
 function renderChats(items) {
   chatList.innerHTML = "";
 
@@ -244,18 +140,21 @@ function renderChats(items) {
     row.className =
       "p-3 rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shadow-sm";
 
-    const initials =
-      `${(c.firstName?.charAt(0) || "")}${(c.lastName?.charAt(0) || "")}`.toUpperCase() || "—";
-
+    const initials = `${(c.firstName?.charAt(0) || "")}${(c.lastName?.charAt(0) || "")}`.toUpperCase() || "—";
     const timeText = formatTime(c.updatedAt);
 
     row.innerHTML = `
       <div class="flex items-center gap-3 min-w-0">
-        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+        <div class="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
           ${
             c.photoURL
               ? `<img src="${escapeAttr(c.photoURL)}" class="w-full h-full object-cover">`
               : escapeHtml(initials)
+          }
+          ${
+            c.online
+              ? `<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>`
+              : ``
           }
         </div>
 
@@ -268,9 +167,16 @@ function renderChats(items) {
         </div>
       </div>
 
-      <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
-        Ouvrir
-      </button>
+      <div class="flex items-center gap-2">
+        ${
+          c.unread > 0
+            ? `<span class="min-w-[22px] h-[22px] px-2 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center">${c.unread}</span>`
+            : ``
+        }
+        <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
+          Ouvrir
+        </button>
+      </div>
     `;
 
     row.querySelector(".openBtn")?.addEventListener("click", () => {
@@ -282,20 +188,6 @@ function renderChats(items) {
   });
 }
 
-/* =========================
-   ERROR UI
-========================= */
-function showError(err) {
-  const msg = err?.message || String(err);
-  chatList.innerHTML = `
-    <div class="text-sm text-red-600 font-semibold">Erreur chargement conversations</div>
-    <div class="text-xs text-gray-600 mt-2 break-words">${escapeHtml(msg)}</div>
-  `;
-}
-
-/* =========================
-   TIME
-========================= */
 function formatTime(ts) {
   if (!ts) return "";
   try {
@@ -308,19 +200,11 @@ function formatTime(ts) {
   }
 }
 
-/* =========================
-   SAFE ESCAPES
-========================= */
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
   }[m]));
 }
-
 function escapeAttr(str) {
   return String(str).replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
