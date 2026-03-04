@@ -200,11 +200,25 @@ async function onSearch() {
       card.className =
         "bg-gray-50 rounded-2xl p-4 flex justify-between items-center shadow-sm";
 
-      card.innerHTML = `
-        <div>
-          <div class="font-semibold text-sm">${escapeHtml(name)}</div>
-          <div class="text-xs text-gray-500">${escapeHtml(sub)}</div>
-        </div>
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+          
+              <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+          
+                ${
+                  user.photoURL
+                  ? `<img src="${user.photoURL}" class="w-full h-full object-cover">`
+                  : `${(user.firstName?.charAt(0) || "")}${(user.lastName?.charAt(0) || "")}`
+                }
+          
+              </div>
+          
+              <div>
+                <div class="font-semibold text-sm">${escapeHtml(name)}</div>
+                <div class="text-xs text-gray-500">${escapeHtml(sub)}</div>
+              </div>
+          
+            </div>
 
         <button class="addBtn px-3 py-2 rounded-xl text-xs font-semibold
         ${alreadyFriend ? "bg-gray-300 text-gray-600" :
@@ -322,13 +336,22 @@ async function renderIncoming() {
     row.className =
       "bg-gray-50 rounded-2xl p-3 flex justify-between items-center";
 
-    row.innerHTML = `
-      <div class="text-sm font-semibold">${escapeHtml(name)}</div>
+row.innerHTML = `
+  <div class="flex items-center gap-3">
 
-      <div class="flex gap-2">
-        <button class="accept px-3 py-2 text-xs bg-green-600 text-white rounded-xl">Accepter</button>
-        <button class="reject px-3 py-2 text-xs bg-gray-200 rounded-xl">Refuser</button>
-      </div>
+    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+
+      ${
+        u.photoURL
+        ? `<img src="${u.photoURL}" class="w-full h-full object-cover">`
+        : `${(u.firstName?.charAt(0) || "")}${(u.lastName?.charAt(0) || "")}`
+      }
+
+    </div>
+
+    <div class="text-sm font-semibold">${escapeHtml(name)}</div>
+
+  </div>
     `;
 
     row.querySelector(".accept")
@@ -432,8 +455,22 @@ async function renderFriends() {
     row.className =
       "bg-gray-50 rounded-2xl p-3 flex justify-between items-center";
 
-    row.innerHTML = `
-      <div class="text-sm font-semibold">${escapeHtml(name)}</div>
+row.innerHTML = `
+  <div class="flex items-center gap-3">
+
+    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+
+      ${
+        data.photoURL
+        ? `<img src="${data.photoURL}" class="w-full h-full object-cover">`
+        : name.split(" ").map(n => n[0]).join("").slice(0,2)
+      }
+
+    </div>
+
+    <div class="text-sm font-semibold">${escapeHtml(name)}</div>
+
+  </div>
 
       <a href="room.html?uid=${encodeURIComponent(friendId)}"
       class="px-3 py-2 bg-blue-600 text-white text-xs rounded-xl">
