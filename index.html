@@ -205,7 +205,35 @@ return window.matchMedia('(display-mode: standalone)').matches
 
 /* ANDROID / WINDOWS */
 
+let deferredPrompt;
+
+const modal = document.getElementById("installModal");
+const installBtn = document.getElementById("installBtn");
+const installText = document.getElementById("installText");
+const closeModal = document.getElementById("closeModal");
+
+
+/* ======================
+DEVICE DETECTION
+====================== */
+
+function isIOS(){
+return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function isStandalone(){
+return window.matchMedia('(display-mode: standalone)').matches
+|| window.navigator.standalone === true;
+}
+
+
+/* ======================
+ANDROID / WINDOWS INSTALL
+====================== */
+
 window.addEventListener("beforeinstallprompt",(e)=>{
+
+console.log("PWA install available");
 
 e.preventDefault();
 
@@ -221,13 +249,19 @@ modal.classList.add("flex");
 });
 
 
+/* ======================
+INSTALL BUTTON
+====================== */
+
 installBtn.addEventListener("click", async ()=>{
 
 if(!deferredPrompt) return;
 
 deferredPrompt.prompt();
 
-await deferredPrompt.userChoice;
+const choice = await deferredPrompt.userChoice;
+
+console.log("Install choice:", choice.outcome);
 
 modal.classList.add("hidden");
 
@@ -236,7 +270,9 @@ deferredPrompt = null;
 });
 
 
-/* IOS INSTALL MESSAGE */
+/* ======================
+IOS INSTALL MESSAGE
+====================== */
 
 window.addEventListener("load",()=>{
 
@@ -245,8 +281,7 @@ if(isIOS() && !isStandalone()){
 installBtn.style.display="none";
 
 installText.innerHTML =
-
-'Pour installer l\\'app :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’accueil</b>';
+'Pour installer l\\'app :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’écran d’accueil</b>';
 
 modal.classList.remove("hidden");
 modal.classList.add("flex");
@@ -256,22 +291,13 @@ modal.classList.add("flex");
 });
 
 
+/* ======================
+CLOSE MODAL
+====================== */
+
 closeModal.addEventListener("click",()=>{
 
 modal.classList.add("hidden");
-
-});
-
-window.addEventListener("beforeinstallprompt",(e)=>{
-
-console.log("PWA install available");
-
-e.preventDefault();
-
-deferredPrompt = e;
-
-modal.classList.remove("hidden");
-modal.classList.add("flex");
 
 });
 
