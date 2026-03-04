@@ -236,12 +236,32 @@ async function onSearch() {
 
 async function sendFriendRequest(toUserId) {
 
+  const [meSnap, otherSnap] = await Promise.all([
+    getDoc(doc(db, "users", uid)),
+    getDoc(doc(db, "users", toUserId))
+  ]);
+
+  const me = meSnap.exists() ? meSnap.data() : {};
+  const other = otherSnap.exists() ? otherSnap.data() : {};
+
+  const myName =
+    `${me.firstName || ""} ${me.lastName || ""}`.trim()
+    || me.username
+    || uid;
+
+  const otherName =
+    `${other.firstName || ""} ${other.lastName || ""}`.trim()
+    || other.username
+    || toUserId;
+
   const myRequests = collection(db, "users", uid, "friendRequests");
   const theirRequests = collection(db, "users", toUserId, "friendRequests");
 
   const newReq = await addDoc(myRequests, {
     fromUserId: uid,
+    fromUserName: myName,
     toUserId,
+    toUserName: otherName,
     type: "outgoing",
     status: "pending",
     createdAt: serverTimestamp()
@@ -249,13 +269,13 @@ async function sendFriendRequest(toUserId) {
 
   await setDoc(doc(theirRequests, newReq.id), {
     fromUserId: uid,
+    fromUserName: myName,
     toUserId,
+    toUserName: otherName,
     type: "incoming",
     status: "pending",
     createdAt: serverTimestamp()
   });
-
-  alert("Demande envoyée");
 
   await renderIncoming();
   await renderOutgoing();
