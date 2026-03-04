@@ -1,11 +1,17 @@
 {
   "name": "MyUm",
   "short_name": "MyUm",
-  "start_url": "/myUm/",
+
+  "id": "/myUm/",
+  "start_url": "/myUm/index.html",
+  "scope": "/myUm/",
+
   "display": "standalone",
+  "orientation": "portrait",
+
   "background_color": "#ffffff",
   "theme_color": "#1A3668",
-  "orientation": "portrait",
+
   "icons": [
     {
       "src": "/myUm/assets/icons/icon-192.png",
