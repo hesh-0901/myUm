@@ -376,7 +376,6 @@ async function renderFriends() {
   friendsSection.innerHTML = "";
 
   const col = collection(db, "users", uid, "friends");
-
   const snap = await getDocs(query(col, limit(60)));
 
   if (snap.empty) {
@@ -384,10 +383,29 @@ async function renderFriends() {
     return;
   }
 
-  snap.forEach(docSnap => {
+  for (const docSnap of snap.docs) {
 
     const data = docSnap.data();
     const friendId = data.friendId || docSnap.id;
+
+    let name = data.friendName || "";
+
+    // Si le nom n'existe pas → récupérer depuis users
+    if (!name) {
+
+      const friendSnap = await getDoc(doc(db, "users", friendId));
+
+      if (friendSnap.exists()) {
+
+        const u = friendSnap.data();
+
+        name =
+          `${u.firstName || ""} ${u.lastName || ""}`.trim()
+          || u.username
+          || friendId;
+      }
+
+    }
 
     const row = document.createElement("div");
 
@@ -395,7 +413,7 @@ async function renderFriends() {
       "bg-gray-50 rounded-2xl p-3 flex justify-between items-center";
 
     row.innerHTML = `
-      <div class="text-sm font-semibold">${escapeHtml(data.friendName || friendId)}</div>
+      <div class="text-sm font-semibold">${escapeHtml(name)}</div>
 
       <a href="room.html?uid=${encodeURIComponent(friendId)}"
       class="px-3 py-2 bg-blue-600 text-white text-xs rounded-xl">
@@ -406,10 +424,9 @@ async function renderFriends() {
     `;
 
     friendsSection.appendChild(row);
+  }
 
-  });
 }
-
 /* =========================
    ACCEPT
 ========================= */
