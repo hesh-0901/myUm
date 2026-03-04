@@ -1,28 +1,14 @@
 // mains.js/app-init.js
-
 import { checkAuth } from "./auth-guard.js";
 import { initPresence } from "./presence.js";
-
-/* =========================
-   APP GLOBAL INITIALIZER
-========================= */
+import { initNotifications } from "./notifications.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-
   try {
-
-    // Vérifier session utilisateur
     checkAuth();
-
-    // Initialiser présence globale
-    initPresence({
-      intervalMs: 25000
-    });
-
+    initPresence({ intervalMs: 25000 });
+    initNotifications(); // 🔔 NEW
   } catch (err) {
-
     console.error("App init error:", err);
-
   }
-
 });
