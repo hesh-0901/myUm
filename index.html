@@ -262,6 +262,19 @@ modal.classList.add("hidden");
 
 });
 
+window.addEventListener("beforeinstallprompt",(e)=>{
+
+console.log("PWA install available");
+
+e.preventDefault();
+
+deferredPrompt = e;
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+});
+
 </script>
 
 </body>
