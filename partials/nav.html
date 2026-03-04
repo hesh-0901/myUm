@@ -1,65 +1,70 @@
 <!-- BOTTOM NAVIGATION -->
-<nav class="fixed bottom-0 left-0 right-0 z-50">
+<nav class="fixed bottom-4 left-0 right-0 z-50">
 
-  <div class="max-w-md mx-auto px-3 pb-3">
+  <div class="max-w-md mx-auto px-4">
 
-    <div class="relative backdrop-blur-xl bg-white/80 border border-gray-200 rounded-3xl shadow-xl">
+    <div class="relative
+                backdrop-blur-2xl
+                bg-white/70
+                border border-gray-200
+                rounded-2xl
+                shadow-lg">
 
-      <div class="flex justify-between items-center px-6 py-3 text-xs font-medium text-gray-400">
+      <div class="flex justify-between items-center px-8 py-3 text-gray-400 text-lg">
 
         <!-- Accueil -->
         <button data-page="dashboard"
           onclick="goTo('public/dashboard.html')"
-          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
+          class="nav-item transition duration-200 active:scale-90">
 
-          <i class="bi bi-house-door text-lg"></i>
-          <span>Accueil</span>
+          <i class="bi bi-house-door"></i>
 
         </button>
 
         <!-- Posts -->
         <button data-page="posts"
           onclick="goTo('posts/index.html')"
-          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
+          class="nav-item transition duration-200 active:scale-90">
 
-          <i class="bi bi-newspaper text-lg"></i>
-          <span>Posts</span>
+          <i class="bi bi-newspaper"></i>
 
         </button>
 
         <!-- Chat -->
         <button data-page="chat"
           onclick="goTo('chat/index.html')"
-          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
+          class="nav-item transition duration-200 active:scale-90">
 
-          <i class="bi bi-chat-dots text-lg"></i>
-          <span>Chat</span>
+          <i class="bi bi-chat-dots"></i>
 
         </button>
 
         <!-- Profil -->
         <button data-page="profile"
           onclick="goTo('users/profile.html')"
-          class="nav-item flex flex-col items-center gap-1 transition active:scale-95">
+          class="nav-item transition duration-200 active:scale-90">
 
-          <i class="bi bi-person text-lg"></i>
-          <span>Profil</span>
+          <i class="bi bi-person"></i>
 
         </button>
 
       </div>
 
       <!-- BOUTON CENTRAL PRESENCE -->
-      <div class="absolute -top-7 left-1/2 -translate-x-1/2">
+      <div class="absolute -top-6 left-1/2 -translate-x-1/2">
 
         <button onclick="goTo('users/presence.html')"
-          class="w-16 h-16 rounded-full
+          class="w-14 h-14
+                 rounded-full
                  bg-gradient-to-br from-medium via-lightblue to-primary
-                 text-white flex items-center justify-center
-                 shadow-2xl ring-4 ring-white
-                 active:scale-95 transition duration-200">
+                 text-white
+                 flex items-center justify-center
+                 shadow-xl
+                 ring-4 ring-white
+                 active:scale-95
+                 transition">
 
-          <i class="bi bi-check2-circle text-2xl"></i>
+          <i class="bi bi-check2-circle text-xl"></i>
 
         </button>
 
@@ -89,9 +94,7 @@ function goTo(path) {
   window.location.href = base + path;
 }
 
-/* =========================
-   NAV ACTIVE STATE
-========================= */
+/* NAV ACTIVE */
 
 const path = window.location.pathname;
 
