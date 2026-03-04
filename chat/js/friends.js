@@ -378,7 +378,7 @@ async function renderOutgoing() {
       "bg-gray-50 rounded-2xl p-3 flex justify-between items-center";
 
     row.innerHTML = `
-      <div class="text-sm font-semibold">${req.toUserId}</div>
+      <div class="text-sm font-semibold">${escapeHtml(req.toUserName || req.toUserId)}</div>
       <span class="text-xs text-yellow-600">En attente</span>
     `;
 
