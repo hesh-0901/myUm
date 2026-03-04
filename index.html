@@ -10,6 +10,15 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
 
 <title>MyUm</title>
 
+<link rel="manifest" href="/myUm/manifest.json">
+
+<meta name="theme-color" content="#1A3668">
+
+<link rel="apple-touch-icon" href="/myUm/assets/icons/apple-touch-icon.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="stylesheet"
@@ -60,7 +69,7 @@ transform:scale(1);
 
 }
 
-/* glass effect */
+/* glass */
 
 .glass{
 background:rgba(255,255,255,0.12);
@@ -79,7 +88,6 @@ border:1px solid rgba(255,255,255,0.18);
 
 
 
-
 <!-- CENTER -->
 
 <div class="flex flex-col flex-grow items-center justify-center">
@@ -93,13 +101,11 @@ alt="MyUm">
 
 
 
-
 <!-- BUTTONS -->
 
 <div class="px-8 pb-10 space-y-4">
 
 <a href="users/login.html"
-
 class="block w-full text-center py-3 rounded-xl text-sm font-medium border border-white/40 text-white hover:bg-white/10 transition active:scale-95">
 
 Se connecter
@@ -108,7 +114,6 @@ Se connecter
 
 
 <a href="users/register.html"
-
 class="block w-full text-center py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-medium to-lightblue text-white shadow-lg transition active:scale-95">
 
 Créer un compte
@@ -119,47 +124,34 @@ Créer un compte
 
 
 
-
 <!-- INSTALL MODAL -->
 
 <div id="installModal"
-
 class="fixed inset-0 hidden items-center justify-center px-6 z-50">
 
 <div
-
-class="glass rounded-3xl p-6 text-center max-w-sm w-full text-white shadow-xl animate-fadeIn">
+class="glass rounded-3xl p-6 text-center max-w-sm w-full text-white shadow-xl">
 
 <div class="text-3xl mb-3">
-
 <i class="bi bi-download"></i>
-
 </div>
 
 <h2 class="text-lg font-semibold mb-2">
-
 Installer MyUm
-
 </h2>
 
 <p id="installText" class="text-sm text-white/80 mb-5">
-
 Installer l'application sur votre appareil
-
 </p>
 
-
 <button id="installBtn"
-
 class="w-full py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue font-semibold shadow-lg active:scale-95 transition">
 
 Installer
 
 </button>
 
-
 <button id="closeModal"
-
 class="w-full mt-3 py-2 text-sm text-white/70">
 
 Plus tard
@@ -172,8 +164,24 @@ Plus tard
 
 
 
-
 <script>
+
+/* ======================
+REGISTER SERVICE WORKER
+====================== */
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register("/myUm/sw.js")
+.then(()=>console.log("SW ready"))
+.catch(err=>console.log(err));
+
+}
+
+
+/* ======================
+PWA INSTALL
+====================== */
 
 let deferredPrompt;
 
@@ -183,33 +191,27 @@ const installText = document.getElementById("installText");
 const closeModal = document.getElementById("closeModal");
 
 
-/* détecter iphone */
-
 function isIOS(){
-
-return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-
+return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-/* détecter standalone */
+function isStandalone(){
 
-function isInStandaloneMode(){
-
-return ('standalone' in window.navigator) && (window.navigator.standalone);
+return window.matchMedia('(display-mode: standalone)').matches
+|| window.navigator.standalone === true;
 
 }
 
 
+/* ANDROID / WINDOWS */
 
-/* ANDROID / WINDOWS INSTALL */
-
-window.addEventListener("beforeinstallprompt", (e)=>{
+window.addEventListener("beforeinstallprompt",(e)=>{
 
 e.preventDefault();
 
 deferredPrompt = e;
 
-if(!isIOS()){
+if(!isStandalone() && !isIOS()){
 
 modal.classList.remove("hidden");
 modal.classList.add("flex");
@@ -234,20 +236,19 @@ deferredPrompt = null;
 });
 
 
-/* IOS MESSAGE */
+/* IOS INSTALL MESSAGE */
 
-window.addEventListener("load", ()=>{
+window.addEventListener("load",()=>{
 
-if(isIOS() && !isInStandaloneMode()){
-
-installText.innerHTML =
-
-'Pour installer l\'application :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’accueil</b>';
+if(isIOS() && !isStandalone()){
 
 installBtn.style.display="none";
 
-modal.classList.remove("hidden");
+installText.innerHTML =
 
+'Pour installer l\\'app :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’accueil</b>';
+
+modal.classList.remove("hidden");
 modal.classList.add("flex");
 
 }
@@ -255,18 +256,13 @@ modal.classList.add("flex");
 });
 
 
-/* CLOSE */
-
 closeModal.addEventListener("click",()=>{
 
 modal.classList.add("hidden");
 
 });
 
-
 </script>
 
-
 </body>
-
 </html>
