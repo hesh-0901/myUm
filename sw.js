@@ -1,71 +1,168 @@
-const CACHE_NAME = "myum-cache-v1";
+const CACHE_STATIC = "myum-static-v1";
+const CACHE_DYNAMIC = "myum-dynamic-v1";
 
-const urlsToCache = [
-  "/myUm/",
-  "/myUm/index.html",
-  "/myUm/assets/logo.png"
+/* =========================
+   FILES TO PRECACHE
+========================= */
+
+const STATIC_ASSETS = [
+
+"/myUm/",
+"/myUm/index.html",
+
+"/myUm/assets/logo.png",
+
+"/myUm/assets/icons/icon-192.png",
+"/myUm/assets/icons/icon-512.png",
+
+"https://cdn.tailwindcss.com",
+"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+
 ];
 
-/* INSTALL */
+
+/* =========================
+   INSTALL
+========================= */
 
 self.addEventListener("install", event => {
 
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
+event.waitUntil(
 
-  self.skipWaiting();
+caches.open(CACHE_STATIC)
+.then(cache => cache.addAll(STATIC_ASSETS))
+
+);
+
+self.skipWaiting();
 
 });
 
 
-/* ACTIVATE */
+/* =========================
+   ACTIVATE
+========================= */
 
 self.addEventListener("activate", event => {
 
-  event.waitUntil(
+event.waitUntil(
 
-    caches.keys().then(keys => {
+caches.keys().then(keys => {
 
-      return Promise.all(
+return Promise.all(
 
-        keys.map(key => {
+keys.map(key => {
 
-          if(key !== CACHE_NAME){
-            return caches.delete(key);
-          }
+if(key !== CACHE_STATIC && key !== CACHE_DYNAMIC){
+return caches.delete(key);
+}
 
-        })
+})
 
-      );
+);
 
-    })
+})
 
-  );
+);
 
-  self.clients.claim();
+self.clients.claim();
 
 });
 
 
-/* FETCH */
+/* =========================
+   FETCH STRATEGY
+========================= */
 
 self.addEventListener("fetch", event => {
 
-  event.respondWith(
+const req = event.request;
 
-    caches.match(event.request)
-      .then(response => {
+const url = new URL(req.url);
 
-        if(response){
-          return response;
-        }
 
-        return fetch(event.request);
+/* FIREBASE / API = NETWORK FIRST */
 
-      })
+if(url.origin.includes("firestore") || url.origin.includes("googleapis")){
 
-  );
+event.respondWith(networkFirst(req));
+return;
+
+}
+
+
+/* IMAGES = CACHE FIRST */
+
+if(req.destination === "image"){
+
+event.respondWith(cacheFirst(req));
+return;
+
+}
+
+
+/* HTML PAGES = NETWORK FIRST */
+
+if(req.headers.get("accept").includes("text/html")){
+
+event.respondWith(networkFirst(req));
+return;
+
+}
+
+
+/* DEFAULT */
+
+event.respondWith(cacheFirst(req));
 
 });
+
+
+/* =========================
+   CACHE FIRST
+========================= */
+
+async function cacheFirst(request){
+
+const cached = await caches.match(request);
+
+if(cached) return cached;
+
+const response = await fetch(request);
+
+const cache = await caches.open(CACHE_DYNAMIC);
+
+cache.put(request,response.clone());
+
+return response;
+
+}
+
+
+/* =========================
+   NETWORK FIRST
+========================= */
+
+async function networkFirst(request){
+
+try{
+
+const response = await fetch(request);
+
+const cache = await caches.open(CACHE_DYNAMIC);
+
+cache.put(request,response.clone());
+
+return response;
+
+}
+
+catch{
+
+const cached = await caches.match(request);
+
+return cached;
+
+}
+
+}
