@@ -107,6 +107,9 @@ async function loadChats() {
         id: d.id,
         otherId,
         display,
+        photoURL: u?.photoURL || null,
+        firstName: u?.firstName || "",
+        lastName: u?.lastName || "",
         lastMessage: c.lastMessage || "",
         updatedAt: c.updatedAt || null
       };
@@ -139,15 +142,30 @@ function renderChats(items) {
     row.className =
       "p-3 rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shadow-sm";
 
-    row.innerHTML = `
-      <div class="min-w-0">
-        <div class="font-semibold text-sm truncate">${escapeHtml(c.display)}</div>
-        <div class="text-xs text-gray-500 truncate">${escapeHtml(c.lastMessage || "—")}</div>
-      </div>
-      <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
-        Ouvrir
-      </button>
-    `;
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+        
+            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+        
+              ${
+                c.photoURL
+                ? `<img src="${c.photoURL}" class="w-full h-full object-cover">`
+                : `${(c.firstName?.charAt(0) || "")}${(c.lastName?.charAt(0) || "")}`
+              }
+        
+            </div>
+        
+            <div class="min-w-0">
+              <div class="font-semibold text-sm truncate">${escapeHtml(c.display)}</div>
+              <div class="text-xs text-gray-500 truncate">${escapeHtml(c.lastMessage || "—")}</div>
+            </div>
+        
+          </div>
+        
+          <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
+            Ouvrir
+          </button>
+        `;
 
     row.querySelector(".openBtn").addEventListener("click", () => {
       // open room with friend id
