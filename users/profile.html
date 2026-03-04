@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profil - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+rel="stylesheet">
 
 <script>
 tailwind.config = {
@@ -29,7 +34,10 @@ tailwind.config = {
 
 </head>
 
+
 <body class="bg-gray-100 font-display text-gray-800 pb-24">
+
+
 <!-- HEADER -->
 <div id="header-container"></div>
 
@@ -37,87 +45,114 @@ tailwind.config = {
 <div id="sidebar-container"></div>
 
 
-<div class="max-w-md mx-auto bg-white">
+<!-- PROFILE -->
+<div class="max-w-md mx-auto">
 
-  <!-- COVER -->
-  <div class="relative h-44">
+  <div class="bg-white rounded-3xl shadow-md overflow-hidden">
 
-    <img src="/myUm/assets/cover.jpg"
-         class="w-full h-full object-cover">
+    <!-- COVER -->
+    <div class="relative h-48">
 
-    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      <img src="/myUm/assets/cover.jpg"
+           class="w-full h-full object-cover">
 
-    <!-- AVATAR -->
-    <div class="absolute -bottom-16 left-6">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
-      <div class="relative w-28 h-28">
+      <!-- AVATAR -->
+      <div class="absolute -bottom-16 left-6">
 
-        <img id="profilePhoto"
-             src=""
-             class="w-28 h-28 rounded-full border-4 border-white 
-                    object-cover shadow-2xl bg-white">
+        <div class="relative w-28 h-28 group">
 
-        <label for="photoInput"
+          <img id="profilePhoto"
+               src=""
+               class="w-28 h-28 rounded-full border-4 border-white 
+                      object-cover shadow-xl bg-white
+                      transition duration-300 group-hover:scale-105">
+
+          <label for="photoInput"
           class="absolute bottom-1 right-1 w-9 h-9 
                  bg-primary text-white rounded-full 
                  flex items-center justify-center 
                  shadow-lg cursor-pointer 
-                 hover:scale-105 active:scale-95 transition">
+                 hover:scale-110 active:scale-95 transition">
 
-          <i class="bi bi-camera-fill text-sm"></i>
-        </label>
+            <i class="bi bi-camera-fill text-sm"></i>
 
-        <input type="file"
-               id="photoInput"
-               accept="image/*"
-               class="hidden">
+          </label>
+
+          <input type="file"
+                 id="photoInput"
+                 accept="image/*"
+                 class="hidden">
+
+        </div>
 
       </div>
 
     </div>
 
-  </div>
+
+    <!-- INFOS -->
+    <div class="pt-20 px-6 pb-6">
+
+      <h1 id="fullName"
+      class="text-2xl font-bold text-gray-900 tracking-tight">
+      </h1>
+
+      <p id="userFunction"
+      class="text-sm font-semibold text-primary mt-1">
+      </p>
+
+      <p id="username"
+      class="text-sm text-gray-400 mt-1">
+      </p>
 
 
-  <!-- INFOS -->
-  <div class="pt-20 px-6 pb-6">
+      <!-- BADGES -->
+      <div class="flex items-center gap-2 mt-4">
 
-    <h1 id="fullName"
-        class="text-2xl font-bold text-gray-900 tracking-tight">
-    </h1>
+        <span id="roleBadge"
+        class="px-3 py-1 text-xs rounded-full 
+        bg-gray-100 text-gray-700 font-medium">
+        </span>
 
-    <p id="userFunction"
-       class="text-sm font-semibold text-primary mt-1">
-    </p>
+        <span id="choraleBadge"
+        class="px-3 py-1 text-xs rounded-full 
+        bg-primary/10 text-primary font-medium">
+        </span>
 
-    <p id="username"
-       class="text-sm text-gray-400 mt-1">
-    </p>
-
-    <div class="flex items-center gap-2 mt-4">
-
-      <span id="roleBadge"
-        class="px-3 py-1 text-[11px] rounded-full 
-               bg-black/5 text-gray-700 font-medium">
-      </span>
-
-      <span id="choraleBadge"
-        class="px-3 py-1 text-[11px] rounded-full 
-               bg-primary/10 text-primary font-medium">
-      </span>
-
-    </div>
-
-    <div class="flex items-center gap-6 mt-6 text-sm">
-
-      <div>
-        <span id="friendsCount" class="font-semibold text-gray-900">0</span>
-        <span class="text-gray-400">amis</span>
       </div>
 
-      <div>
-        <span id="postsCount" class="font-semibold text-gray-900">0</span>
-        <span class="text-gray-400">posts</span>
+
+      <!-- STATS -->
+      <div class="flex items-center justify-between mt-6">
+
+        <div class="flex items-center gap-2">
+
+          <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+            <i class="bi bi-people text-primary text-sm"></i>
+          </div>
+
+          <div>
+            <p id="friendsCount" class="text-sm font-semibold text-gray-900">0</p>
+            <p class="text-xs text-gray-400">amis</p>
+          </div>
+
+        </div>
+
+        <div class="flex items-center gap-2">
+
+          <div class="w-9 h-9 rounded-lg bg-medium/10 flex items-center justify-center">
+            <i class="bi bi-chat-square-text text-medium text-sm"></i>
+          </div>
+
+          <div>
+            <p id="postsCount" class="text-sm font-semibold text-gray-900">0</p>
+            <p class="text-xs text-gray-400">posts</p>
+          </div>
+
+        </div>
+
       </div>
 
     </div>
@@ -125,93 +160,144 @@ tailwind.config = {
   </div>
 
 </div>
-  <!-- MODULE INFORMATIONS -->
-  <div id="informations-container" class="mt-6 px-4"></div>
 
-  <!-- MODULE AMIS -->
-  <div id="amis-container" class="mt-6 px-4"></div>
 
-  <!-- SECURITY -->
-  <div class="mt-6 px-4">
 
-    <div class="bg-white rounded-3xl shadow-md p-5 space-y-4">
+<!-- MODULE INFORMATIONS -->
+<div id="informations-container" class="mt-6 px-4"></div>
 
-      <h2 class="font-semibold text-sm">Sécurité</h2>
 
-      <button id="changePasswordBtn"
-        class="w-full flex items-center justify-between p-3 
-               rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+<!-- MODULE AMIS -->
+<div id="amis-container" class="mt-6 px-4"></div>
+
+
+
+<!-- SECURITY -->
+<div class="mt-6 px-4">
+
+  <div class="bg-white rounded-3xl shadow-md p-5 space-y-3">
+
+    <h2 class="text-sm font-semibold text-gray-700 mb-2">
+      Sécurité du compte
+    </h2>
+
+    <!-- PASSWORD -->
+    <button id="changePasswordBtn"
+    class="w-full flex items-center justify-between p-4 
+           rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+
+      <div class="flex items-center gap-3">
+
+        <div class="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
+          <i class="bi bi-key text-primary"></i>
+        </div>
 
         <span class="text-sm">Changer mot de passe</span>
-        <i class="bi bi-chevron-right text-gray-400"></i>
-      </button>
 
-      <button id="logoutBtn"
-        class="w-full flex items-center justify-between p-3 
-               rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+      </div>
+
+      <i class="bi bi-chevron-right text-gray-400"></i>
+
+    </button>
+
+
+    <!-- LOGOUT -->
+    <button id="logoutBtn"
+    class="w-full flex items-center justify-between p-4 
+           rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+
+      <div class="flex items-center gap-3">
+
+        <div class="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center">
+          <i class="bi bi-box-arrow-right text-gray-700"></i>
+        </div>
 
         <span class="text-sm">Déconnexion</span>
-        <i class="bi bi-box-arrow-right text-gray-400"></i>
-      </button>
 
-      <button id="deleteAccountBtn"
-        class="w-full flex items-center justify-between p-3 
-               rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition">
+      </div>
+
+      <i class="bi bi-chevron-right text-gray-400"></i>
+
+    </button>
+
+
+    <!-- DELETE -->
+    <button id="deleteAccountBtn"
+    class="w-full flex items-center justify-between p-4 
+           rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition">
+
+      <div class="flex items-center gap-3">
+
+        <div class="w-9 h-9 bg-danger/20 rounded-lg flex items-center justify-center">
+          <i class="bi bi-trash text-danger"></i>
+        </div>
 
         <span class="text-sm font-medium">Supprimer le compte</span>
-        <i class="bi bi-trash text-danger"></i>
-      </button>
 
-    </div>
+      </div>
+
+      <i class="bi bi-chevron-right"></i>
+
+    </button>
 
   </div>
 
 </div>
+
 
 
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
 
-<!-- SCRIPT -->
+
+<!-- PROFILE SCRIPT -->
 <script type="module" src="/myUm/users/js/profile.js"></script>
+
+
 <script type="module">
+
 import { initInformations } from "../partials/js/informations.js";
 import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
+
 checkAuth();
+
 
 async function initProfile() {
 
-  // HEADER
   const header = await fetch("/myUm/partials/header.html");
   document.getElementById("header-container").innerHTML = await header.text();
   await initHeader();
 
-  // SIDEBAR
+
   const sidebar = await fetch("/myUm/partials/sidebar.html");
   document.getElementById("sidebar-container").innerHTML = await sidebar.text();
   initSidebar();
 
-  // NAVBAR
+
   const nav = await fetch("/myUm/partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
 
-  // INFORMATIONS
+
   const infos = await fetch("/myUm/partials/informations.html");
   document.getElementById("informations-container").innerHTML = await infos.text();
 
-  await initInformations(); // ✅ DOIT ÊTRE ICI
+  await initInformations();
 
-  // AMIS
+
   const amis = await fetch("/myUm/partials/amis.html");
   document.getElementById("amis-container").innerHTML = await amis.text();
+
 }
 
+
 initProfile();
+
 </script>
+
 
 </body>
 </html>
