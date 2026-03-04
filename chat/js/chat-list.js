@@ -35,56 +35,85 @@ if (!myId) {
    DOM
 ========================= */
 const backBtn = document.getElementById("backBtn");
-const dashBtn = document.getElementById("dashBtn");      // 🔁 maintenant = retour vers page chat
-const refreshBtn = document.getElementById("refreshBtn"); // optionnel, on le garde
+const dashBtn = document.getElementById("dashBtn"); // retourne chats
+const refreshBtn = document.getElementById("refreshBtn");
 const filterInput = document.getElementById("filterInput");
 
 const chatList = document.getElementById("chatList");
 const emptyState = document.getElementById("emptyState");
 
-backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
-dashBtn?.addEventListener("click", () => (window.location.href = "index.html")); // ✅ plus dashboard
-refreshBtn?.addEventListener("click", () => reloadOnce()); // ✅ utile si tu veux forcer un repaint
-
+/* =========================
+   STATE (✅ declare before use)
+========================= */
 let cachedChats = [];
-const profileCache = new Map(); // otherId -> {display, photoURL, firstName, lastName}
+const profileCache = new Map();
+let unsubscribeChats = null; // ✅ FIX: declared before listenChats()
 
 /* =========================
-   INIT (no top-level await)
+   EVENTS
+========================= */
+backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
+dashBtn?.addEventListener("click", () => (window.location.href = "index.html"));
+refreshBtn?.addEventListener("click", () => {
+  // restart listener
+  listenChats(true);
+});
+
+filterInput?.addEventListener("input", () => {
+  const v = (filterInput.value || "").trim().toLowerCase();
+  renderChats(
+    v
+      ? cachedChats.filter((c) => (c.display || "").toLowerCase().includes(v))
+      : cachedChats
+  );
+});
+
+/* =========================
+   INIT
 ========================= */
 init();
 
 function init() {
-  listenChats();
-
-  filterInput?.addEventListener("input", () => {
-    const v = (filterInput.value || "").trim().toLowerCase();
-    renderChats(
-      v
-        ? cachedChats.filter((c) => (c.display || "").toLowerCase().includes(v))
-        : cachedChats
-    );
-  });
+  listenChats(false);
 }
 
 /* =========================
-   LIVE LISTENER
+   LISTEN CHATS (REALTIME)
 ========================= */
-let unsubscribeChats = null;
+function listenChats(forceRestart = false) {
+  if (forceRestart && unsubscribeChats) {
+    unsubscribeChats();
+    unsubscribeChats = null;
+  }
 
-function listenChats() {
   chatList.innerHTML = `<div class="text-sm text-gray-500">Chargement…</div>`;
   emptyState?.classList.add("hidden");
 
   const chatsRef = collection(db, "chats");
 
-  const q = query(
+  // ✅ Main query (requires index)
+  const qOrdered = query(
     chatsRef,
     where("participants", "array-contains", myId),
     orderBy("updatedAt", "desc"),
     limit(50)
   );
 
+  // ✅ Fallback query (no orderBy, no index needed)
+  const qFallback = query(
+    chatsRef,
+    where("participants", "array-contains", myId),
+    limit(50)
+  );
+
+  subscribe(qOrdered, { clientSort: false, fallbackQuery: qFallback });
+}
+
+/* =========================
+   SUBSCRIBE helper
+========================= */
+function subscribe(q, options) {
+  // stop old listener
   if (unsubscribeChats) unsubscribeChats();
 
   unsubscribeChats = onSnapshot(
@@ -102,7 +131,6 @@ function listenChats() {
           const participants = c.participants || [];
           const otherId = participants.find((p) => p !== myId) || null;
 
-          // fallback display
           let display = otherId || "Discussion";
           let photoURL = null;
           let firstName = "";
@@ -129,6 +157,15 @@ function listenChats() {
         })
       );
 
+      // client-side sort if fallback query used
+      if (options?.clientSort) {
+        items.sort((a, b) => {
+          const ta = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0;
+          const tb = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0;
+          return tb - ta;
+        });
+      }
+
       cachedChats = items;
 
       const v = (filterInput?.value || "").trim().toLowerCase();
@@ -139,19 +176,26 @@ function listenChats() {
       );
     },
     (err) => {
-      console.error("onSnapshot chats error:", err);
-      chatList.innerHTML =
-        `<div class="text-sm text-red-500">Erreur lors du chargement des conversations.</div>`;
+      // If ordered fails (index), fallback automatically
+      const msg = err?.message || String(err);
+
+      console.error("onSnapshot error:", err);
+
+      // if we have a fallback and it's the common index issue
+      if (options?.fallbackQuery) {
+        // show a small hint then fallback
+        chatList.innerHTML = `
+          <div class="text-sm text-gray-600">Index requis ou erreur requête… bascule en mode fallback ✅</div>
+          <div class="text-xs text-gray-500 mt-2 break-words">${escapeHtml(msg)}</div>
+        `;
+        // subscribe fallback with client sorting
+        subscribe(options.fallbackQuery, { clientSort: true, fallbackQuery: null });
+        return;
+      }
+
+      showError(err);
     }
   );
-}
-
-/* =========================
-   OPTIONAL: manual refresh
-========================= */
-function reloadOnce() {
-  // Re-lance juste l'écoute (utile si tu changes des choses)
-  listenChats();
 }
 
 /* =========================
@@ -174,11 +218,7 @@ async function getProfile(uid) {
     lastName = u.lastName || "";
     photoURL = u.photoURL || null;
     username = u.username || "";
-
-    display =
-      (`${firstName} ${lastName}`).trim() ||
-      username ||
-      uid;
+    display = (`${firstName} ${lastName}`).trim() || username || uid;
   }
 
   const value = { display, photoURL, firstName, lastName, username };
@@ -211,7 +251,6 @@ function renderChats(items) {
 
     row.innerHTML = `
       <div class="flex items-center gap-3 min-w-0">
-
         <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
           ${
             c.photoURL
@@ -227,7 +266,6 @@ function renderChats(items) {
           </div>
           <div class="text-xs text-gray-500 truncate">${escapeHtml(c.lastMessage || "—")}</div>
         </div>
-
       </div>
 
       <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
@@ -242,6 +280,17 @@ function renderChats(items) {
 
     chatList.appendChild(row);
   });
+}
+
+/* =========================
+   ERROR UI
+========================= */
+function showError(err) {
+  const msg = err?.message || String(err);
+  chatList.innerHTML = `
+    <div class="text-sm text-red-600 font-semibold">Erreur chargement conversations</div>
+    <div class="text-xs text-gray-600 mt-2 break-words">${escapeHtml(msg)}</div>
+  `;
 }
 
 /* =========================
@@ -273,6 +322,5 @@ function escapeHtml(str) {
 }
 
 function escapeAttr(str) {
-  // pour éviter les injections dans src=""
   return String(str).replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
