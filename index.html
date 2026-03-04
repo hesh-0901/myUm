@@ -211,12 +211,12 @@ if(isStandalone()) return;
 
 /* IOS */
 
-if(isIOS()){
+if (isIOS()) {
 
-installBtn.style.display="none";
+installBtn.style.display = "none";
 
 installText.innerHTML =
-'Pour installer l\\'app :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’accueil</b>';
+"Pour installer l'app :<br><br><i class='bi bi-box-arrow-up'></i> puis <b>Ajouter à l’écran d’accueil</b>";
 
 modal.classList.remove("hidden");
 modal.classList.add("flex");
