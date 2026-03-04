@@ -56,6 +56,7 @@ const messagesEl = document.getElementById("messages");
 const emptyState = document.getElementById("emptyState");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
+const roomAvatar = document.getElementById("roomAvatar");
 
 backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
 dashBtn?.addEventListener("click", () => window.goTo?.("public/dashboard.html"));
@@ -104,8 +105,12 @@ async function guardFriendship() {
    HEADER
 ========================= */
 async function loadFriendHeader() {
+
   const friendSnap = await getDoc(doc(db, "users", friendId)).catch(() => null);
-  const u = friendSnap && friendSnap.exists() ? friendSnap.data() : {};
+
+  const u = friendSnap && friendSnap.exists()
+    ? friendSnap.data()
+    : {};
 
   const name =
     `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
@@ -114,6 +119,35 @@ async function loadFriendHeader() {
 
   roomTitle.textContent = name;
   roomSub.textContent = u.username ? `@${u.username}` : "—";
+
+  /* =========================
+     PHOTO PROFIL
+  ========================= */
+
+  if (!roomAvatar) return;
+
+  if (u.photoURL) {
+
+    roomAvatar.innerHTML =
+      `<img src="${u.photoURL}" class="w-full h-full object-cover">`;
+
+  } else {
+
+    const initials =
+      (u.firstName?.charAt(0) || "") +
+      (u.lastName?.charAt(0) || "");
+
+    roomAvatar.classList.add(
+      "bg-gradient-to-br",
+      "from-primary",
+      "to-medium",
+      "text-white"
+    );
+
+    roomAvatar.textContent = initials || "?";
+
+  }
+
 }
 
 /* =========================
