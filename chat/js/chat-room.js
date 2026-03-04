@@ -25,6 +25,7 @@ function getCurrentUser() {
     return null;
   }
 }
+
 const currentUser = getCurrentUser();
 const myId = currentUser?.id;
 
@@ -56,11 +57,11 @@ const emptyState = document.getElementById("emptyState");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
-backBtn.addEventListener("click", () => (window.location.href = "index.html"));
-dashBtn.addEventListener("click", () => window.goTo("public/dashboard.html"));
+backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
+dashBtn?.addEventListener("click", () => window.goTo?.("public/dashboard.html"));
 
 /* =========================
-   CHAT ID (unique, no duplicates)
+   CHAT ID
 ========================= */
 function buildChatId(a, b) {
   const [x, y] = [a, b].sort();
@@ -72,20 +73,24 @@ const chatRef = doc(db, "chats", chatId);
 const messagesRef = collection(db, "chats", chatId, "messages");
 
 /* =========================
-   START
+   INIT
 ========================= */
-await guardFriendship();
-await loadFriendHeader();
-await ensureChatDoc();
-listenMessages();
-
-sendBtn.addEventListener("click", sendMessage);
-messageInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMessage();
+initRoom().catch((e) => {
+  console.error("initRoom error:", e);
+  alert("Erreur room : " + (e?.message || e));
+  window.location.href = "index.html";
 });
 
+async function initRoom() {
+  await guardFriendship();
+  await loadFriendHeader();
+  await ensureChatDoc();
+  listenMessages();
+  bindSend();
+}
+
 /* =========================
-   SECURITY: friends-only
+   FRIENDS ONLY
 ========================= */
 async function guardFriendship() {
   const friendEdge = await getDoc(doc(db, "users", myId, "friends", friendId));
@@ -96,7 +101,7 @@ async function guardFriendship() {
 }
 
 /* =========================
-   HEADER INFO
+   HEADER
 ========================= */
 async function loadFriendHeader() {
   const friendSnap = await getDoc(doc(db, "users", friendId)).catch(() => null);
@@ -127,57 +132,98 @@ async function ensureChatDoc() {
 }
 
 /* =========================
-   REALTIME LISTENER
+   REALTIME MESSAGES
 ========================= */
 function listenMessages() {
   const q = query(messagesRef, orderBy("createdAt", "asc"), limit(300));
 
-  onSnapshot(q, (snap) => {
-    messagesEl.innerHTML = "";
+  onSnapshot(
+    q,
+    (snap) => {
+      messagesEl.innerHTML = "";
 
-    if (snap.empty) {
-      emptyState.classList.remove("hidden");
-      return;
+      if (snap.empty) {
+        emptyState?.classList.remove("hidden");
+        return;
+      }
+
+      emptyState?.classList.add("hidden");
+
+      snap.forEach((d) => {
+        const m = d.data();
+        const isMine = m.senderId === myId;
+        messagesEl.appendChild(renderBubble(m.text || "", isMine));
+      });
+
+      // scroll bas
+      window.scrollTo(0, document.body.scrollHeight);
+    },
+    (err) => {
+      console.error("onSnapshot error:", err);
+      alert("Erreur écoute messages : " + (err?.message || err));
     }
+  );
+}
 
-    emptyState.classList.add("hidden");
+/* =========================
+   BIND SEND
+========================= */
+function bindSend() {
+  sendBtn?.addEventListener("click", () => sendMessage());
 
-    snap.forEach((d) => {
-      const m = d.data();
-      const isMine = m.senderId === myId;
-      messagesEl.appendChild(renderBubble(m.text || "", isMine, m.createdAt));
-    });
-
-    // Auto scroll bottom
-    window.scrollTo(0, document.body.scrollHeight);
+  messageInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
   });
 }
 
 /* =========================
-   SEND MESSAGE
+   SEND MESSAGE (avec erreurs visibles)
 ========================= */
+let sending = false;
+
 async function sendMessage() {
-  const text = (messageInput.value || "").trim();
+  if (sending) return;
+
+  const text = (messageInput?.value || "").trim();
   if (!text) return;
 
-  messageInput.value = "";
-  messageInput.focus();
+  sending = true;
+  sendBtn?.setAttribute("disabled", "true");
+  sendBtn?.classList.add("opacity-60");
 
-  await addDoc(messagesRef, {
-    senderId: myId,
-    text,
-    createdAt: serverTimestamp()
-  });
+  try {
+    // write message
+    await addDoc(messagesRef, {
+      senderId: myId,
+      text,
+      createdAt: serverTimestamp()
+    });
 
-  // Update lastMessage + updatedAt on parent chat
-  await updateDoc(chatRef, {
-    lastMessage: text.slice(0, 250),
-    updatedAt: serverTimestamp()
-  }).catch(() => {});
+    // update parent chat meta
+    await updateDoc(chatRef, {
+      lastMessage: text.slice(0, 250),
+      updatedAt: serverTimestamp()
+    });
+
+    // reset input
+    messageInput.value = "";
+    messageInput.focus();
+
+  } catch (e) {
+    console.error("sendMessage error:", e);
+    alert("Envoi impossible : " + (e?.message || e));
+  } finally {
+    sending = false;
+    sendBtn?.removeAttribute("disabled");
+    sendBtn?.classList.remove("opacity-60");
+  }
 }
 
 /* =========================
-   UI BUBBLE
+   UI
 ========================= */
 function renderBubble(text, isMine) {
   const wrap = document.createElement("div");
