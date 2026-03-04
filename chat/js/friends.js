@@ -433,18 +433,40 @@ async function renderFriends() {
 
 async function acceptRequest(requestId, fromUserId) {
 
+  const [meSnap, otherSnap] = await Promise.all([
+    getDoc(doc(db, "users", uid)),
+    getDoc(doc(db, "users", fromUserId))
+  ]);
+
+  const me = meSnap.exists() ? meSnap.data() : {};
+  const other = otherSnap.exists() ? otherSnap.data() : {};
+
+  const myName =
+    `${me.firstName || ""} ${me.lastName || ""}`.trim()
+    || me.username
+    || uid;
+
+  const otherName =
+    `${other.firstName || ""} ${other.lastName || ""}`.trim()
+    || other.username
+    || fromUserId;
+
   await setDoc(doc(db, "users", uid, "friends", fromUserId), {
     friendId: fromUserId,
+    friendName: otherName,
+    friendUsername: other.username || "",
     createdAt: serverTimestamp()
   });
 
   await setDoc(doc(db, "users", fromUserId, "friends", uid), {
     friendId: uid,
+    friendName: myName,
+    friendUsername: me.username || "",
     createdAt: serverTimestamp()
   });
 
-  await deleteDoc(doc(db, "users", uid, "friendRequests", requestId));
-  await deleteDoc(doc(db, "users", fromUserId, "friendRequests", requestId));
+  await deleteDoc(doc(db, "users", uid, "friendRequests", requestId)).catch(()=>{});
+  await deleteDoc(doc(db, "users", fromUserId, "friendRequests", requestId)).catch(()=>{});
 
   await renderIncoming();
   await renderFriends();
