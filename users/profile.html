@@ -8,16 +8,17 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
+<!-- CropperJS -->
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
-e
-
+<!-- Icons -->
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
 rel="stylesheet">
 
@@ -34,7 +35,7 @@ tailwind.config = {
       fontFamily: {
         display: ['Inter', 'sans-serif']
       }
-    }e
+    }
   }
 }
 </script>
@@ -54,8 +55,6 @@ tailwind.config = {
 
 <!-- PROFILE -->
 <div class="max-w-md mx-auto">
-
-  <div class="max-w-md mx-auto">
 
   <div class="bg-white rounded-3xl shadow-md overflow-hidden">
 
@@ -105,16 +104,13 @@ tailwind.config = {
     <div class="pt-20 px-6 pb-6">
 
       <h1 id="fullName"
-      class="text-2xl font-bold text-gray-900 tracking-tight">
-      </h1>
+      class="text-2xl font-bold text-gray-900 tracking-tight"></h1>
 
       <p id="userFunction"
-      class="text-sm font-semibold text-primary mt-1">
-      </p>
+      class="text-sm font-semibold text-primary mt-1"></p>
 
       <p id="username"
-      class="text-sm text-gray-400 mt-1">
-      </p>
+      class="text-sm text-gray-400 mt-1"></p>
 
 
       <!-- BADGES -->
@@ -122,13 +118,11 @@ tailwind.config = {
 
         <span id="roleBadge"
         class="px-3 py-1 text-xs rounded-full 
-        bg-gray-100 text-gray-700 font-medium">
-        </span>
+        bg-gray-100 text-gray-700 font-medium"></span>
 
         <span id="choraleBadge"
         class="px-3 py-1 text-xs rounded-full 
-        bg-primary/10 text-primary font-medium">
-        </span>
+        bg-primary/10 text-primary font-medium"></span>
 
       </div>
 
@@ -170,13 +164,12 @@ tailwind.config = {
 
 </div>
 
+
 <!-- MODULE INFORMATIONS -->
 <div id="informations-container" class="mt-6 px-4"></div>
 
-
 <!-- MODULE AMIS -->
 <div id="amis-container" class="mt-6 px-4"></div>
-
 
 
 <!-- SECURITY -->
@@ -188,7 +181,6 @@ tailwind.config = {
       Sécurité du compte
     </h2>
 
-    <!-- PASSWORD -->
     <button id="changePasswordBtn"
     class="w-full flex items-center justify-between p-4 
            rounded-xl bg-gray-50 hover:bg-gray-100 transition">
@@ -208,7 +200,6 @@ tailwind.config = {
     </button>
 
 
-    <!-- LOGOUT -->
     <button id="logoutBtn"
     class="w-full flex items-center justify-between p-4 
            rounded-xl bg-gray-50 hover:bg-gray-100 transition">
@@ -228,7 +219,6 @@ tailwind.config = {
     </button>
 
 
-    <!-- DELETE -->
     <button id="deleteAccountBtn"
     class="w-full flex items-center justify-between p-4 
            rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition">
@@ -252,12 +242,13 @@ tailwind.config = {
 </div>
 
 
-
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
+
+<!-- CROP MODAL -->
 <div id="cropModal"
-class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
 
   <div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
 
@@ -265,7 +256,7 @@ class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
       Ajuster la photo
     </h2>
 
-    <div class="w-full h-72">
+    <div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
       <img id="cropImage" class="max-w-full">
     </div>
 
@@ -288,7 +279,6 @@ class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
 </div>
 
 
-
 <!-- PROFILE SCRIPT -->
 <script type="module" src="/myUm/users/js/profile.js"></script>
 
@@ -300,9 +290,7 @@ import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
-
 checkAuth();
-
 
 async function initProfile() {
 
@@ -310,32 +298,25 @@ async function initProfile() {
   document.getElementById("header-container").innerHTML = await header.text();
   await initHeader();
 
-
   const sidebar = await fetch("/myUm/partials/sidebar.html");
   document.getElementById("sidebar-container").innerHTML = await sidebar.text();
   initSidebar();
 
-
   const nav = await fetch("/myUm/partials/nav.html");
   document.getElementById("navbar-container").innerHTML = await nav.text();
 
-
   const infos = await fetch("/myUm/partials/informations.html");
   document.getElementById("informations-container").innerHTML = await infos.text();
-
   await initInformations();
-
 
   const amis = await fetch("/myUm/partials/amis.html");
   document.getElementById("amis-container").innerHTML = await amis.text();
 
 }
 
-
 initProfile();
 
 </script>
-
 
 </body>
 </html>
