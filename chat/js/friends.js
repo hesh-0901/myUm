@@ -32,7 +32,7 @@ const currentUser = getCurrentUser();
 const uid = currentUser?.id;
 
 if (!uid) {
-  alert("Session invalide.");
+  alert("Session invalide. Veuillez vous reconnecter.");
   window.location.href = "../users/login.html";
 }
 
@@ -43,38 +43,73 @@ if (!uid) {
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const searchResults = document.getElementById("searchResults");
+const searchHint = document.getElementById("searchHint");
+const refreshBtn = document.getElementById("refreshBtn");
+
 const incomingList = document.getElementById("incomingList");
 const friendsList = document.getElementById("friendsList");
 
 init();
 
 async function init() {
+  // Bouton recherche
   searchBtn?.addEventListener("click", onSearch);
+
+  // Enter = recherche
   searchInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") onSearch();
   });
 
+  // Live search (dès 2 caractères)
+  searchInput?.addEventListener(
+    "input",
+    debounce(() => {
+      const v = normalizeTerm(searchInput?.value || "");
+      if (v.length >= 2) onSearch();
+      else {
+        searchResults.innerHTML = "";
+        if (searchHint) searchHint.textContent = "Tape au moins 2 lettres pour chercher.";
+      }
+    }, 250)
+  );
+
+  // Refresh lists
+  refreshBtn?.addEventListener("click", async () => {
+    await renderIncoming();
+    await renderFriends();
+  });
+
+  if (searchHint) searchHint.textContent = "Tape au moins 2 lettres pour chercher.";
   await renderIncoming();
   await renderFriends();
 }
 
 /* =========================
-   SEARCH
+   SEARCH (LIVE + MULTI-FIELD)
 ========================= */
 
 async function onSearch() {
-  // Nettoyage anti-collage (espaces invisibles/retours à la ligne)
-  let term = (searchInput?.value || "");
-  term = term.replace(/\s+/g, " ").trim();
-
+  const term = normalizeTerm(searchInput?.value || "");
   searchResults.innerHTML = "";
-  if (!term) return;
+
+  if (!term) {
+    if (searchHint) searchHint.textContent = "Tape au moins 2 lettres pour chercher.";
+    return;
+  }
+
+  // On peut autoriser 1 lettre, mais ça peut retourner trop de monde.
+  if (term.length < 2) {
+    if (searchHint) searchHint.textContent = "Tape au moins 2 lettres pour chercher.";
+    return;
+  }
+
+  if (searchHint) searchHint.textContent = `Résultats pour "${term}"`;
 
   const usersRef = collection(db, "users");
   const termUpper = term.toUpperCase();
 
   try {
-    // Prefix search username
+    // Prefix username
     const qUsername = query(
       usersRef,
       where("username", ">=", termUpper),
@@ -82,27 +117,51 @@ async function onSearch() {
       limit(10)
     );
 
-    // Exact phone
+    // Prefix firstName
+    const qFirstName = query(
+      usersRef,
+      where("firstName", ">=", termUpper),
+      where("firstName", "<=", termUpper + "\uf8ff"),
+      limit(10)
+    );
+
+    // Prefix lastName
+    const qLastName = query(
+      usersRef,
+      where("lastName", ">=", termUpper),
+      where("lastName", "<=", termUpper + "\uf8ff"),
+      limit(10)
+    );
+
+    // Phone exact (pas de toUpperCase)
     const qPhone = query(
       usersRef,
       where("phone", "==", term),
       limit(10)
     );
 
-    const [snapUser, snapPhone] = await Promise.all([
+    // Exécuter en parallèle
+    const [snapUser, snapFirst, snapLast, snapPhone] = await Promise.all([
       getDocs(qUsername),
+      getDocs(qFirstName),
+      getDocs(qLastName),
       getDocs(qPhone)
     ]);
 
+    // Fusion + déduplication
     const found = new Map();
     snapUser.forEach((d) => found.set(d.id, { id: d.id, ...d.data() }));
+    snapFirst.forEach((d) => found.set(d.id, { id: d.id, ...d.data() }));
+    snapLast.forEach((d) => found.set(d.id, { id: d.id, ...d.data() }));
     snapPhone.forEach((d) => found.set(d.id, { id: d.id, ...d.data() }));
 
+    // S’il n’y a aucun résultat
     if (found.size === 0) {
       searchResults.innerHTML = `<div class="text-sm text-gray-500">Aucun utilisateur trouvé.</div>`;
       return;
     }
 
+    // Afficher résultats
     for (const user of found.values()) {
       if (user.id === uid) continue;
 
@@ -114,10 +173,13 @@ async function onSearch() {
         user.username ||
         "Utilisateur";
 
-      const sub = user.username ? `@${user.username}` : (user.phone || "");
+      const sub =
+        user.username ? `@${user.username}` :
+        user.phone || "";
 
       const card = document.createElement("div");
-      card.className = "bg-gray-50 rounded-2xl p-4 flex justify-between items-center shadow-sm";
+      card.className =
+        "bg-gray-50 rounded-2xl p-4 flex justify-between items-center shadow-sm";
 
       card.innerHTML = `
         <div class="min-w-0">
@@ -135,7 +197,7 @@ async function onSearch() {
 
       if (!alreadyFriend && !pending) {
         card.querySelector(".sendBtn")
-          .addEventListener("click", () => sendFriendRequest(user.id));
+          ?.addEventListener("click", () => sendFriendRequest(user.id));
       }
 
       searchResults.appendChild(card);
@@ -147,7 +209,8 @@ async function onSearch() {
 }
 
 /* =========================
-   SEND REQUEST
+   SEND FRIEND REQUEST
+   Model: users/{uid}/friendRequests (type incoming/outgoing)
 ========================= */
 
 async function sendFriendRequest(toUserId) {
@@ -178,7 +241,7 @@ async function sendFriendRequest(toUserId) {
 }
 
 /* =========================
-   RENDER INCOMING
+   RENDER INCOMING REQUESTS
 ========================= */
 
 async function renderIncoming() {
@@ -188,13 +251,15 @@ async function renderIncoming() {
 
   let snap;
   try {
-    snap = await getDocs(query(
-      incomingCol,
-      where("type", "==", "incoming"),
-      where("status", "==", "pending"),
-      orderBy("createdAt", "desc"),
-      limit(30)
-    ));
+    snap = await getDocs(
+      query(
+        incomingCol,
+        where("type", "==", "incoming"),
+        where("status", "==", "pending"),
+        orderBy("createdAt", "desc"),
+        limit(30)
+      )
+    );
   } catch (e) {
     console.error("Erreur incoming :", e);
     incomingList.innerHTML = `<div class="text-sm text-red-500">Impossible de charger les demandes.</div>`;
@@ -206,55 +271,60 @@ async function renderIncoming() {
     return;
   }
 
-  // On fetch les users en parallèle
-  const rows = await Promise.all(snap.docs.map(async (docSnap) => {
-    const req = docSnap.data();
-    const fromId = req.fromUserId;
+  const rows = await Promise.all(
+    snap.docs.map(async (docSnap) => {
+      const req = docSnap.data();
+      const fromId = req.fromUserId;
 
-    const fromSnap = await getDoc(doc(db, "users", fromId)).catch(() => null);
-    const fromData = fromSnap && fromSnap.exists() ? fromSnap.data() : {};
+      const fromSnap = await getDoc(doc(db, "users", fromId)).catch(() => null);
+      const fromData = fromSnap && fromSnap.exists() ? fromSnap.data() : {};
 
-    const name =
-      `${fromData.firstName || ""} ${fromData.lastName || ""}`.trim() ||
-      fromData.username ||
-      fromId;
+      const name =
+        `${fromData.firstName || ""} ${fromData.lastName || ""}`.trim() ||
+        fromData.username ||
+        fromId;
 
-    const row = document.createElement("div");
-    row.className = "bg-gray-50 rounded-2xl p-3 flex justify-between items-center shadow-sm";
+      const username = fromData.username || "";
 
-    row.innerHTML = `
-      <div class="min-w-0">
-        <div class="font-semibold text-sm truncate">${escapeHtml(name)}</div>
-        <div class="text-xs text-gray-500 truncate">${fromData.username ? "@"+escapeHtml(fromData.username) : ""}</div>
-      </div>
-      <div class="flex gap-2">
-        <button class="accept text-xs bg-green-600 text-white px-3 py-2 rounded-xl font-semibold">
-          Accepter
-        </button>
-        <button class="reject text-xs bg-gray-200 text-gray-700 px-3 py-2 rounded-xl font-semibold">
-          Refuser
-        </button>
-      </div>
-    `;
+      const row = document.createElement("div");
+      row.className =
+        "bg-gray-50 rounded-2xl p-3 flex justify-between items-center shadow-sm";
 
-    row.querySelector(".accept")
-      .addEventListener("click", () => acceptRequest(docSnap.id, fromId));
+      row.innerHTML = `
+        <div class="min-w-0">
+          <div class="font-semibold text-sm truncate">${escapeHtml(name)}</div>
+          <div class="text-xs text-gray-500 truncate">${username ? "@"+escapeHtml(username) : ""}</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="accept text-xs bg-green-600 text-white px-3 py-2 rounded-xl font-semibold">
+            Accepter
+          </button>
+          <button class="reject text-xs bg-gray-200 text-gray-700 px-3 py-2 rounded-xl font-semibold">
+            Refuser
+          </button>
+        </div>
+      `;
 
-    row.querySelector(".reject")
-      .addEventListener("click", () => rejectRequest(docSnap.id, fromId));
+      row.querySelector(".accept")
+        ?.addEventListener("click", () => acceptRequest(docSnap.id, fromId));
 
-    return row;
-  }));
+      row.querySelector(".reject")
+        ?.addEventListener("click", () => rejectRequest(docSnap.id, fromId));
 
-  rows.forEach(r => incomingList.appendChild(r));
+      return row;
+    })
+  );
+
+  rows.forEach((r) => incomingList.appendChild(r));
 }
 
 /* =========================
    ACCEPT / REJECT
+   friends: users/{uid}/friends/{friendId}
+   store snapshot friendName + friendUsername (durable)
 ========================= */
 
 async function acceptRequest(requestId, fromUserId) {
-  // Snapshot durable : on stocke le nom dans friends des deux côtés
   const [meSnap, otherSnap] = await Promise.all([
     getDoc(doc(db, "users", uid)),
     getDoc(doc(db, "users", fromUserId))
@@ -273,7 +343,6 @@ async function acceptRequest(requestId, fromUserId) {
     other.username ||
     fromUserId;
 
-  // friends/{friendId}
   await setDoc(doc(db, "users", uid, "friends", fromUserId), {
     friendId: fromUserId,
     friendName: otherName,
@@ -288,7 +357,7 @@ async function acceptRequest(requestId, fromUserId) {
     createdAt: serverTimestamp()
   });
 
-  // Supprimer demandes
+  // Supprimer demandes des deux côtés
   await deleteDoc(doc(db, "users", uid, "friendRequests", requestId)).catch(() => {});
   await deleteDoc(doc(db, "users", fromUserId, "friendRequests", requestId)).catch(() => {});
 
@@ -328,43 +397,46 @@ async function renderFriends() {
     return;
   }
 
-  const rows = await Promise.all(snap.docs.map(async (f) => {
-    const data = f.data() || {};
-    const friendId = data.friendId || f.id;
+  const rows = await Promise.all(
+    snap.docs.map(async (f) => {
+      const data = f.data() || {};
+      const friendId = data.friendId || f.id;
 
-    // 1) Snapshot immédiat
-    let name = data.friendName || "";
-    let username = data.friendUsername || "";
+      // Snapshot instantané
+      let name = data.friendName || "";
+      let username = data.friendUsername || "";
 
-    // 2) Fallback fetch user si snapshot absent (anciens amis)
-    if (!name) {
-      const friendSnap = await getDoc(doc(db, "users", friendId)).catch(() => null);
-      if (friendSnap && friendSnap.exists()) {
-        const u = friendSnap.data();
-        name = (`${u.firstName || ""} ${u.lastName || ""}`).trim() || u.username || friendId;
-        username = u.username || "";
-      } else {
-        name = friendId;
+      // Fallback pour anciens docs (sans snapshot)
+      if (!name) {
+        const friendSnap = await getDoc(doc(db, "users", friendId)).catch(() => null);
+        if (friendSnap && friendSnap.exists()) {
+          const u = friendSnap.data();
+          name = (`${u.firstName || ""} ${u.lastName || ""}`).trim() || u.username || friendId;
+          username = u.username || "";
+        } else {
+          name = friendId;
+        }
       }
-    }
 
-    const row = document.createElement("div");
-    row.className = "bg-gray-50 rounded-2xl p-3 flex justify-between items-center shadow-sm";
+      const row = document.createElement("div");
+      row.className =
+        "bg-gray-50 rounded-2xl p-3 flex justify-between items-center shadow-sm";
 
-    row.innerHTML = `
-      <div class="min-w-0">
-        <div class="font-semibold text-sm truncate">${escapeHtml(name)}</div>
-        <div class="text-xs text-gray-500 truncate">${username ? "@"+escapeHtml(username) : ""}</div>
-      </div>
-      <a href="room.html?uid=${encodeURIComponent(friendId)}"
-         class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold">
-        Chatter
-      </a>
-    `;
-    return row;
-  }));
+      row.innerHTML = `
+        <div class="min-w-0">
+          <div class="font-semibold text-sm truncate">${escapeHtml(name)}</div>
+          <div class="text-xs text-gray-500 truncate">${username ? "@"+escapeHtml(username) : ""}</div>
+        </div>
+        <a href="room.html?uid=${encodeURIComponent(friendId)}"
+           class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold">
+          Chatter
+        </a>
+      `;
+      return row;
+    })
+  );
 
-  rows.forEach(r => friendsList.appendChild(r));
+  rows.forEach((r) => friendsList.appendChild(r));
 }
 
 /* =========================
@@ -376,13 +448,28 @@ async function isFriend(a, b) {
 }
 
 async function hasPendingRequest(from, to) {
-  const snap = await getDocs(query(
-    collection(db, "users", from, "friendRequests"),
-    where("toUserId", "==", to),
-    where("status", "==", "pending"),
-    limit(1)
-  ));
+  const snap = await getDocs(
+    query(
+      collection(db, "users", from, "friendRequests"),
+      where("toUserId", "==", to),
+      where("status", "==", "pending"),
+      limit(1)
+    )
+  );
   return !snap.empty;
+}
+
+function normalizeTerm(v) {
+  // Nettoyage anti-collage : espaces/retours multiples
+  return String(v).replace(/\s+/g, " ").trim();
+}
+
+function debounce(fn, delay = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
 }
 
 function escapeHtml(str) {
