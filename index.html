@@ -162,48 +162,22 @@ Plus tard
 
 </div>
 
-
-
 <script>
 
 /* ======================
 REGISTER SERVICE WORKER
 ====================== */
 
-if("serviceWorker" in navigator){
-
+if ("serviceWorker" in navigator) {
 navigator.serviceWorker.register("/myUm/sw.js")
 .then(()=>console.log("SW ready"))
-.catch(err=>console.log(err));
-
+.catch(err=>console.log("SW error:",err));
 }
 
 
 /* ======================
-PWA INSTALL
+PWA INSTALL SYSTEM
 ====================== */
-
-let deferredPrompt;
-
-const modal = document.getElementById("installModal");
-const installBtn = document.getElementById("installBtn");
-const installText = document.getElementById("installText");
-const closeModal = document.getElementById("closeModal");
-
-
-function isIOS(){
-return /iphone|ipad|ipod/i.test(navigator.userAgent);
-}
-
-function isStandalone(){
-
-return window.matchMedia('(display-mode: standalone)').matches
-|| window.navigator.standalone === true;
-
-}
-
-
-/* ANDROID / WINDOWS */
 
 let deferredPrompt;
 
@@ -222,13 +196,45 @@ return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
 function isStandalone(){
-return window.matchMedia('(display-mode: standalone)').matches
+return window.matchMedia("(display-mode: standalone)").matches
 || window.navigator.standalone === true;
 }
 
 
 /* ======================
-ANDROID / WINDOWS INSTALL
+SHOW MODAL
+====================== */
+
+window.addEventListener("load",()=>{
+
+if(isStandalone()) return;
+
+/* IOS */
+
+if(isIOS()){
+
+installBtn.style.display="none";
+
+installText.innerHTML =
+'Pour installer l\\'app :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’accueil</b>';
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+return;
+
+}
+
+/* ANDROID / WINDOWS */
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+});
+
+
+/* ======================
+CAPTURE INSTALL EVENT
 ====================== */
 
 window.addEventListener("beforeinstallprompt",(e)=>{
@@ -239,13 +245,6 @@ e.preventDefault();
 
 deferredPrompt = e;
 
-if(!isStandalone() && !isIOS()){
-
-modal.classList.remove("hidden");
-modal.classList.add("flex");
-
-}
-
 });
 
 
@@ -255,38 +254,25 @@ INSTALL BUTTON
 
 installBtn.addEventListener("click", async ()=>{
 
-if(!deferredPrompt) return;
+if(deferredPrompt){
 
 deferredPrompt.prompt();
 
 const choice = await deferredPrompt.userChoice;
 
-console.log("Install choice:", choice.outcome);
+console.log("Install result:",choice.outcome);
 
 modal.classList.add("hidden");
 
 deferredPrompt = null;
 
-});
-
-
-/* ======================
-IOS INSTALL MESSAGE
-====================== */
-
-window.addEventListener("load",()=>{
-
-if(isIOS() && !isStandalone()){
-
-installBtn.style.display="none";
-
-installText.innerHTML =
-'Pour installer l\\'app :<br><br><i class="bi bi-box-arrow-up"></i> puis <b>Ajouter à l’écran d’écran d’accueil</b>';
-
-modal.classList.remove("hidden");
-modal.classList.add("flex");
+return;
 
 }
+
+/* FALLBACK SI NAVIGATEUR */
+
+alert("Utilisez le menu du navigateur puis 'Installer l'application'.");
 
 });
 
