@@ -19,31 +19,37 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.c
 rel="stylesheet">
 
 <script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5'
-      },
-      fontFamily: {
-        display: ['Inter', 'sans-serif']
-      }
-    }
-  }
+tailwind.config={
+theme:{
+extend:{
+colors:{
+primary:'#1A3668',
+medium:'#2596D9',
+lightblue:'#3FA9F5'
+},
+fontFamily:{
+display:['Inter','sans-serif']
+}
+}
+}
 }
 </script>
 
 <style>
 
-.fade-in{
-animation:fadeIn .7s ease;
+.logo-animation{
+animation:logoFade 1.2s ease;
 }
 
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px)}
-to{opacity:1;transform:translateY(0)}
+@keyframes logoFade{
+0%{opacity:0;transform:scale(.92)}
+100%{opacity:1;transform:scale(1)}
+}
+
+.glass{
+backdrop-filter:blur(18px);
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.18);
 }
 
 </style>
@@ -51,22 +57,24 @@ to{opacity:1;transform:translateY(0)}
 </head>
 
 
-<body class="bg-primary min-h-screen font-display text-white flex flex-col">
+<body class="bg-primary min-h-screen font-display text-white flex flex-col overflow-hidden">
+
 
 <!-- CENTER CONTENT -->
 
-<div class="flex flex-col flex-grow items-center justify-center fade-in">
+<div class="flex flex-col flex-grow items-center justify-center gap-6">
 
-<h1 class="text-5xl font-semibold tracking-tight">
-MyUm
-</h1>
+<img
+src="assets/logo.png"
+class="w-40 sm:w-44 md:w-48 lg:w-52 logo-animation select-none pointer-events-none"
+alt="MyUm Logo">
 
 </div>
 
 
 <!-- BOTTOM BUTTONS -->
 
-<div class="px-8 pb-10 space-y-4 fade-in">
+<div class="px-8 pb-10 space-y-4">
 
 <a href="users/login.html"
 class="block w-full text-center py-3 rounded-xl text-sm font-medium border border-white/40 text-white hover:bg-white/10 transition active:scale-95">
@@ -74,6 +82,7 @@ class="block w-full text-center py-3 rounded-xl text-sm font-medium border borde
 Se connecter
 
 </a>
+
 
 <a href="users/register.html"
 class="block w-full text-center py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-medium to-lightblue text-white shadow-lg transition active:scale-95">
@@ -85,20 +94,21 @@ Créer un compte
 </div>
 
 
-
 <!-- INSTALL MODAL -->
 
 <div id="installModal"
-class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 px-6">
+class="fixed inset-0 hidden items-center justify-center p-6 z-50">
 
-<div class="w-full max-w-sm rounded-3xl p-6 text-center
-bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
+<div
+class="glass rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl">
 
-<div class="w-14 h-14 mx-auto mb-4 rounded-2xl
-bg-gradient-to-br from-medium to-lightblue
-flex items-center justify-center">
+<div class="flex justify-center mb-4">
 
-<i class="bi bi-phone text-xl"></i>
+<div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+
+<i class="bi bi-download text-2xl"></i>
+
+</div>
 
 </div>
 
@@ -111,20 +121,21 @@ Installer MyUm
 <p id="installText"
 class="text-sm text-white/80 mb-5">
 
-Installe l'application pour une meilleure expérience.
+Installer l'application pour une expérience plus rapide.
 
 </p>
 
-<button id="installBtn"
-class="w-full py-3 rounded-xl text-sm font-semibold
-bg-white text-primary hover:bg-gray-100 transition">
+<div class="space-y-3">
 
-Installer l'application
+<button id="installBtn"
+class="w-full py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue font-semibold shadow-lg active:scale-95 transition">
+
+Installer
 
 </button>
 
 <button id="closeInstall"
-class="mt-3 text-xs text-white/70">
+class="w-full py-3 rounded-xl text-sm text-white/70 border border-white/20 active:scale-95 transition">
 
 Plus tard
 
@@ -134,47 +145,73 @@ Plus tard
 
 </div>
 
+</div>
+
 
 
 <script>
 
-let deferredPrompt
-const modal = document.getElementById("installModal")
-const installBtn = document.getElementById("installBtn")
-const installText = document.getElementById("installText")
+let deferredPrompt=null
 
-/* =========================
-   DETECT INSTALL
-========================= */
+const modal=document.getElementById("installModal")
+const installBtn=document.getElementById("installBtn")
+const closeBtn=document.getElementById("closeInstall")
+const installText=document.getElementById("installText")
+
 
 function isStandalone(){
 
 return window.matchMedia('(display-mode: standalone)').matches
-|| window.navigator.standalone === true
+|| window.navigator.standalone
 
 }
 
-if(!isStandalone()){
+
+function isiOS(){
+
+return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
+
+}
+
 
 window.addEventListener("beforeinstallprompt",(e)=>{
 
 e.preventDefault()
 
-deferredPrompt = e
+if(isStandalone()) return
 
-setTimeout(()=>{
+deferredPrompt=e
+
 modal.classList.remove("hidden")
 modal.classList.add("flex")
-},2000)
 
 })
 
+
+if(isiOS() && !isStandalone()){
+
+installText.innerHTML=
+`
+Sur iPhone :
+
+<br><br>
+
+<i class="bi bi-box-arrow-up text-lg"></i>
+Appuyez sur <b>Partager</b> puis
+
+<br>
+
+<i class="bi bi-plus-square text-lg"></i>
+<b>Sur l'écran d'accueil</b>
+`
+
+modal.classList.remove("hidden")
+modal.classList.add("flex")
+
+installBtn.style.display="none"
+
 }
 
-
-/* =========================
-   INSTALL BUTTON
-========================= */
 
 installBtn?.addEventListener("click",async()=>{
 
@@ -182,47 +219,19 @@ if(!deferredPrompt) return
 
 deferredPrompt.prompt()
 
-const { outcome } = await deferredPrompt.userChoice
-
-if(outcome==="accepted"){
+await deferredPrompt.userChoice
 
 modal.classList.add("hidden")
-
-}
-
-deferredPrompt=null
 
 })
 
 
-/* =========================
-   IOS DETECT
-========================= */
+closeBtn?.addEventListener("click",()=>{
 
-const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent)
-
-if(isIOS && !isStandalone()){
-
-installText.innerHTML =
-'Sur iPhone :<br>Appuyez sur <b><i class="bi bi-box-arrow-up"></i> Partager</b><br>puis <b>Ajouter à l’écran d’accueil</b>'
-
-installBtn.style.display="none"
-
-setTimeout(()=>{
-modal.classList.remove("hidden")
-modal.classList.add("flex")
-},2000)
-
-}
-
-
-/* =========================
-   CLOSE
-========================= */
-
-document.getElementById("closeInstall").onclick=()=>{
 modal.classList.add("hidden")
-}
+
+})
+
 
 </script>
 
