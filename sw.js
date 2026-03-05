@@ -74,9 +74,16 @@ self.clients.claim();
 self.addEventListener("fetch", event => {
 
 const req = event.request;
-
 const url = new URL(req.url);
 
+/* IGNORER EXTENSIONS ET CDN EXTERNES */
+
+if (
+  url.protocol === "chrome-extension:" ||
+  url.origin !== location.origin
+){
+  return;
+}
 
 /* FIREBASE / API = NETWORK FIRST */
 
