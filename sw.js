@@ -13,10 +13,7 @@ const STATIC_ASSETS = [
 "/myUm/assets/logo.png",
 
 "/myUm/assets/icons/icon-192.png",
-"/myUm/assets/icons/icon-512.png",
-
-"https://cdn.tailwindcss.com",
-"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+"/myUm/assets/icons/icon-512.png"
 
 ];
 
