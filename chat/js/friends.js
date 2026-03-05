@@ -236,8 +236,8 @@ async function onSearch() {
    UI ACTION
    Utilité: transmettre le bouton pour gérer état (Envoi / En attente)
 ========================= */
-const btn = card.querySelector(".sendBtn");
-btn.addEventListener("click", () => sendFriendRequest(user.id, btn));
+       const btn = card.querySelector(".sendBtn");
+       btn.addEventListener("click", () =>       sendFriendRequest(user.id, btn));
       }
 
       searchResults.appendChild(card);
