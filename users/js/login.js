@@ -241,7 +241,6 @@ photoURL:userData.photoURL || null
 
 };
 
-
 // stockage utilisateur mémorisé (pour connexion rapide)
 
 localStorage.setItem(
@@ -256,8 +255,6 @@ sessionStorage.setItem(
 "active"
 );
 
-}
-
 // redirect
 
 window.location.href = "../public/dashboard.html";
@@ -268,13 +265,6 @@ console.error("Erreur login :",error);
 alert("Erreur lors de la connexion.");
 
 }
-
-});
-
-}
-
-});
-
 
 
 // ============================
