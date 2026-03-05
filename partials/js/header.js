@@ -173,11 +173,11 @@ export async function initHeader() {
   if (logoutBtn) {
 
     logoutBtn.addEventListener("click", () => {
-
-      localStorage.removeItem("myum_user");
-
-      window.location.href = "../users/login.html";
-
+    
+      sessionStorage.removeItem("myum_session");
+    
+      window.location.href = "/myUm/users/login.html";
+    
     });
 
   }
