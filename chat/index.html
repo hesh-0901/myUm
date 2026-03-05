@@ -1,132 +1,121 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat - MyUm</title>
 
-<title>Messagerie | MyUm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<script>
-tailwind.config={
-theme:{
-extend:{
-colors:{
-primary:"#1A3668",
-medium:"#2596D9",
-lightblue:"#3FA9F5"
-},
-fontFamily:{
-display:["Inter","sans-serif"]
-}
-}
-}
-}
-</script>
-
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { primary:'#1A3668', medium:'#2596D9', lightblue:'#3FA9F5', danger:'#DC2626' },
+        fontFamily: { display:['Inter','sans-serif'] }
+      } }
+    }
+  </script>
 </head>
 
 <body class="bg-gray-100 font-display text-gray-800">
+  <!-- ===============================
+       APP SHELL (mobile container)
+  ================================= -->
+  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col">
 
-<header class="sticky top-0 bg-white border-b border-gray-200 z-40">
+    <!-- ===============================
+         HEADER
+    ================================= -->
+    <header class="sticky top-0 bg-white border-b border-gray-100 z-10">
+      <div class="px-4 py-3 flex items-center justify-between">
+        <button class="text-sm font-semibold text-primary" onclick="window.location.href='../public/dashboard.html'">
+          ← Dashboard
+        </button>
+        <div class="font-semibold">Messagerie</div>
+        <button class="text-sm font-semibold text-primary" onclick="window.location.href='list.html'">
+          Conversations
+        </button>
+      </div>
+    </header>
 
-<div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- ===============================
+         CONTENT
+    ================================= -->
+    <main class="flex-1 p-4 space-y-4">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <i class="bi bi-person-plus text-primary text-xl"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="font-semibold">Rechercher & ajouter des amis</div>
+            <div class="text-sm text-gray-500">Trouve un membre par nom, username ou téléphone</div>
+          </div>
+        </div>
 
-<button onclick="goTo('myUm/public/dashboard.html')"
-class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
-<i class="bi bi-arrow-left"></i>
-</button>
+        <button onclick="window.location.href='index.html#friends'"
+          class="mt-4 w-full py-3 rounded-2xl bg-gradient-to-r from-medium to-lightblue text-white font-semibold active:scale-95 transition">
+          Ouvrir la recherche
+        </button>
+      </div>
 
-<div class="text-sm font-semibold text-gray-700">
-Messagerie
-</div>
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-medium/10 flex items-center justify-center">
+            <i class="bi bi-chat-dots text-medium text-xl"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="font-semibold">Mes conversations</div>
+            <div class="text-sm text-gray-500">Voir les discussions et les non-lus</div>
+          </div>
+        </div>
 
-<button onclick="window.location.href='list.html'"
-class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
-<i class="bi bi-chat-dots"></i>
-</button>
+        <button onclick="window.location.href='list.html'"
+          class="mt-4 w-full py-3 rounded-2xl bg-primary text-white font-semibold active:scale-95 transition">
+          Ouvrir
+        </button>
+      </div>
 
-</div>
+      <!-- ===============================
+           FRIENDS ZONE (search + requests + friends)
+      ================================= -->
+      <section id="friends" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 space-y-4">
+        <div class="font-semibold">Amis</div>
 
-<div class="max-w-md mx-auto px-4 pb-3">
+        <div class="flex gap-2">
+          <input id="searchInput" class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue"
+                 placeholder="Nom, username ou téléphone…" />
+          <button id="searchBtn"
+                  class="px-4 py-3 rounded-2xl bg-primary text-white font-semibold active:scale-95 transition">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
 
-<div class="flex items-center bg-gray-100 rounded-xl px-3 py-2">
+        <div id="searchResults" class="space-y-2"></div>
 
-<i class="bi bi-search text-gray-500 mr-2"></i>
+        <div class="pt-2">
+          <div class="text-sm font-semibold text-gray-700 mb-2">Demandes reçues</div>
+          <div id="incomingList" class="space-y-2 text-sm"></div>
+        </div>
 
-<input
-id="searchInput"
-placeholder="Rechercher un membre"
-class="bg-transparent outline-none text-sm w-full"
-/>
+        <div class="pt-2">
+          <div class="text-sm font-semibold text-gray-700 mb-2">Mes amis</div>
+          <div id="friendsList" class="space-y-2 text-sm"></div>
+        </div>
+      </section>
+    </main>
 
-</div>
+    <footer class="py-6 text-center text-xs text-gray-400">
+      MyUm • Messagerie
+    </footer>
+  </div>
 
-</div>
+  <!-- ✅ Global init (presence + notifications) -->
+  <script type="module" src="../mains.js/app-init.js"></script>
 
-</header>
-
-<main class="max-w-md mx-auto px-4 pt-4 pb-10">
-
-<div class="flex gap-2 mb-4">
-
-<button id="tabIncoming"
-class="flex-1 py-2 rounded-xl bg-primary text-white text-xs font-semibold">
-Demandes reçues
-</button>
-
-<button id="tabOutgoing"
-class="flex-1 py-2 rounded-xl bg-gray-200 text-xs font-semibold">
-Demandes envoyées
-</button>
-
-<button id="tabFriends"
-class="flex-1 py-2 rounded-xl bg-gray-200 text-xs font-semibold">
-Amis
-</button>
-
-</div>
-
-<section id="incomingSection" class="space-y-3"></section>
-
-<section id="outgoingSection" class="space-y-3 hidden"></section>
-
-<section id="friendsSection" class="space-y-3 hidden"></section>
-
-</main>
-
-<div id="searchModal"
-class="fixed inset-0 bg-black/40 hidden items-start justify-center pt-20 z-50">
-
-<div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-4">
-
-<div class="flex items-center justify-between mb-3">
-
-<div class="font-semibold text-sm">
-Résultats
-</div>
-
-<button id="closeSearchModal">
-<i class="bi bi-x-lg"></i>
-</button>
-
-</div>
-
-<div id="searchResults" class="space-y-3"></div>
-
-</div>
-
-</div>
-
-<script type="module" src="../mains.js/auth-guard.js"></script>
-<script type="module" src="js/friends.js"></script>
-<script type="module" src="../mains.js/app-init.js"></script>
-
+  <!-- ✅ Friends logic -->
+  <script type="module" src="./js/friends.js"></script>
 </body>
 </html>
