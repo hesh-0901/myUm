@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Connexion - MyUm</title>
 
+<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Favicon -->
 <link rel="icon" href="/myUm/assets/favicon.ico">
 
-<script type="module" src="js/login.js"></script>
-
+<!-- Tailwind Config -->
 <script>
 tailwind.config = {
 theme:{
@@ -29,7 +37,8 @@ display:['Inter','sans-serif']
 }
 }
 </script>
-  
+
+<!-- Evite flash login -->
 <style>
 #loginMain{display:none;}
 </style>
@@ -40,18 +49,22 @@ display:['Inter','sans-serif']
 <body class="bg-gray-100 flex justify-center overflow-x-hidden font-display">
 
 <!-- APP SHELL -->
-<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col">
+<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
 <!-- HEADER -->
 <header class="bg-primary text-white px-6 py-6 flex flex-col justify-center">
 
 <h1 class="text-2xl font-bold tracking-tight">MyUm</h1>
-<p class="text-xs text-white/80 mt-1">Connexion à votre espace</p>
+
+<p class="text-xs text-white/80 mt-1">
+Connexion à votre espace
+</p>
 
 </header>
 
+
 <!-- MAIN -->
-<main id="loginMain" class="hidden flex-1 overflow-y-auto px-6 py-8">
+<main id="loginMain" class="flex-1 overflow-y-auto px-6 py-8">
 
 <form id="loginForm" class="space-y-6" autocomplete="off">
 
@@ -59,7 +72,9 @@ display:['Inter','sans-serif']
 <!-- USERNAME -->
 <div>
 
-<label class="text-xs text-gray-500">Nom d'utilisateur</label>
+<label class="text-xs text-gray-500">
+Nom d'utilisateur
+</label>
 
 <div class="relative mt-2">
 
@@ -77,10 +92,13 @@ class="w-full pl-9 pr-3 py-3 border border-gray-300 rounded-xl text-sm focus:out
 
 </div>
 
+
 <!-- PASSWORD -->
 <div>
 
-<label class="text-xs text-gray-500">Mot de passe</label>
+<label class="text-xs text-gray-500">
+Mot de passe
+</label>
 
 <div class="relative mt-2">
 
@@ -100,12 +118,17 @@ class="w-full pl-9 pr-10 py-3 border border-gray-300 rounded-xl text-sm focus:ou
 
 </div>
 
+
 <!-- REMEMBER -->
 <div class="flex items-center justify-between text-xs">
 
 <label class="flex items-center gap-2 text-gray-600 cursor-pointer">
 
-<input type="checkbox" id="rememberMe" class="accent-primary">
+<input
+type="checkbox"
+id="rememberMe"
+class="accent-primary"
+>
 
 Se souvenir de moi
 
@@ -117,8 +140,8 @@ Mot de passe oublié
 
 </div>
 
-<!-- LOGIN BUTTON -->
 
+<!-- LOGIN BUTTON -->
 <button
 type="submit"
 class="w-full py-3 rounded-xl bg-primary text-white text-sm font-semibold tracking-wide transition active:scale-95 hover:bg-medium"
@@ -131,9 +154,11 @@ Se connecter
 </form>
 
 </main>
-  
-<!-- MODAL DE CONNEXION RAPIDE -->
-<div id="autoLoginModal"
+
+
+<!-- MODAL CONNEXION RAPIDE -->
+<div
+id="autoLoginModal"
 class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50">
 
 <div class="bg-white w-[90%] max-w-sm rounded-2xl p-6 shadow-sm text-center">
@@ -142,13 +167,18 @@ class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50">
 Connexion rapide
 </h2>
 
+
 <!-- AVATAR -->
 <div class="flex justify-center mb-3">
 
-<div id="autoAvatar"
+<div
+id="autoAvatar"
 class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden text-sm font-semibold">
 
-<img id="autoAvatarImg" class="w-full h-full object-cover hidden">
+<img
+id="autoAvatarImg"
+class="w-full h-full object-cover hidden"
+/>
 
 <span id="autoAvatarInitials"></span>
 
@@ -156,21 +186,26 @@ class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overf
 
 </div>
 
+
 <!-- NOM -->
 <p id="autoLoginName" class="text-sm font-medium text-gray-800"></p>
 
 <p id="autoLoginUsername" class="text-xs text-gray-500 mb-6"></p>
 
+
 <div class="flex gap-3">
 
-<button id="confirmAutoLogin"
+<button
+id="confirmAutoLogin"
 class="flex-1 py-2 rounded-xl bg-primary text-white text-xs font-medium active:scale-95 transition">
 
 Continuer
 
 </button>
 
-<button id="cancelAutoLogin"
+
+<button
+id="cancelAutoLogin"
 class="flex-1 py-2 rounded-xl border border-gray-300 text-gray-600 text-xs active:scale-95 transition hover:bg-gray-100">
 
 Autre compte
@@ -183,6 +218,7 @@ Autre compte
 
 </div>
 
+
 <!-- FOOTER -->
 <footer class="px-6 py-4 text-center text-[11px] text-gray-400 border-t">
 
@@ -192,5 +228,10 @@ Autre compte
 
 </div>
 
+
+<!-- JS MODULE -->
+<script type="module" src="js/login.js"></script>
+
 </body>
+
 </html>
