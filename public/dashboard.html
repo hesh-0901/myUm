@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - MyUm</title>
@@ -9,269 +10,300 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="icon" href="/myUm/assets/favicon.png">
 
 <script>
 tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        danger: '#DC2626'
-      },
-      fontFamily: {
-        display: ['Inter', 'sans-serif']
-      }
-    }
-  }
+theme:{
+extend:{
+fontFamily:{display:['Inter','sans-serif']},
+colors:{
+cardGreen:"#BFE7D3",
+cardSand:"#E8D7B4",
+cardDark:"#0B0B0B"
+}
+}
+}
 }
 </script>
 
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800 pb-24 pt-20">
-
-<!-- HEADER -->
-<div id="header-container"></div>
-
-<!-- SIDEBAR -->
-<div id="sidebar-container"></div>
+<body class="bg-black text-white font-display pb-24">
 
 <!-- ========================= -->
-<!-- 🔥 COLLE TON CONTENU DASHBOARD ICI -->
+<!-- HEADER DASHBOARD -->
 <!-- ========================= -->
-  <!-- CONTENU DASHBOARD -->
-<div class="px-4 py-6 space-y-6 max-w-md mx-auto">
-  <!-- 1️⃣ Taux de participation -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="bi bi-pie-chart-fill text-primary text-lg"></i>
-      <h2 class="font-semibold text-sm">Taux de participation</h2>
-    </div>
-    <div class="flex justify-center relative">
-      <canvas id="participationChart" width="180" height="180"></canvas>
-      <div id="percentageLabel"
-           class="absolute text-xl font-bold text-primary">
-      </div>
-    </div>
-  </div>
-  <!-- 2️⃣ Prochains rendez-vous -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="bi bi-calendar-event text-primary text-lg"></i>
-      <h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
-    </div>
-    <div class="space-y-3 text-sm">
-      <div class="border rounded-xl p-3">
-        <p class="font-medium">Répétition générale</p>
-        <p class="text-gray-500">15 Juin • 18h00</p>
-      </div>
-      <div class="border rounded-xl p-3">
-        <p class="font-medium">Concert spécial</p>
-        <p class="text-gray-500">28 Juin • 20h00</p>
-      </div>
-    </div>
-  </div>
-  <!-- 3️⃣ Annonce -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="bi bi-megaphone-fill text-primary text-lg"></i>
-      <h2 class="font-semibold text-sm">Annonce</h2>
-    </div>
-    <p class="text-sm text-gray-600">
-      Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
-    </p>
-  </div>
-  <!-- 4️⃣ Alerte -->
-  <div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
-    <div class="flex items-center gap-2 mb-2">
-      <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
-      <h2 class="font-semibold text-sm text-danger">Alerte</h2>
-    </div>
-    <p class="text-sm text-gray-600">
-      Vous avez 2 absences consécutives.
-    </p>
-  </div>
-  <!-- 5️⃣ Actions rapides premium -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
-    <div class="grid grid-cols-2 gap-4">
-      <button id="btnMessage"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-gradient-to-br from-medium to-lightblue 
-               text-white shadow-lg active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-white/20 
-                    flex items-center justify-center backdrop-blur">
-          <i class="bi bi-chat-dots-fill text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm">Messagerie</p>
-          <p class="text-xs text-white/80">Discuter</p>
-        </div>
-      </button>
-      <button id="btnAgenda"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-white shadow-md border border-gray-100
-               active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-primary/10 
-                    flex items-center justify-center">
-          <i class="bi bi-calendar-week text-primary text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm text-gray-800">Agenda</p>
-          <p class="text-xs text-gray-500">Planning</p>
-        </div>
-      </button>
-      <button id="btnPublication"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-white shadow-md border border-gray-100
-               active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-medium/10 
-                    flex items-center justify-center">
-          <i class="bi bi-pencil-square text-medium text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm text-gray-800">Publication</p>
-          <p class="text-xs text-gray-500">Créer un post</p>
-        </div>
-      </button>
-      <button id="btnPresenceRoom"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-gradient-to-br from-primary to-medium 
-               text-white shadow-lg active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-white/20 
-                    flex items-center justify-center backdrop-blur">
-          <i class="bi bi-clipboard-check text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm">Salon présence</p>
-          <p class="text-xs text-white/80">Valider</p>
-        </div>
-      </button>
-      <button id="btnJustification"
-        class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
-               bg-white shadow-md border border-gray-100
-               active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-danger/10 
-                    flex items-center justify-center">
-          <i class="bi bi-file-earmark-text text-danger text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
-          <p class="text-xs text-gray-500">Envoyer un document</p>
-        </div>
-      </button>
-    </div>
-  </div>
+
+<div class="max-w-md mx-auto px-4 pt-8">
+
+<div class="flex items-center justify-between mb-6">
+
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
+<i class="bi bi-grid"></i>
+</button>
+
+<h1 class="text-lg font-semibold">Dashboard</h1>
 </div>
 
-<!-- NAVBAR -->
-<div id="navbar-container"></div>
+<div class="relative">
+<img src="https://i.pravatar.cc/40" class="w-9 h-9 rounded-full"/>
+<span class="absolute -top-1 -right-1 bg-red-500 text-xs w-5 h-5 flex items-center justify-center rounded-full">9</span>
+</div>
+
+</div>
 
 
 <!-- ========================= -->
-<!-- 🔥 SCRIPT GLOBAL -->
+<!-- ACTION ICONS -->
 <!-- ========================= -->
-<script type="module" src="../users/js/presence-client.js"></script>
 
-<script type="module">
+<div class="flex items-center justify-between mb-6">
 
-import { checkAuth } from "../mains.js/auth-guard.js";
-import { initHeader } from "../partials/js/header.js";
-import { initSidebar } from "../partials/js/sidebar.js";
+<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
+<i class="bi bi-search"></i>
+</button>
 
-// Vérification session
-checkAuth();
+<div class="flex gap-3">
 
-async function initApp() {
+<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
+<i class="bi bi-calendar"></i>
+</button>
 
-  try {
+<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
+<i class="bi bi-folder"></i>
+</button>
 
-    const header = await fetch("../partials/header.html");
-    document.getElementById("header-container").innerHTML = await header.text();
-    await initHeader();
+<button class="w-10 h-10 rounded-full bg-yellow-300 text-black flex items-center justify-center">
+<i class="bi bi-plus-lg"></i>
+</button>
 
-    const sidebar = await fetch("../partials/sidebar.html");
-    document.getElementById("sidebar-container").innerHTML = await sidebar.text();
-    initSidebar();
+</div>
 
-    const nav = await fetch("../partials/nav.html");
-    document.getElementById("navbar-container").innerHTML = await nav.text();
+</div>
 
-    await import("../partials/js/nav.js");
 
-    initDashboard();
+<!-- ========================= -->
+<!-- TABS -->
+<!-- ========================= -->
 
-  } catch (error) {
-    console.error("Erreur chargement dashboard :", error);
-  }
+<div class="flex gap-3 mb-6 text-sm overflow-x-auto">
 
+<div class="px-4 py-2 bg-zinc-900 rounded-full whitespace-nowrap">
+01 Overview
+</div>
+
+<div class="px-4 py-2 bg-zinc-900/40 rounded-full whitespace-nowrap">
+02 PPC
+</div>
+
+<div class="px-4 py-2 bg-zinc-900/40 rounded-full whitespace-nowrap">
+03 Year to year
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CARD 1 -->
+<!-- ========================= -->
+
+<div class="rounded-3xl p-6 bg-cardGreen text-black mb-6">
+
+<div class="flex justify-between items-center mb-3">
+
+<p class="text-sm font-semibold">
+Top 5 products by spend
+</p>
+
+<i class="bi bi-three-dots"></i>
+
+</div>
+
+<p class="text-xs text-gray-600 mb-1">Total score</p>
+
+<h2 class="text-3xl font-bold mb-6">2,985</h2>
+
+<div class="flex justify-center relative">
+
+<canvas id="participationChart" width="160" height="160"></canvas>
+
+<div id="percentageLabel"
+class="absolute text-lg font-bold">
+</div>
+
+</div>
+
+<div class="text-center mt-4">
+
+<p class="text-sm font-semibold">$1,815.67</p>
+<p class="text-xs text-gray-600">B07MCGRV7M</p>
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CARD 2 -->
+<!-- ========================= -->
+
+<div class="rounded-3xl p-6 bg-cardSand text-black mb-6">
+
+<div class="flex justify-between items-center mb-3">
+
+<p class="text-sm font-semibold">Costs</p>
+
+<span class="text-xs text-gray-600">
+Aug 21 – Sep 21
+</span>
+
+</div>
+
+<canvas id="costChart" height="120"></canvas>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CARD 3 -->
+<!-- ========================= -->
+
+<div class="rounded-3xl p-6 bg-zinc-900 mb-6">
+
+<p class="text-sm font-semibold mb-4">
+ACoS vs TACoS
+</p>
+
+<canvas id="acosChart" height="120"></canvas>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- MINI STATS -->
+<!-- ========================= -->
+
+<div class="grid grid-cols-2 gap-4">
+
+<div class="bg-zinc-900 p-4 rounded-2xl">
+
+<p class="text-xs text-gray-400 mb-1">
+Orders Created
+</p>
+
+<p class="text-lg font-bold">
+$134,970
+</p>
+
+<p class="text-xs text-green-400">
++12.98%
+</p>
+
+</div>
+
+
+<div class="bg-zinc-900 p-4 rounded-2xl">
+
+<p class="text-xs text-gray-400 mb-1">
+Total Sales
+</p>
+
+<p class="text-lg font-bold text-red-400">
+$2,145,132.80
+</p>
+
+<p class="text-xs text-gray-400">
+$2,141,564.20
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- BOTTOM NAV -->
+<!-- ========================= -->
+
+<div class="fixed bottom-4 left-0 right-0 flex justify-center">
+
+<div class="bg-zinc-900 rounded-3xl px-6 py-3 flex gap-8 text-lg">
+
+<i class="bi bi-bar-chart-fill text-yellow-300"></i>
+<i class="bi bi-box"></i>
+<i class="bi bi-wallet2"></i>
+<i class="bi bi-bag"></i>
+<i class="bi bi-three-dots"></i>
+
+</div>
+
+</div>
+
+
+<script>
+
+const participation = 75;
+
+const ctx = document.getElementById("participationChart");
+
+new Chart(ctx,{
+type:"doughnut",
+data:{
+datasets:[{
+data:[participation,100-participation],
+backgroundColor:["#22C55E","#E5E7EB"],
+borderWidth:0
+}]
+},
+options:{
+cutout:"70%",
+plugins:{legend:{display:false}}
 }
+});
 
-initApp();
 
-function initDashboard() {
+const costCtx = document.getElementById("costChart");
 
-  const participationCanvas = document.getElementById("participationChart");
-
-  if (participationCanvas) {
-
-    const participation = 75;
-    const ctx = participationCanvas.getContext("2d");
-
-    const percentageLabel = document.getElementById("percentageLabel");
-    if (percentageLabel) {
-      percentageLabel.innerText = participation + "%";
-    }
-
-    new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        datasets: [{
-          data: [participation, 100 - participation],
-          backgroundColor: [
-            participation >= 80 ? "#16A34A" :
-            participation >= 60 ? "#F59E0B" :
-            "#DC2626",
-            "#E5E7EB"
-          ],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        cutout: "70%",
-        plugins: {
-          tooltip: { enabled: false },
-          legend: { display: false }
-        }
-      }
-    });
-  }
-
-  const routes = {
-    btnMessage: "../chat/index.html",
-    btnAgenda: "agenda.html",
-    btnPublication: "../posts/index.html",
-    btnPresenceRoom: "../users/presence.html",
-    btnJustification: "justification.html"
-  };
-
-  Object.keys(routes).forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.addEventListener("click", () => {
-        window.location.href = routes[id];
-      });
-    }
-  });
-
+new Chart(costCtx,{
+type:"line",
+data:{
+labels:["24 Aug","31 Aug","7 Sep","14 Sep","21 Sep"],
+datasets:[{
+data:[2,4,3,5,4],
+borderColor:"#000",
+backgroundColor:"transparent",
+tension:.4
+}]
+},
+options:{
+plugins:{legend:{display:false}},
+scales:{x:{display:false},y:{display:false}}
 }
+});
+
+
+const acosCtx = document.getElementById("acosChart");
+
+new Chart(acosCtx,{
+type:"line",
+data:{
+labels:["31 Aug","21 Sep"],
+datasets:[{
+data:[2,4],
+borderColor:"#F59E0B",
+tension:.4
+}]
+},
+options:{
+plugins:{legend:{display:false}},
+scales:{x:{display:false},y:{display:false}}
+}
+});
 
 </script>
-
-<script type="module" src="../mains.js/app-init.js"></script>
 
 </body>
 </html>
