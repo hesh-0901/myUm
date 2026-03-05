@@ -21,13 +21,13 @@ const confirmBtn = document.getElementById("confirmAutoLogin");
 const cancelBtn = document.getElementById("cancelAutoLogin");
 
 // 🔐 AUTO LOGIN CHECK
+
 const savedUser = localStorage.getItem("myum_user");
 
 if (savedUser) {
 
 const user = JSON.parse(savedUser);
 
-// afficher message confirmation
 if(autoModal && autoText){
 
 autoText.textContent = `Êtes-vous ${user.firstName} ${user.lastName} ?`;
@@ -35,7 +35,6 @@ autoModal.classList.remove("hidden");
 
 }
 
-// continuer session
 if(confirmBtn){
 
 confirmBtn.addEventListener("click", () => {
@@ -46,13 +45,11 @@ window.location.href = "../public/dashboard.html";
 
 }
 
-// utiliser autre compte
 if(cancelBtn){
 
 cancelBtn.addEventListener("click", () => {
 
 localStorage.removeItem("myum_user");
-sessionStorage.removeItem("myum_user");
 
 if(autoModal){
 autoModal.classList.add("hidden");
