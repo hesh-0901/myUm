@@ -53,27 +53,27 @@ class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:b
 
 </button>
 
+<!-- ===============================
+     TOP BAR (AVATAR + TITLE)
+     Utilité: Afficher l’identité du correspondant (UX pro)
+================================= -->
+<div class="flex items-center gap-3">
+  
+  <!-- Avatar -->
+  <div id="roomAvatar"
+    class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
+    —
+  </div>
 
-<!-- USER INFO -->
+  <div class="min-w-0">
+    <h1 id="roomTitle" class="font-semibold text-sm truncate">—</h1>
+    <p id="roomSub" class="text-xs text-gray-400 truncate">—</p>
 
-<div class="flex items-center gap-3 flex-1 px-2">
-
-<div
-id="roomAvatar"
-class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
+    <!-- Typing indicator -->
+    <p id="typingIndicator" class="text-xs text-gray-400 hidden">…</p>
+  </div>
 
 </div>
-
-<div class="text-left min-w-0">
-
-<div id="roomTitle"
-class="text-sm font-semibold text-gray-900 truncate">
-Discussion
-</div>
-
-<div id="roomSub"
-class="text-xs text-gray-500 truncate">
-—
 </div>
 
 </div>
