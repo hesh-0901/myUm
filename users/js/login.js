@@ -265,6 +265,11 @@ console.error("Erreur login :",error);
 alert("Erreur lors de la connexion.");
 
 }
+});
+
+}
+
+});
 
 
 // ============================
