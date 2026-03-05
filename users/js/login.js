@@ -21,10 +21,7 @@ const confirmBtn = document.getElementById("confirmAutoLogin");
 const cancelBtn = document.getElementById("cancelAutoLogin");
 
 // 🔐 AUTO LOGIN CHECK
-const savedUserLocal = localStorage.getItem("myum_user");
-const savedUserSession = sessionStorage.getItem("myum_user");
-
-let savedUser = savedUserLocal || savedUserSession;
+const savedUser = localStorage.getItem("myum_user");
 
 if (savedUser) {
 
