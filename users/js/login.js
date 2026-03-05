@@ -242,24 +242,21 @@ photoURL:userData.photoURL || null
 };
 
 
-// stockage session
-
-if(remember){
+// stockage utilisateur mémorisé (pour connexion rapide)
 
 localStorage.setItem(
 "myum_user",
 JSON.stringify(session)
 );
 
-}else{
+// session active
 
 sessionStorage.setItem(
-"myum_user",
-JSON.stringify(session)
+"myum_session",
+"active"
 );
 
 }
-
 
 // redirect
 
