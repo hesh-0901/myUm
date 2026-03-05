@@ -2,32 +2,53 @@
 
 export function checkAuth() {
 
-  // Vérifie session persistante OU session temporaire
-  const storedUser =
-    localStorage.getItem("myum_user") ||
-    sessionStorage.getItem("myum_user");
+const storedUser =
+localStorage.getItem("myum_user") ||
+sessionStorage.getItem("myum_user");
 
-  // Si aucune session → redirection vers login
-  if (!storedUser) {
-    window.location.href = "../users/login.html";
-    return null;
-  }
+if(!storedUser){
 
-  let user = null;
+window.location.href="/myUm/users/login.html";
+return null;
 
-  try {
-    user = JSON.parse(storedUser);
-  } catch (error) {
-    console.error("Session utilisateur corrompue :", error);
+}
 
-    // Nettoyage sécurité
-    localStorage.removeItem("myum_user");
-    sessionStorage.removeItem("myum_user");
+let user;
 
-    window.location.href = "../users/login.html";
-    return null;
-  }
+try{
 
-  return user;
+user = JSON.parse(storedUser);
+
+}catch(error){
+
+console.error("Session utilisateur corrompue :",error);
+
+localStorage.removeItem("myum_user");
+sessionStorage.removeItem("myum_user");
+
+window.location.href="/myUm/users/login.html";
+return null;
+
+}
+
+
+// vérification structure session
+
+if(
+!user ||
+!user.id ||
+!user.username ||
+!user.role
+){
+
+localStorage.removeItem("myum_user");
+sessionStorage.removeItem("myum_user");
+
+window.location.href="/myUm/users/login.html";
+return null;
+
+}
+
+return user;
 
 }
