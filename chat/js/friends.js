@@ -232,8 +232,12 @@ async function onSearch() {
       `;
 
       if (!alreadyFriend && !pending) {
-        card.querySelector(".addBtn")
-          .addEventListener("click", () => sendFriendRequest(user.id));
+        /* =========================
+   UI ACTION
+   Utilité: transmettre le bouton pour gérer état (Envoi / En attente)
+========================= */
+const btn = card.querySelector(".sendBtn");
+btn.addEventListener("click", () => sendFriendRequest(user.id, btn));
       }
 
       searchResults.appendChild(card);
