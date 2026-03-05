@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - MyUm</title>
@@ -10,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="icon" href="/myUm/assets/favicon.png">
 
 <script>
 tailwind.config = {
@@ -18,10 +18,11 @@ tailwind.config = {
       colors: {
         primary: '#1A3668',
         medium: '#2596D9',
-        lightblue: '#3FA9F5'
+        lightblue: '#3FA9F5',
+        danger: '#DC2626'
       },
       fontFamily: {
-        display: ['Inter','sans-serif']
+        display: ['Inter', 'sans-serif']
       }
     }
   }
@@ -33,181 +34,246 @@ tailwind.config = {
 <body class="bg-gray-100 font-display text-gray-800 pb-24 pt-20">
 
 <!-- HEADER -->
-<div class="px-4 max-w-md mx-auto flex items-center justify-between mb-6">
+<div id="header-container"></div>
 
-<div>
-<p class="text-sm text-gray-500">Bienvenue</p>
-<p id="usernameDisplay" class="font-semibold text-lg"></p>
+<!-- SIDEBAR -->
+<div id="sidebar-container"></div>
+
+<!-- ========================= -->
+<!-- 🔥 COLLE TON CONTENU DASHBOARD ICI -->
+<!-- ========================= -->
+  <!-- CONTENU DASHBOARD -->
+<div class="px-4 py-6 space-y-6 max-w-md mx-auto">
+  <!-- 1️⃣ Taux de participation -->
+  <div class="bg-white rounded-3xl shadow-md p-5">
+    <div class="flex items-center gap-2 mb-4">
+      <i class="bi bi-pie-chart-fill text-primary text-lg"></i>
+      <h2 class="font-semibold text-sm">Taux de participation</h2>
+    </div>
+    <div class="flex justify-center relative">
+      <canvas id="participationChart" width="180" height="180"></canvas>
+      <div id="percentageLabel"
+           class="absolute text-xl font-bold text-primary">
+      </div>
+    </div>
+  </div>
+  <!-- 2️⃣ Prochains rendez-vous -->
+  <div class="bg-white rounded-3xl shadow-md p-5">
+    <div class="flex items-center gap-2 mb-4">
+      <i class="bi bi-calendar-event text-primary text-lg"></i>
+      <h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div class="border rounded-xl p-3">
+        <p class="font-medium">Répétition générale</p>
+        <p class="text-gray-500">15 Juin • 18h00</p>
+      </div>
+      <div class="border rounded-xl p-3">
+        <p class="font-medium">Concert spécial</p>
+        <p class="text-gray-500">28 Juin • 20h00</p>
+      </div>
+    </div>
+  </div>
+  <!-- 3️⃣ Annonce -->
+  <div class="bg-white rounded-3xl shadow-md p-5">
+    <div class="flex items-center gap-2 mb-4">
+      <i class="bi bi-megaphone-fill text-primary text-lg"></i>
+      <h2 class="font-semibold text-sm">Annonce</h2>
+    </div>
+    <p class="text-sm text-gray-600">
+      Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
+    </p>
+  </div>
+  <!-- 4️⃣ Alerte -->
+  <div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
+    <div class="flex items-center gap-2 mb-2">
+      <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
+      <h2 class="font-semibold text-sm text-danger">Alerte</h2>
+    </div>
+    <p class="text-sm text-gray-600">
+      Vous avez 2 absences consécutives.
+    </p>
+  </div>
+  <!-- 5️⃣ Actions rapides premium -->
+  <div class="bg-white rounded-3xl shadow-md p-5">
+    <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <button id="btnMessage"
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-gradient-to-br from-medium to-lightblue 
+               text-white shadow-lg active:scale-95 transition">
+        <div class="w-12 h-12 rounded-full bg-white/20 
+                    flex items-center justify-center backdrop-blur">
+          <i class="bi bi-chat-dots-fill text-lg"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-semibold text-sm">Messagerie</p>
+          <p class="text-xs text-white/80">Discuter</p>
+        </div>
+      </button>
+      <button id="btnAgenda"
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-white shadow-md border border-gray-100
+               active:scale-95 transition">
+        <div class="w-12 h-12 rounded-full bg-primary/10 
+                    flex items-center justify-center">
+          <i class="bi bi-calendar-week text-primary text-lg"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-semibold text-sm text-gray-800">Agenda</p>
+          <p class="text-xs text-gray-500">Planning</p>
+        </div>
+      </button>
+      <button id="btnPublication"
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-white shadow-md border border-gray-100
+               active:scale-95 transition">
+        <div class="w-12 h-12 rounded-full bg-medium/10 
+                    flex items-center justify-center">
+          <i class="bi bi-pencil-square text-medium text-lg"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-semibold text-sm text-gray-800">Publication</p>
+          <p class="text-xs text-gray-500">Créer un post</p>
+        </div>
+      </button>
+      <button id="btnPresenceRoom"
+        class="flex items-center gap-4 p-4 rounded-2xl 
+               bg-gradient-to-br from-primary to-medium 
+               text-white shadow-lg active:scale-95 transition">
+        <div class="w-12 h-12 rounded-full bg-white/20 
+                    flex items-center justify-center backdrop-blur">
+          <i class="bi bi-clipboard-check text-lg"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-semibold text-sm">Salon présence</p>
+          <p class="text-xs text-white/80">Valider</p>
+        </div>
+      </button>
+      <button id="btnJustification"
+        class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
+               bg-white shadow-md border border-gray-100
+               active:scale-95 transition">
+        <div class="w-12 h-12 rounded-full bg-danger/10 
+                    flex items-center justify-center">
+          <i class="bi bi-file-earmark-text text-danger text-lg"></i>
+        </div>
+        <div class="text-left">
+          <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
+          <p class="text-xs text-gray-500">Envoyer un document</p>
+        </div>
+      </button>
+    </div>
+  </div>
 </div>
 
-<div class="flex items-center gap-3">
+<!-- NAVBAR -->
+<div id="navbar-container"></div>
+
+
+<!-- ========================= -->
+<!-- 🔥 SCRIPT GLOBAL -->
+<!-- ========================= -->
+<script type="module" src="../users/js/presence-client.js"></script>
+
+<script type="module">
+
+import { checkAuth } from "../mains.js/auth-guard.js";
+import { initHeader } from "../partials/js/header.js";
+import { initSidebar } from "../partials/js/sidebar.js";
+
+// Vérification session
+checkAuth();
+
+async function initApp() {
+
+  try {
+
+    const header = await fetch("../partials/header.html");
+    document.getElementById("header-container").innerHTML = await header.text();
+    await initHeader();
+
+    const sidebar = await fetch("../partials/sidebar.html");
+    document.getElementById("sidebar-container").innerHTML = await sidebar.text();
+    initSidebar();
+
+    const nav = await fetch("../partials/nav.html");
+    document.getElementById("navbar-container").innerHTML = await nav.text();
+
+    await import("../partials/js/nav.js");
+
+    initDashboard();
+
+  } catch (error) {
+    console.error("Erreur chargement dashboard :", error);
+  }
+
+}
+
+initApp();
+
+function initDashboard() {
+
+  const participationCanvas = document.getElementById("participationChart");
+
+  if (participationCanvas) {
+
+    const participation = 75;
+    const ctx = participationCanvas.getContext("2d");
+
+    const percentageLabel = document.getElementById("percentageLabel");
+    if (percentageLabel) {
+      percentageLabel.innerText = participation + "%";
+    }
+
+    new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        datasets: [{
+          data: [participation, 100 - participation],
+          backgroundColor: [
+            participation >= 80 ? "#16A34A" :
+            participation >= 60 ? "#F59E0B" :
+            "#DC2626",
+            "#E5E7EB"
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: "70%",
+        plugins: {
+          tooltip: { enabled: false },
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  const routes = {
+    btnMessage: "../chat/index.html",
+    btnAgenda: "agenda.html",
+    btnPublication: "../posts/index.html",
+    btnPresenceRoom: "../users/presence.html",
+    btnJustification: "justification.html"
+  };
+
+  Object.keys(routes).forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener("click", () => {
+        window.location.href = routes[id];
+      });
+    }
+  });
+
+}
 
-<button class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
-<i class="bi bi-search"></i>
-</button>
+</script>
 
-<img src="https://i.pravatar.cc/40"
-class="w-10 h-10 rounded-full shadow">
-
-</div>
-
-</div>
-
-
-<!-- CONTENU -->
-<div class="px-4 space-y-6 max-w-md mx-auto">
-
-
-<!-- ACTIONS RAPIDES SCROLLABLES -->
-<div class="flex gap-3 overflow-x-auto pb-2">
-
-<button
-class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
-
-<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-<i class="bi bi-chat-dots text-primary"></i>
-</div>
-
-<span class="text-xs font-medium">Message</span>
-
-</button>
-
-
-<button
-class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
-
-<div class="w-10 h-10 rounded-full bg-medium/10 flex items-center justify-center">
-<i class="bi bi-calendar-week text-medium"></i>
-</div>
-
-<span class="text-xs font-medium">Agenda</span>
-
-</button>
-
-
-<button
-class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
-
-<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-<i class="bi bi-pencil-square text-primary"></i>
-</div>
-
-<span class="text-xs font-medium">Publication</span>
-
-</button>
-
-
-<button
-class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
-
-<div class="w-10 h-10 rounded-full bg-medium/10 flex items-center justify-center">
-<i class="bi bi-clipboard-check text-medium"></i>
-</div>
-
-<span class="text-xs font-medium">Présence</span>
-
-</button>
-
-
-<button
-class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
-
-<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-<i class="bi bi-file-earmark-text text-primary"></i>
-</div>
-
-<span class="text-xs font-medium">Justifier</span>
-
-</button>
-
-</div>
-
-
-
-<!-- CARTE PARTICIPATION -->
-<div class="bg-white rounded-3xl shadow-md p-6">
-
-<div class="flex items-center justify-between mb-4">
-
-<h2 class="font-semibold text-sm">
-Taux de participation
-</h2>
-
-<i class="bi bi-three-dots text-gray-400"></i>
-
-</div>
-
-
-<div class="flex justify-center relative">
-
-<canvas id="participationChart" width="200" height="200"></canvas>
-
-<div class="absolute text-2xl font-bold text-primary top-1/2 -translate-y-1/2">
-87%
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- CARTE EVOLUTION -->
-<div class="bg-white rounded-3xl shadow-md p-6">
-
-<div class="flex items-center justify-between mb-4">
-
-<h2 class="font-semibold text-sm">
-Evolution participation
-</h2>
-
-<span class="text-xs text-gray-400">
-6 derniers mois
-</span>
-
-</div>
-
-<canvas id="evolutionChart" height="120"></canvas>
-
-</div>
-
-
-
-<!-- INFORMATIONS -->
-<div class="grid grid-cols-2 gap-4">
-
-<div class="bg-white rounded-2xl shadow p-4">
-
-<p class="text-xs text-gray-500 mb-1">
-Présences
-</p>
-
-<p class="text-lg font-semibold">
-87
-</p>
-
-</div>
-
-<div class="bg-white rounded-2xl shadow p-4">
-
-<p class="text-xs text-gray-500 mb-1">
-Absences
-</p>
-
-<p class="text-lg font-semibold text-red-500">
-13
-</p>
-
-</div>
-
-</div>
-
-
-</div>
-
-
-<!-- SCRIPT -->
-<script src="../public/js/dashboard.js"></script>
+<script type="module" src="../mains.js/app-init.js"></script>
 
 </body>
 </html>
+
+Fais que cet html ressemble exactement, copie conforme à l’image !
