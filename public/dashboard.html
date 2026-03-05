@@ -174,56 +174,33 @@ tailwind.config = {
 <!-- 🔥 SCRIPT GLOBAL -->
 <!-- ========================= -->
 <script type="module" src="../users/js/presence-client.js"></script>
+
 <script type="module">
 
 import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
-// ==============================
-// 🔐 Vérification session
-// ==============================
-
+// Vérification session
 checkAuth();
-
-
-// ==============================
-// INITIALISATION APP
-// ==============================
 
 async function initApp() {
 
   try {
 
-    // ======================
-    // HEADER
-    // ======================
     const header = await fetch("../partials/header.html");
     document.getElementById("header-container").innerHTML = await header.text();
     await initHeader();
 
-
-    // ======================
-    // SIDEBAR
-    // ======================
     const sidebar = await fetch("../partials/sidebar.html");
     document.getElementById("sidebar-container").innerHTML = await sidebar.text();
     initSidebar();
 
-
-    // ======================
-    // NAVBAR
-    // ======================
     const nav = await fetch("../partials/nav.html");
     document.getElementById("navbar-container").innerHTML = await nav.text();
 
-    // 🔥 IMPORTANT : charger la logique nav après injection
     await import("../partials/js/nav.js");
 
-
-    // ======================
-    // DASHBOARD
-    // ======================
     initDashboard();
 
   } catch (error) {
@@ -233,11 +210,6 @@ async function initApp() {
 }
 
 initApp();
-
-
-// ==============================
-// DASHBOARD LOGIC
-// ==============================
 
 function initDashboard() {
 
@@ -277,11 +249,6 @@ function initDashboard() {
     });
   }
 
-
-  // ======================
-  // ACTIONS RAPIDES
-  // ======================
-
   const routes = {
     btnMessage: "../chat/index.html",
     btnAgenda: "agenda.html",
@@ -300,8 +267,10 @@ function initDashboard() {
   });
 
 }
-<script type="module" src="../mains.js/app-init.js"></script>
+
 </script>
+
+<script type="module" src="../mains.js/app-init.js"></script>
 
 </body>
 </html>
