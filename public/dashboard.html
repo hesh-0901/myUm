@@ -13,297 +13,201 @@
 
 <script>
 tailwind.config = {
-theme:{
-extend:{
-fontFamily:{display:['Inter','sans-serif']},
-colors:{
-cardGreen:"#BFE7D3",
-cardSand:"#E8D7B4",
-cardDark:"#0B0B0B"
-}
-}
-}
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1A3668',
+        medium: '#2596D9',
+        lightblue: '#3FA9F5'
+      },
+      fontFamily: {
+        display: ['Inter','sans-serif']
+      }
+    }
+  }
 }
 </script>
 
 </head>
 
-<body class="bg-black text-white font-display pb-24">
+<body class="bg-gray-100 font-display text-gray-800 pb-24 pt-20">
 
-<!-- ========================= -->
-<!-- HEADER DASHBOARD -->
-<!-- ========================= -->
+<!-- HEADER -->
+<div class="px-4 max-w-md mx-auto flex items-center justify-between mb-6">
 
-<div class="max-w-md mx-auto px-4 pt-8">
-
-<div class="flex items-center justify-between mb-6">
+<div>
+<p class="text-sm text-gray-500">Bienvenue</p>
+<p id="usernameDisplay" class="font-semibold text-lg"></p>
+</div>
 
 <div class="flex items-center gap-3">
-<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
-<i class="bi bi-grid"></i>
-</button>
 
-<h1 class="text-lg font-semibold">Dashboard</h1>
-</div>
-
-<div class="relative">
-<img src="https://i.pravatar.cc/40" class="w-9 h-9 rounded-full"/>
-<span class="absolute -top-1 -right-1 bg-red-500 text-xs w-5 h-5 flex items-center justify-center rounded-full">9</span>
-</div>
-
-</div>
-
-
-<!-- ========================= -->
-<!-- ACTION ICONS -->
-<!-- ========================= -->
-
-<div class="flex items-center justify-between mb-6">
-
-<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
+<button class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center">
 <i class="bi bi-search"></i>
 </button>
 
-<div class="flex gap-3">
+<img src="https://i.pravatar.cc/40"
+class="w-10 h-10 rounded-full shadow">
 
-<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
-<i class="bi bi-calendar"></i>
+</div>
+
+</div>
+
+
+<!-- CONTENU -->
+<div class="px-4 space-y-6 max-w-md mx-auto">
+
+
+<!-- ACTIONS RAPIDES SCROLLABLES -->
+<div class="flex gap-3 overflow-x-auto pb-2">
+
+<button
+class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
+
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<i class="bi bi-chat-dots text-primary"></i>
+</div>
+
+<span class="text-xs font-medium">Message</span>
+
 </button>
 
-<button class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
-<i class="bi bi-folder"></i>
+
+<button
+class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
+
+<div class="w-10 h-10 rounded-full bg-medium/10 flex items-center justify-center">
+<i class="bi bi-calendar-week text-medium"></i>
+</div>
+
+<span class="text-xs font-medium">Agenda</span>
+
 </button>
 
-<button class="w-10 h-10 rounded-full bg-yellow-300 text-black flex items-center justify-center">
-<i class="bi bi-plus-lg"></i>
+
+<button
+class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
+
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<i class="bi bi-pencil-square text-primary"></i>
+</div>
+
+<span class="text-xs font-medium">Publication</span>
+
+</button>
+
+
+<button
+class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
+
+<div class="w-10 h-10 rounded-full bg-medium/10 flex items-center justify-center">
+<i class="bi bi-clipboard-check text-medium"></i>
+</div>
+
+<span class="text-xs font-medium">Présence</span>
+
+</button>
+
+
+<button
+class="flex flex-col items-center min-w-[80px] gap-2 bg-white shadow rounded-2xl p-3">
+
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<i class="bi bi-file-earmark-text text-primary"></i>
+</div>
+
+<span class="text-xs font-medium">Justifier</span>
+
 </button>
 
 </div>
 
-</div>
 
 
-<!-- ========================= -->
-<!-- TABS -->
-<!-- ========================= -->
+<!-- CARTE PARTICIPATION -->
+<div class="bg-white rounded-3xl shadow-md p-6">
 
-<div class="flex gap-3 mb-6 text-sm overflow-x-auto">
+<div class="flex items-center justify-between mb-4">
 
-<div class="px-4 py-2 bg-zinc-900 rounded-full whitespace-nowrap">
-01 Overview
-</div>
+<h2 class="font-semibold text-sm">
+Taux de participation
+</h2>
 
-<div class="px-4 py-2 bg-zinc-900/40 rounded-full whitespace-nowrap">
-02 PPC
-</div>
-
-<div class="px-4 py-2 bg-zinc-900/40 rounded-full whitespace-nowrap">
-03 Year to year
-</div>
+<i class="bi bi-three-dots text-gray-400"></i>
 
 </div>
 
-
-<!-- ========================= -->
-<!-- CARD 1 -->
-<!-- ========================= -->
-
-<div class="rounded-3xl p-6 bg-cardGreen text-black mb-6">
-
-<div class="flex justify-between items-center mb-3">
-
-<p class="text-sm font-semibold">
-Top 5 products by spend
-</p>
-
-<i class="bi bi-three-dots"></i>
-
-</div>
-
-<p class="text-xs text-gray-600 mb-1">Total score</p>
-
-<h2 class="text-3xl font-bold mb-6">2,985</h2>
 
 <div class="flex justify-center relative">
 
-<canvas id="participationChart" width="160" height="160"></canvas>
+<canvas id="participationChart" width="200" height="200"></canvas>
 
-<div id="percentageLabel"
-class="absolute text-lg font-bold">
+<div class="absolute text-2xl font-bold text-primary top-1/2 -translate-y-1/2">
+87%
 </div>
-
-</div>
-
-<div class="text-center mt-4">
-
-<p class="text-sm font-semibold">$1,815.67</p>
-<p class="text-xs text-gray-600">B07MCGRV7M</p>
 
 </div>
 
 </div>
 
 
-<!-- ========================= -->
-<!-- CARD 2 -->
-<!-- ========================= -->
 
-<div class="rounded-3xl p-6 bg-cardSand text-black mb-6">
+<!-- CARTE EVOLUTION -->
+<div class="bg-white rounded-3xl shadow-md p-6">
 
-<div class="flex justify-between items-center mb-3">
+<div class="flex items-center justify-between mb-4">
 
-<p class="text-sm font-semibold">Costs</p>
+<h2 class="font-semibold text-sm">
+Evolution participation
+</h2>
 
-<span class="text-xs text-gray-600">
-Aug 21 – Sep 21
+<span class="text-xs text-gray-400">
+6 derniers mois
 </span>
 
 </div>
 
-<canvas id="costChart" height="120"></canvas>
+<canvas id="evolutionChart" height="120"></canvas>
 
 </div>
 
 
-<!-- ========================= -->
-<!-- CARD 3 -->
-<!-- ========================= -->
 
-<div class="rounded-3xl p-6 bg-zinc-900 mb-6">
-
-<p class="text-sm font-semibold mb-4">
-ACoS vs TACoS
-</p>
-
-<canvas id="acosChart" height="120"></canvas>
-
-</div>
-
-
-<!-- ========================= -->
-<!-- MINI STATS -->
-<!-- ========================= -->
-
+<!-- INFORMATIONS -->
 <div class="grid grid-cols-2 gap-4">
 
-<div class="bg-zinc-900 p-4 rounded-2xl">
+<div class="bg-white rounded-2xl shadow p-4">
 
-<p class="text-xs text-gray-400 mb-1">
-Orders Created
+<p class="text-xs text-gray-500 mb-1">
+Présences
 </p>
 
-<p class="text-lg font-bold">
-$134,970
-</p>
-
-<p class="text-xs text-green-400">
-+12.98%
+<p class="text-lg font-semibold">
+87
 </p>
 
 </div>
 
+<div class="bg-white rounded-2xl shadow p-4">
 
-<div class="bg-zinc-900 p-4 rounded-2xl">
-
-<p class="text-xs text-gray-400 mb-1">
-Total Sales
+<p class="text-xs text-gray-500 mb-1">
+Absences
 </p>
 
-<p class="text-lg font-bold text-red-400">
-$2,145,132.80
-</p>
-
-<p class="text-xs text-gray-400">
-$2,141,564.20
+<p class="text-lg font-semibold text-red-500">
+13
 </p>
 
 </div>
 
 </div>
 
-</div>
-
-
-<!-- ========================= -->
-<!-- BOTTOM NAV -->
-<!-- ========================= -->
-
-<div class="fixed bottom-4 left-0 right-0 flex justify-center">
-
-<div class="bg-zinc-900 rounded-3xl px-6 py-3 flex gap-8 text-lg">
-
-<i class="bi bi-bar-chart-fill text-yellow-300"></i>
-<i class="bi bi-box"></i>
-<i class="bi bi-wallet2"></i>
-<i class="bi bi-bag"></i>
-<i class="bi bi-three-dots"></i>
-
-</div>
 
 </div>
 
 
-<script>
-
-const participation = 75;
-
-const ctx = document.getElementById("participationChart");
-
-new Chart(ctx,{
-type:"doughnut",
-data:{
-datasets:[{
-data:[participation,100-participation],
-backgroundColor:["#22C55E","#E5E7EB"],
-borderWidth:0
-}]
-},
-options:{
-cutout:"70%",
-plugins:{legend:{display:false}}
-}
-});
-
-
-const costCtx = document.getElementById("costChart");
-
-new Chart(costCtx,{
-type:"line",
-data:{
-labels:["24 Aug","31 Aug","7 Sep","14 Sep","21 Sep"],
-datasets:[{
-data:[2,4,3,5,4],
-borderColor:"#000",
-backgroundColor:"transparent",
-tension:.4
-}]
-},
-options:{
-plugins:{legend:{display:false}},
-scales:{x:{display:false},y:{display:false}}
-}
-});
-
-
-const acosCtx = document.getElementById("acosChart");
-
-new Chart(acosCtx,{
-type:"line",
-data:{
-labels:["31 Aug","21 Sep"],
-datasets:[{
-data:[2,4],
-borderColor:"#F59E0B",
-tension:.4
-}]
-},
-options:{
-plugins:{legend:{display:false}},
-scales:{x:{display:false},y:{display:false}}
-}
-});
-
-</script>
+<!-- SCRIPT -->
+<script src="../public/js/dashboard.js"></script>
 
 </body>
 </html>
