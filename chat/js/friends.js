@@ -242,58 +242,80 @@ async function onSearch() {
   } catch (e) {
     console.error(e);
   }
-}
 
 
 /* =========================
-   SEND REQUEST
+   SEND REQUEST (ANTI-SPAM PRO)
+   Utilité scientifique:
+   - Id déterministe → empêche les doublons (consistance)
+   - setDoc → idempotent (clics multiples = 1 requête)
+   - feedback UI → améliore UX + réduit erreurs humaines
 ========================= */
+async function sendFriendRequest(toUserId, btn = null) {
 
-async function sendFriendRequest(toUserId) {
+  try {
+    // UI lock (évite spam double click)
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add("opacity-60");
+      btn.textContent = "Envoi...";
+    }
 
-  const [meSnap, otherSnap] = await Promise.all([
-    getDoc(doc(db, "users", uid)),
-    getDoc(doc(db, "users", toUserId))
-  ]);
+    // ID stable : 1 seule demande possible
+    const requestId = `${uid}_${toUserId}`;
 
-  const me = meSnap.exists() ? meSnap.data() : {};
-  const other = otherSnap.exists() ? otherSnap.data() : {};
+    const myReqRef = doc(db, "users", uid, "friendRequests", requestId);
+    const theirReqRef = doc(db, "users", toUserId, "friendRequests", requestId);
 
-  const myName =
-    `${me.firstName || ""} ${me.lastName || ""}`.trim()
-    || me.username
-    || uid;
+    // Vérifier si déjà en attente
+    const existsSnap = await getDoc(myReqRef);
+    if (existsSnap.exists() && existsSnap.data()?.status === "pending") {
+      showToast("Demande déjà envoyée ✅");
+      if (btn) {
+        btn.textContent = "En attente";
+        btn.className = "sendBtn px-3 py-1 rounded-xl text-xs bg-yellow-200";
+      }
+      return;
+    }
 
-  const otherName =
-    `${other.firstName || ""} ${other.lastName || ""}`.trim()
-    || other.username
-    || toUserId;
+    // Écriture idempotente (ne crée pas 50 docs)
+    await setDoc(myReqRef, {
+      fromUserId: uid,
+      toUserId,
+      type: "outgoing",
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
 
-  const myRequests = collection(db, "users", uid, "friendRequests");
-  const theirRequests = collection(db, "users", toUserId, "friendRequests");
+    await setDoc(theirReqRef, {
+      fromUserId: uid,
+      toUserId,
+      type: "incoming",
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
 
-  const newReq = await addDoc(myRequests, {
-    fromUserId: uid,
-    fromUserName: myName,
-    toUserId,
-    toUserName: otherName,
-    type: "outgoing",
-    status: "pending",
-    createdAt: serverTimestamp()
-  });
+    showToast("Demande envoyée ✅");
 
-  await setDoc(doc(theirRequests, newReq.id), {
-    fromUserId: uid,
-    fromUserName: myName,
-    toUserId,
-    toUserName: otherName,
-    type: "incoming",
-    status: "pending",
-    createdAt: serverTimestamp()
-  });
+    // refresh UI
+    await renderIncoming();
+    await renderFriends();
 
-  await renderIncoming();
-  await renderOutgoing();
+    if (btn) {
+      btn.textContent = "En attente";
+      btn.className = "sendBtn px-3 py-1 rounded-xl text-xs bg-yellow-200";
+    }
+
+  } catch (e) {
+    console.error("sendFriendRequest error:", e);
+    showToast("Erreur: impossible d'envoyer la demande ❌");
+
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove("opacity-60");
+      btn.textContent = "Ajouter";
+    }
+  }
 }
 
 
