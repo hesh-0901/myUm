@@ -1,180 +1,84 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discussion - MyUm</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-<title>Discussion | MyUm</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<script>
-tailwind.config={
-theme:{
-extend:{
-colors:{
-primary:'#1A3668',
-medium:'#2596D9',
-lightblue:'#3FA9F5',
-danger:'#DC2626'
-},
-fontFamily:{
-display:['Inter','sans-serif']
-}
-}
-}
-}
-</script>
-
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { primary:'#1A3668', medium:'#2596D9', lightblue:'#3FA9F5' },
+        fontFamily: { display:['Inter','sans-serif'] }
+      } }
+    }
+  </script>
 </head>
 
 <body class="bg-gray-100 font-display text-gray-800">
+  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col">
 
+    <!-- ===============================
+         ROOM HEADER (STABLE)
+    ================================= -->
+    <header class="sticky top-0 bg-white border-b border-gray-100 z-10">
+      <div class="px-4 py-3 flex items-center justify-between">
 
-<div class="max-w-md mx-auto h-screen flex flex-col bg-gray-100">
+        <button id="backBtn" class="text-sm font-semibold text-primary">
+          ← Conversations
+        </button>
 
+        <div class="flex items-center gap-3 min-w-0 flex-1 justify-center">
+          <div id="roomAvatar"
+            class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
+            —
+          </div>
 
-<!-- HEADER -->
+          <div class="min-w-0">
+            <div id="roomTitle" class="font-semibold text-sm truncate">—</div>
+            <div id="roomSub" class="text-xs text-gray-400 truncate">—</div>
+            <div id="typingIndicator" class="text-xs text-gray-400 hidden">… écrit</div>
+          </div>
+        </div>
 
-<header class="bg-white border-b border-gray-200">
+        <button id="dashBtn" class="text-sm font-semibold text-primary">
+          Chat
+        </button>
 
-<div class="px-4 py-3 flex items-center justify-between">
+      </div>
+    </header>
 
-<button id="backBtn"
-class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 transition">
+    <!-- ===============================
+         MESSAGES
+    ================================= -->
+    <main class="flex-1 p-4 space-y-3 overflow-y-auto" id="messages"></main>
 
-<i class="bi bi-arrow-left text-lg"></i>
+    <div id="emptyState" class="hidden text-center text-sm text-gray-500 px-4 pb-4">
+      Aucun message.
+    </div>
 
-</button>
+    <!-- ===============================
+         INPUT BAR
+    ================================= -->
+    <footer class="sticky bottom-0 bg-white border-t border-gray-100">
+      <div class="px-3 py-3 flex items-center gap-2">
+        <input id="messageInput"
+               class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue"
+               placeholder="Écrire un message…" />
+        <button id="sendBtn"
+                class="px-4 py-3 rounded-2xl bg-primary text-white font-semibold active:scale-95 transition">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+    </footer>
 
-<!-- ===============================
-     TOP BAR (AVATAR + TITLE)
-     Utilité: Afficher l’identité du correspondant (UX pro)
-================================= -->
-<div class="flex items-center gap-3">
-  
-  <!-- Avatar -->
-  <div id="roomAvatar"
-    class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
-    —
   </div>
 
-  <div class="min-w-0">
-    <h1 id="roomTitle" class="font-semibold text-sm truncate">—</h1>
-    <p id="roomSub" class="text-xs text-gray-400 truncate">—</p>
-
-    <!-- Typing indicator -->
-    <p id="typingIndicator" class="text-xs text-gray-400 hidden">…</p>
-  </div>
-
-</div>
-</div>
-
-</div>
-
-</div>
-
-
-<button id="dashBtn"
-class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 transition">
-
-<i class="bi bi-grid text-lg"></i>
-
-</button>
-
-</div>
-
-</header>
-
-
-
-<!-- MESSAGES -->
-
-<main
-id="messagesContainer"
-class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-
-<div id="messages" class="space-y-3"></div>
-
-<div
-id="emptyState"
-class="text-center text-sm text-gray-500 mt-10 hidden">
-
-Aucun message
-
-</div>
-
-</main>
-
-
-
-<!-- INPUT -->
-
-<footer class="bg-white border-t border-gray-200">
-
-<div class="px-3 py-3 flex items-center gap-2">
-
-<input
-id="messageInput"
-type="text"
-placeholder="Écrire un message"
-class="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-lightblue/30"
-/>
-
-<button
-id="sendBtn"
-class="w-11 h-11 flex items-center justify-center rounded-xl bg-primary text-white shadow-sm hover:bg-primary/90 active:scale-95 transition">
-
-<i class="bi bi-send text-base"></i>
-
-</button>
-
-</div>
-
-</footer>
-
-</div>
-
-
-
-<!-- GitHub Pages helper -->
-
-<script>
-
-function getBasePath(){
-
-const { pathname } = window.location
-const parts = pathname.split("/").filter(Boolean)
-
-if(window.location.hostname.includes("github.io") && parts.length>0){
-
-return "/" + parts[0] + "/"
-
-}
-
-return "/"
-
-}
-
-function goTo(path){
-
-window.location.href = getBasePath() + path
-
-}
-
-</script>
-
-
-<script type="module" src="../mains.js/auth-guard.js"></script>
-<script type="module" src="../mains.js/app-init.js"></script>
-
-<script type="module" src="js/chat-room.js"></script>
-
+  <script type="module" src="../mains.js/app-init.js"></script>
+  <script type="module" src="./js/chat-room.js"></script>
 </body>
 </html>
