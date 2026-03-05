@@ -26,6 +26,18 @@ const usernameEl = document.getElementById("autoLoginUsername");
 const avatarImg = document.getElementById("autoAvatarImg");
 const avatarInitials = document.getElementById("autoAvatarInitials");
 
+// inputs
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+
+
+// ================================
+// 🔐 RESET CHAMPS (toujours vides)
+// ================================
+
+if(usernameInput) usernameInput.value = "";
+if(passwordInput) passwordInput.value = "";
+
 
 // ================================
 // 🔐 AUTO LOGIN CHECK
@@ -35,33 +47,43 @@ const savedUser = localStorage.getItem("myum_user");
 
 if(savedUser){
 
-const user = JSON.parse(savedUser);
+let user = null;
 
-// cacher login
+try{
+user = JSON.parse(savedUser);
+}catch{
+localStorage.removeItem("myum_user");
+}
+
+if(user){
+
+// cacher complètement le login
 if(loginMain){
 loginMain.classList.add("hidden");
 }
 
-// afficher modal
+// afficher modal connexion rapide
 if(autoModal){
 autoModal.classList.remove("hidden");
 }
 
-// nom
+// afficher nom
 if(nameEl){
 nameEl.textContent = `${user.firstName} ${user.lastName}`;
 }
 
-// username
+// afficher username
 if(usernameEl){
 usernameEl.textContent = `@${user.username}`;
 }
 
-// avatar
+// avatar photo
 if(user.photoURL){
 
+if(avatarImg){
 avatarImg.src = user.photoURL;
 avatarImg.classList.remove("hidden");
+}
 
 }else{
 
@@ -69,10 +91,11 @@ const initials =
 (user.firstName?.charAt(0) || "") +
 (user.lastName?.charAt(0) || "");
 
+if(avatarInitials){
 avatarInitials.textContent = initials.toUpperCase();
-
 }
 
+}
 
 // continuer session
 if(confirmBtn){
@@ -85,7 +108,7 @@ window.location.href = "../public/dashboard.html";
 
 }
 
-// autre compte
+// utiliser autre compte
 if(cancelBtn){
 
 cancelBtn.addEventListener("click", () => {
@@ -106,6 +129,7 @@ loginMain.classList.remove("hidden");
 
 }
 
+}
 
 
 // ================================
@@ -116,18 +140,16 @@ if(passwordToggle){
 
 passwordToggle.addEventListener("click", () => {
 
-const input = document.getElementById("password");
+if(!passwordInput) return;
 
-if(!input) return;
+if(passwordInput.type === "password"){
 
-if(input.type === "password"){
-
-input.type = "text";
+passwordInput.type = "text";
 passwordToggle.classList.replace("bi-eye","bi-eye-slash");
 
 }else{
 
-input.type = "password";
+passwordInput.type = "password";
 passwordToggle.classList.replace("bi-eye-slash","bi-eye");
 
 }
@@ -135,7 +157,6 @@ passwordToggle.classList.replace("bi-eye-slash","bi-eye");
 });
 
 }
-
 
 
 // ================================
@@ -148,8 +169,6 @@ form.addEventListener("submit", async (e) => {
 
 e.preventDefault();
 
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
 const rememberCheck = document.getElementById("rememberMe");
 
 if(!usernameInput || !passwordInput){
@@ -157,7 +176,6 @@ alert("Erreur formulaire.");
 return;
 }
 
-// champs toujours vides à ouverture
 const username = usernameInput.value.trim().toUpperCase();
 const password = passwordInput.value;
 const remember = rememberCheck ? rememberCheck.checked : false;
@@ -190,6 +208,7 @@ const userData = userDoc.data();
 
 
 // hash password
+
 const hashedInputPassword = await hashPassword(password);
 
 if(hashedInputPassword !== userData.passwordHash){
@@ -234,7 +253,7 @@ JSON.stringify(session)
 }
 
 
-// redirect
+// redirection
 
 window.location.href = "../public/dashboard.html";
 
