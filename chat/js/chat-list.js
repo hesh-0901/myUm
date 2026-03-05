@@ -5,6 +5,18 @@ import {
   collection, doc, getDoc, query, where, orderBy, limit, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+/* ============================================================
+   CHAT LIST (CONVERSATIONS)
+   Utilité:
+   - Charger les chats où je suis participant (realtime)
+   - Afficher avatar + badge non lus + online dot
+   Index Firestore:
+   - chats: participants (array-contains) + updatedAt desc
+============================================================ */
+
+/* =========================
+   SESSION
+========================= */
 function getCurrentUser() {
   try { return JSON.parse(localStorage.getItem("myum_user")); }
   catch { return null; }
@@ -17,21 +29,21 @@ if (!myId) {
   window.location.href = "../users/login.html";
 }
 
+/* =========================
+   DOM
+========================= */
 const backBtn = document.getElementById("backBtn");
-const dashBtn = document.getElementById("dashBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const filterInput = document.getElementById("filterInput");
-
 const chatList = document.getElementById("chatList");
 const emptyState = document.getElementById("emptyState");
 
 backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
-dashBtn?.addEventListener("click", () => (window.location.href = "index.html"));
 refreshBtn?.addEventListener("click", () => listenChats(true));
 
-let cachedChats = [];
+let cached = [];
+let unsub = null;
 const profileCache = new Map();
-let unsubscribeChats = null;
 
 init();
 
@@ -40,107 +52,122 @@ function init() {
 
   filterInput?.addEventListener("input", () => {
     const v = (filterInput.value || "").trim().toLowerCase();
-    renderChats(v ? cachedChats.filter(c => (c.display || "").toLowerCase().includes(v)) : cachedChats);
+    const items = v ? cached.filter(x => (x.display || "").toLowerCase().includes(v)) : cached;
+    render(items);
   });
 }
 
-function listenChats(forceRestart = false) {
-  if (forceRestart && unsubscribeChats) {
-    unsubscribeChats();
-    unsubscribeChats = null;
-  }
+/* =========================
+   LISTEN CHATS (REALTIME)
+========================= */
+function listenChats(forceRestart) {
+  if (forceRestart && unsub) { unsub(); unsub = null; }
 
   chatList.innerHTML = `<div class="text-sm text-gray-500">Chargement…</div>`;
   emptyState?.classList.add("hidden");
 
   const chatsRef = collection(db, "chats");
-  const qOrdered = query(
+  const q = query(
     chatsRef,
     where("participants", "array-contains", myId),
     orderBy("updatedAt", "desc"),
     limit(50)
   );
 
-  if (unsubscribeChats) unsubscribeChats();
+  if (unsub) unsub();
 
-  unsubscribeChats = onSnapshot(qOrdered, async (snap) => {
+  unsub = onSnapshot(q, async (snap) => {
     if (snap.empty) {
-      cachedChats = [];
-      renderChats([]);
+      cached = [];
+      render([]);
       return;
     }
 
     const items = await Promise.all(snap.docs.map(async (d) => {
       const c = d.data();
-      const otherId = (c.participants || []).find(p => p !== myId) || null;
+      const participants = c.participants || [];
+      const otherId = participants.find(p => p !== myId) || null;
 
-      const profile = otherId ? await getProfile(otherId) : { display: "Discussion", photoURL: null, firstName: "", lastName: "", online: false };
-
-      const unreadMap = c.unreadCount || {};
-      const unread = unreadMap[myId] || 0;
+      const u = otherId ? await getProfile(otherId) : { display: "Discussion", photoURL: null, initials:"—", online:false };
+      const unread = (c.unreadCount && c.unreadCount[myId]) ? c.unreadCount[myId] : 0;
 
       return {
-        id: d.id,
+        chatId: d.id,
         otherId,
-        display: profile.display,
-        photoURL: profile.photoURL,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        online: profile.online,
-        lastMessage: c.lastMessage || "",
+        display: u.display,
+        photoURL: u.photoURL,
+        initials: u.initials,
+        online: u.online,
+        lastMessage: c.lastMessage || "—",
         updatedAt: c.updatedAt || null,
         unread
       };
     }));
 
-    cachedChats = items;
+    cached = items;
 
     const v = (filterInput?.value || "").trim().toLowerCase();
-    renderChats(v ? cachedChats.filter(c => (c.display || "").toLowerCase().includes(v)) : cachedChats);
+    render(v ? cached.filter(x => (x.display || "").toLowerCase().includes(v)) : cached);
 
   }, (err) => {
-    console.error("chat list onSnapshot:", err);
-    chatList.innerHTML = `<div class="text-sm text-red-600">Erreur chargement conversations</div>`;
+    console.error("chat list error:", err);
+    chatList.innerHTML = `<div class="text-sm text-red-600">Erreur chargement conversations.</div>`;
   });
 }
 
+/* =========================
+   PROFILE CACHE
+========================= */
 async function getProfile(uid) {
   if (profileCache.has(uid)) return profileCache.get(uid);
 
   const snap = await getDoc(doc(db, "users", uid)).catch(() => null);
-  let firstName = "", lastName = "", photoURL = null, username = "", display = uid, online = false;
+  let firstName = "", lastName = "", username = "", photoURL = null, lastSeenDate = null;
 
   if (snap && snap.exists()) {
     const u = snap.data();
     firstName = u.firstName || "";
     lastName = u.lastName || "";
-    photoURL = u.photoURL || null;
     username = u.username || "";
-    online = u.online === true;
-    display = (`${firstName} ${lastName}`).trim() || username || uid;
+    photoURL = u.photoURL || null;
+    lastSeenDate = u.lastSeen?.toDate ? u.lastSeen.toDate() : null;
   }
 
-  const value = { display, photoURL, firstName, lastName, username, online };
-  profileCache.set(uid, value);
-  return value;
+  const display =
+    (`${firstName} ${lastName}`).trim() ||
+    username ||
+    uid;
+
+  const initials =
+    `${(firstName?.[0] || "")}${(lastName?.[0] || "")}`.toUpperCase() ||
+    (username?.[0] || "").toUpperCase() ||
+    "—";
+
+  // ✅ online fiable = lastSeen récent
+  const online = lastSeenDate ? (Date.now() - lastSeenDate.getTime() < 45000) : false;
+
+  const data = { display, photoURL, initials, online };
+  profileCache.set(uid, data);
+  return data;
 }
 
-function renderChats(items) {
+/* =========================
+   RENDER (ROW CLICKABLE)
+========================= */
+function render(items) {
   chatList.innerHTML = "";
 
   if (!items || items.length === 0) {
     emptyState?.classList.remove("hidden");
     return;
   }
-
   emptyState?.classList.add("hidden");
 
-  items.forEach((c) => {
+  items.forEach(c => {
     const row = document.createElement("div");
-    row.className =
-      "p-3 rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shadow-sm";
+    row.className = "p-3 rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shadow-sm";
+    row.style.cursor = "pointer";
 
-    const initials = `${(c.firstName?.charAt(0) || "")}${(c.lastName?.charAt(0) || "")}`.toUpperCase() || "—";
     const timeText = formatTime(c.updatedAt);
 
     row.innerHTML = `
@@ -148,14 +175,10 @@ function renderChats(items) {
         <div class="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-semibold">
           ${
             c.photoURL
-              ? `<img src="${escapeAttr(c.photoURL)}" class="w-full h-full object-cover">`
-              : escapeHtml(initials)
+              ? `<img src="${escapeAttr(c.photoURL)}" class="w-full h-full object-cover" onerror="this.remove();">`
+              : escapeHtml(c.initials)
           }
-          ${
-            c.online
-              ? `<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>`
-              : ``
-          }
+          ${c.online ? `<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>` : ``}
         </div>
 
         <div class="min-w-0">
@@ -173,13 +196,19 @@ function renderChats(items) {
             ? `<span class="min-w-[22px] h-[22px] px-2 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center">${c.unread}</span>`
             : ``
         }
-        <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
-          Ouvrir
-        </button>
+        <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">Ouvrir</button>
       </div>
     `;
 
-    row.querySelector(".openBtn")?.addEventListener("click", () => {
+    // ✅ clic sur toute la ligne
+    row.addEventListener("click", () => {
+      if (!c.otherId) return;
+      window.location.href = `room.html?uid=${encodeURIComponent(c.otherId)}`;
+    });
+
+    // ✅ bouton ouvre aussi, mais empêche double event
+    row.querySelector(".openBtn")?.addEventListener("click", (e) => {
+      e.stopPropagation();
       if (!c.otherId) return;
       window.location.href = `room.html?uid=${encodeURIComponent(c.otherId)}`;
     });
@@ -188,13 +217,14 @@ function renderChats(items) {
   });
 }
 
+/* =========================
+   HELPERS
+========================= */
 function formatTime(ts) {
   if (!ts) return "";
   try {
     const d = ts.toDate();
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mm = String(d.getMinutes()).padStart(2, "0");
-    return `${hh}:${mm}`;
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   } catch {
     return "";
   }
