@@ -28,12 +28,41 @@ if (savedUser) {
 
 const user = JSON.parse(savedUser);
 
-if(autoModal && autoText){
+if(autoModal){
 
-autoText.textContent = `Êtes-vous ${user.firstName} ${user.lastName} ?`;
 autoModal.classList.remove("hidden");
 
+const nameEl = document.getElementById("autoLoginName");
+const usernameEl = document.getElementById("autoLoginUsername");
+
+const avatarImg = document.getElementById("autoAvatarImg");
+const avatarInitials = document.getElementById("autoAvatarInitials");
+
+if(nameEl) nameEl.textContent = `${user.firstName} ${user.lastName}`;
+if(usernameEl) usernameEl.textContent = `@${user.username}`;
+
+
+// avatar photo ou initiales
+
+if(user.photoURL){
+
+avatarImg.src = user.photoURL;
+avatarImg.classList.remove("hidden");
+
+}else{
+
+const initials =
+(user.firstName?.charAt(0) || "") +
+(user.lastName?.charAt(0) || "");
+
+avatarInitials.textContent = initials.toUpperCase();
+
 }
+
+}
+
+
+// continuer session
 
 if(confirmBtn){
 
@@ -44,6 +73,9 @@ window.location.href = "../public/dashboard.html";
 });
 
 }
+
+
+// utiliser autre compte
 
 if(cancelBtn){
 
@@ -60,7 +92,6 @@ autoModal.classList.add("hidden");
 }
 
 }
-
 // 👁️ Toggle password
 
 if(passwordToggle){
