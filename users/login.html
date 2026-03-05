@@ -53,7 +53,7 @@ display:['Inter','sans-serif']
 <!-- MAIN -->
 <main id="loginMain" class="hidden flex-1 overflow-y-auto px-6 py-8">
 
-<form id="loginForm" class="space-y-6">
+<form id="loginForm" class="space-y-6" autocomplete="off">
 
 
 <!-- USERNAME -->
@@ -68,6 +68,7 @@ display:['Inter','sans-serif']
 <input
 type="text"
 id="username"
+autocomplete="off"
 required
 class="w-full pl-9 pr-3 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-medium transition"
 />
@@ -88,6 +89,7 @@ class="w-full pl-9 pr-3 py-3 border border-gray-300 rounded-xl text-sm focus:out
 <input
 type="password"
 id="password"
+autocomplete="new-password"
 required
 class="w-full pl-9 pr-10 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-medium transition"
 />
