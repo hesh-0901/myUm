@@ -9,41 +9,55 @@ where,
 getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
 const form = document.getElementById("loginForm");
 const passwordToggle = document.querySelector(".togglePassword");
+const loginMain = document.getElementById("loginMain");
 
-// éléments modal auto login
+// modal auto login
 const autoModal = document.getElementById("autoLoginModal");
-const autoText = document.getElementById("autoLoginText");
 const confirmBtn = document.getElementById("confirmAutoLogin");
 const cancelBtn = document.getElementById("cancelAutoLogin");
 
-// 🔐 AUTO LOGIN CHECK
-
-const savedUser = localStorage.getItem("myum_user");
-
-if (savedUser) {
-
-const user = JSON.parse(savedUser);
-
-if(autoModal){
-
-autoModal.classList.remove("hidden");
-
+// avatar
 const nameEl = document.getElementById("autoLoginName");
 const usernameEl = document.getElementById("autoLoginUsername");
-
 const avatarImg = document.getElementById("autoAvatarImg");
 const avatarInitials = document.getElementById("autoAvatarInitials");
 
-if(nameEl) nameEl.textContent = `${user.firstName} ${user.lastName}`;
-if(usernameEl) usernameEl.textContent = `@${user.username}`;
 
+// ================================
+// 🔐 AUTO LOGIN CHECK
+// ================================
 
-// avatar photo ou initiales
+const savedUser = localStorage.getItem("myum_user");
 
+if(savedUser){
+
+const user = JSON.parse(savedUser);
+
+// cacher login
+if(loginMain){
+loginMain.classList.add("hidden");
+}
+
+// afficher modal
+if(autoModal){
+autoModal.classList.remove("hidden");
+}
+
+// nom
+if(nameEl){
+nameEl.textContent = `${user.firstName} ${user.lastName}`;
+}
+
+// username
+if(usernameEl){
+usernameEl.textContent = `@${user.username}`;
+}
+
+// avatar
 if(user.photoURL){
 
 avatarImg.src = user.photoURL;
@@ -59,11 +73,8 @@ avatarInitials.textContent = initials.toUpperCase();
 
 }
 
-}
-
 
 // continuer session
-
 if(confirmBtn){
 
 confirmBtn.addEventListener("click", () => {
@@ -74,9 +85,7 @@ window.location.href = "../public/dashboard.html";
 
 }
 
-
-// utiliser autre compte
-
+// autre compte
 if(cancelBtn){
 
 cancelBtn.addEventListener("click", () => {
@@ -87,16 +96,25 @@ if(autoModal){
 autoModal.classList.add("hidden");
 }
 
+if(loginMain){
+loginMain.classList.remove("hidden");
+}
+
 });
 
 }
 
 }
+
+
+
+// ================================
 // 👁️ Toggle password
+// ================================
 
 if(passwordToggle){
 
-passwordToggle.addEventListener("click", function(){
+passwordToggle.addEventListener("click", () => {
 
 const input = document.getElementById("password");
 
@@ -105,12 +123,12 @@ if(!input) return;
 if(input.type === "password"){
 
 input.type = "text";
-this.classList.replace("bi-eye","bi-eye-slash");
+passwordToggle.classList.replace("bi-eye","bi-eye-slash");
 
 }else{
 
 input.type = "password";
-this.classList.replace("bi-eye-slash","bi-eye");
+passwordToggle.classList.replace("bi-eye-slash","bi-eye");
 
 }
 
@@ -118,11 +136,15 @@ this.classList.replace("bi-eye-slash","bi-eye");
 
 }
 
+
+
+// ================================
 // 🔐 LOGIN NORMAL
+// ================================
 
 if(form){
 
-form.addEventListener("submit", async function (e) {
+form.addEventListener("submit", async (e) => {
 
 e.preventDefault();
 
@@ -135,16 +157,19 @@ alert("Erreur formulaire.");
 return;
 }
 
+// champs toujours vides à ouverture
 const username = usernameInput.value.trim().toUpperCase();
 const password = passwordInput.value;
 const remember = rememberCheck ? rememberCheck.checked : false;
 
-if (!username || !password) {
+if(!username || !password){
+
 alert("Veuillez remplir tous les champs.");
 return;
+
 }
 
-try {
+try{
 
 const q = query(
 collection(db,"users"),
@@ -163,7 +188,8 @@ return;
 const userDoc = querySnapshot.docs[0];
 const userData = userDoc.data();
 
-// 🔐 HASH PASSWORD
+
+// hash password
 const hashedInputPassword = await hashPassword(password);
 
 if(hashedInputPassword !== userData.passwordHash){
@@ -173,30 +199,44 @@ return;
 
 }
 
+
 // session utilisateur
+
 const session = {
+
 id:userDoc.id,
 username:userData.username,
 firstName:userData.firstName,
 lastName:userData.lastName,
 chorale:userData.chorale,
-role:userData.role
+role:userData.role,
+photoURL:userData.photoURL || null
+
 };
 
-// sauvegarde session
+
+// remember me
 
 if(remember){
 
-localStorage.setItem("myum_user",JSON.stringify(session));
+localStorage.setItem(
+"myum_user",
+JSON.stringify(session)
+);
 
 }else{
 
-sessionStorage.setItem("myum_user",JSON.stringify(session));
+sessionStorage.setItem(
+"myum_user",
+JSON.stringify(session)
+);
 
 }
 
-// redirection
-window.location.href="../public/dashboard.html";
+
+// redirect
+
+window.location.href = "../public/dashboard.html";
 
 }
 catch(error){
@@ -212,7 +252,10 @@ alert("Erreur lors de la connexion.");
 
 });
 
-// 🔐 HASH SHA256
+
+// ================================
+// 🔐 HASH PASSWORD
+// ================================
 
 async function hashPassword(password){
 
