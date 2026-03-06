@@ -342,6 +342,28 @@ slider.scrollLeft += e.deltaY;
 
 </script>
 
+<script>
+function getBasePath() {
+
+  const { pathname } = window.location;
+  const parts = pathname.split("/").filter(Boolean);
+  const isGitHubIO = window.location.hostname.includes("github.io");
+
+  if (isGitHubIO && parts.length > 0) {
+    return "/" + parts[0] + "/";
+  }
+
+  return "/";
+}
+
+window.goTo = function(path) {
+
+  const base = getBasePath();
+  window.location.href = base + path;
+
+};
+</script>
+
 
 <script type="module" src="../mains.js/app-init.js"></script>
 
