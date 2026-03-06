@@ -10,18 +10,14 @@
 
 <link rel="icon" href="/myUm/assets/favicon.png">
 
-<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Icons -->
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 rel="stylesheet">
 
-<!-- Cropper -->
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
 
@@ -51,58 +47,33 @@ display:['Inter','sans-serif']
 
 
 
-<body class="bg-bgmain flex justify-center overflow-x-hidden font-display">
+<body class="bg-bgmain flex justify-center font-display">
 
-<!-- APP SHELL -->
 <div class="w-full max-w-[420px] min-h-screen bg-bgmain flex flex-col overflow-hidden">
 
 
-
-<!-- HEADER -->
-<header class="relative">
-
 <!-- COVER -->
+<div class="h-40 bg-gradient-to-r from-accent to-primary relative">
+
 <img id="coverPhoto"
-src="/myUm/assets/default-cover.jpg"
-class="w-full h-28 object-cover">
-
-
-<!-- INFOS SUR COVER -->
-<div class="absolute bottom-3 left-4 text-white">
-
-<p class="text-xs opacity-80">Bienvenue</p>
-
-<h1 id="fullName"
-class="text-lg font-semibold leading-tight">
-</h1>
-
-<p id="userFunction"
-class="text-xs text-soft">
-</p>
-
-<p id="username"
-class="text-xs text-gray-300">
-</p>
+class="absolute inset-0 w-full h-full object-cover opacity-40">
 
 </div>
 
 
 <!-- AVATAR -->
-<div class="absolute left-1/2 -bottom-20 -translate-x-1/2">
+<div class="flex justify-center -mt-16">
 
-<div class="relative w-40 h-40 flex items-center justify-center">
-
-<!-- halo friendly -->
-<div class="absolute w-44 h-44 rounded-full bg-accent/20 blur-xl"></div>
+<div class="relative">
 
 <img id="profilePhoto"
-class="relative w-40 h-40 rounded-full object-cover border-4 border-bgmain shadow-xl bg-gray-200">
+class="w-32 h-32 rounded-full border-4 border-bgmain shadow-xl object-cover">
 
 <label for="photoInput"
 class="absolute bottom-2 right-2 w-9 h-9 rounded-full
-bg-primary flex items-center justify-center shadow cursor-pointer hover:scale-110 transition">
+bg-accent flex items-center justify-center cursor-pointer shadow">
 
-<i class="bi bi-camera text-sm text-white"></i>
+<i class="bi bi-camera text-white"></i>
 
 </label>
 
@@ -115,24 +86,35 @@ class="hidden">
 
 </div>
 
-</header>
 
+<!-- USER INFO -->
+<div class="text-center mt-4 px-6">
 
+<h1 id="fullName"
+class="text-xl font-semibold text-white">
+</h1>
 
-<!-- MAIN -->
-<main class="flex-1 overflow-y-auto pt-24 pb-24">
+<p id="userFunction"
+class="text-sm text-soft">
+</p>
+
+<p id="username"
+class="text-xs text-gray-400">
+</p>
+
+</div>
 
 
 
 <!-- BADGES -->
-<div class="flex justify-center gap-2">
+<div class="flex justify-center gap-2 mt-4">
 
 <span id="roleBadge"
-class="px-3 py-1 text-xs rounded-full bg-white/20 backdrop-blur text-white font-medium">
+class="px-3 py-1 text-xs rounded-full bg-white/20 text-white">
 </span>
 
 <span id="choraleBadge"
-class="px-3 py-1 text-xs rounded-full bg-accent/30 text-white font-medium">
+class="px-3 py-1 text-xs rounded-full bg-accent/30 text-white">
 </span>
 
 </div>
@@ -140,30 +122,30 @@ class="px-3 py-1 text-xs rounded-full bg-accent/30 text-white font-medium">
 
 
 <!-- STATS -->
-<div class="flex justify-center gap-4 mt-6 px-4">
+<div class="flex justify-center gap-12 mt-6 text-center">
 
-<div class="bg-white/10 backdrop-blur-md rounded-xl px-5 py-3 text-center">
+<div>
 
 <p id="friendsCount"
 class="text-lg font-semibold text-white">
 0
 </p>
 
-<p class="text-xs text-gray-300">
+<p class="text-xs text-gray-400">
 amis
 </p>
 
 </div>
 
 
-<div class="bg-white/10 backdrop-blur-md rounded-xl px-5 py-3 text-center">
+<div>
 
 <p id="postsCount"
 class="text-lg font-semibold text-white">
 0
 </p>
 
-<p class="text-xs text-gray-300">
+<p class="text-xs text-gray-400">
 posts
 </p>
 
@@ -173,16 +155,16 @@ posts
 
 
 
-<!-- INFORMATIONS MODULE -->
+<!-- INFORMATIONS -->
 <div id="informations-container"
 class="mt-8 px-4 space-y-4">
 </div>
 
 
 
-<!-- AMIS MODULE -->
+<!-- AMIS -->
 <div id="amis-container"
-class="mt-6 px-4 space-y-4">
+class="mt-8 px-4">
 </div>
 
 
@@ -214,20 +196,12 @@ Déconnexion
 
 
 
-</main>
-
-
-
-<!-- NAVBAR -->
-<footer id="navbar-container"></footer>
-
-
+<footer id="navbar-container" class="mt-auto"></footer>
 
 </div>
 
 
 
-<!-- SIDEBAR -->
 <div id="sidebar-container"></div>
 
 
@@ -236,14 +210,14 @@ Déconnexion
 <div id="cropModal"
 class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
 
-<div class="bg-white rounded-3xl p-4 w-[90%] max-w-md text-black">
+<div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
 
 <h2 class="text-lg font-semibold mb-3">
 Ajuster la photo
 </h2>
 
 <div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-<img id="cropImage" class="max-w-full">
+<img id="cropImage">
 </div>
 
 <div class="flex justify-end gap-3 mt-4">
@@ -266,12 +240,9 @@ Valider
 
 
 
-<!-- PROFILE SCRIPT -->
 <script type="module" src="/myUm/users/js/profile.js"></script>
 
 
-
-<!-- PAGE MODULES -->
 <script type="module">
 
 import { initInformations } from "/myUm/partials/js/informations.js";
@@ -300,10 +271,7 @@ initProfilePage();
 </script>
 
 
-
-<!-- GLOBAL APP INIT -->
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
-
 
 
 </body>
