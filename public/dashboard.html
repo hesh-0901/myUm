@@ -13,25 +13,38 @@
 
 <script>
 tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        danger: '#DC2626'
-      },
-      fontFamily: {
-        display: ['Inter', 'sans-serif']
-      }
-    }
-  }
+theme: {
+extend: {
+colors: {
+primary: '#1A3668',
+medium: '#2596D9',
+lightblue: '#3FA9F5',
+danger: '#DC2626'
+},
+fontFamily: {
+display: ['Inter', 'sans-serif']
+}
+}
+}
 }
 </script>
 
+<style>
+
+.no-scrollbar::-webkit-scrollbar{
+display:none;
+}
+
+.no-scrollbar{
+scrollbar-width:none;
+-ms-overflow-style:none;
+}
+
+</style>
+
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800 pb-24 pt-20">
+<body class="bg-[#050A18] font-display text-white pb-24 pt-20">
 
 <!-- HEADER -->
 <div id="header-container"></div>
@@ -39,141 +52,224 @@ tailwind.config = {
 <!-- SIDEBAR -->
 <div id="sidebar-container"></div>
 
-<!-- ========================= -->
-<!-- 🔥 COLLE TON CONTENU DASHBOARD ICI -->
-<!-- ========================= -->
-  <!-- CONTENU DASHBOARD -->
-<div class="px-4 py-6 space-y-6 max-w-md mx-auto">
-  <!-- 1️⃣ Taux de participation -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="bi bi-pie-chart-fill text-primary text-lg"></i>
-      <h2 class="font-semibold text-sm">Taux de participation</h2>
-    </div>
-    <div class="flex justify-center relative">
-      <canvas id="participationChart" width="180" height="180"></canvas>
-      <div id="percentageLabel"
-           class="absolute text-xl font-bold text-primary">
-      </div>
-    </div>
-  </div>
-  <!-- 2️⃣ Prochains rendez-vous -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="bi bi-calendar-event text-primary text-lg"></i>
-      <h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
-    </div>
-    <div class="space-y-3 text-sm">
-      <div class="border rounded-xl p-3">
-        <p class="font-medium">Répétition générale</p>
-        <p class="text-gray-500">15 Juin • 18h00</p>
-      </div>
-      <div class="border rounded-xl p-3">
-        <p class="font-medium">Concert spécial</p>
-        <p class="text-gray-500">28 Juin • 20h00</p>
-      </div>
-    </div>
-  </div>
-  <!-- 3️⃣ Annonce -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <div class="flex items-center gap-2 mb-4">
-      <i class="bi bi-megaphone-fill text-primary text-lg"></i>
-      <h2 class="font-semibold text-sm">Annonce</h2>
-    </div>
-    <p class="text-sm text-gray-600">
-      Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
-    </p>
-  </div>
-  <!-- 4️⃣ Alerte -->
-  <div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
-    <div class="flex items-center gap-2 mb-2">
-      <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
-      <h2 class="font-semibold text-sm text-danger">Alerte</h2>
-    </div>
-    <p class="text-sm text-gray-600">
-      Vous avez 2 absences consécutives.
-    </p>
-  </div>
-  <!-- 5️⃣ Actions rapides premium -->
-  <div class="bg-white rounded-3xl shadow-md p-5">
-    <h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
-    <div class="grid grid-cols-2 gap-4">
-      <button id="btnMessage"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-gradient-to-br from-medium to-lightblue 
-               text-white shadow-lg active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-white/20 
-                    flex items-center justify-center backdrop-blur">
-          <i class="bi bi-chat-dots-fill text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm">Messagerie</p>
-          <p class="text-xs text-white/80">Discuter</p>
-        </div>
-      </button>
-      <button id="btnAgenda"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-white shadow-md border border-gray-100
-               active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-primary/10 
-                    flex items-center justify-center">
-          <i class="bi bi-calendar-week text-primary text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm text-gray-800">Agenda</p>
-          <p class="text-xs text-gray-500">Planning</p>
-        </div>
-      </button>
-      <button id="btnPublication"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-white shadow-md border border-gray-100
-               active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-medium/10 
-                    flex items-center justify-center">
-          <i class="bi bi-pencil-square text-medium text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm text-gray-800">Publication</p>
-          <p class="text-xs text-gray-500">Créer un post</p>
-        </div>
-      </button>
-      <button id="btnPresenceRoom"
-        class="flex items-center gap-4 p-4 rounded-2xl 
-               bg-gradient-to-br from-primary to-medium 
-               text-white shadow-lg active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-white/20 
-                    flex items-center justify-center backdrop-blur">
-          <i class="bi bi-clipboard-check text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm">Salon présence</p>
-          <p class="text-xs text-white/80">Valider</p>
-        </div>
-      </button>
-      <button id="btnJustification"
-        class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
-               bg-white shadow-md border border-gray-100
-               active:scale-95 transition">
-        <div class="w-12 h-12 rounded-full bg-danger/10 
-                    flex items-center justify-center">
-          <i class="bi bi-file-earmark-text text-danger text-lg"></i>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold text-sm text-gray-800">Justification d’absence</p>
-          <p class="text-xs text-gray-500">Envoyer un document</p>
-        </div>
-      </button>
-    </div>
-  </div>
+
+<!-- 🔹 MENU HORIZONTAL DASHBOARD -->
+<div class="max-w-md mx-auto px-4 mt-2">
+
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-medium text-white text-xs font-semibold whitespace-nowrap shadow">
+<span class="opacity-70 text-xs">01</span>
+Overview
+</button>
+
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
+<span class="opacity-50 text-xs">02</span>
+PPC
+</button>
+
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
+<span class="opacity-50 text-xs">03</span>
+Year to year
+</button>
+
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
+<span class="opacity-50 text-xs">04</span>
+Sales
+</button>
+
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
+<span class="opacity-50 text-xs">05</span>
+Keywords
+</button>
+
 </div>
+
+</div>
+
+
+
+<!-- DASHBOARD -->
+<div class="px-4 py-6 space-y-6 max-w-md mx-auto">
+
+<!-- 1️⃣ Taux participation -->
+<div class="bg-gradient-to-br from-primary to-[#0E1A33] rounded-3xl p-5 shadow-xl">
+
+<div class="flex items-center gap-2 mb-4">
+<i class="bi bi-pie-chart-fill text-lightblue text-lg"></i>
+<h2 class="font-semibold text-sm">Taux de participation</h2>
+</div>
+
+<div class="flex justify-center relative">
+
+<canvas id="participationChart" width="180" height="180"></canvas>
+
+<div id="percentageLabel"
+class="absolute text-xl font-bold text-lightblue">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- 2️⃣ Prochains rendez-vous -->
+<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border border-blue-900/30">
+
+<div class="flex items-center gap-2 mb-4">
+<i class="bi bi-calendar-event text-medium text-lg"></i>
+<h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
+</div>
+
+<div class="space-y-3 text-sm">
+
+<div class="border border-blue-900/40 rounded-xl p-3 bg-[#0A1328]">
+<p class="font-medium">Répétition générale</p>
+<p class="text-gray-400">15 Juin • 18h00</p>
+</div>
+
+<div class="border border-blue-900/40 rounded-xl p-3 bg-[#0A1328]">
+<p class="font-medium">Concert spécial</p>
+<p class="text-gray-400">28 Juin • 20h00</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- 3️⃣ Annonce -->
+<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border border-blue-900/30">
+
+<div class="flex items-center gap-2 mb-4">
+<i class="bi bi-megaphone-fill text-medium text-lg"></i>
+<h2 class="font-semibold text-sm">Annonce</h2>
+</div>
+
+<p class="text-sm text-gray-400">
+Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
+</p>
+
+</div>
+
+
+<!-- 4️⃣ Alerte -->
+<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border-l-4 border-danger">
+
+<div class="flex items-center gap-2 mb-2">
+<i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
+<h2 class="font-semibold text-sm text-danger">Alerte</h2>
+</div>
+
+<p class="text-sm text-gray-400">
+Vous avez 2 absences consécutives.
+</p>
+
+</div>
+
+
+<!-- 5️⃣ Actions rapides -->
+<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border border-blue-900/30">
+
+<h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
+
+<div class="grid grid-cols-2 gap-4">
+
+<button id="btnMessage"
+class="flex items-center gap-4 p-4 rounded-2xl 
+bg-gradient-to-br from-medium to-lightblue 
+text-white shadow-lg active:scale-95 transition">
+
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur">
+<i class="bi bi-chat-dots-fill text-lg"></i>
+</div>
+
+<div class="text-left">
+<p class="font-semibold text-sm">Messagerie</p>
+<p class="text-xs text-white/80">Discuter</p>
+</div>
+
+</button>
+
+
+<button id="btnAgenda"
+class="flex items-center gap-4 p-4 rounded-2xl 
+bg-[#0A1328] border border-blue-900/40
+active:scale-95 transition">
+
+<div class="w-12 h-12 rounded-full bg-medium/20 flex items-center justify-center">
+<i class="bi bi-calendar-week text-medium text-lg"></i>
+</div>
+
+<div class="text-left">
+<p class="font-semibold text-sm">Agenda</p>
+<p class="text-xs text-gray-400">Planning</p>
+</div>
+
+</button>
+
+
+<button id="btnPublication"
+class="flex items-center gap-4 p-4 rounded-2xl 
+bg-[#0A1328] border border-blue-900/40
+active:scale-95 transition">
+
+<div class="w-12 h-12 rounded-full bg-lightblue/20 flex items-center justify-center">
+<i class="bi bi-pencil-square text-lightblue text-lg"></i>
+</div>
+
+<div class="text-left">
+<p class="font-semibold text-sm">Publication</p>
+<p class="text-xs text-gray-400">Créer un post</p>
+</div>
+
+</button>
+
+
+<button id="btnPresenceRoom"
+class="flex items-center gap-4 p-4 rounded-2xl 
+bg-gradient-to-br from-primary to-medium 
+text-white shadow-lg active:scale-95 transition">
+
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur">
+<i class="bi bi-clipboard-check text-lg"></i>
+</div>
+
+<div class="text-left">
+<p class="font-semibold text-sm">Salon présence</p>
+<p class="text-xs text-white/80">Valider</p>
+</div>
+
+</button>
+
+
+<button id="btnJustification"
+class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
+bg-[#0A1328] border border-blue-900/40
+active:scale-95 transition">
+
+<div class="w-12 h-12 rounded-full bg-danger/20 flex items-center justify-center">
+<i class="bi bi-file-earmark-text text-danger text-lg"></i>
+</div>
+
+<div class="text-left">
+<p class="font-semibold text-sm">Justification d’absence</p>
+<p class="text-xs text-gray-400">Envoyer un document</p>
+</div>
+
+</button>
+
+</div>
+</div>
+
+</div>
+
 
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
 
-<!-- ========================= -->
-<!-- 🔥 SCRIPT GLOBAL -->
-<!-- ========================= -->
+
 <script type="module" src="../users/js/presence-client.js"></script>
 
 <script type="module">
@@ -182,31 +278,30 @@ import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
-// Vérification session
 checkAuth();
 
 async function initApp() {
 
-  try {
+try {
 
-    const header = await fetch("../partials/header.html");
-    document.getElementById("header-container").innerHTML = await header.text();
-    await initHeader();
+const header = await fetch("../partials/header.html");
+document.getElementById("header-container").innerHTML = await header.text();
+await initHeader();
 
-    const sidebar = await fetch("../partials/sidebar.html");
-    document.getElementById("sidebar-container").innerHTML = await sidebar.text();
-    initSidebar();
+const sidebar = await fetch("../partials/sidebar.html");
+document.getElementById("sidebar-container").innerHTML = await sidebar.text();
+initSidebar();
 
-    const nav = await fetch("../partials/nav.html");
-    document.getElementById("navbar-container").innerHTML = await nav.text();
+const nav = await fetch("../partials/nav.html");
+document.getElementById("navbar-container").innerHTML = await nav.text();
 
-    await import("../partials/js/nav.js");
+await import("../partials/js/nav.js");
 
-    initDashboard();
+initDashboard();
 
-  } catch (error) {
-    console.error("Erreur chargement dashboard :", error);
-  }
+} catch (error) {
+console.error("Erreur chargement dashboard :", error);
+}
 
 }
 
@@ -214,58 +309,58 @@ initApp();
 
 function initDashboard() {
 
-  const participationCanvas = document.getElementById("participationChart");
+const participationCanvas = document.getElementById("participationChart");
 
-  if (participationCanvas) {
+if (participationCanvas) {
 
-    const participation = 75;
-    const ctx = participationCanvas.getContext("2d");
+const participation = 75;
+const ctx = participationCanvas.getContext("2d");
 
-    const percentageLabel = document.getElementById("percentageLabel");
-    if (percentageLabel) {
-      percentageLabel.innerText = participation + "%";
-    }
+const percentageLabel = document.getElementById("percentageLabel");
+if (percentageLabel) {
+percentageLabel.innerText = participation + "%";
+}
 
-    new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        datasets: [{
-          data: [participation, 100 - participation],
-          backgroundColor: [
-            participation >= 80 ? "#16A34A" :
-            participation >= 60 ? "#F59E0B" :
-            "#DC2626",
-            "#E5E7EB"
-          ],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        cutout: "70%",
-        plugins: {
-          tooltip: { enabled: false },
-          legend: { display: false }
-        }
-      }
-    });
-  }
+new Chart(ctx, {
+type: "doughnut",
+data: {
+datasets: [{
+data: [participation, 100 - participation],
+backgroundColor: [
+participation >= 80 ? "#16A34A" :
+participation >= 60 ? "#F59E0B" :
+"#DC2626",
+"#1A3668"
+],
+borderWidth: 0
+}]
+},
+options: {
+cutout: "70%",
+plugins: {
+tooltip: { enabled: false },
+legend: { display: false }
+}
+}
+});
+}
 
-  const routes = {
-    btnMessage: "../chat/index.html",
-    btnAgenda: "agenda.html",
-    btnPublication: "../posts/index.html",
-    btnPresenceRoom: "../users/presence.html",
-    btnJustification: "justification.html"
-  };
+const routes = {
+btnMessage: "../chat/index.html",
+btnAgenda: "agenda.html",
+btnPublication: "../posts/index.html",
+btnPresenceRoom: "../users/presence.html",
+btnJustification: "justification.html"
+};
 
-  Object.keys(routes).forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.addEventListener("click", () => {
-        window.location.href = routes[id];
-      });
-    }
-  });
+Object.keys(routes).forEach(id => {
+const btn = document.getElementById(id);
+if (btn) {
+btn.addEventListener("click", () => {
+window.location.href = routes[id];
+});
+}
+});
 
 }
 
@@ -275,5 +370,3 @@ function initDashboard() {
 
 </body>
 </html>
-
-Fais que cet html ressemble exactement, copie conforme à l’image !
