@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Dashboard - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -20,10 +23,14 @@ tailwind.config = {
 theme: {
 extend: {
 colors: {
-primary:'#1A3668',
-medium:'#2596D9',
-lightblue:'#3FA9F5',
+
+bgmain:'#011C40',
+card:'#023859',
+primary:'#26658C',
+accent:'#54ACBF',
+soft:'#A7EBF2',
 danger:'#DC2626'
+
 },
 fontFamily:{
 display:['Inter','sans-serif']
@@ -36,49 +43,38 @@ display:['Inter','sans-serif']
 <style>
 
 body{
-background:#0F172A;
+background:#011C40;
 }
 
-/* container mobile-first */
+/* container app */
+
 .app-container{
 max-width:420px;
 margin:auto;
 }
 
 /* actions rapides */
-.quick-pill{
+
+.quick-action{
 display:flex;
 align-items:center;
 gap:6px;
-padding:6px 10px;
+padding:6px 12px;
 border-radius:999px;
 font-size:12px;
-white-space:nowrap;
-background:white;
-border:1px solid #E2E8F0;
+background:#023859;
+color:#A7EBF2;
+border:1px solid rgba(255,255,255,0.05);
 transition:all .2s;
 }
 
-.quick-pill:hover{
-background:#1A3668;
+.quick-action:hover{
+background:#26658C;
 color:white;
-border-color:#1A3668;
 }
 
-.quick-pill i{
+.quick-action i{
 font-size:13px;
-}
-
-.quick-scroll{
-display:flex;
-gap:8px;
-overflow-x:auto;
-padding-bottom:4px;
-scrollbar-width:none;
-}
-
-.quick-scroll::-webkit-scrollbar{
-display:none;
 }
 
 </style>
@@ -98,29 +94,29 @@ display:none;
 
 <!-- ACTIONS RAPIDES -->
 
-<div class="quick-scroll">
+<div class="flex flex-wrap gap-2">
 
-<button id="btnMessage" class="quick-pill">
+<button id="btnMessage" class="quick-action">
 <i class="bi bi-chat-dots"></i>
 Messagerie
 </button>
 
-<button id="btnAgenda" class="quick-pill">
+<button id="btnAgenda" class="quick-action">
 <i class="bi bi-calendar"></i>
 Agenda
 </button>
 
-<button id="btnPublication" class="quick-pill">
+<button id="btnPublication" class="quick-action">
 <i class="bi bi-pencil"></i>
 Publication
 </button>
 
-<button id="btnPresenceRoom" class="quick-pill">
+<button id="btnPresenceRoom" class="quick-action">
 <i class="bi bi-clipboard-check"></i>
 Présence
 </button>
 
-<button id="btnJustification" class="quick-pill">
+<button id="btnJustification" class="quick-action">
 <i class="bi bi-file-earmark-text"></i>
 Justifier
 </button>
@@ -128,13 +124,14 @@ Justifier
 </div>
 
 
+
 <!-- CARD PARTICIPATION -->
 
-<div class="bg-white rounded-3xl p-6 shadow-lg">
+<div class="bg-card rounded-3xl p-6 shadow-lg">
 
-<div class="flex items-center gap-2 mb-4">
+<div class="flex items-center gap-2 mb-4 text-soft">
 
-<i class="bi bi-pie-chart-fill text-primary"></i>
+<i class="bi bi-pie-chart-fill"></i>
 
 <h2 class="font-semibold text-sm">
 Taux de participation
@@ -147,29 +144,30 @@ Taux de participation
 <canvas id="participationChart" width="180" height="180"></canvas>
 
 <div id="percentageLabel"
-class="absolute text-xl font-bold text-primary">
+class="absolute text-xl font-bold text-soft">
 </div>
 
 </div>
 
 </div>
+
 
 
 <!-- ALERTE -->
 
-<div class="bg-white rounded-3xl p-5 shadow-lg border-l-4 border-danger">
+<div class="bg-card rounded-3xl p-5 shadow-lg border-l-4 border-danger">
 
-<div class="flex items-center gap-2 mb-2">
+<div class="flex items-center gap-2 mb-2 text-danger">
 
-<i class="bi bi-exclamation-triangle-fill text-danger"></i>
+<i class="bi bi-exclamation-triangle-fill"></i>
 
-<h2 class="font-semibold text-sm text-danger">
+<h2 class="font-semibold text-sm">
 Alerte
 </h2>
 
 </div>
 
-<p class="text-sm text-gray-600">
+<p class="text-sm text-gray-300">
 Vous avez 2 absences consécutives.
 </p>
 
@@ -180,6 +178,7 @@ Vous avez 2 absences consécutives.
 
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
+
 
 
 <script type="module" src="../users/js/presence-client.js"></script>
@@ -245,7 +244,7 @@ backgroundColor:[
 participation>=80?"#16A34A":
 participation>=60?"#F59E0B":
 "#DC2626",
-"#E5E7EB"
+"#023859"
 ],
 borderWidth:0
 }]
