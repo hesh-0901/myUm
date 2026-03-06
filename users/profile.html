@@ -8,13 +8,10 @@
 
 <title>Profil - MyUm</title>
 
+<link rel="icon" href="/myUm/assets/favicon.png">
+
+<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- CropperJS -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <!-- Icons -->
 <link rel="stylesheet"
@@ -24,19 +21,23 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.c
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 rel="stylesheet">
 
+<!-- Cropper -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
 <script>
 tailwind.config = {
-theme: {
-extend: {
-colors: {
-
+theme:{
+extend:{
+colors:{
 bgmain:'#011C40',
 card:'#023859',
 primary:'#26658C',
 accent:'#54ACBF',
 soft:'#A7EBF2',
 danger:'#DC2626'
-
 },
 fontFamily:{
 display:['Inter','sans-serif']
@@ -49,40 +50,53 @@ display:['Inter','sans-serif']
 </head>
 
 
-<body class="bg-bgmain font-display text-white pb-24">
+
+<body class="bg-bgmain flex justify-center overflow-x-hidden font-display">
+
+<!-- APP SHELL -->
+<div class="w-full max-w-[420px] min-h-screen bg-bgmain flex flex-col overflow-hidden">
 
 
-<!-- SIDEBAR -->
-<div id="sidebar-container"></div>
 
-
-<!-- PROFILE -->
-<div class="max-w-md mx-auto">
-
+<!-- HEADER PROFILE -->
+<header class="relative">
 
 <!-- COVER -->
-<div class="relative">
-
 <img id="coverPhoto"
 src="/myUm/assets/default-cover.jpg"
-class="w-full h-40 object-cover">
+class="w-full h-28 object-cover">
+
+<!-- USER INFOS SUR COVER -->
+<div class="absolute bottom-3 left-4 text-white">
+
+<h1 id="fullName"
+class="text-lg font-semibold leading-tight">
+</h1>
+
+<p id="userFunction"
+class="text-xs text-soft">
+</p>
+
+<p id="username"
+class="text-xs text-gray-300">
+</p>
+
+</div>
 
 
-<!-- AVATAR -->
-<div class="absolute left-1/2 -bottom-14 -translate-x-1/2">
+<!-- AVATAR LARGE -->
+<div class="absolute left-1/2 -bottom-20 -translate-x-1/2">
 
-<div class="relative w-28 h-28">
+<div class="relative w-40 h-40">
 
 <img id="profilePhoto"
-class="w-28 h-28 rounded-full object-cover border-4 border-bgmain shadow-xl bg-gray-200">
-
+class="w-40 h-40 rounded-full object-cover border-4 border-bgmain shadow-xl bg-gray-200">
 
 <label for="photoInput"
-class="absolute bottom-1 right-1 w-8 h-8 rounded-full
-bg-primary flex items-center justify-center
-shadow cursor-pointer">
+class="absolute bottom-2 right-2 w-9 h-9 rounded-full
+bg-primary flex items-center justify-center shadow cursor-pointer">
 
-<i class="bi bi-camera text-xs text-white"></i>
+<i class="bi bi-camera text-sm text-white"></i>
 
 </label>
 
@@ -95,28 +109,17 @@ class="hidden">
 
 </div>
 
-</div>
+</header>
 
 
 
-<!-- USER INFOS -->
-<div class="mt-20 px-6 text-center">
+<!-- MAIN -->
+<main class="flex-1 overflow-y-auto pt-24 pb-24">
 
-<h1 id="fullName"
-class="text-xl font-semibold">
-</h1>
-
-<p id="userFunction"
-class="text-sm text-soft mt-1">
-</p>
-
-<p id="username"
-class="text-xs text-gray-400 mt-1">
-</p>
 
 
 <!-- BADGES -->
-<div class="flex justify-center gap-2 mt-3">
+<div class="flex justify-center gap-2">
 
 <span id="roleBadge"
 class="px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 font-medium">
@@ -128,17 +131,15 @@ class="px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-medium">
 
 </div>
 
-</div>
-
 
 
 <!-- STATS -->
-<div class="flex justify-center gap-12 mt-6 text-center">
+<div class="flex justify-center gap-16 mt-6 text-center">
 
 <div>
 
 <p id="friendsCount"
-class="text-lg font-semibold">
+class="text-lg font-semibold text-white">
 0
 </p>
 
@@ -148,11 +149,10 @@ amis
 
 </div>
 
-
 <div>
 
 <p id="postsCount"
-class="text-lg font-semibold">
+class="text-lg font-semibold text-white">
 0
 </p>
 
@@ -172,6 +172,7 @@ class="mt-8 px-4">
 </div>
 
 
+
 <!-- AMIS MODULE -->
 <div id="amis-container"
 class="mt-6 px-4">
@@ -188,16 +189,15 @@ class="mt-6 px-4">
 Sécurité du compte
 </h2>
 
-
 <button id="logoutBtn"
 class="w-full flex items-center justify-between
 p-3 rounded-xl bg-white/10">
 
-<span class="text-sm">
+<span class="text-sm text-white">
 Déconnexion
 </span>
 
-<i class="bi bi-box-arrow-right"></i>
+<i class="bi bi-box-arrow-right text-white"></i>
 
 </button>
 
@@ -207,8 +207,21 @@ Déconnexion
 
 
 
+</main>
+
+
+
 <!-- NAVBAR -->
-<div id="navbar-container"></div>
+<footer id="navbar-container"></footer>
+
+
+
+</div>
+
+
+
+<!-- SIDEBAR -->
+<div id="sidebar-container"></div>
 
 
 
@@ -251,15 +264,13 @@ Valider
 
 
 
+<!-- PAGE MODULES -->
 <script type="module">
 
-import { initInformations } from "../partials/js/informations.js";
-import { checkAuth } from "../mains.js/auth-guard.js";
-import { initSidebar } from "../partials/js/sidebar.js";
+import { initInformations } from "/myUm/partials/js/informations.js";
+import { initSidebar } from "/myUm/partials/js/sidebar.js";
 
-checkAuth();
-
-async function initProfile() {
+async function initProfilePage(){
 
 const sidebar = await fetch("/myUm/partials/sidebar.html");
 document.getElementById("sidebar-container").innerHTML = await sidebar.text();
@@ -277,12 +288,15 @@ document.getElementById("amis-container").innerHTML = await amis.text();
 
 }
 
-initProfile();
+initProfilePage();
 
 </script>
 
 
-<script type="module" src="../mains.js/app-init.js"></script>
+
+<!-- GLOBAL APP INIT -->
+<script type="module" src="/myUm/mains.js/app-init.js"></script>
+
 
 
 </body>
