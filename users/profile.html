@@ -8,42 +8,41 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- CropperJS -->
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
-<!-- Icons -->
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 rel="stylesheet">
 
 <script>
 tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        danger: '#DC2626'
-      },
-      fontFamily: {
-        display: ['Inter', 'sans-serif']
-      }
-    }
-  }
+theme:{
+extend:{
+colors:{
+bgmain:'#011C40',
+card:'#023859',
+primary:'#26658C',
+accent:'#54ACBF',
+soft:'#A7EBF2',
+danger:'#DC2626'
+},
+fontFamily:{
+display:['Inter','sans-serif']
+}
+}
+}
 }
 </script>
 
 </head>
 
 
-<body class="bg-gray-100 font-display text-gray-800 pb-24">
+<body class="bg-bgmain font-display text-soft pb-24 pt-20">
 
 
 <!-- HEADER -->
@@ -54,113 +53,149 @@ tailwind.config = {
 
 
 <!-- PROFILE -->
-<div class="max-w-md mx-auto">
+<div class="max-w-md mx-auto px-4 space-y-6">
 
-  <div class="bg-white rounded-3xl shadow-md overflow-hidden">
+<!-- PROFILE CARD -->
 
-    <!-- COVER -->
-    <div class="relative h-48">
+<div class="bg-card rounded-3xl p-6 shadow-lg">
 
-      <img src="/myUm/assets/cover.jpg"
-           class="w-full h-full object-cover">
+<div class="flex items-center gap-4">
 
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+<!-- AVATAR -->
 
-      <!-- AVATAR -->
-      <div class="absolute -bottom-16 left-6">
+<div class="relative">
 
-        <div class="relative w-28 h-28 group">
+<img id="profilePhoto"
+class="w-20 h-20 rounded-full object-cover ring-4 ring-primary bg-gray-200">
 
-          <img id="profilePhoto"
-               src=""
-               class="w-28 h-28 rounded-full border-4 border-white 
-                      object-cover shadow-xl bg-white
-                      transition duration-300 group-hover:scale-105">
+<label for="photoInput"
+class="absolute -bottom-1 -right-1
+w-8 h-8 rounded-full
+bg-primary text-white
+flex items-center justify-center
+cursor-pointer
+shadow-lg">
 
-          <label for="photoInput"
-          class="absolute bottom-1 right-1 w-9 h-9 
-                 bg-primary text-white rounded-full 
-                 flex items-center justify-center 
-                 shadow-lg cursor-pointer 
-                 hover:scale-110 active:scale-95 transition">
+<i class="bi bi-camera text-xs"></i>
 
-            <i class="bi bi-camera-fill text-sm"></i>
+</label>
 
-          </label>
+<input type="file"
+id="photoInput"
+accept="image/*"
+class="hidden">
 
-          <input type="file"
-                 id="photoInput"
-                 accept="image/*"
-                 class="hidden">
-
-        </div>
-
-      </div>
-
-    </div>
+</div>
 
 
-    <!-- INFOS -->
-    <div class="pt-20 px-6 pb-6">
+<!-- USER INFO -->
 
-      <h1 id="fullName"
-      class="text-2xl font-bold text-gray-900 tracking-tight"></h1>
+<div class="flex-1">
 
-      <p id="userFunction"
-      class="text-sm font-semibold text-primary mt-1"></p>
+<h1 id="fullName"
+class="text-lg font-semibold text-soft">
+</h1>
 
-      <p id="username"
-      class="text-sm text-gray-400 mt-1"></p>
+<p id="userFunction"
+class="text-xs text-accent mt-1">
+</p>
 
+<p id="username"
+class="text-xs text-soft/60">
+</p>
 
-      <!-- BADGES -->
-      <div class="flex items-center gap-2 mt-4">
+</div>
 
-        <span id="roleBadge"
-        class="px-3 py-1 text-xs rounded-full 
-        bg-gray-100 text-gray-700 font-medium"></span>
-
-        <span id="choraleBadge"
-        class="px-3 py-1 text-xs rounded-full 
-        bg-primary/10 text-primary font-medium"></span>
-
-      </div>
+</div>
 
 
-      <!-- STATS -->
-      <div class="flex items-center justify-between mt-6">
+<!-- ACTION TABS -->
 
-        <div class="flex items-center gap-2">
+<div class="flex gap-3 mt-5">
 
-          <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-            <i class="bi bi-people text-primary text-sm"></i>
-          </div>
+<button
+class="flex-1 py-2 rounded-xl bg-primary text-sm">
 
-          <div>
-            <p id="friendsCount" class="text-sm font-semibold text-gray-900">0</p>
-            <p class="text-xs text-gray-400">amis</p>
-          </div>
+Achievements
 
-        </div>
+</button>
 
-        <div class="flex items-center gap-2">
+<button
+class="flex-1 py-2 rounded-xl bg-[#011C40] border border-primary/40 text-sm">
 
-          <div class="w-9 h-9 rounded-lg bg-medium/10 flex items-center justify-center">
-            <i class="bi bi-chat-square-text text-medium text-sm"></i>
-          </div>
+Notes
 
-          <div>
-            <p id="postsCount" class="text-sm font-semibold text-gray-900">0</p>
-            <p class="text-xs text-gray-400">posts</p>
-          </div>
+</button>
 
-        </div>
+</div>
 
-      </div>
+</div>
 
-    </div>
 
-  </div>
+<!-- ABOUT -->
+
+<div class="bg-card rounded-3xl p-5 shadow-lg">
+
+<h2 class="text-sm font-semibold mb-3">
+À propos
+</h2>
+
+<p id="userBio"
+class="text-sm text-soft/80 leading-relaxed">
+</p>
+
+</div>
+
+
+<!-- ACTIVITIES -->
+
+<div class="bg-card rounded-3xl p-5 shadow-lg">
+
+<h2 class="text-sm font-semibold mb-4">
+Activités
+</h2>
+
+<div id="activitiesContainer"
+class="space-y-3">
+
+</div>
+
+</div>
+
+
+<!-- STATS -->
+
+<div class="grid grid-cols-2 gap-4">
+
+<div class="bg-card rounded-2xl p-4 flex items-center gap-3">
+
+<div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
+<i class="bi bi-people"></i>
+</div>
+
+<div>
+<p id="friendsCount" class="text-sm font-semibold">0</p>
+<p class="text-xs text-soft/60">amis</p>
+</div>
+
+</div>
+
+
+<div class="bg-card rounded-2xl p-4 flex items-center gap-3">
+
+<div class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center">
+<i class="bi bi-chat-square-text"></i>
+</div>
+
+<div>
+<p id="postsCount" class="text-sm font-semibold">0</p>
+<p class="text-xs text-soft/60">posts</p>
+</div>
+
+</div>
+
+</div>
+
 
 </div>
 
@@ -172,111 +207,43 @@ tailwind.config = {
 <div id="amis-container" class="mt-6 px-4"></div>
 
 
-<!-- SECURITY -->
-<div class="mt-6 px-4">
-
-  <div class="bg-white rounded-3xl shadow-md p-5 space-y-3">
-
-    <h2 class="text-sm font-semibold text-gray-700 mb-2">
-      Sécurité du compte
-    </h2>
-
-    <button id="changePasswordBtn"
-    class="w-full flex items-center justify-between p-4 
-           rounded-xl bg-gray-50 hover:bg-gray-100 transition">
-
-      <div class="flex items-center gap-3">
-
-        <div class="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
-          <i class="bi bi-key text-primary"></i>
-        </div>
-
-        <span class="text-sm">Changer mot de passe</span>
-
-      </div>
-
-      <i class="bi bi-chevron-right text-gray-400"></i>
-
-    </button>
-
-
-    <button id="logoutBtn"
-    class="w-full flex items-center justify-between p-4 
-           rounded-xl bg-gray-50 hover:bg-gray-100 transition">
-
-      <div class="flex items-center gap-3">
-
-        <div class="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center">
-          <i class="bi bi-box-arrow-right text-gray-700"></i>
-        </div>
-
-        <span class="text-sm">Déconnexion</span>
-
-      </div>
-
-      <i class="bi bi-chevron-right text-gray-400"></i>
-
-    </button>
-
-
-    <button id="deleteAccountBtn"
-    class="w-full flex items-center justify-between p-4 
-           rounded-xl bg-danger/10 text-danger hover:bg-danger/20 transition">
-
-      <div class="flex items-center gap-3">
-
-        <div class="w-9 h-9 bg-danger/20 rounded-lg flex items-center justify-center">
-          <i class="bi bi-trash text-danger"></i>
-        </div>
-
-        <span class="text-sm font-medium">Supprimer le compte</span>
-
-      </div>
-
-      <i class="bi bi-chevron-right"></i>
-
-    </button>
-
-  </div>
-
-</div>
-
-
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
+
 
 
 <!-- CROP MODAL -->
 <div id="cropModal"
 class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
 
-  <div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
+<div class="bg-card rounded-3xl p-4 w-[90%] max-w-md">
 
-    <h2 class="text-lg font-semibold mb-3">
-      Ajuster la photo
-    </h2>
+<h2 class="text-lg font-semibold mb-3">
+Ajuster la photo
+</h2>
 
-    <div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-      <img id="cropImage" class="max-w-full">
-    </div>
+<div class="w-full h-72 bg-black/30 rounded-xl overflow-hidden flex items-center justify-center">
+<img id="cropImage" class="max-w-full">
+</div>
 
-    <div class="flex justify-end gap-3 mt-4">
+<div class="flex justify-end gap-3 mt-4">
 
-      <button id="cancelCrop"
-      class="px-4 py-2 text-sm bg-gray-200 rounded-lg">
-      Annuler
-      </button>
+<button id="cancelCrop"
+class="px-4 py-2 text-sm bg-gray-600 rounded-lg">
+Annuler
+</button>
 
-      <button id="confirmCrop"
-      class="px-4 py-2 text-sm bg-primary text-white rounded-lg">
-      Valider
-      </button>
-
-    </div>
-
-  </div>
+<button id="confirmCrop"
+class="px-4 py-2 text-sm bg-primary text-white rounded-lg">
+Valider
+</button>
 
 </div>
+
+</div>
+
+</div>
+
 
 
 <!-- PROFILE SCRIPT -->
@@ -292,31 +259,33 @@ import { initSidebar } from "../partials/js/sidebar.js";
 
 checkAuth();
 
-async function initProfile() {
+async function initProfile(){
 
-  const header = await fetch("/myUm/partials/header.html");
-  document.getElementById("header-container").innerHTML = await header.text();
-  await initHeader();
+const header = await fetch("/myUm/partials/header.html");
+document.getElementById("header-container").innerHTML = await header.text();
+await initHeader();
 
-  const sidebar = await fetch("/myUm/partials/sidebar.html");
-  document.getElementById("sidebar-container").innerHTML = await sidebar.text();
-  initSidebar();
+const sidebar = await fetch("/myUm/partials/sidebar.html");
+document.getElementById("sidebar-container").innerHTML = await sidebar.text();
+initSidebar();
 
-  const nav = await fetch("/myUm/partials/nav.html");
-  document.getElementById("navbar-container").innerHTML = await nav.text();
+const nav = await fetch("/myUm/partials/nav.html");
+document.getElementById("navbar-container").innerHTML = await nav.text();
 
-  const infos = await fetch("/myUm/partials/informations.html");
-  document.getElementById("informations-container").innerHTML = await infos.text();
-  await initInformations();
+const infos = await fetch("/myUm/partials/informations.html");
+document.getElementById("informations-container").innerHTML = await infos.text();
+await initInformations();
 
-  const amis = await fetch("/myUm/partials/amis.html");
-  document.getElementById("amis-container").innerHTML = await amis.text();
+const amis = await fetch("/myUm/partials/amis.html");
+document.getElementById("amis-container").innerHTML = await amis.text();
 
 }
 
 initProfile();
 
 </script>
+
 <script type="module" src="../mains.js/app-init.js"></script>
+
 </body>
 </html>
