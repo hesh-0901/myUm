@@ -32,6 +32,21 @@ display: ['Inter', 'sans-serif']
 <style>
 .no-scrollbar::-webkit-scrollbar{display:none;}
 .no-scrollbar{scrollbar-width:none;-ms-overflow-style:none;}
+
+.no-scrollbar::-webkit-scrollbar{
+display:none;
+}
+
+.no-scrollbar{
+scrollbar-width:none;
+-ms-overflow-style:none;
+}
+
+/* Scroll horizontal avec molette souris */
+#quickActions{
+scroll-behavior:smooth;
+}
+  
 </style>
 
 </head>
@@ -48,84 +63,65 @@ display: ['Inter', 'sans-serif']
 <!-- DASHBOARD -->
 <div class="px-4 py-6 space-y-6 max-w-md mx-auto">
 
+<!-- 🔹 Actions rapides ultra compact -->
+<div class="max-w-md mx-auto">
 
-<!-- 🔵 ACTIONS RAPIDES (SCROLL HORIZONTAL) -->
-<div>
-
-<h2 class="font-semibold text-sm mb-3 text-primary">
-Actions rapides
-</h2>
-
-<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+<div id="quickActions"
+class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
 
 <button id="btnMessage"
-class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+class="flex items-center gap-1 px-3 py-1.5 rounded-full
+bg-[#111827] text-gray-300 text-xs whitespace-nowrap
+border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
 
-<div class="w-10 h-10 rounded-full bg-lightblue/20 flex items-center justify-center mb-1">
-<i class="bi bi-chat-dots-fill text-lightblue text-lg"></i>
-</div>
-
-<p class="text-[11px] font-medium text-gray-700 text-center">
-Messagerie
-</p>
+<i class="bi bi-chat-dots text-[12px]"></i>
+<span>Messagerie</span>
 
 </button>
-
 
 <button id="btnAgenda"
-class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+class="flex items-center gap-1 px-3 py-1.5 rounded-full
+bg-[#111827] text-gray-300 text-xs whitespace-nowrap
+border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
 
-<div class="w-10 h-10 rounded-full bg-medium/20 flex items-center justify-center mb-1">
-<i class="bi bi-calendar-week text-medium text-lg"></i>
-</div>
-
-<p class="text-[11px] font-medium text-gray-700 text-center">
-Agenda
-</p>
+<i class="bi bi-calendar text-[12px]"></i>
+<span>Agenda</span>
 
 </button>
-
 
 <button id="btnPublication"
-class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+class="flex items-center gap-1 px-3 py-1.5 rounded-full
+bg-[#111827] text-gray-300 text-xs whitespace-nowrap
+border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
 
-<div class="w-10 h-10 rounded-full bg-lightblue/20 flex items-center justify-center mb-1">
-<i class="bi bi-pencil-square text-lightblue text-lg"></i>
-</div>
-
-<p class="text-[11px] font-medium text-gray-700 text-center">
-Publication
-</p>
+<i class="bi bi-pencil text-[12px]"></i>
+<span>Publication</span>
 
 </button>
-
 
 <button id="btnPresenceRoom"
-class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+class="flex items-center gap-1 px-3 py-1.5 rounded-full
+bg-[#111827] text-gray-300 text-xs whitespace-nowrap
+border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
 
-<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mb-1">
-<i class="bi bi-clipboard-check text-primary text-lg"></i>
-</div>
-
-<p class="text-[11px] font-medium text-gray-700 text-center">
-Présence
-</p>
+<i class="bi bi-clipboard-check text-[12px]"></i>
+<span>Présence</span>
 
 </button>
-
 
 <button id="btnJustification"
-class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+class="flex items-center gap-1 px-3 py-1.5 rounded-full
+bg-[#111827] text-gray-300 text-xs whitespace-nowrap
+border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
 
-<div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center mb-1">
-<i class="bi bi-file-earmark-text text-danger text-lg"></i>
-</div>
-
-<p class="text-[11px] font-medium text-gray-700 text-center">
-Justifier
-</p>
+<i class="bi bi-file-earmark-text text-[12px]"></i>
+<span>Justifier</span>
 
 </button>
+
+</div>
+
+</div>
 
 </div>
 
@@ -267,6 +263,21 @@ btn.addEventListener("click", () => {
 window.location.href = routes[id];
 });
 }
+});
+
+}
+
+</script>
+
+<script>
+
+const slider = document.getElementById("quickActions");
+
+if(slider){
+
+slider.addEventListener("wheel",(evt)=>{
+evt.preventDefault();
+slider.scrollLeft += evt.deltaY;
 });
 
 }
