@@ -12,137 +12,169 @@ if (!user) {
 document.getElementById("usernameDisplay").textContent = user.username;
 
 
-// ================= PARTICIPATION DEMI DONUT =================
 
-const participationCtx = document
-  .getElementById("participationChart")
-  .getContext("2d");
+// ================= PARTICIPATION GAUGE =================
 
+const participationCanvas = document.getElementById("participationChart");
 
-// Gradient LUNA palette
-const gradientParticipation =
-  participationCtx.createLinearGradient(0, 0, 300, 0);
+if (participationCanvas) {
 
-gradientParticipation.addColorStop(0, "#A7EBF2");
-gradientParticipation.addColorStop(0.5, "#54ACBF");
-gradientParticipation.addColorStop(1, "#26658C");
+  const ctx = participationCanvas.getContext("2d");
+
+  const participationValue = 75;
 
 
-const participationValue = 87;
+  // gradient gauge style
+  const gradientGauge = ctx.createLinearGradient(0, 0, 300, 0);
 
-new Chart(participationCtx, {
+  gradientGauge.addColorStop(0, "#A7EBF2");
+  gradientGauge.addColorStop(0.5, "#54ACBF");
+  gradientGauge.addColorStop(1, "#26658C");
 
-  type: "doughnut",
 
-  data: {
-    datasets: [
-      {
-        data: [participationValue, 100 - participationValue],
+  new Chart(ctx, {
 
-        backgroundColor: [
-          gradientParticipation,
-          "#023859"
-        ],
+    type: "doughnut",
 
-        borderWidth: 0,
-        hoverOffset: 0
-      }
-    ]
-  },
+    data: {
+      datasets: [
+        {
+          data: [participationValue, 100 - participationValue],
 
-  options: {
+          backgroundColor: [
+            gradientGauge,
+            "#023859"
+          ],
 
-    rotation: -90,
-    circumference: 180,   // demi cercle
+          borderWidth: 0,
 
-    cutout: "78%",
+          borderRadius: 20,
 
-    animation: {
-      duration: 1800,
-      easing: "easeOutCubic"
+          spacing: 2
+        }
+      ]
     },
 
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: false }
-    }
+    options: {
 
-  }
+      responsive: true,
 
-});
+      maintainAspectRatio: false,
 
+      rotation: -90,
 
-// ================= EVOLUTION LINE CHART =================
+      circumference: 180,
 
-const evolutionCtx =
-  document.getElementById("evolutionChart").getContext("2d");
+      cutout: "72%",
 
-
-// Gradient fintech LUNA
-const gradientEvolution =
-  evolutionCtx.createLinearGradient(0, 0, 0, 220);
-
-gradientEvolution.addColorStop(0, "rgba(84,172,191,0.45)");
-gradientEvolution.addColorStop(1, "rgba(84,172,191,0)");
-
-
-new Chart(evolutionCtx, {
-
-  type: "line",
-
-  data: {
-
-    labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"],
-
-    datasets: [
-      {
-        data: [72, 78, 80, 85, 83, 87],
-
-        borderColor: "#54ACBF",
-
-        backgroundColor: gradientEvolution,
-
-        tension: 0.45,
-
-        fill: true,
-
-        pointRadius: 0,
-
-        borderWidth: 3
-      }
-    ]
-  },
-
-  options: {
-
-    animation: {
-      duration: 2000,
-      easing: "easeOutQuart"
-    },
-
-    plugins: {
-      legend: { display: false }
-    },
-
-    scales: {
-
-      y: {
-        display: false,
-        min: 60,
-        max: 100
+      animation: {
+        duration: 1600,
+        easing: "easeOutQuart"
       },
 
-      x: {
-        grid: { display: false },
-
-        ticks: {
-          color: "#A7EBF2",
-          font: { size: 11 }
-        }
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false }
       }
 
     }
 
+  });
+
+
+  // affichage pourcentage au centre
+  const label = document.getElementById("percentageLabel");
+
+  if (label) {
+    label.textContent = participationValue + "%";
   }
 
-});
+}
+
+
+
+
+// ================= EVOLUTION CHART =================
+
+const evolutionCanvas = document.getElementById("evolutionChart");
+
+if (evolutionCanvas) {
+
+  const ctx = evolutionCanvas.getContext("2d");
+
+
+  const gradientLine = ctx.createLinearGradient(0, 0, 0, 220);
+
+  gradientLine.addColorStop(0, "rgba(84,172,191,0.45)");
+  gradientLine.addColorStop(1, "rgba(84,172,191,0)");
+
+
+  new Chart(ctx, {
+
+    type: "line",
+
+    data: {
+
+      labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"],
+
+      datasets: [
+        {
+          data: [72, 78, 80, 85, 83, 87],
+
+          borderColor: "#54ACBF",
+
+          backgroundColor: gradientLine,
+
+          tension: 0.45,
+
+          fill: true,
+
+          pointRadius: 0,
+
+          borderWidth: 3
+        }
+      ]
+
+    },
+
+    options: {
+
+      responsive: true,
+
+      maintainAspectRatio: false,
+
+      animation: {
+        duration: 2000,
+        easing: "easeOutQuart"
+      },
+
+      plugins: {
+        legend: { display: false }
+      },
+
+      scales: {
+
+        y: {
+          display: false,
+          min: 60,
+          max: 100
+        },
+
+        x: {
+
+          grid: { display: false },
+
+          ticks: {
+            color: "#A7EBF2",
+            font: { size: 11 }
+          }
+
+        }
+
+      }
+
+    }
+
+  });
+
+}
