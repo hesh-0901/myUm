@@ -9,17 +9,9 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- CropperJS -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-
-<!-- Icons -->
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 rel="stylesheet">
 
@@ -29,11 +21,9 @@ theme:{
 extend:{
 colors:{
 bgmain:'#011C40',
-card:'#023859',
 primary:'#26658C',
 accent:'#54ACBF',
-soft:'#A7EBF2',
-danger:'#DC2626'
+soft:'#A7EBF2'
 },
 fontFamily:{
 display:['Inter','sans-serif']
@@ -46,40 +36,70 @@ display:['Inter','sans-serif']
 </head>
 
 
-<body class="bg-bgmain font-display text-soft pb-24 pt-20">
 
-
-<!-- HEADER -->
-<div id="header-container"></div>
-
-<!-- SIDEBAR -->
-<div id="sidebar-container"></div>
+<body class="bg-bgmain font-display text-white pb-24">
 
 
 
-<!-- PROFILE PAGE -->
-<div class="max-w-md mx-auto px-4">
+<!-- PROFILE CARD -->
+<div class="max-w-md mx-auto">
 
-<div class="bg-white rounded-3xl p-6 shadow-md">
+<!-- COVER -->
+<div class="relative">
+
+<img id="coverPhoto"
+class="w-full h-44 object-cover">
+
+<label for="coverInput"
+class="absolute top-3 right-3
+bg-black/50 text-white
+w-9 h-9 rounded-full
+flex items-center justify-center
+cursor-pointer">
+
+<i class="bi bi-camera"></i>
+
+</label>
+
+<input type="file"
+id="coverInput"
+accept="image/*"
+class="hidden">
 
 
-<!-- USER HEADER -->
-<div class="flex items-center gap-4">
+<!-- USER INFO -->
+<div class="absolute bottom-4 left-4 text-white">
 
-<!-- PROFILE PHOTO -->
+<h1 id="fullName"
+class="text-xl font-semibold">
+</h1>
+
+<p id="userFunction"
+class="text-sm opacity-90">
+</p>
+
+</div>
+
+</div>
+
+
+
+<!-- AVATAR -->
+<div class="flex justify-center -mt-14">
+
 <div class="relative">
 
 <img id="profilePhoto"
-class="w-24 h-24 rounded-2xl object-cover bg-gray-200">
+class="w-28 h-28 rounded-full border-4 border-white object-cover bg-gray-200">
 
 <label for="photoInput"
-class="absolute bottom-0 right-0
-w-8 h-8 rounded-full
+class="absolute bottom-1 right-1
+w-9 h-9 rounded-full
 bg-primary text-white
 flex items-center justify-center
-shadow cursor-pointer">
+cursor-pointer shadow">
 
-<i class="bi bi-camera text-xs"></i>
+<i class="bi bi-camera"></i>
 
 </label>
 
@@ -90,126 +110,63 @@ class="hidden">
 
 </div>
 
+</div>
 
-<!-- USER TEXT -->
-<div class="flex-1">
 
-<h1 id="fullName"
-class="text-lg font-semibold text-gray-900">
-</h1>
 
-<p id="userFunction"
-class="text-sm text-gray-500 mt-1">
-</p>
+<!-- USERNAME -->
+<div class="text-center mt-3">
 
 <p id="username"
-class="text-xs text-gray-400">
-</p>
-
-</div>
-
-</div>
-
-
-
-<!-- ACTION BUTTONS -->
-<div class="flex gap-3 mt-6">
-
-<button
-class="flex-1 py-2 rounded-full
-bg-gray-100 text-sm font-medium">
-
-Achievements
-
-</button>
-
-<button
-class="flex-1 py-2 rounded-full
-bg-gray-100 text-sm font-medium">
-
-Notes
-
-</button>
-
-</div>
-
-
-
-<!-- ABOUT -->
-<div class="mt-6">
-
-<h2 class="text-sm font-semibold text-gray-900 mb-2">
-About
-</h2>
-
-<p id="userBio"
-class="text-sm text-gray-600 leading-relaxed">
+class="text-sm text-soft">
 </p>
 
 </div>
 
 
 
-<!-- UPCOMING ACTIVITIES -->
-<div class="mt-6">
+<!-- ACTIONS -->
+<div class="flex gap-3 px-4 mt-6">
 
-<h2 class="text-sm font-semibold text-gray-900 mb-3">
-Upcoming activities
+<button
+class="flex-1 py-2 rounded-full
+bg-white text-gray-900 text-sm font-medium">
+
+Save contact
+
+</button>
+
+<button
+class="flex-1 py-2 rounded-full
+bg-black text-white text-sm font-medium">
+
+Exchange contact
+
+</button>
+
+</div>
+
+
+
+<!-- INFOS -->
+<div class="mt-6 px-4">
+
+<h2 class="text-sm font-semibold mb-2">
+My Info
 </h2>
 
-<div id="activitiesContainer" class="space-y-3">
-
-<!-- ACTIVITIES INJECTED BY JS -->
-
-</div>
+<div id="informations-container"></div>
 
 </div>
 
 
 
-<!-- USER STATS -->
-<div class="grid grid-cols-2 gap-4 mt-6">
+<!-- AMIS -->
+<div class="mt-6 px-4">
 
-<div class="flex items-center gap-3">
-
-<div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-<i class="bi bi-people text-primary"></i>
-</div>
-
-<div>
-<p id="friendsCount" class="text-sm font-semibold text-gray-900">0</p>
-<p class="text-xs text-gray-400">amis</p>
-</div>
+<div id="amis-container"></div>
 
 </div>
-
-
-<div class="flex items-center gap-3">
-
-<div class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center">
-<i class="bi bi-chat-square-text text-accent"></i>
-</div>
-
-<div>
-<p id="postsCount" class="text-sm font-semibold text-gray-900">0</p>
-<p class="text-xs text-gray-400">posts</p>
-</div>
-
-</div>
-
-</div>
-
-
-</div>
-</div>
-
-
-
-<!-- MODULE INFORMATIONS -->
-<div id="informations-container" class="mt-6 px-4"></div>
-
-<!-- MODULE AMIS -->
-<div id="amis-container" class="mt-6 px-4"></div>
 
 
 
@@ -218,63 +175,17 @@ Upcoming activities
 
 
 
-<!-- CROP MODAL -->
-<div id="cropModal"
-class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-
-<div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
-
-<h2 class="text-lg font-semibold mb-3">
-Ajuster la photo
-</h2>
-
-<div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-<img id="cropImage" class="max-w-full">
-</div>
-
-<div class="flex justify-end gap-3 mt-4">
-
-<button id="cancelCrop"
-class="px-4 py-2 text-sm bg-gray-200 rounded-lg">
-Annuler
-</button>
-
-<button id="confirmCrop"
-class="px-4 py-2 text-sm bg-primary text-white rounded-lg">
-Valider
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- PROFILE SCRIPT -->
 <script type="module" src="/myUm/users/js/profile.js"></script>
-
 
 
 <script type="module">
 
 import { initInformations } from "../partials/js/informations.js";
 import { checkAuth } from "../mains.js/auth-guard.js";
-import { initHeader } from "../partials/js/header.js";
-import { initSidebar } from "../partials/js/sidebar.js";
 
 checkAuth();
 
 async function initProfile(){
-
-const header = await fetch("/myUm/partials/header.html");
-document.getElementById("header-container").innerHTML = await header.text();
-await initHeader();
-
-const sidebar = await fetch("/myUm/partials/sidebar.html");
-document.getElementById("sidebar-container").innerHTML = await sidebar.text();
-initSidebar();
 
 const nav = await fetch("/myUm/partials/nav.html");
 document.getElementById("navbar-container").innerHTML = await nav.text();
