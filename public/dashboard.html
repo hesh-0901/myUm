@@ -77,6 +77,56 @@ color:white;
 font-size:13px;
 }
 
+/* scroll horizontal propre */
+
+#quickActions{
+scrollbar-width:none;
+-ms-overflow-style:none;
+}
+
+#quickActions::-webkit-scrollbar{
+display:none;
+}
+
+/* capsules actions */
+
+.action-pill{
+
+display:flex;
+align-items:center;
+gap:6px;
+
+padding:6px 12px;
+
+background:#023859;
+color:#A7EBF2;
+
+border-radius:999px;
+
+font-size:12px;
+
+white-space:nowrap;
+
+border:1px solid rgba(255,255,255,0.08);
+
+transition:all .2s ease;
+
+flex-shrink:0;
+}
+
+.action-pill:hover{
+
+background:#26658C;
+color:white;
+
+}
+
+.action-pill i{
+
+font-size:13px;
+
+}
+
 </style>
 
 </head>
@@ -92,37 +142,46 @@ font-size:13px;
 
 <div class="app-container px-4 space-y-6">
 
-<!-- ACTIONS RAPIDES -->
+<!-- ACTIONS RAPIDES SCROLLABLE -->
 
-<div class="flex flex-wrap gap-2">
+<div class="relative">
 
-<button id="btnMessage" class="quick-action">
+<div id="quickActions"
+class="flex gap-2 overflow-x-auto pb-3 snap-x snap-mandatory">
+
+<button id="btnMessage"
+class="action-pill snap-start">
 <i class="bi bi-chat-dots"></i>
 Messagerie
 </button>
 
-<button id="btnAgenda" class="quick-action">
+<button id="btnAgenda"
+class="action-pill snap-start">
 <i class="bi bi-calendar"></i>
 Agenda
 </button>
 
-<button id="btnPublication" class="quick-action">
+<button id="btnPublication"
+class="action-pill snap-start">
 <i class="bi bi-pencil"></i>
 Publication
 </button>
 
-<button id="btnPresenceRoom" class="quick-action">
+<button id="btnPresenceRoom"
+class="action-pill snap-start">
 <i class="bi bi-clipboard-check"></i>
 Présence
 </button>
 
-<button id="btnJustification" class="quick-action">
+<button id="btnJustification"
+class="action-pill snap-start">
 <i class="bi bi-file-earmark-text"></i>
 Justifier
 </button>
 
 </div>
 
+</div>
 
 
 <!-- CARD PARTICIPATION -->
@@ -279,6 +338,23 @@ window.location.href=routes[id];
 });
 
 }
+
+});
+
+}
+
+</script>
+
+<script>
+
+const slider = document.getElementById("quickActions");
+
+if(slider){
+
+slider.addEventListener("wheel",function(e){
+
+e.preventDefault();
+slider.scrollLeft += e.deltaY;
 
 });
 
