@@ -1,51 +1,65 @@
-<header class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-100">
+<header class="fixed top-0 left-0 right-0 z-50 bg-bgmain">
 
   <div class="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
 
+    <!-- LEFT -->
     <div class="flex items-center gap-3">
 
       <button id="menuBtn"
-        class="w-10 h-10 rounded-full flex items-center justify-center 
-               hover:bg-gray-100 transition active:scale-95 hidden">
-        <i class="bi bi-list text-xl text-gray-700"></i>
+        class="w-10 h-10 flex items-center justify-center text-soft active:scale-95 transition">
+
+        <i class="bi bi-grid-3x3-gap text-lg"></i>
+
       </button>
 
       <div>
-        <p class="text-xs text-gray-500">Bienvenue</p>
-        <h1 id="userName" class="text-sm font-semibold text-gray-800"></h1>
+        <p class="text-xs text-soft/60">Bienvenue</p>
+        <h1 id="userName" class="text-sm font-semibold text-soft"></h1>
       </div>
 
     </div>
 
+
+    <!-- RIGHT -->
     <div class="flex items-center gap-3">
 
+      <!-- NOTIFICATION -->
       <button id="notificationBtn"
-        class="relative w-10 h-10 rounded-full flex items-center justify-center 
-               hover:bg-gray-100 transition active:scale-95">
+        class="relative w-10 h-10 flex items-center justify-center text-soft active:scale-95 transition">
 
-        <i class="bi bi-bell text-lg text-gray-700"></i>
+        <i class="bi bi-bell text-lg"></i>
 
         <span id="notificationBadge"
-          class="absolute top-1 right-1 min-w-[16px] h-4 px-1 text-[10px] 
-                 bg-red-500 text-white rounded-full hidden 
-                 flex items-center justify-center">
+          class="absolute top-1 right-1 min-w-[16px] h-4 px-1 text-[10px]
+                 bg-danger text-white rounded-full hidden flex items-center justify-center">
         </span>
 
       </button>
 
+
+      <!-- PROFILE -->
       <div class="relative">
 
         <button id="profileBtn"
-          class="w-10 h-10 rounded-full overflow-hidden shadow-md active:scale-95 transition">
+          class="w-9 h-9 rounded-full overflow-hidden ring-2 ring-[#26658C] active:scale-95 transition">
         </button>
 
-        <!-- Dropdown -->
+
+        <!-- DROPDOWN -->
         <div id="profileDropdown"
-          class="hidden absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border text-sm">
+          class="hidden absolute right-0 mt-2 w-40
+                 bg-card
+                 rounded-xl
+                 shadow-lg
+                 border border-[#26658C]/30
+                 text-sm text-soft">
 
           <button id="logoutBtn"
-            class="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
-            <i class="bi bi-box-arrow-right"></i> Déconnexion
+            class="w-full text-left px-4 py-2 hover:bg-[#26658C]/20 flex items-center gap-2">
+
+            <i class="bi bi-box-arrow-right"></i>
+            Déconnexion
+
           </button>
 
         </div>
