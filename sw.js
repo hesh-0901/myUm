@@ -1,5 +1,12 @@
-const CACHE_STATIC = "myum-static-v1";
-const CACHE_DYNAMIC = "myum-dynamic-v1";
+/* =========================
+   VERSIONING
+========================= */
+
+const VERSION = "v2";
+
+const CACHE_STATIC = "myum-static-" + VERSION;
+const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
+
 
 /* =========================
    FILES TO PRECACHE
@@ -27,7 +34,13 @@ self.addEventListener("install", event => {
 event.waitUntil(
 
 caches.open(CACHE_STATIC)
-.then(cache => cache.addAll(STATIC_ASSETS))
+.then(cache => {
+
+console.log("SW: caching static assets");
+
+return cache.addAll(STATIC_ASSETS);
+
+})
 
 );
 
@@ -51,7 +64,11 @@ return Promise.all(
 keys.map(key => {
 
 if(key !== CACHE_STATIC && key !== CACHE_DYNAMIC){
+
+console.log("SW: deleting old cache", key);
+
 return caches.delete(key);
+
 }
 
 })
@@ -76,18 +93,23 @@ self.addEventListener("fetch", event => {
 const req = event.request;
 const url = new URL(req.url);
 
+
 /* IGNORER EXTENSIONS ET CDN EXTERNES */
 
-if (
-  url.protocol === "chrome-extension:" ||
-  url.origin !== location.origin
+if(
+url.protocol === "chrome-extension:" ||
+url.origin !== location.origin
 ){
-  return;
+return;
 }
+
 
 /* FIREBASE / API = NETWORK FIRST */
 
-if(url.origin.includes("firestore") || url.origin.includes("googleapis")){
+if(
+url.origin.includes("firestore") ||
+url.origin.includes("googleapis")
+){
 
 event.respondWith(networkFirst(req));
 return;
@@ -107,7 +129,8 @@ return;
 
 /* HTML PAGES = NETWORK FIRST */
 
-if(req.headers.get("accept").includes("text/html")){
+if(req.headers.get("accept") &&
+req.headers.get("accept").includes("text/html")){
 
 event.respondWith(networkFirst(req));
 return;
@@ -130,7 +153,13 @@ async function cacheFirst(request){
 
 const cached = await caches.match(request);
 
-if(cached) return cached;
+if(cached){
+
+return cached;
+
+}
+
+try{
 
 const response = await fetch(request);
 
@@ -139,6 +168,17 @@ const cache = await caches.open(CACHE_DYNAMIC);
 cache.put(request,response.clone());
 
 return response;
+
+}
+
+catch(error){
+
+return new Response("Offline", {
+status:503,
+statusText:"Offline"
+});
+
+}
 
 }
 
@@ -161,11 +201,20 @@ return response;
 
 }
 
-catch{
+catch(error){
 
 const cached = await caches.match(request);
 
+if(cached){
+
 return cached;
+
+}
+
+return new Response("Offline",{
+status:503,
+statusText:"Offline"
+});
 
 }
 
