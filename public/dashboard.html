@@ -30,21 +30,13 @@ display: ['Inter', 'sans-serif']
 </script>
 
 <style>
-
-.no-scrollbar::-webkit-scrollbar{
-display:none;
-}
-
-.no-scrollbar{
-scrollbar-width:none;
--ms-overflow-style:none;
-}
-
+.no-scrollbar::-webkit-scrollbar{display:none;}
+.no-scrollbar{scrollbar-width:none;-ms-overflow-style:none;}
 </style>
 
 </head>
 
-<body class="bg-[#050A18] font-display text-white pb-24 pt-20">
+<body class="bg-[#F4F8FF] font-display text-gray-800 pb-24 pt-20">
 
 <!-- HEADER -->
 <div id="header-container"></div>
@@ -53,50 +45,99 @@ scrollbar-width:none;
 <div id="sidebar-container"></div>
 
 
-<!-- 🔹 MENU HORIZONTAL DASHBOARD -->
-<div class="max-w-md mx-auto px-4 mt-2">
-
-<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-
-<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-medium text-white text-xs font-semibold whitespace-nowrap shadow">
-<span class="opacity-70 text-xs">01</span>
-Overview
-</button>
-
-<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
-<span class="opacity-50 text-xs">02</span>
-PPC
-</button>
-
-<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
-<span class="opacity-50 text-xs">03</span>
-Year to year
-</button>
-
-<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
-<span class="opacity-50 text-xs">04</span>
-Sales
-</button>
-
-<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E1A33] text-gray-300 text-xs whitespace-nowrap">
-<span class="opacity-50 text-xs">05</span>
-Keywords
-</button>
-
-</div>
-
-</div>
-
-
-
 <!-- DASHBOARD -->
 <div class="px-4 py-6 space-y-6 max-w-md mx-auto">
 
-<!-- 1️⃣ Taux participation -->
-<div class="bg-gradient-to-br from-primary to-[#0E1A33] rounded-3xl p-5 shadow-xl">
+
+<!-- 🔵 ACTIONS RAPIDES (SCROLL HORIZONTAL) -->
+<div>
+
+<h2 class="font-semibold text-sm mb-3 text-primary">
+Actions rapides
+</h2>
+
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+
+<button id="btnMessage"
+class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+
+<div class="w-10 h-10 rounded-full bg-lightblue/20 flex items-center justify-center mb-1">
+<i class="bi bi-chat-dots-fill text-lightblue text-lg"></i>
+</div>
+
+<p class="text-[11px] font-medium text-gray-700 text-center">
+Messagerie
+</p>
+
+</button>
+
+
+<button id="btnAgenda"
+class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+
+<div class="w-10 h-10 rounded-full bg-medium/20 flex items-center justify-center mb-1">
+<i class="bi bi-calendar-week text-medium text-lg"></i>
+</div>
+
+<p class="text-[11px] font-medium text-gray-700 text-center">
+Agenda
+</p>
+
+</button>
+
+
+<button id="btnPublication"
+class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+
+<div class="w-10 h-10 rounded-full bg-lightblue/20 flex items-center justify-center mb-1">
+<i class="bi bi-pencil-square text-lightblue text-lg"></i>
+</div>
+
+<p class="text-[11px] font-medium text-gray-700 text-center">
+Publication
+</p>
+
+</button>
+
+
+<button id="btnPresenceRoom"
+class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mb-1">
+<i class="bi bi-clipboard-check text-primary text-lg"></i>
+</div>
+
+<p class="text-[11px] font-medium text-gray-700 text-center">
+Présence
+</p>
+
+</button>
+
+
+<button id="btnJustification"
+class="flex flex-col items-center justify-center min-w-[85px] bg-white shadow-md rounded-2xl p-3 active:scale-95 transition">
+
+<div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center mb-1">
+<i class="bi bi-file-earmark-text text-danger text-lg"></i>
+</div>
+
+<p class="text-[11px] font-medium text-gray-700 text-center">
+Justifier
+</p>
+
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- 🔵 TAUX PARTICIPATION -->
+<div class="bg-white rounded-3xl shadow-md p-5">
 
 <div class="flex items-center gap-2 mb-4">
-<i class="bi bi-pie-chart-fill text-lightblue text-lg"></i>
+<i class="bi bi-pie-chart-fill text-primary text-lg"></i>
 <h2 class="font-semibold text-sm">Taux de participation</h2>
 </div>
 
@@ -105,7 +146,7 @@ Keywords
 <canvas id="participationChart" width="180" height="180"></canvas>
 
 <div id="percentageLabel"
-class="absolute text-xl font-bold text-lightblue">
+class="absolute text-xl font-bold text-primary">
 </div>
 
 </div>
@@ -113,153 +154,19 @@ class="absolute text-xl font-bold text-lightblue">
 </div>
 
 
-<!-- 2️⃣ Prochains rendez-vous -->
-<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border border-blue-900/30">
 
-<div class="flex items-center gap-2 mb-4">
-<i class="bi bi-calendar-event text-medium text-lg"></i>
-<h2 class="font-semibold text-sm">Prochains rendez-vous</h2>
-</div>
-
-<div class="space-y-3 text-sm">
-
-<div class="border border-blue-900/40 rounded-xl p-3 bg-[#0A1328]">
-<p class="font-medium">Répétition générale</p>
-<p class="text-gray-400">15 Juin • 18h00</p>
-</div>
-
-<div class="border border-blue-900/40 rounded-xl p-3 bg-[#0A1328]">
-<p class="font-medium">Concert spécial</p>
-<p class="text-gray-400">28 Juin • 20h00</p>
-</div>
-
-</div>
-
-</div>
-
-
-<!-- 3️⃣ Annonce -->
-<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border border-blue-900/30">
-
-<div class="flex items-center gap-2 mb-4">
-<i class="bi bi-megaphone-fill text-medium text-lg"></i>
-<h2 class="font-semibold text-sm">Annonce</h2>
-</div>
-
-<p class="text-sm text-gray-400">
-Répétition exceptionnelle ce samedi. Merci d’être ponctuels.
-</p>
-
-</div>
-
-
-<!-- 4️⃣ Alerte -->
-<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border-l-4 border-danger">
+<!-- 🔴 ALERTE -->
+<div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
 
 <div class="flex items-center gap-2 mb-2">
 <i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
 <h2 class="font-semibold text-sm text-danger">Alerte</h2>
 </div>
 
-<p class="text-sm text-gray-400">
+<p class="text-sm text-gray-600">
 Vous avez 2 absences consécutives.
 </p>
 
-</div>
-
-
-<!-- 5️⃣ Actions rapides -->
-<div class="bg-[#0E1A33] rounded-3xl shadow-lg p-5 border border-blue-900/30">
-
-<h2 class="font-semibold text-sm mb-5">Actions rapides</h2>
-
-<div class="grid grid-cols-2 gap-4">
-
-<button id="btnMessage"
-class="flex items-center gap-4 p-4 rounded-2xl 
-bg-gradient-to-br from-medium to-lightblue 
-text-white shadow-lg active:scale-95 transition">
-
-<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur">
-<i class="bi bi-chat-dots-fill text-lg"></i>
-</div>
-
-<div class="text-left">
-<p class="font-semibold text-sm">Messagerie</p>
-<p class="text-xs text-white/80">Discuter</p>
-</div>
-
-</button>
-
-
-<button id="btnAgenda"
-class="flex items-center gap-4 p-4 rounded-2xl 
-bg-[#0A1328] border border-blue-900/40
-active:scale-95 transition">
-
-<div class="w-12 h-12 rounded-full bg-medium/20 flex items-center justify-center">
-<i class="bi bi-calendar-week text-medium text-lg"></i>
-</div>
-
-<div class="text-left">
-<p class="font-semibold text-sm">Agenda</p>
-<p class="text-xs text-gray-400">Planning</p>
-</div>
-
-</button>
-
-
-<button id="btnPublication"
-class="flex items-center gap-4 p-4 rounded-2xl 
-bg-[#0A1328] border border-blue-900/40
-active:scale-95 transition">
-
-<div class="w-12 h-12 rounded-full bg-lightblue/20 flex items-center justify-center">
-<i class="bi bi-pencil-square text-lightblue text-lg"></i>
-</div>
-
-<div class="text-left">
-<p class="font-semibold text-sm">Publication</p>
-<p class="text-xs text-gray-400">Créer un post</p>
-</div>
-
-</button>
-
-
-<button id="btnPresenceRoom"
-class="flex items-center gap-4 p-4 rounded-2xl 
-bg-gradient-to-br from-primary to-medium 
-text-white shadow-lg active:scale-95 transition">
-
-<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur">
-<i class="bi bi-clipboard-check text-lg"></i>
-</div>
-
-<div class="text-left">
-<p class="font-semibold text-sm">Salon présence</p>
-<p class="text-xs text-white/80">Valider</p>
-</div>
-
-</button>
-
-
-<button id="btnJustification"
-class="col-span-2 flex items-center gap-4 p-4 rounded-2xl 
-bg-[#0A1328] border border-blue-900/40
-active:scale-95 transition">
-
-<div class="w-12 h-12 rounded-full bg-danger/20 flex items-center justify-center">
-<i class="bi bi-file-earmark-text text-danger text-lg"></i>
-</div>
-
-<div class="text-left">
-<p class="font-semibold text-sm">Justification d’absence</p>
-<p class="text-xs text-gray-400">Envoyer un document</p>
-</div>
-
-</button>
-
-</div>
 </div>
 
 </div>
@@ -330,7 +237,7 @@ backgroundColor: [
 participation >= 80 ? "#16A34A" :
 participation >= 60 ? "#F59E0B" :
 "#DC2626",
-"#1A3668"
+"#E5E7EB"
 ],
 borderWidth: 0
 }]
