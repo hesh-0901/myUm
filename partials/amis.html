@@ -1,29 +1,41 @@
-<div class="bg-white rounded-3xl shadow-md p-5">
+<div class="bg-card rounded-2xl shadow-lg p-5 space-y-5">
 
   <!-- HEADER -->
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="font-semibold text-sm">Amis</h2>
+  <div class="flex items-center justify-between border-b border-white/10 pb-3">
+
+    <h2 class="text-sm font-semibold text-soft flex items-center gap-2">
+      <i class="bi bi-people-fill text-accent"></i>
+      Amis
+    </h2>
+
     <span id="friendsCount"
-          class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+          class="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full">
       0
     </span>
+
   </div>
 
+
   <!-- TABS -->
-  <div class="flex mb-4 bg-gray-100 rounded-xl p-1 text-xs font-medium">
-    <button class="flex-1 py-2 rounded-lg bg-white shadow-sm tab-btn"
+  <div class="flex bg-white/5 rounded-xl p-1 text-xs font-medium">
+
+    <button class="flex-1 py-2 rounded-lg bg-card text-soft shadow-sm tab-btn"
             data-tab="friendsTab">
       Amis
     </button>
-    <button class="flex-1 py-2 rounded-lg tab-btn"
+
+    <button class="flex-1 py-2 rounded-lg text-gray-400 hover:text-soft transition tab-btn"
             data-tab="requestsTab">
       Demandes
     </button>
-    <button class="flex-1 py-2 rounded-lg tab-btn"
+
+    <button class="flex-1 py-2 rounded-lg text-gray-400 hover:text-soft transition tab-btn"
             data-tab="discoverTab">
       Découvrir
     </button>
+
   </div>
+
 
   <!-- ===================== -->
   <!-- AMIS -->
@@ -36,6 +48,7 @@
 
   </div>
 
+
   <!-- ===================== -->
   <!-- DEMANDES -->
   <!-- ===================== -->
@@ -47,18 +60,25 @@
 
   </div>
 
+
   <!-- ===================== -->
   <!-- DECOUVRIR -->
   <!-- ===================== -->
   <div id="discoverTab" class="hidden space-y-4">
 
-    <!-- Recherche -->
+    <!-- RECHERCHE -->
     <div class="relative">
+
       <i class="bi bi-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+
       <input type="text"
              id="searchUserInput"
              placeholder="Rechercher un utilisateur"
-             class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+             class="w-full pl-9 pr-4 py-2 text-sm rounded-xl
+                    bg-white/5 border border-white/10
+                    text-white placeholder-gray-400
+                    focus:outline-none focus:border-accent">
+
     </div>
 
     <div id="discoverList" class="space-y-3">
