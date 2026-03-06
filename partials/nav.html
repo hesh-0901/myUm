@@ -1,24 +1,24 @@
 <!-- BOTTOM NAVIGATION -->
 <nav class="fixed bottom-4 left-0 right-0 z-50">
 
-  <div class="max-w-md mx-auto px-4">
+  <div class="max-w-md mx-auto px-6">
 
     <div class="relative
-                bg-white/80
-                backdrop-blur-xl
-                border border-gray-200
+                bg-white/10
+                backdrop-blur-2xl
+                border border-white/20
                 rounded-full
-                shadow-xl
-                py-3">
+                shadow-lg
+                py-2">
 
       <!-- NAV ITEMS -->
-      <div class="flex justify-between items-center px-8 text-gray-400 text-xl">
+      <div class="flex justify-between items-center px-6 text-white/70 text-lg">
 
         <!-- HOME -->
         <button
           data-page="dashboard"
           onclick="goTo('public/dashboard.html')"
-          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
+          class="nav-item flex items-center justify-center w-8 h-8 transition active:scale-90">
 
           <i class="bi bi-house"></i>
 
@@ -28,20 +28,20 @@
         <button
           data-page="posts"
           onclick="goTo('posts/index.html')"
-          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
+          class="nav-item flex items-center justify-center w-8 h-8 transition active:scale-90">
 
           <i class="bi bi-grid"></i>
 
         </button>
 
-        <!-- ESPACE POUR BOUTON CENTRAL -->
-        <div class="w-12"></div>
+        <!-- espace pour bouton central -->
+        <div class="w-10"></div>
 
         <!-- CHAT -->
         <button
           data-page="chat"
           onclick="goTo('chat/index.html')"
-          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
+          class="nav-item flex items-center justify-center w-8 h-8 transition active:scale-90">
 
           <i class="bi bi-chat"></i>
 
@@ -51,7 +51,7 @@
         <button
           data-page="profile"
           onclick="goTo('users/profile.html')"
-          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
+          class="nav-item flex items-center justify-center w-8 h-8 transition active:scale-90">
 
           <i class="bi bi-person"></i>
 
@@ -61,11 +61,11 @@
 
 
       <!-- BOUTON CENTRAL SCAN -->
-      <div class="absolute -top-7 left-1/2 -translate-x-1/2">
+      <div class="absolute -top-5 left-1/2 -translate-x-1/2">
 
         <button
           onclick="goTo('users/presence.html')"
-          class="w-16 h-16
+          class="w-12 h-12
                  rounded-full
                  bg-gradient-to-br
                  from-[#54ACBF]
@@ -73,12 +73,13 @@
                  to-[#023859]
                  text-white
                  flex items-center justify-center
-                 shadow-2xl
-                 ring-4 ring-white
+                 shadow-xl
+                 ring-2 ring-white/40
+                 backdrop-blur-xl
                  transition
                  active:scale-95">
 
-          <i class="bi bi-fingerprint text-2xl"></i>
+          <i class="bi bi-fingerprint text-lg"></i>
 
         </button>
 
@@ -89,8 +90,6 @@
   </div>
 
 </nav>
-
-
 
 <script>
 
