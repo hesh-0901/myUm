@@ -21,6 +21,7 @@ theme:{
 extend:{
 colors:{
 bgmain:'#011C40',
+card:'#023859',
 primary:'#26658C',
 accent:'#54ACBF',
 soft:'#A7EBF2',
@@ -37,23 +38,24 @@ display:['Inter','sans-serif']
 </head>
 
 
-<body class="bg-white font-display pb-24">
+<body class="bg-bgmain font-display text-soft pb-24">
+
 
 <!-- SIDEBAR -->
 <div id="sidebar-container"></div>
 
 
 <!-- COVER -->
-<div class="relative w-full h-44 bg-gray-200">
+<div class="relative w-full h-48 bg-card">
 
 <img id="coverPhoto"
 class="w-full h-full object-cover">
 
 <label for="coverInput"
 class="absolute top-3 right-3 w-9 h-9 rounded-full
-bg-white shadow flex items-center justify-center cursor-pointer">
+bg-white/80 backdrop-blur flex items-center justify-center cursor-pointer">
 
-<i class="bi bi-pencil"></i>
+<i class="bi bi-pencil text-gray-700"></i>
 
 </label>
 
@@ -66,23 +68,27 @@ class="hidden">
 
 
 
-<!-- USER INFO CARD -->
+<!-- PROFILE SECTION -->
 <div class="max-w-md mx-auto px-4">
 
-<div class="bg-white rounded-3xl shadow-md p-6 -mt-14 relative">
+<div class="bg-card rounded-3xl p-6 -mt-16 relative shadow-lg">
+
 
 <!-- PROFILE PHOTO -->
-
 <div class="flex justify-center">
 
 <div class="relative">
 
 <img id="profilePhoto"
-class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg bg-gray-200">
+class="w-32 h-32 rounded-full object-cover
+border-4 border-bgmain
+shadow-xl bg-gray-200">
 
 <label for="photoInput"
-class="absolute bottom-2 right-2 w-9 h-9 rounded-full
-bg-primary text-white flex items-center justify-center cursor-pointer">
+class="absolute bottom-2 right-2
+w-9 h-9 rounded-full
+bg-primary text-white
+flex items-center justify-center cursor-pointer">
 
 <i class="bi bi-camera"></i>
 
@@ -98,65 +104,44 @@ class="hidden">
 </div>
 
 
-<!-- USER TEXT -->
 
-<div class="text-center mt-4">
+<!-- USER TEXT -->
+<div class="text-center mt-5">
 
 <h1 id="fullName"
-class="text-xl font-semibold text-gray-900">
+class="text-xl font-semibold text-soft">
 </h1>
 
 <p id="userFunction"
-class="text-sm text-gray-500">
+class="text-sm text-accent">
 </p>
 
 <p id="username"
-class="text-xs text-gray-400">
+class="text-xs text-soft/70">
 </p>
 
 </div>
 
 
-<!-- ACTION BUTTONS -->
-
-<div class="flex gap-3 mt-6">
-
-<button
-class="flex-1 py-2 rounded-full bg-black text-white text-sm">
-
-Save contact
-
-</button>
-
-<button
-class="flex-1 py-2 rounded-full bg-gray-100 text-sm">
-
-Exchange contact
-
-</button>
-
-</div>
-
 
 <!-- STATS -->
-
-<div class="flex justify-center gap-10 mt-6 text-center">
+<div class="flex justify-center gap-12 mt-6 text-center">
 
 <div>
 
 <p id="friendsCount"
-class="text-lg font-semibold text-gray-900">0</p>
+class="text-lg font-semibold text-soft">0</p>
 
-<p class="text-xs text-gray-400">amis</p>
+<p class="text-xs text-soft/60">amis</p>
 
 </div>
 
 <div>
 
 <p id="postsCount"
-class="text-lg font-semibold text-gray-900">0</p>
+class="text-lg font-semibold text-soft">0</p>
 
-<p class="text-xs text-gray-400">posts</p>
+<p class="text-xs text-soft/60">posts</p>
 
 </div>
 
