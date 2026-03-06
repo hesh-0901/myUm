@@ -8,44 +8,50 @@
                 backdrop-blur-xl
                 border border-gray-200
                 rounded-full
-                shadow-xl">
+                shadow-xl
+                py-3">
 
-      <div class="flex justify-between items-center px-10 py-3 text-gray-400 text-xl">
+      <!-- NAV ITEMS -->
+      <div class="flex justify-between items-center px-8 text-gray-400 text-xl">
 
         <!-- HOME -->
-        <button data-page="dashboard"
+        <button
+          data-page="dashboard"
           onclick="goTo('public/dashboard.html')"
-          class="nav-item transition active:scale-90">
+          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
 
           <i class="bi bi-house"></i>
 
         </button>
 
         <!-- POSTS -->
-        <button data-page="posts"
+        <button
+          data-page="posts"
           onclick="goTo('posts/index.html')"
-          class="nav-item transition active:scale-90">
+          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
 
           <i class="bi bi-grid"></i>
 
         </button>
 
-        <!-- espace pour bouton central -->
-        <div class="w-10"></div>
+        <!-- ESPACE POUR BOUTON CENTRAL -->
+        <div class="w-12"></div>
 
         <!-- CHAT -->
-        <button data-page="chat"
+        <button
+          data-page="chat"
           onclick="goTo('chat/index.html')"
-          class="nav-item transition active:scale-90">
+          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
 
           <i class="bi bi-chat"></i>
 
         </button>
 
         <!-- PROFILE -->
-        <button data-page="profile"
+        <button
+          data-page="profile"
           onclick="goTo('users/profile.html')"
-          class="nav-item transition active:scale-90">
+          class="nav-item flex items-center justify-center w-10 h-10 transition active:scale-90">
 
           <i class="bi bi-person"></i>
 
@@ -55,9 +61,10 @@
 
 
       <!-- BOUTON CENTRAL SCAN -->
-      <div class="absolute -top-6 left-1/2 -translate-x-1/2">
+      <div class="absolute -top-7 left-1/2 -translate-x-1/2">
 
-        <button onclick="goTo('users/presence.html')"
+        <button
+          onclick="goTo('users/presence.html')"
           class="w-16 h-16
                  rounded-full
                  bg-gradient-to-br
@@ -68,8 +75,8 @@
                  flex items-center justify-center
                  shadow-2xl
                  ring-4 ring-white
-                 active:scale-95
-                 transition">
+                 transition
+                 active:scale-95">
 
           <i class="bi bi-fingerprint text-2xl"></i>
 
@@ -83,10 +90,16 @@
 
 </nav>
 
+
+
 <script>
+
 function getBasePath() {
+
   const { pathname } = window.location;
+
   const parts = pathname.split("/").filter(Boolean);
+
   const isGitHubIO = window.location.hostname.includes("github.io");
 
   if (isGitHubIO && parts.length > 0) {
@@ -94,12 +107,17 @@ function getBasePath() {
   }
 
   return "/";
+
 }
 
 function goTo(path) {
+
   const base = getBasePath();
+
   window.location.href = base + path;
+
 }
+
 
 /* NAV ACTIVE */
 
@@ -122,4 +140,5 @@ document.querySelectorAll(".nav-item").forEach(btn => {
   }
 
 });
+
 </script>
