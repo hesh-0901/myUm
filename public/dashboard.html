@@ -55,41 +55,6 @@ margin:auto;
 
 /* actions rapides */
 
-.quick-action{
-display:flex;
-align-items:center;
-gap:6px;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-background:#023859;
-color:#A7EBF2;
-border:1px solid rgba(255,255,255,0.05);
-transition:all .2s;
-}
-
-.quick-action:hover{
-background:#26658C;
-color:white;
-}
-
-.quick-action i{
-font-size:13px;
-}
-
-/* scroll horizontal propre */
-
-#quickActions{
-scrollbar-width:none;
--ms-overflow-style:none;
-}
-
-#quickActions::-webkit-scrollbar{
-display:none;
-}
-
-/* capsules actions */
-
 .action-pill{
 
 display:flex;
@@ -121,10 +86,15 @@ color:white;
 
 }
 
-.action-pill i{
+/* scroll horizontal propre */
 
-font-size:13px;
+#quickActions{
+scrollbar-width:none;
+-ms-overflow-style:none;
+}
 
+#quickActions::-webkit-scrollbar{
+display:none;
 }
 
 </style>
@@ -142,39 +112,34 @@ font-size:13px;
 
 <div class="app-container px-4 space-y-6">
 
-<!-- ACTIONS RAPIDES SCROLLABLE -->
+<!-- ACTIONS RAPIDES -->
 
 <div class="relative">
 
 <div id="quickActions"
-class="flex gap-2 overflow-x-auto pb-3 snap-x snap-mandatory">
+class="flex gap-2 overflow-x-auto pb-3">
 
-<button id="btnMessage"
-class="action-pill snap-start">
+<button id="btnMessage" class="action-pill">
 <i class="bi bi-chat-dots"></i>
 Messagerie
 </button>
 
-<button id="btnAgenda"
-class="action-pill snap-start">
+<button id="btnAgenda" class="action-pill">
 <i class="bi bi-calendar"></i>
 Agenda
 </button>
 
-<button id="btnPublication"
-class="action-pill snap-start">
+<button id="btnPublication" class="action-pill">
 <i class="bi bi-pencil"></i>
 Publication
 </button>
 
-<button id="btnPresenceRoom"
-class="action-pill snap-start">
+<button id="btnPresenceRoom" class="action-pill">
 <i class="bi bi-clipboard-check"></i>
 Présence
 </button>
 
-<button id="btnJustification"
-class="action-pill snap-start">
+<button id="btnJustification" class="action-pill">
 <i class="bi bi-file-earmark-text"></i>
 Justifier
 </button>
@@ -184,30 +149,40 @@ Justifier
 </div>
 
 
+
 <!-- CARD PARTICIPATION -->
 
 <div class="bg-card rounded-3xl p-6 shadow-lg">
 
-  <div class="flex items-center gap-2 mb-4 text-soft">
-    <i class="bi bi-pie-chart-fill"></i>
-    <h2 class="font-semibold text-sm">
-      Taux de participation
-    </h2>
-  </div>
+<div class="flex items-center gap-2 mb-4 text-soft">
 
-  <div class="relative flex justify-center">
+<i class="bi bi-pie-chart-fill"></i>
 
-    <canvas id="participationChart" width="220" height="140"></canvas>
-
-    <!-- POURCENTAGE CENTRÉ -->
-    <div id="percentageLabel"
-         class="absolute bottom-4 text-3xl font-semibold text-[#A7EBF2]">
-      87%
-    </div>
-
-  </div>
+<h2 class="font-semibold text-sm">
+Taux de participation
+</h2>
 
 </div>
+
+
+<!-- CONTENEUR GAUGE -->
+
+<div class="relative h-[200px] w-full flex items-end justify-center">
+
+<canvas id="participationChart"></canvas>
+
+<!-- POURCENTAGE -->
+
+<div id="percentageLabel"
+class="absolute bottom-6 text-3xl font-semibold text-soft">
+75%
+</div>
+
+</div>
+
+</div>
+
+
 
 <!-- ALERTE -->
 
@@ -230,6 +205,7 @@ Vous avez 2 absences consécutives.
 </div>
 
 </div>
+
 
 
 <!-- NAVBAR -->
@@ -276,6 +252,8 @@ console.error("Erreur chargement dashboard :",error);
 
 initApp();
 
+
+
 function initDashboard(){
 
 const participationCanvas=document.getElementById("participationChart");
@@ -283,6 +261,7 @@ const participationCanvas=document.getElementById("participationChart");
 if(participationCanvas){
 
 const participation=75;
+
 const ctx=participationCanvas.getContext("2d");
 
 const percentageLabel=document.getElementById("percentageLabel");
@@ -292,26 +271,33 @@ percentageLabel.innerText=participation+"%";
 }
 
 new Chart(ctx,{
+
 type:"doughnut",
+
 data:{
 datasets:[{
 data:[participation,100-participation],
 backgroundColor:[
-participation>=80?"#16A34A":
-participation>=60?"#F59E0B":
-"#DC2626",
+"#54ACBF",
 "#023859"
 ],
 borderWidth:0
 }]
 },
+
 options:{
-cutout:"70%",
+
+rotation:-90,
+circumference:180,
+cutout:"75%",
+
 plugins:{
 tooltip:{enabled:false},
 legend:{display:false}
 }
+
 }
+
 });
 
 }
@@ -342,6 +328,7 @@ window.location.href=routes[id];
 
 </script>
 
+
 <script>
 
 const slider = document.getElementById("quickActions");
@@ -358,6 +345,7 @@ slider.scrollLeft += e.deltaY;
 }
 
 </script>
+
 
 <script type="module" src="../mains.js/app-init.js"></script>
 
