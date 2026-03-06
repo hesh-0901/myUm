@@ -188,29 +188,26 @@ Justifier
 
 <div class="bg-card rounded-3xl p-6 shadow-lg">
 
-<div class="flex items-center gap-2 mb-4 text-soft">
+  <div class="flex items-center gap-2 mb-4 text-soft">
+    <i class="bi bi-pie-chart-fill"></i>
+    <h2 class="font-semibold text-sm">
+      Taux de participation
+    </h2>
+  </div>
 
-<i class="bi bi-pie-chart-fill"></i>
+  <div class="relative flex justify-center">
 
-<h2 class="font-semibold text-sm">
-Taux de participation
-</h2>
+    <canvas id="participationChart" width="220" height="140"></canvas>
+
+    <!-- POURCENTAGE CENTRÉ -->
+    <div id="percentageLabel"
+         class="absolute bottom-4 text-3xl font-semibold text-[#A7EBF2]">
+      87%
+    </div>
+
+  </div>
 
 </div>
-
-<div class="flex justify-center relative">
-
-<canvas id="participationChart" width="180" height="180"></canvas>
-
-<div id="percentageLabel"
-class="absolute text-xl font-bold text-soft">
-</div>
-
-</div>
-
-</div>
-
-
 
 <!-- ALERTE -->
 
