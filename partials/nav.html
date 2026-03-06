@@ -4,45 +4,48 @@
   <div class="max-w-md mx-auto px-4">
 
     <div class="relative
-                backdrop-blur-2xl
-                bg-white/70
+                bg-white/80
+                backdrop-blur-xl
                 border border-gray-200
-                rounded-2xl
-                shadow-lg">
+                rounded-full
+                shadow-xl">
 
-      <div class="flex justify-between items-center px-8 py-3 text-gray-400 text-lg">
+      <div class="flex justify-between items-center px-10 py-3 text-gray-400 text-xl">
 
-        <!-- Accueil -->
+        <!-- HOME -->
         <button data-page="dashboard"
           onclick="goTo('public/dashboard.html')"
-          class="nav-item transition duration-200 active:scale-90">
+          class="nav-item transition active:scale-90">
 
-          <i class="bi bi-house-door"></i>
+          <i class="bi bi-house"></i>
 
         </button>
 
-        <!-- Posts -->
+        <!-- POSTS -->
         <button data-page="posts"
           onclick="goTo('posts/index.html')"
-          class="nav-item transition duration-200 active:scale-90">
+          class="nav-item transition active:scale-90">
 
-          <i class="bi bi-newspaper"></i>
+          <i class="bi bi-grid"></i>
 
         </button>
 
-        <!-- Chat -->
+        <!-- espace pour bouton central -->
+        <div class="w-10"></div>
+
+        <!-- CHAT -->
         <button data-page="chat"
           onclick="goTo('chat/index.html')"
-          class="nav-item transition duration-200 active:scale-90">
+          class="nav-item transition active:scale-90">
 
-          <i class="bi bi-chat-dots"></i>
+          <i class="bi bi-chat"></i>
 
         </button>
 
-        <!-- Profil -->
+        <!-- PROFILE -->
         <button data-page="profile"
           onclick="goTo('users/profile.html')"
-          class="nav-item transition duration-200 active:scale-90">
+          class="nav-item transition active:scale-90">
 
           <i class="bi bi-person"></i>
 
@@ -50,21 +53,25 @@
 
       </div>
 
-      <!-- BOUTON CENTRAL PRESENCE -->
+
+      <!-- BOUTON CENTRAL SCAN -->
       <div class="absolute -top-6 left-1/2 -translate-x-1/2">
 
         <button onclick="goTo('users/presence.html')"
-          class="w-14 h-14
+          class="w-16 h-16
                  rounded-full
-                 bg-gradient-to-br from-medium via-lightblue to-primary
+                 bg-gradient-to-br
+                 from-[#54ACBF]
+                 via-[#26658C]
+                 to-[#023859]
                  text-white
                  flex items-center justify-center
-                 shadow-xl
+                 shadow-2xl
                  ring-4 ring-white
                  active:scale-95
                  transition">
 
-          <i class="bi bi-check2-circle text-xl"></i>
+          <i class="bi bi-fingerprint text-2xl"></i>
 
         </button>
 
