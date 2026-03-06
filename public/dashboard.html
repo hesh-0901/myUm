@@ -6,9 +6,13 @@
 <title>Dashboard - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <link rel="icon" href="/myUm/assets/favicon.png">
 
 <script>
@@ -16,13 +20,13 @@ tailwind.config = {
 theme: {
 extend: {
 colors: {
-primary: '#1A3668',
-medium: '#2596D9',
-lightblue: '#3FA9F5',
-danger: '#DC2626'
+primary:'#1A3668',
+medium:'#2596D9',
+lightblue:'#3FA9F5',
+danger:'#DC2626'
 },
-fontFamily: {
-display: ['Inter', 'sans-serif']
+fontFamily:{
+display:['Inter','sans-serif']
 }
 }
 }
@@ -30,28 +34,58 @@ display: ['Inter', 'sans-serif']
 </script>
 
 <style>
-.no-scrollbar::-webkit-scrollbar{display:none;}
-.no-scrollbar{scrollbar-width:none;-ms-overflow-style:none;}
 
-.no-scrollbar::-webkit-scrollbar{
+body{
+background:#0F172A;
+}
+
+/* container mobile-first */
+.app-container{
+max-width:420px;
+margin:auto;
+}
+
+/* actions rapides */
+.quick-pill{
+display:flex;
+align-items:center;
+gap:6px;
+padding:6px 10px;
+border-radius:999px;
+font-size:12px;
+white-space:nowrap;
+background:white;
+border:1px solid #E2E8F0;
+transition:all .2s;
+}
+
+.quick-pill:hover{
+background:#1A3668;
+color:white;
+border-color:#1A3668;
+}
+
+.quick-pill i{
+font-size:13px;
+}
+
+.quick-scroll{
+display:flex;
+gap:8px;
+overflow-x:auto;
+padding-bottom:4px;
+scrollbar-width:none;
+}
+
+.quick-scroll::-webkit-scrollbar{
 display:none;
 }
 
-.no-scrollbar{
-scrollbar-width:none;
--ms-overflow-style:none;
-}
-
-/* Scroll horizontal avec molette souris */
-#quickActions{
-scroll-behavior:smooth;
-}
-  
 </style>
 
 </head>
 
-<body class="bg-[#F4F8FF] font-display text-gray-800 pb-24 pt-20">
+<body class="font-display pb-24 pt-20">
 
 <!-- HEADER -->
 <div id="header-container"></div>
@@ -60,81 +94,52 @@ scroll-behavior:smooth;
 <div id="sidebar-container"></div>
 
 
-<!-- DASHBOARD -->
-<div class="px-4 py-6 space-y-6 max-w-md mx-auto">
+<div class="app-container px-4 space-y-6">
 
-<!-- 🔹 Actions rapides ultra compact -->
-<div class="max-w-md mx-auto">
+<!-- ACTIONS RAPIDES -->
 
-<div id="quickActions"
-class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<div class="quick-scroll">
 
-<button id="btnMessage"
-class="flex items-center gap-1 px-3 py-1.5 rounded-full
-bg-[#111827] text-gray-300 text-xs whitespace-nowrap
-border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
-
-<i class="bi bi-chat-dots text-[12px]"></i>
-<span>Messagerie</span>
-
+<button id="btnMessage" class="quick-pill">
+<i class="bi bi-chat-dots"></i>
+Messagerie
 </button>
 
-<button id="btnAgenda"
-class="flex items-center gap-1 px-3 py-1.5 rounded-full
-bg-[#111827] text-gray-300 text-xs whitespace-nowrap
-border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
-
-<i class="bi bi-calendar text-[12px]"></i>
-<span>Agenda</span>
-
+<button id="btnAgenda" class="quick-pill">
+<i class="bi bi-calendar"></i>
+Agenda
 </button>
 
-<button id="btnPublication"
-class="flex items-center gap-1 px-3 py-1.5 rounded-full
-bg-[#111827] text-gray-300 text-xs whitespace-nowrap
-border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
-
-<i class="bi bi-pencil text-[12px]"></i>
-<span>Publication</span>
-
+<button id="btnPublication" class="quick-pill">
+<i class="bi bi-pencil"></i>
+Publication
 </button>
 
-<button id="btnPresenceRoom"
-class="flex items-center gap-1 px-3 py-1.5 rounded-full
-bg-[#111827] text-gray-300 text-xs whitespace-nowrap
-border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
-
-<i class="bi bi-clipboard-check text-[12px]"></i>
-<span>Présence</span>
-
+<button id="btnPresenceRoom" class="quick-pill">
+<i class="bi bi-clipboard-check"></i>
+Présence
 </button>
 
-<button id="btnJustification"
-class="flex items-center gap-1 px-3 py-1.5 rounded-full
-bg-[#111827] text-gray-300 text-xs whitespace-nowrap
-border border-[#1f2937] hover:bg-[#1A3668] hover:text-white transition">
-
-<i class="bi bi-file-earmark-text text-[12px]"></i>
-<span>Justifier</span>
-
+<button id="btnJustification" class="quick-pill">
+<i class="bi bi-file-earmark-text"></i>
+Justifier
 </button>
 
 </div>
 
-</div>
 
-</div>
+<!-- CARD PARTICIPATION -->
 
-</div>
-
-
-
-<!-- 🔵 TAUX PARTICIPATION -->
-<div class="bg-white rounded-3xl shadow-md p-5">
+<div class="bg-white rounded-3xl p-6 shadow-lg">
 
 <div class="flex items-center gap-2 mb-4">
-<i class="bi bi-pie-chart-fill text-primary text-lg"></i>
-<h2 class="font-semibold text-sm">Taux de participation</h2>
+
+<i class="bi bi-pie-chart-fill text-primary"></i>
+
+<h2 class="font-semibold text-sm">
+Taux de participation
+</h2>
+
 </div>
 
 <div class="flex justify-center relative">
@@ -150,13 +155,18 @@ class="absolute text-xl font-bold text-primary">
 </div>
 
 
+<!-- ALERTE -->
 
-<!-- 🔴 ALERTE -->
-<div class="bg-white rounded-3xl shadow-md p-5 border-l-4 border-danger">
+<div class="bg-white rounded-3xl p-5 shadow-lg border-l-4 border-danger">
 
 <div class="flex items-center gap-2 mb-2">
-<i class="bi bi-exclamation-triangle-fill text-danger text-lg"></i>
-<h2 class="font-semibold text-sm text-danger">Alerte</h2>
+
+<i class="bi bi-exclamation-triangle-fill text-danger"></i>
+
+<h2 class="font-semibold text-sm text-danger">
+Alerte
+</h2>
+
 </div>
 
 <p class="text-sm text-gray-600">
@@ -172,7 +182,6 @@ Vous avez 2 absences consécutives.
 <div id="navbar-container"></div>
 
 
-
 <script type="module" src="../users/js/presence-client.js"></script>
 
 <script type="module">
@@ -183,9 +192,9 @@ import { initSidebar } from "../partials/js/sidebar.js";
 
 checkAuth();
 
-async function initApp() {
+async function initApp(){
 
-try {
+try{
 
 const header = await fetch("../partials/header.html");
 document.getElementById("header-container").innerHTML = await header.text();
@@ -202,82 +211,76 @@ await import("../partials/js/nav.js");
 
 initDashboard();
 
-} catch (error) {
-console.error("Erreur chargement dashboard :", error);
+}catch(error){
+
+console.error("Erreur chargement dashboard :",error);
+
 }
 
 }
 
 initApp();
 
-function initDashboard() {
+function initDashboard(){
 
-const participationCanvas = document.getElementById("participationChart");
+const participationCanvas=document.getElementById("participationChart");
 
-if (participationCanvas) {
+if(participationCanvas){
 
-const participation = 75;
-const ctx = participationCanvas.getContext("2d");
+const participation=75;
+const ctx=participationCanvas.getContext("2d");
 
-const percentageLabel = document.getElementById("percentageLabel");
-if (percentageLabel) {
-percentageLabel.innerText = participation + "%";
+const percentageLabel=document.getElementById("percentageLabel");
+
+if(percentageLabel){
+percentageLabel.innerText=participation+"%";
 }
 
-new Chart(ctx, {
-type: "doughnut",
-data: {
-datasets: [{
-data: [participation, 100 - participation],
-backgroundColor: [
-participation >= 80 ? "#16A34A" :
-participation >= 60 ? "#F59E0B" :
+new Chart(ctx,{
+type:"doughnut",
+data:{
+datasets:[{
+data:[participation,100-participation],
+backgroundColor:[
+participation>=80?"#16A34A":
+participation>=60?"#F59E0B":
 "#DC2626",
 "#E5E7EB"
 ],
-borderWidth: 0
+borderWidth:0
 }]
 },
-options: {
-cutout: "70%",
-plugins: {
-tooltip: { enabled: false },
-legend: { display: false }
+options:{
+cutout:"70%",
+plugins:{
+tooltip:{enabled:false},
+legend:{display:false}
 }
 }
 });
+
 }
 
-const routes = {
-btnMessage: "../chat/index.html",
-btnAgenda: "agenda.html",
-btnPublication: "../posts/index.html",
-btnPresenceRoom: "../users/presence.html",
-btnJustification: "justification.html"
+const routes={
+btnMessage:"../chat/index.html",
+btnAgenda:"agenda.html",
+btnPublication:"../posts/index.html",
+btnPresenceRoom:"../users/presence.html",
+btnJustification:"justification.html"
 };
 
-Object.keys(routes).forEach(id => {
-const btn = document.getElementById(id);
-if (btn) {
-btn.addEventListener("click", () => {
-window.location.href = routes[id];
+Object.keys(routes).forEach(id=>{
+
+const btn=document.getElementById(id);
+
+if(btn){
+
+btn.addEventListener("click",()=>{
+window.location.href=routes[id];
 });
-}
-});
 
 }
 
-</script>
-
-<script>
-
-const slider = document.getElementById("quickActions");
-
-if(slider){
-
-slider.addEventListener("wheel",(evt)=>{
-evt.preventDefault();
-slider.scrollLeft += evt.deltaY;
 });
 
 }
