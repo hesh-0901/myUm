@@ -93,39 +93,59 @@ async function loadUserProfile() {
       `@${currentUserData.username}`;
 
 
-    // Chorale badge
-    const choraleBadge = document.getElementById("choraleBadge");
+   // ======================================
+// BADGE CHORALE
+// ======================================
 
-    choraleBadge.innerText = currentUserData.chorale || "";
+const choraleBadge = document.getElementById("choraleBadge");
 
-    choraleBadge.className =
-      "px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-medium";
+if (choraleBadge) {
+
+  choraleBadge.innerText = currentUserData.chorale || "";
+
+  choraleBadge.className =
+    "px-3 py-1 text-xs rounded-full bg-accent/20 text-accent font-medium";
+
+}
 
 
-    // Role badge
-    const roleBadge = document.getElementById("roleBadge");
+// ======================================
+// BADGE ROLE
+// ======================================
 
-    roleBadge.innerText = currentUserData.role || "";
+const roleBadge = document.getElementById("roleBadge");
+
+if (roleBadge) {
+
+  roleBadge.innerText = currentUserData.role || "";
+
+  // Style dynamique selon rôle
+  switch (currentUserData.role) {
+
+    case "super_admin":
+
+      roleBadge.className =
+        "px-3 py-1 text-xs rounded-full bg-accent/30 text-accent font-semibold";
+
+      break;
 
 
-    // Style dynamique selon rôle
-    switch (currentUserData.role) {
+    case "admin":
 
-      case "super_admin":
-        roleBadge.className =
-          "px-3 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-semibold";
-        break;
+      roleBadge.className =
+        "px-3 py-1 text-xs rounded-full bg-primary/20 text-primary font-semibold";
 
-      case "admin":
-        roleBadge.className =
-          "px-3 py-1 text-xs rounded-full bg-primary/10 text-primary font-semibold";
-        break;
+      break;
 
-      default:
-        roleBadge.className =
-          "px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700 font-medium";
-    }
 
+    default:
+
+      roleBadge.className =
+        "px-3 py-1 text-xs rounded-full bg-white/10 text-soft font-medium";
+
+  }
+
+}
 
     // Friends / Posts
     document.getElementById("friendsCount").innerText =
