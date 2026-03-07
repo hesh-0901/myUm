@@ -11,66 +11,102 @@
 
   <script>
     tailwind.config = {
-      theme: { extend: {
-        colors: { primary:'#1A3668', medium:'#2596D9', lightblue:'#3FA9F5' },
-        fontFamily: { display:['Inter','sans-serif'] }
-      } }
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1A3668',
+            medium: '#2596D9',
+            lightblue: '#3FA9F5',
+            danger: '#DC2626'
+          },
+          fontFamily: {
+            display: ['Inter', 'sans-serif']
+          }
+        }
+      }
     }
   </script>
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800">
-  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col">
+<body class="bg-gray-100 font-display text-gray-800 flex justify-center overflow-x-hidden">
 
-    <!-- ===============================
-         ROOM HEADER (STABLE)
-    ================================= -->
-    <header class="sticky top-0 bg-white border-b border-gray-100 z-10">
-      <div class="px-4 py-3 flex items-center justify-between">
+  <!-- ============================================================
+       APP SHELL
+       Rôle :
+       - Conteneur principal mobile-first
+       - Respecte la directive UI (max 420px)
+  ============================================================ -->
+  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
-        <button id="backBtn" class="text-sm font-semibold text-primary">
-          ← Conversations
+    <!-- ============================================================
+         HEADER ROOM
+         Rôle :
+         - Navigation retour
+         - Avatar + nom + statut + typing
+         - Entrée stable pour le JS
+    ============================================================ -->
+    <header class="sticky top-0 z-20 bg-white border-b border-gray-100">
+      <div class="px-4 py-3 flex items-center justify-between gap-3">
+
+        <!-- Retour vers liste conversations -->
+        <button id="backBtn"
+          class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+          <i class="bi bi-arrow-left"></i>
         </button>
 
-        <div class="flex items-center gap-3 min-w-0 flex-1 justify-center">
+        <!-- Identité du contact -->
+        <div class="flex items-center gap-3 min-w-0 flex-1">
           <div id="roomAvatar"
-            class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
+            class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">
             —
           </div>
 
           <div class="min-w-0">
             <div id="roomTitle" class="font-semibold text-sm truncate">—</div>
             <div id="roomSub" class="text-xs text-gray-400 truncate">—</div>
-            <div id="typingIndicator" class="text-xs text-gray-400 hidden">… écrit</div>
+            <div id="typingIndicator" class="text-xs text-lightblue hidden truncate">
+              … écrit
+            </div>
           </div>
         </div>
 
-        <button id="dashBtn" class="text-sm font-semibold text-primary">
-          Chat
+        <!-- Retour menu chat -->
+        <button id="chatHomeBtn"
+          class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+          <i class="bi bi-chat-dots"></i>
         </button>
-
       </div>
     </header>
 
-    <!-- ===============================
-         MESSAGES
-    ================================= -->
-    <main class="flex-1 p-4 space-y-3 overflow-y-auto" id="messages"></main>
+    <!-- ============================================================
+         ZONE MESSAGES
+         Rôle :
+         - Affiche les bulles en temps réel
+         - Scroll principal de la room
+    ============================================================ -->
+    <main id="messagesWrapper" class="flex-1 overflow-y-auto bg-gray-100 px-3 py-4">
+      <div id="messages" class="space-y-2"></div>
 
-    <div id="emptyState" class="hidden text-center text-sm text-gray-500 px-4 pb-4">
-      Aucun message.
-    </div>
+      <div id="emptyState" class="hidden text-center text-sm text-gray-500 pt-10">
+        Aucun message pour l’instant.
+      </div>
+    </main>
 
-    <!-- ===============================
-         INPUT BAR
-    ================================= -->
+    <!-- ============================================================
+         BARRE DE SAISIE
+         Rôle :
+         - Champ message
+         - Bouton envoyer
+    ============================================================ -->
     <footer class="sticky bottom-0 bg-white border-t border-gray-100">
       <div class="px-3 py-3 flex items-center gap-2">
         <input id="messageInput"
-               class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue"
-               placeholder="Écrire un message…" />
+          type="text"
+          placeholder="Écrire un message..."
+          class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue text-sm" />
+
         <button id="sendBtn"
-                class="px-4 py-3 rounded-2xl bg-primary text-white font-semibold active:scale-95 transition">
+          class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center active:scale-95 transition shadow-sm">
           <i class="bi bi-send-fill"></i>
         </button>
       </div>
@@ -78,7 +114,21 @@
 
   </div>
 
+  <!-- ============================================================
+       APP INIT GLOBAL
+       Rôle :
+       - Session
+       - Presence
+       - Notifications
+       - Toujours via app-init.js
+  ============================================================ -->
   <script type="module" src="../mains.js/app-init.js"></script>
+
+  <!-- ============================================================
+       ROOM LOGIC
+       Rôle :
+       - Toute la logique métier de la conversation
+  ============================================================ -->
   <script type="module" src="./js/chat-room.js"></script>
 </body>
 </html>
