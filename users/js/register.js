@@ -186,27 +186,63 @@ document.getElementById("downloadCredentials").addEventListener("click",()=>{
 const username = document.getElementById("credUsername").textContent;
 const password = document.getElementById("credPassword").textContent;
 
-const content = `
-MyUm - Vos identifiants
 
-Identifiant : ${username}
-Mot de passe : ${password}
+// ================================
+// CREATE CANVAS
+// ================================
 
-Votre compte est en attente de validation par un administrateur.
-`;
+const canvas = document.createElement("canvas");
 
-const blob = new Blob([content],{type:"text/plain"});
+canvas.width = 800;
+canvas.height = 450;
 
-const url = URL.createObjectURL(blob);
+const ctx = canvas.getContext("2d");
+
+
+// ================================
+// BACKGROUND
+// ================================
+
+ctx.fillStyle = "#1A3668";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+
+// ================================
+// TITLE
+// ================================
+
+ctx.fillStyle = "#ffffff";
+ctx.font = "bold 40px Inter";
+
+ctx.fillText("MyUm",50,80);
+
+
+// ================================
+// TEXT
+// ================================
+
+ctx.font = "24px Inter";
+
+ctx.fillText(`Identifiant : ${username}`,50,200);
+ctx.fillText(`Mot de passe : ${password}`,50,260);
+
+ctx.font = "18px Inter";
+
+ctx.fillText("Compte en attente de validation admin",50,340);
+
+
+// ================================
+// EXPORT JPG
+// ================================
+
+const image = canvas.toDataURL("image/jpeg",0.9);
 
 const a = document.createElement("a");
 
-a.href = url;
-a.download = "mes-identifiants-myum.txt";
+a.href = image;
+a.download = "identifiants-myum.jpg";
 
 a.click();
-
-URL.revokeObjectURL(url);
 
 });
 
