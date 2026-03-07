@@ -2,25 +2,27 @@
 
 import { db } from "../../mains.js/firebase-config.js";
 import {
-  collection, doc, getDoc, query, where, orderBy, limit, onSnapshot
+  collection,
+  doc,
+  getDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ============================================================
-   CHAT LIST (CONVERSATIONS)
-   Utilité:
-   - Charger les chats où je suis participant (realtime)
-   - Afficher avatar + badge non lus + online dot
-   Index Firestore:
-   - chats: participants (array-contains) + updatedAt desc
+   BLOC 1 : SESSION
 ============================================================ */
-
-/* =========================
-   SESSION
-========================= */
 function getCurrentUser() {
-  try { return JSON.parse(localStorage.getItem("myum_user")); }
-  catch { return null; }
+  try {
+    return JSON.parse(localStorage.getItem("myum_user"));
+  } catch {
+    return null;
+  }
 }
+
 const me = getCurrentUser();
 const myId = me?.id;
 
@@ -29,9 +31,9 @@ if (!myId) {
   window.location.href = "../users/login.html";
 }
 
-/* =========================
-   DOM
-========================= */
+/* ============================================================
+   BLOC 2 : DOM
+============================================================ */
 const backBtn = document.getElementById("backBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const filterInput = document.getElementById("filterInput");
@@ -41,10 +43,16 @@ const emptyState = document.getElementById("emptyState");
 backBtn?.addEventListener("click", () => (window.location.href = "index.html"));
 refreshBtn?.addEventListener("click", () => listenChats(true));
 
+/* ============================================================
+   BLOC 3 : ÉTAT LOCAL
+============================================================ */
 let cached = [];
-let unsub = null;
+let unsubscribeChats = null;
 const profileCache = new Map();
 
+/* ============================================================
+   BLOC 4 : INIT
+============================================================ */
 init();
 
 function init() {
@@ -52,16 +60,25 @@ function init() {
 
   filterInput?.addEventListener("input", () => {
     const v = (filterInput.value || "").trim().toLowerCase();
-    const items = v ? cached.filter(x => (x.display || "").toLowerCase().includes(v)) : cached;
+    const items = v
+      ? cached.filter((x) => (x.display || "").toLowerCase().includes(v))
+      : cached;
     render(items);
   });
 }
 
-/* =========================
-   LISTEN CHATS (REALTIME)
-========================= */
+/* ============================================================
+   BLOC 5 : LISTEN CHATS
+   Rôle :
+   - Realtime list
+   - Badge non lu
+   - Typing indicator dans la liste
+============================================================ */
 function listenChats(forceRestart) {
-  if (forceRestart && unsub) { unsub(); unsub = null; }
+  if (forceRestart && unsubscribeChats) {
+    unsubscribeChats();
+    unsubscribeChats = null;
+  }
 
   chatList.innerHTML = `<div class="text-sm text-gray-500">Chargement…</div>`;
   emptyState?.classList.add("hidden");
@@ -74,55 +91,72 @@ function listenChats(forceRestart) {
     limit(50)
   );
 
-  if (unsub) unsub();
+  if (unsubscribeChats) unsubscribeChats();
 
-  unsub = onSnapshot(q, async (snap) => {
+  unsubscribeChats = onSnapshot(q, async (snap) => {
     if (snap.empty) {
       cached = [];
       render([]);
       return;
     }
 
-    const items = await Promise.all(snap.docs.map(async (d) => {
-      const c = d.data();
-      const participants = c.participants || [];
-      const otherId = participants.find(p => p !== myId) || null;
+    const items = await Promise.all(
+      snap.docs.map(async (d) => {
+        const c = d.data();
+        const participants = c.participants || [];
+        const otherId = participants.find((p) => p !== myId) || null;
 
-      const u = otherId ? await getProfile(otherId) : { display: "Discussion", photoURL: null, initials:"—", online:false };
-      const unread = (c.unreadCount && c.unreadCount[myId]) ? c.unreadCount[myId] : 0;
+        const u = otherId
+          ? await getProfile(otherId)
+          : { display: "Discussion", photoURL: null, initials: "—", online: false };
 
-      return {
-        chatId: d.id,
-        otherId,
-        display: u.display,
-        photoURL: u.photoURL,
-        initials: u.initials,
-        online: u.online,
-        lastMessage: c.lastMessage || "—",
-        updatedAt: c.updatedAt || null,
-        unread
-      };
-    }));
+        const unread = (c.unreadCount && c.unreadCount[myId]) ? c.unreadCount[myId] : 0;
+
+        const typingMap = c.typing || {};
+        const otherTyping = otherId ? typingMap[otherId] === true : false;
+
+        return {
+          chatId: d.id,
+          otherId,
+          display: u.display,
+          photoURL: u.photoURL,
+          initials: u.initials,
+          online: u.online,
+          lastMessage: c.lastMessage || "—",
+          updatedAt: c.updatedAt || null,
+          unread,
+          typing: otherTyping
+        };
+      })
+    );
 
     cached = items;
 
     const v = (filterInput?.value || "").trim().toLowerCase();
-    render(v ? cached.filter(x => (x.display || "").toLowerCase().includes(v)) : cached);
-
+    render(
+      v
+        ? cached.filter((x) => (x.display || "").toLowerCase().includes(v))
+        : cached
+    );
   }, (err) => {
     console.error("chat list error:", err);
     chatList.innerHTML = `<div class="text-sm text-red-600">Erreur chargement conversations.</div>`;
   });
 }
 
-/* =========================
-   PROFILE CACHE
-========================= */
+/* ============================================================
+   BLOC 6 : PROFILE CACHE
+============================================================ */
 async function getProfile(uid) {
   if (profileCache.has(uid)) return profileCache.get(uid);
 
   const snap = await getDoc(doc(db, "users", uid)).catch(() => null);
-  let firstName = "", lastName = "", username = "", photoURL = null, lastSeenDate = null;
+
+  let firstName = "";
+  let lastName = "";
+  let username = "";
+  let photoURL = null;
+  let lastSeenDate = null;
 
   if (snap && snap.exists()) {
     const u = snap.data();
@@ -134,7 +168,7 @@ async function getProfile(uid) {
   }
 
   const display =
-    (`${firstName} ${lastName}`).trim() ||
+    `${firstName} ${lastName}`.trim() ||
     username ||
     uid;
 
@@ -143,17 +177,21 @@ async function getProfile(uid) {
     (username?.[0] || "").toUpperCase() ||
     "—";
 
-  // ✅ online fiable = lastSeen récent
-  const online = lastSeenDate ? (Date.now() - lastSeenDate.getTime() < 45000) : false;
+  const online = lastSeenDate
+    ? (Date.now() - lastSeenDate.getTime() < 45000)
+    : false;
 
   const data = { display, photoURL, initials, online };
   profileCache.set(uid, data);
   return data;
 }
 
-/* =========================
-   RENDER (ROW CLICKABLE)
-========================= */
+/* ============================================================
+   BLOC 7 : RENDER
+   Rôle :
+   - Toute la ligne ouvre la conversation
+   - Si typing = true, on remplace le dernier message
+============================================================ */
 function render(items) {
   chatList.innerHTML = "";
 
@@ -161,11 +199,13 @@ function render(items) {
     emptyState?.classList.remove("hidden");
     return;
   }
+
   emptyState?.classList.add("hidden");
 
-  items.forEach(c => {
+  items.forEach((c) => {
     const row = document.createElement("div");
-    row.className = "p-3 rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shadow-sm";
+    row.className =
+      "p-3 rounded-2xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shadow-sm";
     row.style.cursor = "pointer";
 
     const timeText = formatTime(c.updatedAt);
@@ -186,7 +226,12 @@ function render(items) {
             <div class="font-semibold text-sm truncate">${escapeHtml(c.display)}</div>
             <div class="text-[11px] text-gray-400 whitespace-nowrap">${escapeHtml(timeText)}</div>
           </div>
-          <div class="text-xs text-gray-500 truncate">${escapeHtml(c.lastMessage || "—")}</div>
+
+          <div class="text-xs truncate ${
+            c.typing ? "text-lightblue font-medium" : "text-gray-500"
+          }">
+            ${c.typing ? "… écrit" : escapeHtml(c.lastMessage || "—")}
+          </div>
         </div>
       </div>
 
@@ -196,17 +241,17 @@ function render(items) {
             ? `<span class="min-w-[22px] h-[22px] px-2 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center">${c.unread}</span>`
             : ``
         }
-        <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">Ouvrir</button>
+        <button class="openBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
+          Ouvrir
+        </button>
       </div>
     `;
 
-    // ✅ clic sur toute la ligne
     row.addEventListener("click", () => {
       if (!c.otherId) return;
       window.location.href = `room.html?uid=${encodeURIComponent(c.otherId)}`;
     });
 
-    // ✅ bouton ouvre aussi, mais empêche double event
     row.querySelector(".openBtn")?.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!c.otherId) return;
@@ -217,9 +262,9 @@ function render(items) {
   });
 }
 
-/* =========================
-   HELPERS
-========================= */
+/* ============================================================
+   BLOC 8 : HELPERS
+============================================================ */
 function formatTime(ts) {
   if (!ts) return "";
   try {
@@ -232,9 +277,14 @@ function formatTime(ts) {
 
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
   }[m]));
 }
+
 function escapeAttr(str) {
   return String(str).replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
