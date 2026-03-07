@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des annonces</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; }
+        h1 { text-align: center; }
+        .annonce { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .pagination { text-align: center; margin-top: 20px; }
+        button { cursor: pointer; }
+        form { margin-bottom: 20px; }
+        input, textarea { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
+    </style>
+</head>
+<body>
+
+<h1>Gestion des annonces</h1>
+
+<!-- Formulaire ajout -->
+<form id="addForm">
+    <input type="text" id="titre" placeholder="Titre" required>
+    <textarea id="message" placeholder="Message" required></textarea>
+    <input type="text" id="categorie" placeholder="Catégorie" required>
+    <input type="date" id="date_publication" required>
+    <button type="submit">Ajouter</button>
+</form>
+
+<!-- Liste des annonces -->
+<div id="annonces"></div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <button id="prevBtn">Précédent</button>
+    <span id="pageInfo">Page 1</span>
+    <button id="nextBtn">Suivant</button>
+</div>
+
+<script src="js/annonce-admin.js"></script>
+</body>
+</html>
