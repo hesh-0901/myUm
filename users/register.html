@@ -1,13 +1,69 @@
 <!DOCTYPE html>
 <html lang="fr">
 
-<body class="bg-primary min-h-screen flex justify-center overflow-x-hidden font-[Inter]">
+<head>
 
-<div class="w-full max-w-[420px] min-h-screen bg-primary text-white flex flex-col">
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Créer un compte - MyUm</title>
+
+<link rel="manifest" href="/myUm/manifest.json">
+<link rel="icon" href="/myUm/assets/favicon.png">
+
+<meta name="theme-color" content="#1A3668">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Fonts -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+rel="stylesheet">
+
+<!-- Icons -->
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<!-- Tailwind -->
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#1A3668',
+medium: '#2596D9',
+lightblue: '#3FA9F5',
+danger: '#DC2626'
+},
+fontFamily: {
+display: ['Inter', 'sans-serif']
+}
+}
+}
+}
+</script>
+
+</head>
+
+
+
+<body class="bg-primary min-h-screen flex justify-center overflow-x-hidden font-display">
+
+<div class="w-full max-w-[420px] min-h-screen bg-primary text-white flex flex-col overflow-hidden">
 
 <!-- HEADER -->
 
-<header class="flex items-center gap-3 p-5">
+<header class="flex items-center gap-3 p-5 border-b border-white/10">
 
 <a href="/myUm/index.html"
 class="text-white/70 text-lg hover:text-white transition">
@@ -23,12 +79,12 @@ Créer un compte
 </header>
 
 
+
 <!-- MAIN -->
 
-<main class="flex-1 overflow-y-auto px-5 pb-10">
+<main class="flex-1 overflow-y-auto px-5 pb-20">
 
 <form id="registerForm" class="space-y-5">
-
 
 <!-- PHOTO PROFIL -->
 
@@ -43,10 +99,10 @@ Photo de profil
 <img
 id="photoPreview"
 src="/myUm/assets/default-avatar.png"
-class="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-lg">
+class="w-24 h-24 rounded-full object-cover border-2 border-white/30 shadow-md">
 
 <label
-class="absolute bottom-0 right-0 bg-gradient-to-r from-medium to-lightblue text-white rounded-full p-2 cursor-pointer shadow-md active:scale-95 transition">
+class="absolute bottom-0 right-0 bg-gradient-to-r from-medium to-lightblue text-white rounded-full p-2.5 cursor-pointer shadow-md active:scale-95 transition">
 
 <i class="bi bi-camera"></i>
 
@@ -63,6 +119,7 @@ hidden>
 </div>
 
 
+
 <!-- PRENOM -->
 
 <div>
@@ -74,10 +131,12 @@ Prénom
 <input
 id="firstName"
 required
+autocomplete="given-name"
 placeholder="Votre prénom"
 class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
+
 
 
 <!-- NOM -->
@@ -91,10 +150,12 @@ Nom
 <input
 id="lastName"
 required
+autocomplete="family-name"
 placeholder="Votre nom"
 class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
+
 
 
 <!-- DATE -->
@@ -114,6 +175,7 @@ class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base 
 </div>
 
 
+
 <!-- AGE -->
 
 <div>
@@ -129,6 +191,7 @@ placeholder="Calcul automatique"
 class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-base text-white">
 
 </div>
+
 
 
 <!-- FONCTION -->
@@ -162,6 +225,7 @@ class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base 
 </div>
 
 
+
 <!-- CHORALE -->
 
 <div>
@@ -189,6 +253,7 @@ class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base 
 </div>
 
 
+
 <!-- TELEPHONE -->
 
 <div>
@@ -200,10 +265,12 @@ Téléphone
 <input
 id="phone"
 required
+autocomplete="tel"
 placeholder="Ex : +243..."
 class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
+
 
 
 <!-- PASSWORD -->
@@ -218,10 +285,12 @@ Mot de passe
 type="password"
 id="password"
 required
+autocomplete="new-password"
 placeholder="Votre mot de passe"
 class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
+
 
 
 <!-- CONFIRM -->
@@ -242,16 +311,16 @@ class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base 
 </div>
 
 
+
 <!-- BOUTON -->
 
 <button
 type="submit"
-class="w-full mt-4 py-3 rounded-2xl bg-gradient-to-r from-medium to-lightblue text-base font-semibold shadow-md active:scale-95 transition">
+class="w-full mt-4 py-3 rounded-2xl bg-gradient-to-r from-medium to-lightblue text-base font-semibold shadow-md active:scale-95 hover:opacity-90 transition">
 
 Créer mon compte
 
 </button>
-
 
 </form>
 
@@ -260,7 +329,9 @@ Créer mon compte
 </div>
 
 
+
 <script type="module" src="/myUm/users/js/register.js"></script>
 
 </body>
+
 </html>
