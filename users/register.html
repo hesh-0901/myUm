@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,7 +12,9 @@
 <meta name="theme-color" content="#1A3668">
 
 <script src="https://cdn.tailwindcss.com"></script>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script>
@@ -33,12 +36,14 @@ danger: '#DC2626'
 
 <body class="bg-primary min-h-screen flex justify-center overflow-x-hidden font-[Inter]">
 
-<div class="w-full max-w-[420px] min-h-screen bg-primary text-white flex flex-col overflow-hidden">
+<div class="w-full max-w-[420px] min-h-screen bg-primary text-white flex flex-col">
 
-<header class="p-5 border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 flex items-center gap-3">
+<!-- HEADER -->
+
+<header class="flex items-center gap-3 p-5 border-b border-white/20">
 
 <a href="/myUm/index.html"
-class="text-gray-600 text-lg">
+class="text-white/70 text-lg hover:text-white transition">
 <i class="bi bi-arrow-left"></i>
 </a>
 
@@ -48,134 +53,237 @@ Créer un compte
 
 </header>
 
-<main class="flex-1 overflow-y-auto p-5 space-y-5">
 
-<form id="registerForm" class="space-y-4">
+<!-- MAIN -->
+
+<main class="flex-1 overflow-y-auto p-5 space-y-6">
+
+<form id="registerForm" class="space-y-6">
+
 
 <!-- PHOTO -->
-<div class="flex flex-col items-center gap-2">
 
-<label class="text-xs text-white/70">Photo de profil</label>
+<div class="flex flex-col items-center gap-3">
+
+<label class="text-xs text-white/70">
+Photo de profil
+</label>
 
 <div class="relative">
-<img id="photoPreview"
+
+<img
+id="photoPreview"
 src="/myUm/assets/default-avatar.png"
-class="w-24 h-24 rounded-full object-cover border">
+class="w-24 h-24 rounded-full object-cover border-2 border-white/30 shadow-md">
 
-<label class="absolute bottom-0 right-0 bg-gradient-to-r from-medium to-lightblue text-white rounded-full p-2 cursor-pointer shadow-md">
+<label
+class="absolute bottom-0 right-0 bg-gradient-to-r from-medium to-lightblue text-white rounded-full p-2 cursor-pointer shadow-md active:scale-95 transition">
+
 <i class="bi bi-camera"></i>
-<input type="file" id="photoInput" accept="image/*" hidden>
+
+<input
+type="file"
+id="photoInput"
+accept="image/*"
+hidden>
+
 </label>
+
 </div>
 
 </div>
+
 
 <!-- PRENOM -->
+
 <div>
-<label class="text-xs text-white/70">Prénom</label>
-<input id="firstName" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm focus:outline-none">
+
+<label class="text-xs text-white/70">
+Prénom
+</label>
+
+<input
+id="firstName"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
+
 </div>
+
 
 <!-- NOM -->
+
 <div>
-<label class="text-xs text-white/70">Nom</label>
-<input id="lastName" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm focus:outline-none">
+
+<label class="text-xs text-white/70">
+Nom
+</label>
+
+<input
+id="lastName"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
+
 </div>
+
 
 <!-- DATE -->
+
 <div>
-<label class="text-xs text-white/70">Date de naissance</label>
-<input type="date" id="birthday" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm focus:outline-none">
+
+<label class="text-xs text-white/70">
+Date de naissance
+</label>
+
+<input
+type="date"
+id="birthday"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
+
 </div>
+
 
 <!-- AGE AUTO -->
+
 <div>
-<label class="text-xs text-white/70">Âge</label>
-<input id="age" readonly
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm bg-gray-100">
+
+<label class="text-xs text-white/70">
+Âge
+</label>
+
+<input
+id="age"
+readonly
+class="w-full bg-white/10 border-b border-white/30 py-2 text-sm text-white">
+
 </div>
+
 
 <!-- FONCTION -->
+
 <div>
-<label class="text-xs text-white/70">Fonction</label>
 
-<select id="fonction" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
+<label class="text-xs text-white/70">
+Fonction
+</label>
 
-<option value="">Sélectionner</option>
+<select
+id="fonction"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
 
-<option>Administrateur</option>
-<option>Corps administratif</option>
-<option>Visiteur</option>
-<option>Président</option>
-<option>Vice Président</option>
-<option>Responsable UM</option>
-<option>Comité chorale</option>
-<option>Choriste</option>
-<option>Conducteur</option>
-<option>Instrumentiste</option>
+<option value="" class="text-black">Sélectionner</option>
+
+<option class="text-black">Administrateur</option>
+<option class="text-black">Corps administratif</option>
+<option class="text-black">Visiteur</option>
+<option class="text-black">Président</option>
+<option class="text-black">Vice Président</option>
+<option class="text-black">Responsable UM</option>
+<option class="text-black">Comité chorale</option>
+<option class="text-black">Choriste</option>
+<option class="text-black">Conducteur</option>
+<option class="text-black">Instrumentiste</option>
 
 </select>
 
 </div>
+
 
 <!-- CHORALE -->
+
 <div>
-<label class="text-xs text-white/70">Chorale</label>
 
-<select id="chorale" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
+<label class="text-xs text-white/70">
+Chorale
+</label>
 
-<option value="">Sélectionner</option>
+<select
+id="chorale"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
 
-<option value="PC">Prophetic Choir</option>
-<option value="WS">Wake up song</option>
-<option value="VN">Vent Nouveau</option>
-<option value="IN">Instrumentiste</option>
-<option value="AD">Administration</option>
-<option value="GT">Visiteur</option>
+<option value="" class="text-black">Sélectionner</option>
+
+<option value="PC" class="text-black">Prophetic Choir</option>
+<option value="WS" class="text-black">Wake up song</option>
+<option value="VN" class="text-black">Vent Nouveau</option>
+<option value="IN" class="text-black">Instrumentiste</option>
+<option value="AD" class="text-black">Administration</option>
+<option value="GT" class="text-black">Visiteur</option>
 
 </select>
 
 </div>
 
+
 <!-- PHONE -->
+
 <div>
-<label class="text-xs text-white/70">Téléphone</label>
-<input id="phone" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
+
+<label class="text-xs text-white/70">
+Téléphone
+</label>
+
+<input
+id="phone"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
+
 </div>
+
 
 <!-- PASSWORD -->
+
 <div>
-<label class="text-xs text-white/70">Mot de passe</label>
-<input type="password" id="password" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
+
+<label class="text-xs text-white/70">
+Mot de passe
+</label>
+
+<input
+type="password"
+id="password"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
+
 </div>
 
-<!-- CONFIRM -->
+
+<!-- CONFIRM PASSWORD -->
+
 <div>
-<label class="text-xs text-white/70">Confirmer</label>
-<input type="password" id="confirmPassword" required
-class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
+
+<label class="text-xs text-white/70">
+Confirmer
+</label>
+
+<input
+type="password"
+id="confirmPassword"
+required
+class="w-full bg-transparent border-b border-white/30 py-2 text-sm text-white focus:outline-none focus:border-lightblue">
+
 </div>
+
+
+<!-- BOUTON -->
 
 <button
 type="submit"
-class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-white text-sm font-semibold shadow-md active:scale-95 transition">
+class="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-sm font-semibold shadow-md active:scale-95 transition">
 
 Créer mon compte
 
 </button>
+
 
 </form>
 
 </main>
 
 </div>
+
 
 <script type="module" src="/myUm/users/js/register.js"></script>
 
