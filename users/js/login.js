@@ -10,10 +10,17 @@ getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-document.addEventListener("DOMContentLoaded", () => {
+// ============================
+// DOM READY
+// ============================
+
+document.addEventListener("DOMContentLoaded", initLogin);
+
+function initLogin(){
 
 const form = document.getElementById("loginForm");
 const passwordToggle = document.querySelector(".togglePassword");
+
 const loginMain = document.getElementById("loginMain");
 
 const autoModal = document.getElementById("autoLoginModal");
@@ -22,6 +29,7 @@ const cancelBtn = document.getElementById("cancelAutoLogin");
 
 const nameEl = document.getElementById("autoLoginName");
 const usernameEl = document.getElementById("autoLoginUsername");
+
 const avatarImg = document.getElementById("autoAvatarImg");
 const avatarInitials = document.getElementById("autoAvatarInitials");
 
@@ -41,17 +49,20 @@ if(passwordInput) passwordInput.value = "";
 // AUTO LOGIN CHECK
 // ============================
 
-const savedUser = localStorage.getItem("myum_user");
-
 let autoUser = null;
 
-if(savedUser){
-
 try{
+
+const savedUser = localStorage.getItem("myum_user");
+
+if(savedUser){
 autoUser = JSON.parse(savedUser);
-}catch(e){
-localStorage.removeItem("myum_user");
 }
+
+}catch(e){
+
+localStorage.removeItem("myum_user");
+autoUser = null;
 
 }
 
@@ -63,12 +74,15 @@ localStorage.removeItem("myum_user");
 if(autoUser){
 
 if(loginMain){
-loginMain.classList.add("hidden");
+loginMain.style.display = "none";
 }
 
 if(autoModal){
 autoModal.classList.remove("hidden");
 }
+
+
+// nom utilisateur
 
 if(nameEl){
 nameEl.textContent = `${autoUser.firstName} ${autoUser.lastName}`;
@@ -128,7 +142,6 @@ autoModal.classList.add("hidden");
 
 if(loginMain){
 loginMain.style.display = "block";
-loginMain.classList.remove("hidden");
 }
 
 });
@@ -141,7 +154,6 @@ loginMain.classList.remove("hidden");
 
 if(loginMain){
 loginMain.style.display = "block";
-loginMain.classList.remove("hidden");
 }
 
 }
@@ -189,8 +201,10 @@ e.preventDefault();
 const rememberCheck = document.getElementById("rememberMe");
 
 if(!usernameInput || !passwordInput){
+
 alert("Erreur formulaire.");
 return;
+
 }
 
 const username = usernameInput.value.trim().toUpperCase();
@@ -199,8 +213,10 @@ const password = passwordInput.value;
 const remember = rememberCheck ? rememberCheck.checked : false;
 
 if(!username || !password){
+
 alert("Veuillez remplir tous les champs.");
 return;
+
 }
 
 try{
@@ -213,8 +229,10 @@ where("username","==",username)
 const querySnapshot = await getDocs(q);
 
 if(querySnapshot.empty){
+
 alert("Utilisateur introuvable.");
 return;
+
 }
 
 const userDoc = querySnapshot.docs[0];
@@ -306,7 +324,8 @@ alert("Erreur lors de la connexion.");
 
 }
 
-});
+}
+
 
 
 // ============================
@@ -316,6 +335,7 @@ alert("Erreur lors de la connexion.");
 async function hashPassword(password){
 
 const encoder = new TextEncoder();
+
 const data = encoder.encode(password);
 
 const hashBuffer = await crypto.subtle.digest("SHA-256",data);
