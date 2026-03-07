@@ -98,7 +98,25 @@ alert("Impossible de créer le compte.");
 return;
 
 }
+/* vérifier si la personne existe déjà */
 
+const qPerson = query(
+  collection(db, "users"),
+  where("firstName", "==", firstName),
+  where("lastName", "==", lastName),
+  where("birthday", "==", birthday)
+);
+
+const snapPerson = await getDocs(qPerson);
+
+if (!snapPerson.empty) {
+  safeToast(
+    "error",
+    "Compte déjà existant",
+    "Un compte existe déjà avec ces informations."
+  );
+  return;
+}
 
 /* username */
 
