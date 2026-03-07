@@ -1,1 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UM Agenda</title>
+<link rel="stylesheet" href="css/style.css">
 
+<!-- Firebase App -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h1>UM Agenda</h1>
+
+  <!-- Filtres -->
+  <div class="filtres">
+    <button class="filtre actif" data-filtre="tous">Tous</button>
+    <button class="filtre" data-filtre="UM">UM</button>
+    <button class="filtre" data-filtre="PC">PC</button>
+    <button class="filtre" data-filtre="WS">WS</button>
+    <button class="filtre" data-filtre="VN">VN</button>
+  </div>
+
+  <!-- Conteneur des annonces -->
+  <div id="annonces"></div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDUuDQi3xzCT7lV1lOf3rhq724rfHhiTIQ",
+  authDomain: "umapp-72f36.firebaseapp.com",
+  projectId: "umapp-72f36",
+  storageBucket: "umapp-72f36.firebasestorage.app",
+  messagingSenderId: "483188283543",
+  appId: "1:483188283543:web:b52415f83bf21bad2071d2",
+  measurementId: "G-6X2ELMB8RY"
+};
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+<script src="js/script.js"></script>
+</body>
+</html>
