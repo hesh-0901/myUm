@@ -52,6 +52,10 @@ display: ['Inter', 'sans-serif']
 }
 }
 </script>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 </head>
 
@@ -325,6 +329,45 @@ Créer mon compte
 </form>
 
 </main>
+
+</div>
+
+<!-- CROP MODAL -->
+
+<div id="cropModal"
+class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+
+<div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
+
+<h2 class="text-lg font-semibold mb-3 text-black">
+Ajuster la photo
+</h2>
+
+<div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+
+<img id="cropImage" class="max-w-full">
+
+</div>
+
+<div class="flex justify-end gap-3 mt-4">
+
+<button id="cancelCrop"
+class="px-4 py-2 text-sm bg-gray-200 rounded-lg text-black">
+
+Annuler
+
+</button>
+
+<button id="confirmCrop"
+class="px-4 py-2 text-sm bg-primary text-white rounded-lg">
+
+Valider
+
+</button>
+
+</div>
+
+</div>
 
 </div>
 
