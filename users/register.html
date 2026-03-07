@@ -14,14 +14,38 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#1A3668',
+medium: '#2596D9',
+lightblue: '#3FA9F5',
+danger: '#DC2626'
+}
+}
+}
+}
+</script>
+
 </head>
 
-<body class="bg-gray-100 flex justify-center overflow-x-hidden font-[Inter]">
+<body class="bg-primary min-h-screen flex justify-center overflow-x-hidden font-[Inter]">
 
-<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+<div class="w-full max-w-[420px] min-h-screen bg-primary text-white flex flex-col overflow-hidden">
 
-<header class="p-5 border-b">
-<h1 class="text-lg font-semibold">Créer un compte</h1>
+<header class="p-5 border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 flex items-center gap-3">
+
+<a href="/myUm/index.html"
+class="text-gray-600 text-lg">
+<i class="bi bi-arrow-left"></i>
+</a>
+
+<h1 class="text-lg font-semibold">
+Créer un compte
+</h1>
+
 </header>
 
 <main class="flex-1 overflow-y-auto p-5 space-y-5">
@@ -31,14 +55,14 @@
 <!-- PHOTO -->
 <div class="flex flex-col items-center gap-2">
 
-<label class="text-xs text-gray-500">Photo de profil</label>
+<label class="text-xs text-white/70">Photo de profil</label>
 
 <div class="relative">
 <img id="photoPreview"
 src="/myUm/assets/default-avatar.png"
 class="w-24 h-24 rounded-full object-cover border">
 
-<label class="absolute bottom-0 right-0 bg-medium text-white rounded-full p-2 cursor-pointer">
+<label class="absolute bottom-0 right-0 bg-gradient-to-r from-medium to-lightblue text-white rounded-full p-2 cursor-pointer shadow-md">
 <i class="bi bi-camera"></i>
 <input type="file" id="photoInput" accept="image/*" hidden>
 </label>
@@ -48,38 +72,38 @@ class="w-24 h-24 rounded-full object-cover border">
 
 <!-- PRENOM -->
 <div>
-<label class="text-xs text-gray-500">Prénom</label>
+<label class="text-xs text-white/70">Prénom</label>
 <input id="firstName" required
-class="w-full border-b py-2 text-sm focus:outline-none">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm focus:outline-none">
 </div>
 
 <!-- NOM -->
 <div>
-<label class="text-xs text-gray-500">Nom</label>
+<label class="text-xs text-white/70">Nom</label>
 <input id="lastName" required
-class="w-full border-b py-2 text-sm focus:outline-none">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm focus:outline-none">
 </div>
 
 <!-- DATE -->
 <div>
-<label class="text-xs text-gray-500">Date de naissance</label>
+<label class="text-xs text-white/70">Date de naissance</label>
 <input type="date" id="birthday" required
-class="w-full border-b py-2 text-sm focus:outline-none">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm focus:outline-none">
 </div>
 
 <!-- AGE AUTO -->
 <div>
-<label class="text-xs text-gray-500">Âge</label>
+<label class="text-xs text-white/70">Âge</label>
 <input id="age" readonly
-class="w-full border-b py-2 text-sm bg-gray-100">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm bg-gray-100">
 </div>
 
 <!-- FONCTION -->
 <div>
-<label class="text-xs text-gray-500">Fonction</label>
+<label class="text-xs text-white/70">Fonction</label>
 
 <select id="fonction" required
-class="w-full border-b py-2 text-sm">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
 
 <option value="">Sélectionner</option>
 
@@ -100,10 +124,10 @@ class="w-full border-b py-2 text-sm">
 
 <!-- CHORALE -->
 <div>
-<label class="text-xs text-gray-500">Chorale</label>
+<label class="text-xs text-white/70">Chorale</label>
 
 <select id="chorale" required
-class="w-full border-b py-2 text-sm">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
 
 <option value="">Sélectionner</option>
 
@@ -120,27 +144,28 @@ class="w-full border-b py-2 text-sm">
 
 <!-- PHONE -->
 <div>
-<label class="text-xs text-gray-500">Téléphone</label>
+<label class="text-xs text-white/70">Téléphone</label>
 <input id="phone" required
-class="w-full border-b py-2 text-sm">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
 </div>
 
 <!-- PASSWORD -->
 <div>
-<label class="text-xs text-gray-500">Mot de passe</label>
+<label class="text-xs text-white/70">Mot de passe</label>
 <input type="password" id="password" required
-class="w-full border-b py-2 text-sm">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
 </div>
 
 <!-- CONFIRM -->
 <div>
-<label class="text-xs text-gray-500">Confirmer</label>
+<label class="text-xs text-white/70">Confirmer</label>
 <input type="password" id="confirmPassword" required
-class="w-full border-b py-2 text-sm">
+class="w-full border-b border-white/30 border-white/30 border-white/30 border-white/30 border-white/30 py-2 text-sm">
 </div>
 
 <button
-class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-white text-sm font-semibold">
+type="submit"
+class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-medium to-lightblue text-white text-sm font-semibold shadow-md active:scale-95 transition">
 
 Créer mon compte
 
