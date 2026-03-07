@@ -86,9 +86,17 @@ export async function initHeader() {
 
     if (user.photoURL) {
 
-      profileBtn.innerHTML =
-        `<img src="${user.photoURL}" 
-        class="w-full h-full object-cover rounded-full">`;
+const img = document.createElement("img");
+
+img.src = user.photoURL;
+img.className = "w-full h-full object-cover rounded-full";
+
+// cache navigateur
+img.loading = "eager";
+img.decoding = "async";
+
+profileBtn.innerHTML = "";
+profileBtn.appendChild(img);
 
     } else {
 
