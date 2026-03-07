@@ -1,119 +1,20 @@
-/* Styles globaux */
-body {
-    font-family: 'Arial', sans-serif;
-    background: #f2f2f2;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-/* Formulaire */
-form {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 30px;
-}
-
-form input, form textarea {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-
-form button {
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
-    background: #007bff;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-form button:hover {
-    background: #0056b3;
-}
-
-/* Annonce */
-.annonce {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    background: #fafafa;
-    position: relative;
-}
-
-.annonce h3 {
-    margin: 0 0 10px 0;
-    color: #007bff;
-}
-
-.annonce p {
-    margin: 0 0 10px 0;
-}
-
-.annonce small {
-    color: #555;
-}
-
-/* Bouton supprimer */
-.annonce button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 5px 10px;
-    background: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.annonce button:hover {
-    background: #a71d2a;
-}
-
-/* Pagination */
-.pagination {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.pagination button {
-    padding: 8px 15px;
-    margin: 0 5px;
-    border: none;
-    border-radius: 5px;
-    background: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.pagination button:hover {
-    background: #0056b3;
-}
-
-.pagination span {
-    font-weight: bold;
-    margin: 0 10px;
-    font-size: 16px;
-}
+body{font-family:Arial;background:#f5f6fa;padding:40px;}
+.container{width:95%;margin:auto;}
+h1{text-align:center;}
+.formulaire{background:white;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;}
+input, textarea, select{padding:10px;border:1px solid #ddd;}
+button{background:#27ae60;border:none;color:white;padding:10px 20px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;background:white;}
+th, td{padding:12px;border-bottom:1px solid #ddd;}
+th{background:#34495e;color:white;cursor:pointer;}
+.actions{display:flex;gap:12px;justify-content:center;align-items:center;}
+.action-btn{font-size:18px;cursor:pointer;transition:0.2s;}
+.action-btn:hover{transform:scale(1.2);}
+.fa-eye{color:#3498db;}
+.fa-pen{color:#f39c12;}
+.fa-trash{color:#e74c3c;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);}
+.modal-content{background:white;padding:20px;width:40%;margin:10% auto;}
+.close{float:right;cursor:pointer;font-size:20px;}
+#pagination button{padding:5px 10px;margin:2px;cursor:pointer;}
+#pagination button:hover{background:#27ae60;color:white;}
