@@ -3,6 +3,7 @@
 // ======================================
 
 import { db } from "../../mains.js/firebase-config.js";
+import { initNotifications } from "./notifications.js";
 
 import {
 doc,
@@ -155,37 +156,6 @@ user.firstName.charAt(0) +
 user.lastName.charAt(0);
 
 }
-
-}
-
-
-// ======================================
-// NOTIFICATIONS FIRESTORE
-// ======================================
-
-try{
-
-const notifQuery = query(
-collection(db,"notifications"),
-where("userId","==",user.id),
-where("read","==",false)
-);
-
-const snapshot = await getDocs(notifQuery);
-
-const badge = document.getElementById("notificationBadge");
-
-if(badge && !snapshot.empty){
-
-badge.innerText = snapshot.size;
-
-badge.classList.remove("hidden");
-
-}
-
-}catch(error){
-
-console.error("Erreur notifications :",error);
 
 }
 
