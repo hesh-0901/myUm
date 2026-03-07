@@ -19,7 +19,10 @@ export async function initHeader() {
 
 const storedUser = localStorage.getItem("myum_user");
 
-// 🔒 Sécurité session
+// ======================================
+// SECURITE SESSION
+// ======================================
+
 if (!storedUser) {
 window.location.href = "/myUm/users/login.html";
 return;
@@ -27,12 +30,16 @@ return;
 
 let user = JSON.parse(storedUser);
 
-// démarrer le module notifications
+
+// ======================================
+// DEMARRER LES NOTIFICATIONS
+// ======================================
+
 initNotifications(user.id);
 
 
 // ======================================
-// RÉCUPÉRER LES DONNÉES FIRESTORE
+// RAFRAICHIR LES DONNEES FIRESTORE
 // ======================================
 
 try {
@@ -69,73 +76,67 @@ const userNameEl = document.getElementById("userName");
 if(userNameEl){
 
 userNameEl.innerText =
-user.firstName + " " + user.lastName;
+`${user.firstName || ""} ${user.lastName || ""}`.trim();
 
 }
 
 
 // ======================================
-// AVATAR PHOTO OU INITIALES (CACHE)
+// AVATAR PHOTO OU INITIALES
 // ======================================
 
 const profileBtn = document.getElementById("profileBtn");
 
 if(profileBtn){
 
-const cachedAvatar = localStorage.getItem("myum_avatar");
+profileBtn.innerHTML = "";
 
 
 // ==============================
-// AVATAR CACHE (instant)
+// PHOTO FIREBASE
 // ==============================
 
-if(cachedAvatar){
+if(user.photoURL){
 
-profileBtn.innerHTML =
-`<img src="${cachedAvatar}"
-class="w-full h-full object-cover rounded-full">`;
+const img = document.createElement("img");
 
-}
-
-
-// ==============================
-// TELECHARGER DEPUIS FIREBASE
-// ==============================
-
-else if(user.photoURL){
-
-const img = new Image();
-
-img.crossOrigin = "anonymous";
 img.src = user.photoURL;
 
-img.onload = () => {
+img.className =
+"w-full h-full object-cover rounded-full";
 
-const canvas = document.createElement("canvas");
+img.loading = "eager";
+img.decoding = "async";
 
-canvas.width = img.width;
-canvas.height = img.height;
+img.onerror = () => {
 
-const ctx = canvas.getContext("2d");
-
-ctx.drawImage(img,0,0);
-
-const base64 = canvas.toDataURL("image/jpeg",0.8);
-
-localStorage.setItem("myum_avatar",base64);
-
-profileBtn.innerHTML =
-`<img src="${base64}" class="w-full h-full object-cover rounded-full">`;
+renderInitials();
 
 };
+
+profileBtn.appendChild(img);
+
 }
 
 
 // ==============================
-// INITIALS SI PAS DE PHOTO
+// INITIALS
 // ==============================
 
 else{
+
+renderInitials();
+
+}
+
+}
+
+
+// ======================================
+// RENDU INITIALS
+// ======================================
+
+function renderInitials(){
 
 profileBtn.classList.add(
 "bg-gradient-to-br",
@@ -149,10 +150,7 @@ profileBtn.classList.add(
 );
 
 profileBtn.innerText =
-user.firstName.charAt(0) +
-user.lastName.charAt(0);
-
-}
+`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`;
 
 }
 
