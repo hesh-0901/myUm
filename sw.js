@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v4";
+const VERSION = "v5";
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
