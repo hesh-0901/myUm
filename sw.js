@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v10";
+const VERSION = "v11";
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
@@ -154,18 +154,23 @@ async function cacheFirst(request){
 const cached = await caches.match(request);
 
 if(cached){
-
 return cached;
-
 }
 
 try{
 
 const response = await fetch(request);
 
+if(
+response &&
+(response.status === 200 || response.status === 0)
+){
+
 const cache = await caches.open(CACHE_DYNAMIC);
 
 cache.put(request,response.clone());
+
+}
 
 return response;
 
@@ -193,9 +198,16 @@ try{
 
 const response = await fetch(request);
 
+if(
+response &&
+(response.status === 200 || response.status === 0)
+){
+
 const cache = await caches.open(CACHE_DYNAMIC);
 
 cache.put(request,response.clone());
+
+}
 
 return response;
 
@@ -206,9 +218,7 @@ catch(error){
 const cached = await caches.match(request);
 
 if(cached){
-
 return cached;
-
 }
 
 return new Response("Offline",{
@@ -219,35 +229,3 @@ statusText:"Offline"
 }
 
 }
-// ===============================
-// AGE AUTO CALCUL
-// ===============================
-function initAgeCalculator() {
-
-  const birthInput = document.getElementById("birthday");
-  const ageInput = document.getElementById("age");
-
-  if (!birthInput || !ageInput) return;
-
-  birthInput.addEventListener("change", () => {
-
-    const birthDate = new Date(birthInput.value);
-
-    if (isNaN(birthDate)) return;
-
-    const today = new Date();
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-
-    const m = today.getMonth() - birthDate.getMonth();
-
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    ageInput.value = age;
-
-  });
-
-}
-
