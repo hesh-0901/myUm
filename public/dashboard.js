@@ -178,3 +178,23 @@ if (evolutionCanvas) {
   });
 
 }
+/* ============================================================
+   BLOC : BADGE CHAT DASHBOARD
+   Rôle :
+   - Écouter le total des messages non lus
+   - Mettre à jour le badge sur l’icône
+============================================================ */
+const dashboardChatBadge = document.getElementById("dashboardChatBadge");
+
+window.addEventListener("myum:chat-unread-update", (event) => {
+  const total = event.detail?.total || 0;
+
+  if (!dashboardChatBadge) return;
+
+  if (total > 0) {
+    dashboardChatBadge.textContent = total > 99 ? "99+" : String(total);
+    dashboardChatBadge.classList.remove("hidden");
+  } else {
+    dashboardChatBadge.classList.add("hidden");
+  }
+});
