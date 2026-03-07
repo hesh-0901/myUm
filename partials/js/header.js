@@ -76,49 +76,48 @@ export async function initHeader() {
   }
 
 
-  // ======================================
-  // AVATAR PHOTO OU INITIALES
-  // ======================================
+ // ======================================
+// AVATAR PHOTO OU INITIALES
+// ======================================
 
-  const profileBtn = document.getElementById("profileBtn");
+const profileBtn = document.getElementById("profileBtn");
 
-  if (profileBtn) {
+if (profileBtn) {
 
-    if (user.photoURL) {
+  if (user.photoURL) {
 
-const img = document.createElement("img");
+    const img = document.createElement("img");
 
-img.src = user.photoURL;
-img.className = "w-full h-full object-cover rounded-full";
+    img.src = user.photoURL;
+    img.className = "w-full h-full object-cover rounded-full";
 
-// cache navigateur
-img.loading = "eager";
-img.decoding = "async";
+    // cache navigateur
+    img.loading = "eager";
+    img.decoding = "async";
 
-profileBtn.innerHTML = "";
-profileBtn.appendChild(img);
+    profileBtn.innerHTML = "";
+    profileBtn.appendChild(img);
 
-    } else {
+  } else {
 
-      profileBtn.classList.add(
-        "bg-gradient-to-br",
-        "from-primary",
-        "to-medium",
-        "text-white",
-        "flex",
-        "items-center",
-        "justify-center",
-        "font-semibold"
-      );
+    profileBtn.classList.add(
+      "bg-gradient-to-br",
+      "from-primary",
+      "to-medium",
+      "text-white",
+      "flex",
+      "items-center",
+      "justify-center",
+      "font-semibold"
+    );
 
-      profileBtn.innerText =
-        user.firstName.charAt(0) +
-        user.lastName.charAt(0);
-
-    }
+    profileBtn.innerText =
+      user.firstName.charAt(0) +
+      user.lastName.charAt(0);
 
   }
 
+}
 
   // ======================================
   // NOTIFICATIONS FIRESTORE
