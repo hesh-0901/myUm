@@ -106,6 +106,7 @@ else if(user.photoURL){
 
 const img = new Image();
 
+img.crossOrigin = "anonymous";
 img.src = user.photoURL;
 
 img.onload = () => {
@@ -121,15 +122,12 @@ ctx.drawImage(img,0,0);
 
 const base64 = canvas.toDataURL("image/jpeg",0.8);
 
-// sauvegarde locale
 localStorage.setItem("myum_avatar",base64);
 
 profileBtn.innerHTML =
-`<img src="${base64}"
-class="w-full h-full object-cover rounded-full">`;
+`<img src="${base64}" class="w-full h-full object-cover rounded-full">`;
 
 };
-
 }
 
 
