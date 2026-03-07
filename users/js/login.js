@@ -195,6 +195,7 @@ return;
 
 const username = usernameInput.value.trim().toUpperCase();
 const password = passwordInput.value;
+
 const remember = rememberCheck ? rememberCheck.checked : false;
 
 if(!username || !password){
@@ -213,16 +214,6 @@ const querySnapshot = await getDocs(q);
 
 if(querySnapshot.empty){
 alert("Utilisateur introuvable.");
-return;
-}
-
-const userDoc = querySnapshot.docs[0];
-const userData = userDoc.data();
-
-const hashedInputPassword = await hashPassword(password);
-
-if(hashedInputPassword !== userData.passwordHash){
-alert("Mot de passe incorrect.");
 return;
 }
 
@@ -251,8 +242,17 @@ return;
 
 const hashedInputPassword = await hashPassword(password);
 
+if(hashedInputPassword !== userData.passwordHash){
 
-// session utilisateur
+alert("Mot de passe incorrect.");
+return;
+
+}
+
+
+// ============================
+// SESSION UTILISATEUR
+// ============================
 
 const session = {
 
@@ -266,19 +266,30 @@ photoURL:userData.photoURL || null
 
 };
 
-// stockage utilisateur mémorisé (pour connexion rapide)
+
+// stockage session
+
+if(remember){
 
 localStorage.setItem(
 "myum_user",
 JSON.stringify(session)
 );
 
-// session active
+}else{
+
+sessionStorage.setItem(
+"myum_user",
+JSON.stringify(session)
+);
+
+}
 
 sessionStorage.setItem(
 "myum_session",
 "active"
 );
+
 
 // redirect
 
@@ -290,6 +301,7 @@ console.error("Erreur login :",error);
 alert("Erreur lors de la connexion.");
 
 }
+
 });
 
 }
