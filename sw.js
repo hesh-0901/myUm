@@ -219,3 +219,35 @@ statusText:"Offline"
 }
 
 }
+// ===============================
+// AGE AUTO CALCUL
+// ===============================
+function initAgeCalculator() {
+
+  const birthInput = document.getElementById("birthday");
+  const ageInput = document.getElementById("age");
+
+  if (!birthInput || !ageInput) return;
+
+  birthInput.addEventListener("change", () => {
+
+    const birthDate = new Date(birthInput.value);
+
+    if (isNaN(birthDate)) return;
+
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const m = today.getMonth() - birthDate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    ageInput.value = age;
+
+  });
+
+}
+
