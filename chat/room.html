@@ -28,33 +28,36 @@
   </script>
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800 flex justify-center overflow-x-hidden">
+<!-- ============================================================
+     BODY FIXÉ
+     Rôle :
+     - Empêcher le scroll global de la page
+     - Forcer le scroll uniquement dans la zone messages
+============================================================ -->
+<body class="bg-gray-100 font-display text-gray-800 h-screen overflow-hidden flex justify-center">
 
   <!-- ============================================================
        APP SHELL
        Rôle :
        - Conteneur principal mobile-first
-       - Respecte la directive UI (max 420px)
+       - Toute la hauteur de l’écran
+       - Aucun scroll global ici
   ============================================================ -->
-  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+  <div class="w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- ============================================================
          HEADER ROOM
          Rôle :
-         - Navigation retour
-         - Avatar + nom + statut + typing
-         - Entrée stable pour le JS
+         - Toujours visible en haut
     ============================================================ -->
-    <header class="sticky top-0 z-20 bg-white border-b border-gray-100">
+    <header class="shrink-0 bg-white border-b border-gray-100 z-20">
       <div class="px-4 py-3 flex items-center justify-between gap-3">
 
-        <!-- Retour vers liste conversations -->
         <button id="backBtn"
           class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
           <i class="bi bi-arrow-left"></i>
         </button>
 
-        <!-- Identité du contact -->
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <div id="roomAvatar"
             class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">
@@ -70,7 +73,6 @@
           </div>
         </div>
 
-        <!-- Retour menu chat -->
         <button id="chatHomeBtn"
           class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
           <i class="bi bi-chat-dots"></i>
@@ -79,12 +81,13 @@
     </header>
 
     <!-- ============================================================
-         ZONE MESSAGES
+         ZONE SCROLLABLE DES MESSAGES
          Rôle :
-         - Affiche les bulles en temps réel
-         - Scroll principal de la room
+         - SEULE zone qui scrolle
+         - Le footer n’est plus affecté
     ============================================================ -->
-    <main id="messagesWrapper" class="flex-1 overflow-y-auto bg-gray-100 px-3 py-4">
+    <main id="messagesWrapper"
+      class="flex-1 min-h-0 overflow-y-auto bg-gray-100 px-3 py-4">
       <div id="messages" class="space-y-2"></div>
 
       <div id="emptyState" class="hidden text-center text-sm text-gray-500 pt-10">
@@ -93,12 +96,12 @@
     </main>
 
     <!-- ============================================================
-         BARRE DE SAISIE
+         FOOTER FIXE DANS LE SHELL
          Rôle :
-         - Champ message
-         - Bouton envoyer
+         - Toujours visible
+         - Ne dépend jamais du scroll des messages
     ============================================================ -->
-    <footer class="sticky bottom-0 bg-white border-t border-gray-100">
+    <footer class="shrink-0 bg-white border-t border-gray-100">
       <div class="px-3 py-3 flex items-center gap-2">
         <input id="messageInput"
           type="text"
@@ -116,18 +119,11 @@
 
   <!-- ============================================================
        APP INIT GLOBAL
-       Rôle :
-       - Session
-       - Presence
-       - Notifications
-       - Toujours via app-init.js
   ============================================================ -->
   <script type="module" src="../mains.js/app-init.js"></script>
 
   <!-- ============================================================
        ROOM LOGIC
-       Rôle :
-       - Toute la logique métier de la conversation
   ============================================================ -->
   <script type="module" src="./js/chat-room.js"></script>
 </body>
