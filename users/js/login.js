@@ -245,9 +245,33 @@ const userData = userDoc.data();
 
 if(userData.isActive === "pending"){
 
-alert(
-"Votre demande d'inscription est en cours d'étude.\n\nUn administrateur doit approuver votre compte.\nVous serez notifié sur WhatsApp."
-);
+Swal.fire({
+title: "Demande envoyée",
+html: `
+<p style="font-size:15px">
+Votre demande d'inscription est en cours d'étude.
+</p>
+
+<p style="margin-top:10px">
+Un administrateur doit approuver votre compte.
+</p>
+
+<p style="margin-top:10px;font-weight:600;color:#2596D9">
+Vous serez notifié sur WhatsApp.
+</p>
+`,
+icon: "success",
+confirmButtonText: "Compris",
+confirmButtonColor: "#2596D9",
+background: "#ffffff",
+color: "#111",
+showClass: {
+popup: "animate__animated animate__zoomIn"
+},
+hideClass: {
+popup: "animate__animated animate__zoomOut"
+}
+});
 
 return;
 
