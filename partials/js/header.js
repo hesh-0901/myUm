@@ -7,11 +7,7 @@ import { initNotifications } from "./notifications.js";
 
 import {
 doc,
-getDoc,
-collection,
-query,
-where,
-getDocs
+getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -30,6 +26,9 @@ return;
 }
 
 let user = JSON.parse(storedUser);
+
+// démarrer le module notifications
+initNotifications(user.id);
 
 
 // ======================================
@@ -195,6 +194,7 @@ logoutBtn.addEventListener("click",()=>{
 sessionStorage.removeItem("myum_session");
 
 localStorage.removeItem("myum_user");
+localStorage.removeItem("myum_avatar");
 
 window.location.href = "/myUm/users/login.html";
 
