@@ -22,7 +22,7 @@ import {
    - Récupérer l'utilisateur connecté
    - Sécuriser l'accès à la room
    Utilité scientifique :
-   - Garantit que toutes les actions sont liées à une identité locale
+   - Toute la logique dépend d'une identité locale stable
 ============================================================ */
 function getCurrentUser() {
   try {
@@ -43,9 +43,7 @@ if (!myId) {
 /* ============================================================
    BLOC 2 : PARAMÈTRES DE ROUTE
    Rôle :
-   - Identifier le correspondant à partir de l’URL
-   Utilité scientifique :
-   - Permet une room déterministe basée sur deux IDs
+   - Identifier le correspondant via l'URL
 ============================================================ */
 const params = new URLSearchParams(window.location.search);
 const friendId = params.get("uid");
@@ -56,11 +54,9 @@ if (!friendId) {
 }
 
 /* ============================================================
-   BLOC 3 : RÉFÉRENCES DOM
+   BLOC 3 : DOM
    Rôle :
-   - Centraliser tous les éléments HTML utilisés
-   Utilité scientifique :
-   - Réduit les erreurs de sélection et facilite le debug
+   - Centraliser toutes les références HTML
 ============================================================ */
 const backBtn = document.getElementById("backBtn");
 const chatHomeBtn = document.getElementById("chatHomeBtn");
@@ -77,11 +73,13 @@ const emptyState = document.getElementById("emptyState");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
+const scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
+
 /* ============================================================
    BLOC 4 : NAVIGATION LOCALE
    Rôle :
-   - Bouton retour vers liste
-   - Bouton retour vers menu chat
+   - Retour conversations
+   - Retour menu chat
 ============================================================ */
 backBtn?.addEventListener("click", () => {
   window.location.href = "list.html";
@@ -92,11 +90,11 @@ chatHomeBtn?.addEventListener("click", () => {
 });
 
 /* ============================================================
-   BLOC 5 : IDENTIFIANT STABLE DU CHAT
+   BLOC 5 : CHAT ID STABLE
    Rôle :
-   - Construire un ID unique et non dupliqué pour la room
+   - Générer un identifiant unique pour la conversation
    Utilité scientifique :
-   - Évite d’avoir plusieurs chats entre les mêmes personnes
+   - Empêche les doublons de room entre deux mêmes utilisateurs
 ============================================================ */
 function buildChatId(a, b) {
   const [x, y] = [a, b].sort();
@@ -108,19 +106,20 @@ const chatRef = doc(db, "chats", chatId);
 const messagesRef = collection(db, "chats", chatId, "messages");
 
 /* ============================================================
-   BLOC 6 : ÉTAT LOCAL DE LA ROOM
+   BLOC 6 : ÉTAT LOCAL
    Rôle :
-   - Variables runtime utiles pour éviter spam / incohérences
+   - Variables runtime de contrôle
 ============================================================ */
 let sending = false;
 let typingTimer = null;
 let typingState = false;
 let isNearBottom = true;
+let unreadVisualCount = 0;
 
 /* ============================================================
-   BLOC 7 : INITIALISATION GLOBALE
+   BLOC 7 : INITIALISATION
    Rôle :
-   - Orchestration de tous les sous-systèmes
+   - Orchestration de tous les sous-systèmes de la room
 ============================================================ */
 initRoom().catch((error) => {
   console.error("Erreur initRoom :", error);
@@ -134,6 +133,7 @@ async function initRoom() {
 
   bindComposerEvents();
   bindScrollTracking();
+  bindScrollButton();
 
   listenFriendProfileAndPresence();
   listenTypingState();
@@ -144,9 +144,9 @@ async function initRoom() {
 }
 
 /* ============================================================
-   BLOC 8 : GARDE FRIENDS-ONLY
+   BLOC 8 : FRIENDS-ONLY
    Rôle :
-   - Empêcher l’ouverture d’une room si les users ne sont pas amis
+   - Restreindre la room aux amis uniquement
 ============================================================ */
 async function guardFriendship() {
   const edge = await getDoc(doc(db, "users", myId, "friends", friendId));
@@ -157,11 +157,9 @@ async function guardFriendship() {
 }
 
 /* ============================================================
-   BLOC 9 : CRÉATION DU DOC CHAT SI ABSENT
+   BLOC 9 : CRÉATION DU DOC CHAT
    Rôle :
-   - Garantir une structure minimale du chat
-   Utilité scientifique :
-   - Assure la cohérence du schéma avant écoute / envoi
+   - Garantir une structure minimale si le chat n'existe pas encore
 ============================================================ */
 async function ensureChatDocument() {
   const snap = await getDoc(chatRef);
@@ -186,9 +184,7 @@ async function ensureChatDocument() {
 /* ============================================================
    BLOC 10 : PROFIL + AVATAR + PRÉSENCE
    Rôle :
-   - Afficher nom, avatar et statut du correspondant
-   Utilité scientifique :
-   - La présence fiable dépend de lastSeen récent, pas seulement d’un booléen
+   - Afficher nom, avatar, online / vu à ...
 ============================================================ */
 function listenFriendProfileAndPresence() {
   onSnapshot(doc(db, "users", friendId), (snap) => {
@@ -254,9 +250,9 @@ function renderRoomAvatar(photoURL, initials) {
 }
 
 /* ============================================================
-   BLOC 11 : TYPING INDICATOR (lecture)
+   BLOC 11 : TYPING (lecture)
    Rôle :
-   - Voir si l’autre est en train d’écrire
+   - Afficher "… écrit"
 ============================================================ */
 function listenTypingState() {
   onSnapshot(chatRef, (snap) => {
@@ -275,11 +271,11 @@ function listenTypingState() {
 }
 
 /* ============================================================
-   BLOC 12 : TYPING INDICATOR (émission)
+   BLOC 12 : TYPING (émission)
    Rôle :
-   - Envoyer l’état "j’écris"
+   - Envoyer mon état de frappe
    Utilité scientifique :
-   - Debounce pour éviter spam Firestore
+   - Debounce pour limiter les écritures Firestore
 ============================================================ */
 function bindTypingEmitter() {
   if (!messageInput) return;
@@ -314,13 +310,16 @@ async function setTyping(value) {
 /* ============================================================
    BLOC 13 : ÉCOUTE TEMPS RÉEL DES MESSAGES
    Rôle :
-   - Rendu live des messages
-   - Mise à jour ticks / unread / scroll
+   - Rendu live
+   - Scroll intelligent
+   - Mise à jour ticks / unread
 ============================================================ */
 function listenMessages() {
   const q = query(messagesRef, orderBy("createdAt", "asc"), limit(300));
 
   onSnapshot(q, async (snap) => {
+    const previousScrollHeight = messagesWrapper?.scrollHeight || 0;
+
     messagesEl.innerHTML = "";
 
     if (snap.empty) {
@@ -330,14 +329,39 @@ function listenMessages() {
 
     emptyState?.classList.add("hidden");
 
+    let hasIncomingNewMessage = false;
+
     snap.forEach((docSnap) => {
       const m = docSnap.data();
       const isMine = m.senderId === myId;
       messagesEl.appendChild(renderBubble(m, isMine));
+
+      if (!isMine) {
+        hasIncomingNewMessage = true;
+      }
     });
 
+    /* ============================================================
+       BLOC 13A : SCROLL INTELLIGENT
+       Rôle :
+       - Si utilisateur est en bas -> auto-scroll
+       - Sinon -> on garde sa position et on affiche le bouton
+    ============================================================ */
     if (isNearBottom) {
       scrollToBottom();
+      hideScrollButton();
+    } else {
+      // garder une impression de stabilité
+      const newScrollHeight = messagesWrapper?.scrollHeight || 0;
+      const delta = newScrollHeight - previousScrollHeight;
+      if (messagesWrapper && delta > 0) {
+        messagesWrapper.scrollTop += delta;
+      }
+
+      if (hasIncomingNewMessage) {
+        unreadVisualCount += 1;
+        showScrollButton();
+      }
     }
 
     await markDeliveredReadAndResetUnread();
@@ -348,21 +372,48 @@ function listenMessages() {
 }
 
 /* ============================================================
-   BLOC 14 : COMPORTEMENT DE SCROLL
+   BLOC 14 : TRACKING DU SCROLL
    Rôle :
-   - Détecter si l’utilisateur est en bas
-   - Éviter un scroll agressif si plus tard on améliore l’UX
+   - Savoir si l'utilisateur est près du bas
 ============================================================ */
 function bindScrollTracking() {
   messagesWrapper?.addEventListener("scroll", () => {
-    const threshold = 80;
+    const threshold = 100;
     const distanceFromBottom =
       messagesWrapper.scrollHeight -
       messagesWrapper.scrollTop -
       messagesWrapper.clientHeight;
 
     isNearBottom = distanceFromBottom < threshold;
+
+    if (isNearBottom) {
+      unreadVisualCount = 0;
+      hideScrollButton();
+    }
   });
+}
+
+/* ============================================================
+   BLOC 15 : BOUTON "NOUVEAUX MESSAGES"
+   Rôle :
+   - Permettre de revenir en bas proprement
+============================================================ */
+function bindScrollButton() {
+  scrollToBottomBtn?.addEventListener("click", () => {
+    scrollToBottom();
+    unreadVisualCount = 0;
+    hideScrollButton();
+  });
+}
+
+function showScrollButton() {
+  if (!scrollToBottomBtn) return;
+  scrollToBottomBtn.classList.remove("hidden");
+}
+
+function hideScrollButton() {
+  if (!scrollToBottomBtn) return;
+  scrollToBottomBtn.classList.add("hidden");
 }
 
 function scrollToBottom() {
@@ -371,7 +422,7 @@ function scrollToBottom() {
 }
 
 /* ============================================================
-   BLOC 15 : LIENS ENTRE INPUT ET ENVOI
+   BLOC 16 : INPUT + ENVOI
    Rôle :
    - Bouton envoyer
    - Touche Enter
@@ -390,11 +441,10 @@ function bindComposerEvents() {
 }
 
 /* ============================================================
-   BLOC 16 : ENVOI DE MESSAGE
+   BLOC 17 : ENVOI DE MESSAGE
    Rôle :
    - Ajouter le message
-   - Mettre à jour lastMessage
-   - Incrémenter unreadCount du destinataire
+   - Mettre à jour lastMessage et unreadCount
 ============================================================ */
 async function sendMessage() {
   if (sending) return;
@@ -445,10 +495,10 @@ async function sendMessage() {
 }
 
 /* ============================================================
-   BLOC 17 : DÉLIVRÉ / LU + RESET UNREAD
+   BLOC 18 : DÉLIVRÉ / LU + RESET UNREAD
    Rôle :
    - Marquer les messages reçus comme délivrés/lus
-   - Remettre mes non-lus à 0
+   - Remettre mes non-lus à zéro
 ============================================================ */
 async function markDeliveredReadAndResetUnread() {
   await updateDoc(chatRef, {
@@ -497,10 +547,11 @@ async function updateChatReadMeta() {
 }
 
 /* ============================================================
-   BLOC 18 : RENDU DES BULLES + TICKS
+   BLOC 19 : RENDU DES BULLES
    Rôle :
-   - Affichage visuel des messages
-   - ✓ envoyé / ✓✓ délivré / ✓✓ lu
+   - Texte du message
+   - Heure d’envoi
+   - Ticks envoyé / délivré / lu
 ============================================================ */
 function renderBubble(message, isMine) {
   const wrap = document.createElement("div");
@@ -510,4 +561,58 @@ function renderBubble(message, isMine) {
   bubble.className =
     `max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
       isMine
-        ? "bg-primary
+        ? "bg-primary text-white rounded-br-md"
+        : "bg-white text-gray-800 rounded-bl-md"
+    }`;
+
+  /* ----------------------------
+     Texte du message
+  ----------------------------- */
+  const textEl = document.createElement("div");
+  textEl.textContent = message.text || "";
+  bubble.appendChild(textEl);
+
+  /* ----------------------------
+     Ligne méta : heure + ticks
+  ----------------------------- */
+  const metaRow = document.createElement("div");
+  metaRow.className = "mt-1 text-[11px] opacity-90 flex items-center justify-end gap-1";
+
+  const timeEl = document.createElement("span");
+  timeEl.textContent = formatMessageTime(message.createdAt);
+  timeEl.className = isMine ? "text-white/80" : "text-gray-400";
+
+  metaRow.appendChild(timeEl);
+
+  if (isMine) {
+    const delivered = (message.deliveredTo && message.deliveredTo[friendId]) === true;
+    const read = (message.readBy && message.readBy[friendId]) === true;
+
+    const tick = document.createElement("span");
+    tick.textContent = read ? "✓✓" : delivered ? "✓✓" : "✓";
+    tick.className = read ? "text-sky-200 font-bold" : "text-white/80";
+
+    metaRow.appendChild(tick);
+  }
+
+  bubble.appendChild(metaRow);
+  wrap.appendChild(bubble);
+  return wrap;
+}
+
+/* ============================================================
+   BLOC 20 : FORMATAGE DE L’HEURE
+   Rôle :
+   - Afficher l’heure d’envoi d’un message
+============================================================ */
+function formatMessageTime(ts) {
+  if (!ts) return "";
+  try {
+    const d = ts.toDate();
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  } catch {
+    return "";
+  }
+}
