@@ -1,39 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>Créer un compte - MyUm</title>
-
-<link rel="manifest" href="/myUm/manifest.json">
-<link rel="icon" href="/myUm/assets/favicon.png">
-<meta name="theme-color" content="#1A3668">
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<script>
-tailwind.config = {
-theme: {
-extend: {
-colors: {
-primary: '#1A3668',
-medium: '#2596D9',
-lightblue: '#3FA9F5',
-danger: '#DC2626'
-}
-}
-}
-}
-</script>
-
-</head>
-
+v
 <body class="bg-primary min-h-screen flex justify-center overflow-x-hidden font-[Inter]">
 
 <div class="w-full max-w-[420px] min-h-screen bg-primary text-white flex flex-col">
@@ -108,7 +75,7 @@ Prénom
 id="firstName"
 required
 placeholder="Votre prénom"
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
 
@@ -125,7 +92,7 @@ Nom
 id="lastName"
 required
 placeholder="Votre nom"
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
 
@@ -142,7 +109,7 @@ Date de naissance
 type="date"
 id="birthday"
 required
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
 
@@ -159,7 +126,7 @@ class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm te
 id="age"
 readonly
 placeholder="Calcul automatique"
-class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-sm text-white">
+class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-base text-white">
 
 </div>
 
@@ -175,7 +142,7 @@ Fonction
 <select
 id="fonction"
 required
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 <option value="" class="text-black">Sélectionner</option>
 
@@ -206,7 +173,7 @@ Chorale
 <select
 id="chorale"
 required
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 <option value="" class="text-black">Sélectionner</option>
 
@@ -234,7 +201,7 @@ Téléphone
 id="phone"
 required
 placeholder="Ex : +243..."
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
 
@@ -252,7 +219,7 @@ type="password"
 id="password"
 required
 placeholder="Votre mot de passe"
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
 
@@ -270,7 +237,7 @@ type="password"
 id="confirmPassword"
 required
 placeholder="Confirmer le mot de passe"
-class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
+class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-base text-white placeholder-white/40 focus:outline-none focus:border-lightblue focus:ring-1 focus:ring-lightblue transition">
 
 </div>
 
@@ -279,7 +246,7 @@ class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm te
 
 <button
 type="submit"
-class="w-full mt-4 py-3 rounded-2xl bg-gradient-to-r from-medium to-lightblue text-sm font-semibold shadow-md active:scale-95 transition">
+class="w-full mt-4 py-3 rounded-2xl bg-gradient-to-r from-medium to-lightblue text-base font-semibold shadow-md active:scale-95 transition">
 
 Créer mon compte
 
