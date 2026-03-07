@@ -7,38 +7,144 @@
 
 <!-- Firebase App -->
 <script>
-   *{    box-sizing: border-box;}
-body{    font-family: Arial, Helvetica, sans-serif;background: #f4f6f9;margin: 0;    padding: 0;}
-.container{    max-width: 700px;margin: auto;    padding: 20px;}
-h1{    text-align: center;    margin-bottom: 25px;    color: #333;}
+  *{
+    box-sizing: border-box;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container{
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+}
+
+h1{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
 /* FILTRES */
 .filtres{
-    display: flex;    justify-content: center;    flex-wrap: wrap;    gap: 10px;    margin-bottom: 25px;}
-.filtre{    padding: 8px 16px;    border: none;    background: #e2e2e2;    border-radius: 6px;    cursor: pointer;    font-weight: 600;    transition: 0.2s;}
-.filtre:hover{    background: #d5d5d5;}
-.filtre.actif{    background: #007bff;    color: white;}
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.filtre{
+    padding: 8px 16px;
+    border: none;
+    background: #e2e2e2;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.filtre:hover{
+    background: #d5d5d5;
+}
+
+.filtre.actif{
+    background: #007bff;
+    color: white;
+}
+
 /* ANNONCE */
-.annonce{    background: white;    padding: 18px;    border-radius: 10px;    margin-bottom: 18px;    box-shadow: 0 3px 10px rgba(0,0,0,0.07);}
-.annonce h3{    margin: 0;    color: #222;}
+.annonce{
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+}
+
+.annonce h3{
+    margin: 0;
+    color: #222;
+}
+
 /* DATE */
-.date{    font-size: 13px;    color: #777;    margin: 6px 0 12px 0;}
+.date{
+    font-size: 13px;
+    color: #777;
+    margin: 6px 0 12px 0;
+}
+
 /* MESSAGE */
-.message{    font-size: 15px;    line-height: 1.5;    margin-bottom: 14px;    color: #333;}
+.message{
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    color: #333;
+}
+
 /* ACTIONS */
-.actions{    display: flex;    justify-content: space-between;    align-items: center;}
+.actions{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 /* VOIR PLUS */
-.voirPlus{    background: #28a745;    border: none;    color: white;    padding: 7px 14px;    border-radius: 6px;    cursor: pointer;    font-size: 14px;    transition: 0.2s;}
-.voirPlus:hover{    background: #218838;}
+.voirPlus{
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.voirPlus:hover{
+    background: #218838;
+}
+
 /* STATISTIQUES */
-.stats{    display: flex;    gap: 18px;    font-size: 14px;    align-items: center;}
+.stats{
+    display: flex;
+    gap: 18px;
+    font-size: 14px;
+    align-items: center;
+}
+
 /* LIKE */
-.like{    cursor: pointer;    color: #e74c3c;    font-weight: bold;    transition: transform 0.2s ease;}
-.like:hover{    transform: scale(1.1);}
+.like{
+    cursor: pointer;
+    color: #e74c3c;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.like:hover{
+    transform: scale(1.1);
+}
+
 /* Animation pop sur like */
-.pop{    animation: pop 0.3s ease forwards;}
-@keyframes pop{    0% { transform: scale(1); }    50% { transform: scale(1.5); }    100% { transform: scale(1); }}
+.pop{
+    animation: pop 0.3s ease forwards;
+}
+
+@keyframes pop{
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
 /* VUE */
-.vue{color: #555;}
+.vue{
+    color: #555;
+}
 </script>
 <!-- Firebase App -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
