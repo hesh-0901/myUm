@@ -226,6 +226,31 @@ alert("Mot de passe incorrect.");
 return;
 }
 
+const userDoc = querySnapshot.docs[0];
+const userData = userDoc.data();
+
+
+// ============================
+// VERIFICATION APPROBATION ADMIN
+// ============================
+
+if(userData.isActive === "pending"){
+
+alert(
+"Votre demande d'inscription est en cours d'étude.\n\nUn administrateur doit approuver votre compte.\nVous serez notifié sur WhatsApp."
+);
+
+return;
+
+}
+
+
+// ============================
+// VERIFICATION MOT DE PASSE
+// ============================
+
+const hashedInputPassword = await hashPassword(password);
+
 
 // session utilisateur
 
