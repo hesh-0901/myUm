@@ -1,4 +1,7 @@
-//users/js/register.js
+// ======================================================
+// IMPORT FIREBASE
+// ======================================================
+
 import { db } from "../../mains.js/firebase-config.js";
 
 import {
@@ -17,7 +20,16 @@ getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 
+// ======================================================
+// INIT STORAGE
+// ======================================================
+
 const storage = getStorage();
+
+
+// ======================================================
+// ELEMENTS DOM
+// ======================================================
 
 const photoInput = document.getElementById("photoInput");
 const photoPreview = document.getElementById("photoPreview");
@@ -28,17 +40,26 @@ const cropImage = document.getElementById("cropImage");
 const confirmCrop = document.getElementById("confirmCrop");
 const cancelCrop = document.getElementById("cancelCrop");
 
+const birthday = document.getElementById("birthday");
+const ageInput = document.getElementById("age");
+
+const registerForm = document.getElementById("registerForm");
+const registerBtn = document.getElementById("registerBtn");
+
+
+// ======================================================
+// VARIABLES
+// ======================================================
 
 let cropper = null;
 let croppedBlob = null;
 
 
-
-// ======================================
+// ======================================================
 // IMAGE SELECTION + OPEN CROP
-// ======================================
+// ======================================================
 
-photoInput.addEventListener("change",(e)=>{
+photoInput.addEventListener("change", (e) => {
 
 const file = e.target.files[0];
 
@@ -46,7 +67,7 @@ if(!file) return;
 
 const reader = new FileReader();
 
-reader.onload = ()=>{
+reader.onload = () => {
 
 cropImage.src = reader.result;
 
@@ -70,12 +91,11 @@ reader.readAsDataURL(file);
 });
 
 
-
-// ======================================
+// ======================================================
 // CONFIRM CROP
-// ======================================
+// ======================================================
 
-confirmCrop.addEventListener("click",async()=>{
+confirmCrop.addEventListener("click", async () => {
 
 const canvas = cropper.getCroppedCanvas({
 width:400,
@@ -95,12 +115,11 @@ if(cropper) cropper.destroy();
 });
 
 
-
-// ======================================
+// ======================================================
 // CANCEL CROP
-// ======================================
+// ======================================================
 
-cancelCrop.addEventListener("click",()=>{
+cancelCrop.addEventListener("click", () => {
 
 cropModal.classList.add("hidden");
 
@@ -109,15 +128,11 @@ if(cropper) cropper.destroy();
 });
 
 
+// ======================================================
+// CALCUL AUTOMATIQUE AGE
+// ======================================================
 
-// ======================================
-// AGE AUTO
-// ======================================
-
-const birthday = document.getElementById("birthday");
-const ageInput = document.getElementById("age");
-
-birthday.addEventListener("change",()=>{
+birthday.addEventListener("change", () => {
 
 const date = new Date(birthday.value);
 
@@ -131,12 +146,92 @@ ageInput.value = age;
 
 });
 
-// ======================================
-// FORM SUBMIT
-// ======================================
 
-const registerForm = document.getElementById("registerForm");
-const registerBtn = document.getElementById("registerBtn");
+// ======================================================
+// RESET BOUTON
+// ======================================================
+
+function resetRegisterButton(){
+
+registerBtn.disabled = false;
+
+registerBtn.innerHTML = "Créer mon compte";
+
+}
+
+
+// ======================================================
+// SHOW CREDENTIALS MODAL
+// ======================================================
+
+function showCredentialsModal(username,password){
+
+const modal = document.getElementById("credentialsModal");
+
+document.getElementById("credUsername").textContent = username;
+document.getElementById("credPassword").textContent = password;
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+}
+
+
+// ======================================================
+// DOWNLOAD CREDENTIALS
+// ======================================================
+
+document.getElementById("downloadCredentials").addEventListener("click",()=>{
+
+const username = document.getElementById("credUsername").textContent;
+const password = document.getElementById("credPassword").textContent;
+
+const content = `
+MyUm - Vos identifiants
+
+Identifiant : ${username}
+Mot de passe : ${password}
+
+Votre compte est en attente de validation par un administrateur.
+`;
+
+const blob = new Blob([content],{type:"text/plain"});
+
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+
+a.href = url;
+a.download = "mes-identifiants-myum.txt";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+});
+
+
+// ======================================================
+// COPY CREDENTIALS
+// ======================================================
+
+document.getElementById("copyCredentials").addEventListener("click",()=>{
+
+const username = document.getElementById("credUsername").textContent;
+const password = document.getElementById("credPassword").textContent;
+
+const text = `Identifiant : ${username}\nMot de passe : ${password}`;
+
+navigator.clipboard.writeText(text);
+
+alert("Identifiants copiés");
+
+});
+
+
+// ======================================================
+// FORM SUBMIT
+// ======================================================
 
 registerForm.addEventListener("submit", async (e) => {
 
@@ -144,7 +239,7 @@ e.preventDefault();
 
 
 // ================================
-// ACTIVER MODE LOADING
+// LOADING BUTTON
 // ================================
 
 registerBtn.disabled = true;
@@ -158,30 +253,22 @@ Création du compte...
 
 
 // ================================
-// RECUPERATION VALEURS
+// GET VALUES
 // ================================
 
 const firstName = document.getElementById("firstName").value.trim().toUpperCase();
-
 const lastName = document.getElementById("lastName").value.trim().toUpperCase();
-
 const birth = birthday.value;
-
 const age = parseInt(ageInput.value);
-
 const fonction = document.getElementById("fonction").value;
-
 const chorale = document.getElementById("chorale").value;
-
 const phone = document.getElementById("phone").value;
-
 const password = document.getElementById("password").value;
-
 const confirm = document.getElementById("confirmPassword").value;
 
 
 // ================================
-// VALIDATION MOT DE PASSE
+// PASSWORD CHECK
 // ================================
 
 if(password !== confirm){
@@ -196,7 +283,7 @@ return;
 
 
 // ================================
-// VALIDATION AGE
+// AGE CHECK
 // ================================
 
 if(age < 15){
@@ -211,7 +298,7 @@ return;
 
 
 // ================================
-// VALIDATION CHAMPS OBLIGATOIRES
+// REQUIRED FIELDS
 // ================================
 
 if(!firstName || !lastName || !birth || !fonction || !chorale || !phone){
@@ -225,37 +312,9 @@ return;
 }
 
 
-// ================================
-// LE SCRIPT CONTINUE
-// ================================
-
-// ici continue ton script existant
-// check user
-// username
-// upload photo
-// firestore
-
-
-});
-
-
-// ======================================
-// RESET BOUTON
-// ======================================
-
-function resetRegisterButton(){
-
-registerBtn.disabled = false;
-
-registerBtn.innerHTML = "Créer mon compte";
-
-}
-
-
-
-// ======================================
-// CHECK PERSON
-// ======================================
+// ======================================================
+// CHECK PERSON EXIST
+// ======================================================
 
 const qPerson = query(
 collection(db,"users"),
@@ -267,15 +326,19 @@ where("birthday","==",birth)
 const snapPerson = await getDocs(qPerson);
 
 if(!snapPerson.empty){
+
 alert("Un compte existe déjà avec ces informations.");
+
+resetRegisterButton();
+
 return;
+
 }
 
 
-
-// ======================================
-// USERNAME
-// ======================================
+// ======================================================
+// GENERATE USERNAME
+// ======================================================
 
 const date = new Date(birth);
 
@@ -284,26 +347,24 @@ const month = String(date.getMonth()+1).padStart(2,"0");
 
 const username = `${firstName.slice(0,2)}${lastName.slice(0,2)}${day}${month}-${chorale}`;
 
-
-
-// ======================================
-// CHECK USERNAME
-// ======================================
-
 const q = query(collection(db,"users"),where("username","==",username));
 
 const snap = await getDocs(q);
 
 if(!snap.empty){
+
 alert("Username déjà utilisé");
+
+resetRegisterButton();
+
 return;
+
 }
 
 
-
-// ======================================
+// ======================================================
 // UPLOAD PHOTO
-// ======================================
+// ======================================================
 
 let photoURL = "";
 
@@ -318,10 +379,9 @@ photoURL = await getDownloadURL(storageRef);
 }
 
 
-
-// ======================================
-// SAVE USER
-// ======================================
+// ======================================================
+// SAVE USER FIRESTORE
+// ======================================================
 
 await addDoc(collection(db,"users"),{
 
@@ -336,7 +396,6 @@ username,
 photoURL,
 
 role:"choriste",
-
 isActive:"pending",
 
 createdAt:new Date()
@@ -344,7 +403,12 @@ createdAt:new Date()
 });
 
 
+// ======================================================
+// SHOW CREDENTIALS MODAL
+// ======================================================
 
-createApprovalCard(username,password);
+showCredentialsModal(username,password);
+
+resetRegisterButton();
 
 });
