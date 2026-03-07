@@ -248,29 +248,32 @@ if(userData.isActive === "pending"){
 Swal.fire({
 title: "Demande envoyée",
 html: `
-<p style="font-size:15px">
-Votre demande d'inscription est en cours d'étude.
+<div style="font-size:14px;line-height:1.6;color:#555">
+
+<p>
+Votre inscription a bien été enregistrée.
 </p>
 
-<p style="margin-top:10px">
-Un administrateur doit approuver votre compte.
+<p style="margin-top:8px">
+Un administrateur doit maintenant valider votre compte.
 </p>
 
-<p style="margin-top:10px;font-weight:600;color:#2596D9">
-Vous serez notifié sur WhatsApp.
+<p style="margin-top:14px;font-weight:500;color:#1A3668">
+Vous serez notifié sur WhatsApp dès l’activation.
 </p>
+
+</div>
 `,
 icon: "success",
 confirmButtonText: "Compris",
-confirmButtonColor: "#2596D9",
+confirmButtonColor: "#1A3668",
 background: "#ffffff",
 color: "#111",
-showClass: {
-popup: "animate__animated animate__zoomIn"
-},
-hideClass: {
-popup: "animate__animated animate__zoomOut"
-}
+width: 380,
+padding: "1.5rem",
+buttonsStyling: true,
+allowOutsideClick: false,
+allowEscapeKey: false
 });
 
 return;
