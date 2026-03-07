@@ -2,116 +2,168 @@
 
 import { db } from "../../mains.js/firebase-config.js";
 import {
-  doc, getDoc, setDoc, addDoc, collection, query, orderBy, limit,
-  onSnapshot, serverTimestamp, updateDoc, writeBatch
+  doc,
+  getDoc,
+  setDoc,
+  addDoc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+  updateDoc,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ============================================================
-   CHAT ROOM (PRIVATE DISCUSSION)
-   Utilité:
-   - Messages realtime
-   - Statuts ✓ / ✓✓ / lu
-   - Typing indicator
-   - UnreadCount badges
-   Index:
-   - messages: orderBy(createdAt) (simple)
+   BLOC 1 : SESSION UTILISATEUR
+   Rôle :
+   - Récupérer l'utilisateur connecté
+   - Sécuriser l'accès à la room
+   Utilité scientifique :
+   - Garantit que toutes les actions sont liées à une identité locale
 ============================================================ */
-
-/* =========================
-   SESSION
-========================= */
 function getCurrentUser() {
-  try { return JSON.parse(localStorage.getItem("myum_user")); }
-  catch { return null; }
+  try {
+    return JSON.parse(localStorage.getItem("myum_user"));
+  } catch {
+    return null;
+  }
 }
-const me = getCurrentUser();
-const myId = me?.id;
+
+const currentUser = getCurrentUser();
+const myId = currentUser?.id;
 
 if (!myId) {
   alert("Session invalide. Veuillez vous reconnecter.");
   window.location.href = "../users/login.html";
 }
 
-/* =========================
-   PARAMS (room.html?uid=...)
-========================= */
+/* ============================================================
+   BLOC 2 : PARAMÈTRES DE ROUTE
+   Rôle :
+   - Identifier le correspondant à partir de l’URL
+   Utilité scientifique :
+   - Permet une room déterministe basée sur deux IDs
+============================================================ */
 const params = new URLSearchParams(window.location.search);
 const friendId = params.get("uid");
+
 if (!friendId) {
   alert("Aucun utilisateur sélectionné.");
-  window.location.href = "index.html";
+  window.location.href = "list.html";
 }
 
-/* =========================
-   DOM
-========================= */
+/* ============================================================
+   BLOC 3 : RÉFÉRENCES DOM
+   Rôle :
+   - Centraliser tous les éléments HTML utilisés
+   Utilité scientifique :
+   - Réduit les erreurs de sélection et facilite le debug
+============================================================ */
 const backBtn = document.getElementById("backBtn");
-const dashBtn = document.getElementById("dashBtn");
+const chatHomeBtn = document.getElementById("chatHomeBtn");
 
 const roomAvatar = document.getElementById("roomAvatar");
 const roomTitle = document.getElementById("roomTitle");
 const roomSub = document.getElementById("roomSub");
 const typingIndicator = document.getElementById("typingIndicator");
 
+const messagesWrapper = document.getElementById("messagesWrapper");
 const messagesEl = document.getElementById("messages");
 const emptyState = document.getElementById("emptyState");
 
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
-backBtn?.addEventListener("click", () => (window.location.href = "list.html"));
-dashBtn?.addEventListener("click", () => (window.location.href = "index.html"));
+/* ============================================================
+   BLOC 4 : NAVIGATION LOCALE
+   Rôle :
+   - Bouton retour vers liste
+   - Bouton retour vers menu chat
+============================================================ */
+backBtn?.addEventListener("click", () => {
+  window.location.href = "list.html";
+});
 
-/* =========================
-   CHAT ID STABLE
-========================= */
+chatHomeBtn?.addEventListener("click", () => {
+  window.location.href = "index.html";
+});
+
+/* ============================================================
+   BLOC 5 : IDENTIFIANT STABLE DU CHAT
+   Rôle :
+   - Construire un ID unique et non dupliqué pour la room
+   Utilité scientifique :
+   - Évite d’avoir plusieurs chats entre les mêmes personnes
+============================================================ */
 function buildChatId(a, b) {
   const [x, y] = [a, b].sort();
   return `chat_${x}_${y}`;
 }
+
 const chatId = buildChatId(myId, friendId);
 const chatRef = doc(db, "chats", chatId);
 const messagesRef = collection(db, "chats", chatId, "messages");
 
-/* =========================
-   INIT
-========================= */
-init().catch((e) => {
-  console.error("room init:", e);
-  alert("Erreur room: " + (e?.message || e));
-  window.location.href = "index.html";
+/* ============================================================
+   BLOC 6 : ÉTAT LOCAL DE LA ROOM
+   Rôle :
+   - Variables runtime utiles pour éviter spam / incohérences
+============================================================ */
+let sending = false;
+let typingTimer = null;
+let typingState = false;
+let isNearBottom = true;
+
+/* ============================================================
+   BLOC 7 : INITIALISATION GLOBALE
+   Rôle :
+   - Orchestration de tous les sous-systèmes
+============================================================ */
+initRoom().catch((error) => {
+  console.error("Erreur initRoom :", error);
+  alert("Erreur room : " + (error?.message || error));
+  window.location.href = "list.html";
 });
 
-async function init() {
+async function initRoom() {
   await guardFriendship();
-  await ensureChatDoc();
+  await ensureChatDocument();
 
-  listenFriendPresenceAndAvatar();
-  listenTyping();
+  bindComposerEvents();
+  bindScrollTracking();
+
+  listenFriendProfileAndPresence();
+  listenTypingState();
   listenMessages();
-
-  bindTypingEmitter();
-  bindSend();
 
   await markDeliveredReadAndResetUnread();
   await updateChatReadMeta();
 }
 
-/* =========================
-   FRIENDS ONLY
-========================= */
+/* ============================================================
+   BLOC 8 : GARDE FRIENDS-ONLY
+   Rôle :
+   - Empêcher l’ouverture d’une room si les users ne sont pas amis
+============================================================ */
 async function guardFriendship() {
   const edge = await getDoc(doc(db, "users", myId, "friends", friendId));
   if (!edge.exists()) {
-    alert("Chat disponible uniquement entre amis.");
+    alert("Cette conversation est réservée aux amis.");
     window.location.href = "index.html";
   }
 }
 
-/* =========================
-   ENSURE CHAT DOC
-========================= */
-async function ensureChatDoc() {
+/* ============================================================
+   BLOC 9 : CRÉATION DU DOC CHAT SI ABSENT
+   Rôle :
+   - Garantir une structure minimale du chat
+   Utilité scientifique :
+   - Assure la cohérence du schéma avant écoute / envoi
+============================================================ */
+async function ensureChatDocument() {
   const snap = await getDoc(chatRef);
   if (snap.exists()) return;
 
@@ -121,114 +173,150 @@ async function ensureChatDoc() {
     lastSenderId: "",
     lastMessageAt: serverTimestamp(),
     lastReadBy: {},
-    unreadCount: { [myId]: 0, [friendId]: 0 },
+    unreadCount: {
+      [myId]: 0,
+      [friendId]: 0
+    },
     typing: {},
     updatedAt: serverTimestamp(),
     createdAt: serverTimestamp()
   });
 }
 
-/* =========================
-   FRIEND PRESENCE + AVATAR
-========================= */
-function listenFriendPresenceAndAvatar() {
+/* ============================================================
+   BLOC 10 : PROFIL + AVATAR + PRÉSENCE
+   Rôle :
+   - Afficher nom, avatar et statut du correspondant
+   Utilité scientifique :
+   - La présence fiable dépend de lastSeen récent, pas seulement d’un booléen
+============================================================ */
+function listenFriendProfileAndPresence() {
   onSnapshot(doc(db, "users", friendId), (snap) => {
     const u = snap.exists() ? snap.data() : {};
 
     const firstName = u.firstName || "";
     const lastName = u.lastName || "";
     const username = u.username || "";
-    const photoURL = u.photoURL || null;
+    const photoURL = u.photoURL || "";
 
-    const display =
-      (`${firstName} ${lastName}`).trim() ||
+    const displayName =
+      `${firstName} ${lastName}`.trim() ||
       username ||
       friendId;
 
-    roomTitle.textContent = display;
+    roomTitle.textContent = displayName;
 
-    // Avatar fallback
     const initials =
       `${(firstName?.[0] || "")}${(lastName?.[0] || "")}`.toUpperCase() ||
       (username?.[0] || "").toUpperCase() ||
       "—";
 
-    if (roomAvatar) {
-      roomAvatar.innerHTML = "";
-      roomAvatar.textContent = initials;
+    renderRoomAvatar(photoURL, initials);
 
-      if (photoURL && typeof photoURL === "string") {
-        const img = new Image();
-        img.src = photoURL;
-        img.className = "w-full h-full object-cover";
-        img.onerror = () => {
-          roomAvatar.innerHTML = "";
-          roomAvatar.textContent = initials;
-        };
-        img.onload = () => {
-          roomAvatar.innerHTML = "";
-          roomAvatar.appendChild(img);
-        };
-      }
-    }
-
-    // Online = lastSeen récent
     const lastSeenDate = u.lastSeen?.toDate ? u.lastSeen.toDate() : null;
-    const online = lastSeenDate ? (Date.now() - lastSeenDate.getTime() < 45000) : false;
+    const isOnline = lastSeenDate
+      ? (Date.now() - lastSeenDate.getTime() < 45000)
+      : false;
 
-    if (online) {
+    if (isOnline) {
       roomSub.textContent = "En ligne";
     } else if (lastSeenDate) {
-      roomSub.textContent = `Vu à ${String(lastSeenDate.getHours()).padStart(2,"0")}:${String(lastSeenDate.getMinutes()).padStart(2,"0")}`;
+      const hh = String(lastSeenDate.getHours()).padStart(2, "0");
+      const mm = String(lastSeenDate.getMinutes()).padStart(2, "0");
+      roomSub.textContent = `Vu à ${hh}:${mm}`;
     } else {
       roomSub.textContent = "—";
     }
   });
 }
 
-/* =========================
-   TYPING LISTENER
-========================= */
-function listenTyping() {
+function renderRoomAvatar(photoURL, initials) {
+  if (!roomAvatar) return;
+
+  roomAvatar.innerHTML = "";
+  roomAvatar.textContent = initials;
+
+  if (!photoURL || typeof photoURL !== "string") return;
+
+  const img = new Image();
+  img.src = photoURL;
+  img.className = "w-full h-full object-cover";
+
+  img.onerror = () => {
+    roomAvatar.innerHTML = "";
+    roomAvatar.textContent = initials;
+  };
+
+  img.onload = () => {
+    roomAvatar.innerHTML = "";
+    roomAvatar.appendChild(img);
+  };
+}
+
+/* ============================================================
+   BLOC 11 : TYPING INDICATOR (lecture)
+   Rôle :
+   - Voir si l’autre est en train d’écrire
+============================================================ */
+function listenTypingState() {
   onSnapshot(chatRef, (snap) => {
     if (!snap.exists() || !typingIndicator) return;
-    const typing = snap.data().typing || {};
-    const friendTyping = typing[friendId] === true;
 
-    if (friendTyping) typingIndicator.classList.remove("hidden");
-    else typingIndicator.classList.add("hidden");
+    const chat = snap.data();
+    const typingMap = chat.typing || {};
+    const friendTyping = typingMap[friendId] === true;
+
+    if (friendTyping) {
+      typingIndicator.classList.remove("hidden");
+    } else {
+      typingIndicator.classList.add("hidden");
+    }
   });
 }
 
-/* =========================
-   TYPING EMITTER (DEBOUNCE)
-========================= */
-let typingTimer = null;
-let typingState = false;
-
+/* ============================================================
+   BLOC 12 : TYPING INDICATOR (émission)
+   Rôle :
+   - Envoyer l’état "j’écris"
+   Utilité scientifique :
+   - Debounce pour éviter spam Firestore
+============================================================ */
 function bindTypingEmitter() {
   if (!messageInput) return;
 
   messageInput.addEventListener("input", () => {
     setTyping(true);
+
     clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => setTyping(false), 1500);
+    typingTimer = setTimeout(() => {
+      setTyping(false);
+    }, 1500);
   });
 
-  window.addEventListener("beforeunload", () => setTyping(false));
+  window.addEventListener("beforeunload", () => {
+    setTyping(false);
+  });
 }
 
-async function setTyping(v) {
-  if (typingState === v) return;
-  typingState = v;
+async function setTyping(value) {
+  if (typingState === value) return;
+  typingState = value;
+
   try {
-    await updateDoc(chatRef, { [`typing.${myId}`]: v });
-  } catch {}
+    await updateDoc(chatRef, {
+      [`typing.${myId}`]: value
+    });
+  } catch {
+    // best effort
+  }
 }
 
-/* =========================
-   MESSAGES REALTIME
-========================= */
+/* ============================================================
+   BLOC 13 : ÉCOUTE TEMPS RÉEL DES MESSAGES
+   Rôle :
+   - Rendu live des messages
+   - Mise à jour ticks / unread / scroll
+============================================================ */
 function listenMessages() {
   const q = query(messagesRef, orderBy("createdAt", "asc"), limit(300));
 
@@ -239,41 +327,83 @@ function listenMessages() {
       emptyState?.classList.remove("hidden");
       return;
     }
+
     emptyState?.classList.add("hidden");
 
-    snap.forEach((d) => {
-      const m = d.data();
+    snap.forEach((docSnap) => {
+      const m = docSnap.data();
       const isMine = m.senderId === myId;
       messagesEl.appendChild(renderBubble(m, isMine));
     });
 
-    // scroll simple
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    if (isNearBottom) {
+      scrollToBottom();
+    }
 
     await markDeliveredReadAndResetUnread();
     await updateChatReadMeta();
+  }, (error) => {
+    console.error("Erreur onSnapshot messages :", error);
   });
 }
 
-/* =========================
-   SEND MESSAGE (updates chat meta + unreadCount)
-========================= */
-let sending = false;
+/* ============================================================
+   BLOC 14 : COMPORTEMENT DE SCROLL
+   Rôle :
+   - Détecter si l’utilisateur est en bas
+   - Éviter un scroll agressif si plus tard on améliore l’UX
+============================================================ */
+function bindScrollTracking() {
+  messagesWrapper?.addEventListener("scroll", () => {
+    const threshold = 80;
+    const distanceFromBottom =
+      messagesWrapper.scrollHeight -
+      messagesWrapper.scrollTop -
+      messagesWrapper.clientHeight;
 
-function bindSend() {
+    isNearBottom = distanceFromBottom < threshold;
+  });
+}
+
+function scrollToBottom() {
+  if (!messagesWrapper) return;
+  messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
+}
+
+/* ============================================================
+   BLOC 15 : LIENS ENTRE INPUT ET ENVOI
+   Rôle :
+   - Bouton envoyer
+   - Touche Enter
+============================================================ */
+function bindComposerEvents() {
+  bindTypingEmitter();
+
   sendBtn?.addEventListener("click", sendMessage);
+
   messageInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
   });
 }
 
+/* ============================================================
+   BLOC 16 : ENVOI DE MESSAGE
+   Rôle :
+   - Ajouter le message
+   - Mettre à jour lastMessage
+   - Incrémenter unreadCount du destinataire
+============================================================ */
 async function sendMessage() {
   if (sending) return;
+
   const text = (messageInput?.value || "").trim();
   if (!text) return;
 
   sending = true;
-  sendBtn?.setAttribute("disabled","true");
+  sendBtn?.setAttribute("disabled", "true");
   sendBtn?.classList.add("opacity-60");
 
   try {
@@ -288,9 +418,9 @@ async function sendMessage() {
     });
 
     const chatSnap = await getDoc(chatRef);
-    const chat = chatSnap.exists() ? chatSnap.data() : {};
-    const unread = chat.unreadCount || {};
-    const nextFriendUnread = (unread[friendId] || 0) + 1;
+    const chatData = chatSnap.exists() ? chatSnap.data() : {};
+    const unreadMap = chatData.unreadCount || {};
+    const nextFriendUnread = (unreadMap[friendId] || 0) + 1;
 
     await updateDoc(chatRef, {
       lastMessage: text.slice(0, 250),
@@ -302,9 +432,11 @@ async function sendMessage() {
 
     messageInput.value = "";
     messageInput.focus();
-  } catch (e) {
-    console.error("sendMessage:", e);
-    alert("Erreur envoi: " + (e?.message || e));
+
+    scrollToBottom();
+  } catch (error) {
+    console.error("Erreur sendMessage :", error);
+    alert("Envoi impossible : " + (error?.message || error));
   } finally {
     sending = false;
     sendBtn?.removeAttribute("disabled");
@@ -312,11 +444,16 @@ async function sendMessage() {
   }
 }
 
-/* =========================
-   DELIVERED/READ + RESET UNREAD
-========================= */
+/* ============================================================
+   BLOC 17 : DÉLIVRÉ / LU + RESET UNREAD
+   Rôle :
+   - Marquer les messages reçus comme délivrés/lus
+   - Remettre mes non-lus à 0
+============================================================ */
 async function markDeliveredReadAndResetUnread() {
-  await updateDoc(chatRef, { [`unreadCount.${myId}`]: 0 }).catch(() => {});
+  await updateDoc(chatRef, {
+    [`unreadCount.${myId}`]: 0
+  }).catch(() => {});
 
   const mod = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
   const { getDocs } = mod;
@@ -328,17 +465,19 @@ async function markDeliveredReadAndResetUnread() {
   const batch = writeBatch(db);
   let changed = 0;
 
-  snap.forEach((d) => {
-    const m = d.data();
+  snap.forEach((docSnap) => {
+    const m = docSnap.data();
+
     if (m.senderId === myId) return;
 
     const deliveredTo = m.deliveredTo || {};
     const readBy = m.readBy || {};
+
     const needsDelivered = deliveredTo[myId] !== true;
     const needsRead = readBy[myId] !== true;
 
     if (needsDelivered || needsRead) {
-      batch.update(d.ref, {
+      batch.update(docSnap.ref, {
         [`deliveredTo.${myId}`]: true,
         [`readBy.${myId}`]: true
       });
@@ -346,45 +485,29 @@ async function markDeliveredReadAndResetUnread() {
     }
   });
 
-  if (changed > 0) await batch.commit();
+  if (changed > 0) {
+    await batch.commit();
+  }
 }
 
 async function updateChatReadMeta() {
-  await updateDoc(chatRef, { [`lastReadBy.${myId}`]: serverTimestamp() }).catch(() => {});
+  await updateDoc(chatRef, {
+    [`lastReadBy.${myId}`]: serverTimestamp()
+  }).catch(() => {});
 }
 
-/* =========================
-   UI: BUBBLE + TICKS
-========================= */
-function renderBubble(m, isMine) {
+/* ============================================================
+   BLOC 18 : RENDU DES BULLES + TICKS
+   Rôle :
+   - Affichage visuel des messages
+   - ✓ envoyé / ✓✓ délivré / ✓✓ lu
+============================================================ */
+function renderBubble(message, isMine) {
   const wrap = document.createElement("div");
   wrap.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
 
   const bubble = document.createElement("div");
   bubble.className =
     `max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
-      isMine ? "bg-primary text-white rounded-br-md" : "bg-white text-gray-800 rounded-bl-md"
-    }`;
-
-  const textEl = document.createElement("div");
-  textEl.textContent = m.text || "";
-  bubble.appendChild(textEl);
-
-  if (isMine) {
-    const delivered = (m.deliveredTo && m.deliveredTo[friendId]) === true;
-    const read = (m.readBy && m.readBy[friendId]) === true;
-
-    const status = document.createElement("div");
-    status.className = "mt-1 text-[11px] opacity-90 flex justify-end";
-
-    const tick = document.createElement("span");
-    tick.textContent = read ? "✓✓" : delivered ? "✓✓" : "✓";
-    tick.className = read ? "text-sky-200 font-bold" : "text-white/80";
-
-    status.appendChild(tick);
-    bubble.appendChild(status);
-  }
-
-  wrap.appendChild(bubble);
-  return wrap;
-}
+      isMine
+        ? "bg-primary
