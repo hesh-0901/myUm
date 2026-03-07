@@ -5,12 +5,12 @@
 import { db } from "../../mains.js/firebase-config.js";
 
 import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs
+doc,
+getDoc,
+collection,
+query,
+where,
+getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -20,173 +20,216 @@ import {
 
 export async function initHeader() {
 
-  const storedUser = localStorage.getItem("myum_user");
+const storedUser = localStorage.getItem("myum_user");
 
-  // 🔒 Sécurité session
-  if (!storedUser) {
-    window.location.href = "../users/login.html";
-    return;
-  }
+// 🔒 Sécurité session
+if (!storedUser) {
+window.location.href = "/myUm/users/login.html";
+return;
+}
 
-  let user = JSON.parse(storedUser);
-
-
-  // ======================================
-  // RÉCUPÉRER LES DONNÉES FIRESTORE
-  // (important pour photoURL)
-  // ======================================
-
-  try {
-
-    const userRef = doc(db, "users", user.id);
-    const snap = await getDoc(userRef);
-
-    if (snap.exists()) {
-
-      const freshUser = snap.data();
-
-      // Mise à jour localStorage
-      user = {
-        ...user,
-        ...freshUser
-      };
-
-      localStorage.setItem("myum_user", JSON.stringify(user));
-
-    }
-
-  } catch (error) {
-
-    console.error("Erreur récupération utilisateur :", error);
-
-  }
+let user = JSON.parse(storedUser);
 
 
-  // ======================================
-  // NOM UTILISATEUR
-  // ======================================
+// ======================================
+// RÉCUPÉRER LES DONNÉES FIRESTORE
+// ======================================
 
-  const userNameEl = document.getElementById("userName");
+try {
 
-  if (userNameEl) {
+const userRef = doc(db,"users",user.id);
+const snap = await getDoc(userRef);
 
-    userNameEl.innerText =
-      user.firstName + " " + user.lastName;
+if (snap.exists()) {
 
-  }
+const freshUser = snap.data();
+
+user = {
+...user,
+...freshUser
+};
+
+localStorage.setItem("myum_user",JSON.stringify(user));
+
+}
+
+} catch(error){
+
+console.error("Erreur récupération utilisateur :",error);
+
+}
 
 
- // ======================================
-// AVATAR PHOTO OU INITIALES
+// ======================================
+// NOM UTILISATEUR
+// ======================================
+
+const userNameEl = document.getElementById("userName");
+
+if(userNameEl){
+
+userNameEl.innerText =
+user.firstName + " " + user.lastName;
+
+}
+
+
+// ======================================
+// AVATAR PHOTO OU INITIALES (CACHE)
 // ======================================
 
 const profileBtn = document.getElementById("profileBtn");
 
-if (profileBtn) {
+if(profileBtn){
 
-  if (user.photoURL) {
+const cachedAvatar = localStorage.getItem("myum_avatar");
 
-    const img = document.createElement("img");
 
-    img.src = user.photoURL;
-    img.className = "w-full h-full object-cover rounded-full";
+// ==============================
+// AVATAR CACHE (instant)
+// ==============================
 
-    // cache navigateur
-    img.loading = "eager";
-    img.decoding = "async";
+if(cachedAvatar){
 
-    profileBtn.innerHTML = "";
-    profileBtn.appendChild(img);
-
-  } else {
-
-    profileBtn.classList.add(
-      "bg-gradient-to-br",
-      "from-primary",
-      "to-medium",
-      "text-white",
-      "flex",
-      "items-center",
-      "justify-center",
-      "font-semibold"
-    );
-
-    profileBtn.innerText =
-      user.firstName.charAt(0) +
-      user.lastName.charAt(0);
-
-  }
+profileBtn.innerHTML =
+`<img src="${cachedAvatar}"
+class="w-full h-full object-cover rounded-full">`;
 
 }
 
-  // ======================================
-  // NOTIFICATIONS FIRESTORE
-  // ======================================
 
-  try {
+// ==============================
+// TELECHARGER DEPUIS FIREBASE
+// ==============================
 
-    const notifQuery = query(
-      collection(db, "notifications"),
-      where("userId", "==", user.id),
-      where("read", "==", false)
-    );
+else if(user.photoURL){
 
-    const snapshot = await getDocs(notifQuery);
+const img = new Image();
 
-    const badge = document.getElementById("notificationBadge");
+img.src = user.photoURL;
 
-    if (badge && !snapshot.empty) {
+img.onload = () => {
 
-      badge.innerText = snapshot.size;
+const canvas = document.createElement("canvas");
 
-      badge.classList.remove("hidden");
+canvas.width = img.width;
+canvas.height = img.height;
 
-    }
+const ctx = canvas.getContext("2d");
 
-  } catch (error) {
+ctx.drawImage(img,0,0);
 
-    console.error("Erreur notifications :", error);
+const base64 = canvas.toDataURL("image/jpeg",0.8);
 
-  }
+// sauvegarde locale
+localStorage.setItem("myum_avatar",base64);
 
+profileBtn.innerHTML =
+`<img src="${base64}"
+class="w-full h-full object-cover rounded-full">`;
 
-  // ======================================
-  // DROPDOWN PROFIL
-  // ======================================
+};
 
-  if (profileBtn) {
-
-    profileBtn.addEventListener("click", () => {
-
-      const dropdown = document.getElementById("profileDropdown");
-
-      if (dropdown) {
-
-        dropdown.classList.toggle("hidden");
-
-      }
-
-    });
-
-  }
+}
 
 
-  // ======================================
-  // LOGOUT
-  // ======================================
+// ==============================
+// INITIALS SI PAS DE PHOTO
+// ==============================
 
-  const logoutBtn = document.getElementById("logoutBtn");
+else{
 
-  if (logoutBtn) {
+profileBtn.classList.add(
+"bg-gradient-to-br",
+"from-primary",
+"to-medium",
+"text-white",
+"flex",
+"items-center",
+"justify-center",
+"font-semibold"
+);
 
-    logoutBtn.addEventListener("click", () => {
-    
-      sessionStorage.removeItem("myum_session");
-    
-      window.location.href = "/myUm/users/login.html";
-    
-    });
+profileBtn.innerText =
+user.firstName.charAt(0) +
+user.lastName.charAt(0);
 
-  }
+}
+
+}
+
+
+// ======================================
+// NOTIFICATIONS FIRESTORE
+// ======================================
+
+try{
+
+const notifQuery = query(
+collection(db,"notifications"),
+where("userId","==",user.id),
+where("read","==",false)
+);
+
+const snapshot = await getDocs(notifQuery);
+
+const badge = document.getElementById("notificationBadge");
+
+if(badge && !snapshot.empty){
+
+badge.innerText = snapshot.size;
+
+badge.classList.remove("hidden");
+
+}
+
+}catch(error){
+
+console.error("Erreur notifications :",error);
+
+}
+
+
+// ======================================
+// DROPDOWN PROFIL
+// ======================================
+
+if(profileBtn){
+
+profileBtn.addEventListener("click",()=>{
+
+const dropdown =
+document.getElementById("profileDropdown");
+
+if(dropdown){
+
+dropdown.classList.toggle("hidden");
+
+}
+
+});
+
+}
+
+
+// ======================================
+// LOGOUT
+// ======================================
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if(logoutBtn){
+
+logoutBtn.addEventListener("click",()=>{
+
+sessionStorage.removeItem("myum_session");
+
+localStorage.removeItem("myum_user");
+
+window.location.href = "/myUm/users/login.html";
+
+});
+
+}
 
 }
