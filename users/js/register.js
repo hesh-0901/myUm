@@ -131,42 +131,124 @@ ageInput.value = age;
 
 });
 
-
-
 // ======================================
 // FORM SUBMIT
 // ======================================
 
-document.getElementById("registerForm").addEventListener("submit", async(e)=>{
+const registerForm = document.getElementById("registerForm");
+const registerBtn = document.getElementById("registerBtn");
+
+registerForm.addEventListener("submit", async (e) => {
 
 e.preventDefault();
 
+
+// ================================
+// ACTIVER MODE LOADING
+// ================================
+
+registerBtn.disabled = true;
+
+registerBtn.innerHTML = `
+<span class="flex items-center justify-center gap-2">
+<i class="bi bi-arrow-repeat animate-spin"></i>
+Création du compte...
+</span>
+`;
+
+
+// ================================
+// RECUPERATION VALEURS
+// ================================
+
 const firstName = document.getElementById("firstName").value.trim().toUpperCase();
+
 const lastName = document.getElementById("lastName").value.trim().toUpperCase();
 
 const birth = birthday.value;
+
 const age = parseInt(ageInput.value);
 
 const fonction = document.getElementById("fonction").value;
+
 const chorale = document.getElementById("chorale").value;
 
 const phone = document.getElementById("phone").value;
 
 const password = document.getElementById("password").value;
+
 const confirm = document.getElementById("confirmPassword").value;
 
 
+// ================================
+// VALIDATION MOT DE PASSE
+// ================================
 
 if(password !== confirm){
+
 alert("Les mots de passe ne correspondent pas");
+
+resetRegisterButton();
+
 return;
+
 }
 
 
+// ================================
+// VALIDATION AGE
+// ================================
 
 if(age < 15){
+
 alert("Impossible de créer le compte.");
+
+resetRegisterButton();
+
 return;
+
+}
+
+
+// ================================
+// VALIDATION CHAMPS OBLIGATOIRES
+// ================================
+
+if(!firstName || !lastName || !birth || !fonction || !chorale || !phone){
+
+alert("Veuillez remplir tous les champs.");
+
+resetRegisterButton();
+
+return;
+
+}
+
+
+// ================================
+// LE SCRIPT CONTINUE
+// ================================
+
+// ici continue ton script existant
+// check user
+// username
+// upload photo
+// firestore
+
+
+});
+
+
+// ======================================
+// RESET BOUTON
+// ======================================
+
+function resetRegisterButton(){
+
+registerBtn.disabled = false;
+
+registerBtn.innerHTML = "Créer mon compte";
+
 }
 
 
