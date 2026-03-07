@@ -372,6 +372,63 @@ Valider
 
 </div>
 
+<div id="credentialsModal"
+class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+
+<div class="bg-white rounded-3xl p-6 w-[90%] max-w-md text-black">
+
+<h2 class="text-lg font-semibold mb-4">
+Compte créé
+</h2>
+
+<p class="text-sm mb-4 text-gray-600">
+Votre compte est en attente de validation par un administrateur.
+Téléchargez vos identifiants pour ne pas les perdre.
+</p>
+
+<div class="space-y-3 mb-4">
+
+<div class="bg-gray-100 rounded-xl p-3 text-sm">
+<strong>Identifiant :</strong>
+<span id="credUsername"></span>
+</div>
+
+<div class="bg-gray-100 rounded-xl p-3 text-sm">
+<strong>Mot de passe :</strong>
+<span id="credPassword"></span>
+</div>
+
+</div>
+
+<div class="flex flex-col gap-3">
+
+<button id="downloadCredentials"
+class="w-full bg-primary text-white py-2 rounded-xl">
+
+Télécharger mes identifiants
+
+</button>
+
+<button id="copyCredentials"
+class="w-full bg-gray-200 py-2 rounded-xl">
+
+Copier
+
+</button>
+
+<a href="/myUm/index.html"
+class="text-center text-sm text-gray-500">
+
+Retour à la connexion
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
 
 
 <script type="module" src="/myUm/users/js/register.js"></script>
