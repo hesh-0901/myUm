@@ -43,7 +43,7 @@
        - Toute la hauteur de l’écran
        - Aucun scroll global ici
   ============================================================ -->
-  <div class="w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
+  <div class="relative w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- ============================================================
          HEADER ROOM
@@ -94,6 +94,20 @@
         Aucun message pour l’instant.
       </div>
     </main>
+
+<!-- ============================================================
+     BOUTON NOUVEAUX MESSAGES
+     Rôle :
+     - Permet de revenir en bas sans forcer l'utilisateur
+     - Visible seulement si on n'est pas déjà en bas
+============================================================ -->
+<div id="scrollToBottomBtn"
+  class="hidden absolute bottom-24 right-6 z-30">
+  <button
+    class="w-11 h-11 rounded-full bg-primary text-white shadow-lg flex items-center justify-center active:scale-95 transition">
+    <i class="bi bi-arrow-down"></i>
+  </button>
+</div>
     <!-- ============================================================
      BOUTON NOUVEAUX MESSAGES
      Rôle :
