@@ -1,11 +1,12 @@
 // 🔹 1. Configuration Firebase
 const firebaseConfig = {
-    apiKey: "VOTRE_API_KEY",
-    authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
-    projectId: "VOTRE_PROJECT_ID",
-    storageBucket: "VOTRE_PROJECT_ID.appspot.com",
-    messagingSenderId: "VOTRE_SENDER_ID",
-    appId: "VOTRE_APP_ID"
+  apiKey: "AIzaSyDUuDQi3xzCT7lV1lOf3rhq724rfHhiTIQ",
+  authDomain: "umapp-72f36.firebaseapp.com",
+  projectId: "umapp-72f36",
+  storageBucket: "umapp-72f36.firebasestorage.app",
+  messagingSenderId: "483188283543",
+  appId: "1:483188283543:web:b52415f83bf21bad2071d2",
+  measurementId: "G-6X2ELMB8RY"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -98,4 +99,5 @@ async function cleanupOldAnnonces() {
 
 // 🔹 Initialisation
 cleanupOldAnnonces();
+
 loadAnnonces();
