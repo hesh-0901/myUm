@@ -1,7 +1,3 @@
-// ======================================
-// FIREBASE
-// ======================================
-
 import { db } from "../../mains.js/firebase-config.js";
 
 import {
@@ -14,29 +10,21 @@ updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-// ======================================
-// GROUPES (DOSSIERS)
-// ======================================
+// DOSSIERS CHORALES
 
 const GROUPS = [
 
-"Administrateur",
-"Corps administratif",
-"Visiteur",
-"Président",
-"Vice Président",
-"Responsable UM",
-"Comité chorale",
-"Choriste",
-"Conducteur",
-"Instrumentiste"
+{code:"PC",name:"Prophetic Choir"},
+{code:"WS",name:"Wake up song"},
+{code:"VN",name:"Vent Nouveau"},
+{code:"IN",name:"Instrumentiste"},
+{code:"AD",name:"Administration"},
+{code:"GT",name:"Visiteur"}
 
 ];
 
 
-// ======================================
 // DOM
-// ======================================
 
 const foldersGrid = document.getElementById("foldersGrid");
 const foldersView = document.getElementById("foldersView");
@@ -47,51 +35,41 @@ const userDetailView = document.getElementById("userDetailView");
 const backBtn = document.getElementById("backBtn");
 const pageTitle = document.getElementById("pageTitle");
 
-
-// ======================================
-// STATE
-// ======================================
-
-let navigationStack = [];
-let currentUsers = [];
+let navigationStack=[];
 
 
-// ======================================
 // INIT
-// ======================================
 
 init();
 
 function init(){
 
 renderFolders();
-listenPendingUsers();
+listenPending();
 
 }
 
 
-// ======================================
-// CREER DOSSIERS
-// ======================================
+// DOSSIERS
 
 function renderFolders(){
 
-foldersGrid.innerHTML = "";
+foldersGrid.innerHTML="";
 
 GROUPS.forEach(group=>{
 
-const folder = document.createElement("div");
+const folder=document.createElement("div");
 
-folder.className = "folder";
-folder.dataset.group = group;
+folder.className="folder";
+folder.dataset.group=group.code;
 
-folder.innerHTML = `
+folder.innerHTML=`
 <div class="bubble hidden">0</div>
 <i class="bi bi-folder-fill folderIcon"></i>
-<div class="folderName">${group}</div>
+<div class="folderName">${group.name}</div>
 `;
 
-folder.addEventListener("click",()=>openFolder(group));
+folder.onclick=()=>openFolder(group);
 
 foldersGrid.appendChild(folder);
 
@@ -100,60 +78,54 @@ foldersGrid.appendChild(folder);
 }
 
 
-// ======================================
-// ECOUTER LES DEMANDES
-// ======================================
+// ECOUTER FIRESTORE
 
-function listenPendingUsers(){
+function listenPending(){
 
-const q = query(
+const q=query(
 collection(db,"users"),
 where("isActive","==","pending")
 );
 
 onSnapshot(q,(snapshot)=>{
 
-const counters = {};
+const counters={};
 
 GROUPS.forEach(g=>{
-counters[g] = 0;
+counters[g.code]=0;
 });
 
 snapshot.forEach(docSnap=>{
 
-const user = docSnap.data();
+const user=docSnap.data();
 
-if(counters[user.fonction] !== undefined){
-
-counters[user.fonction]++;
-
+if(counters[user.chorale]!==undefined){
+counters[user.chorale]++;
 }
 
 });
 
-updateFolderBubbles(counters);
+updateBubbles(counters);
 
 });
 
 }
 
 
-// ======================================
-// UPDATE BUBBLES
-// ======================================
+// UPDATE BADGES
 
-function updateFolderBubbles(counters){
+function updateBubbles(counters){
 
 document.querySelectorAll(".folder").forEach(folder=>{
 
-const group = folder.dataset.group;
-const bubble = folder.querySelector(".bubble");
+const code=folder.dataset.group;
+const bubble=folder.querySelector(".bubble");
 
-const count = counters[group] || 0;
+const count=counters[code]||0;
 
-if(count > 0){
+if(count>0){
 
-bubble.textContent = count;
+bubble.textContent=count;
 bubble.classList.remove("hidden");
 
 }else{
@@ -167,9 +139,7 @@ bubble.classList.add("hidden");
 }
 
 
-// ======================================
 // OUVRIR DOSSIER
-// ======================================
 
 function openFolder(group){
 
@@ -180,69 +150,38 @@ usersView.classList.remove("hidden");
 
 backBtn.classList.remove("hidden");
 
-pageTitle.textContent = group;
+pageTitle.textContent=group.name;
 
-loadUsers(group);
+loadUsers(group.code);
 
 }
 
 
-// ======================================
 // CHARGER UTILISATEURS
-// ======================================
 
-function loadUsers(group){
+function loadUsers(code){
 
-usersView.innerHTML = "Chargement...";
+usersView.innerHTML="Chargement...";
 
-const q = query(
+const q=query(
 collection(db,"users"),
 where("isActive","==","pending"),
-where("fonction","==",group)
+where("chorale","==",code)
 );
 
 onSnapshot(q,(snapshot)=>{
 
-usersView.innerHTML = "";
-
-currentUsers = [];
+usersView.innerHTML="";
 
 snapshot.forEach(docSnap=>{
 
-const user = docSnap.data();
+const user=docSnap.data();
 
-currentUsers.push({
-id:docSnap.id,
-...user
-});
+const row=document.createElement("div");
 
-renderUserRow(docSnap.id,user);
+row.className="userRow";
 
-});
-
-if(snapshot.empty){
-
-usersView.innerHTML =
-"<div class='text-sm opacity-60'>Aucune demande.</div>";
-
-}
-
-});
-
-}
-
-
-// ======================================
-// RENDER USER ROW
-// ======================================
-
-function renderUserRow(id,user){
-
-const row = document.createElement("div");
-
-row.className = "userRow";
-
-row.innerHTML = `
+row.innerHTML=`
 
 <i class="bi bi-file-earmark-text text-lightblue text-xl"></i>
 
@@ -253,23 +192,25 @@ ${user.firstName} ${user.lastName}
 </div>
 
 <div class="text-xs opacity-70">
-${user.phone || ""}
+${user.phone}
 </div>
 
 </div>
 
 `;
 
-row.addEventListener("click",()=>openUser(id,user));
+row.onclick=()=>openUser(docSnap.id,user);
 
 usersView.appendChild(row);
+
+});
+
+});
 
 }
 
 
-// ======================================
-// OUVRIR FICHE UTILISATEUR
-// ======================================
+// FICHE UTILISATEUR
 
 function openUser(id,user){
 
@@ -278,32 +219,19 @@ navigationStack.push("users");
 usersView.classList.add("hidden");
 userDetailView.classList.remove("hidden");
 
-pageTitle.textContent = "Demande";
+pageTitle.textContent="Demande";
 
-renderUserDetail(id,user);
+userDetailView.innerHTML=`
 
-}
-
-
-// ======================================
-// RENDER DETAIL
-// ======================================
-
-function renderUserDetail(id,user){
-
-userDetailView.innerHTML = `
-
-<div class="card space-y-3">
+<div class="card space-y-2">
 
 <img src="${user.photoURL || '/myUm/assets/default-avatar.png'}"
 class="w-20 h-20 rounded-full object-cover">
 
 <div><b>Nom :</b> ${user.lastName}</div>
 <div><b>Prénom :</b> ${user.firstName}</div>
-<div><b>Fonction :</b> ${user.fonction}</div>
 <div><b>Chorale :</b> ${user.chorale}</div>
 <div><b>Téléphone :</b> ${user.phone}</div>
-<div><b>Username :</b> ${user.username}</div>
 
 </div>
 
@@ -327,86 +255,62 @@ Refuser
 
 `;
 
-document
-.getElementById("approveBtn")
-.addEventListener("click",()=>approveUser(id));
-
-document
-.getElementById("rejectBtn")
-.addEventListener("click",()=>rejectUser(id));
+document.getElementById("approveBtn").onclick=()=>approve(id);
+document.getElementById("rejectBtn").onclick=()=>reject(id);
 
 }
 
 
-// ======================================
-// APPROUVER UTILISATEUR
-// ======================================
+// APPROUVER
 
-async function approveUser(id){
+async function approve(id){
 
-await updateDoc(
-doc(db,"users",id),
-{
+await updateDoc(doc(db,"users",id),{
 isActive:"active"
-}
-);
+});
 
 alert("Utilisateur approuvé");
 
-goBack();
+location.reload();
 
 }
 
 
-// ======================================
-// REFUSER UTILISATEUR
-// ======================================
+// REFUSER
 
-async function rejectUser(id){
+async function reject(id){
 
-await updateDoc(
-doc(db,"users",id),
-{
+await updateDoc(doc(db,"users",id),{
 isActive:"rejected"
-}
-);
+});
 
 alert("Utilisateur refusé");
 
-goBack();
+location.reload();
 
 }
 
 
-// ======================================
-// NAVIGATION BACK
-// ======================================
+// BACK
 
-backBtn.addEventListener("click",goBack);
+backBtn.onclick=()=>{
 
-function goBack(){
+const last=navigationStack.pop();
 
-const last = navigationStack.pop();
-
-if(last === "users"){
+if(last==="users"){
 
 userDetailView.classList.add("hidden");
 usersView.classList.remove("hidden");
 
-pageTitle.textContent =
-document.querySelector(".folder[data-group]")?.dataset.group || "Dossier";
-
-}
-
-else{
+}else{
 
 usersView.classList.add("hidden");
 foldersView.classList.remove("hidden");
 
 backBtn.classList.add("hidden");
 
-pageTitle.textContent = "Gestion des membres";
+pageTitle.textContent="Gestion des membres";
 
 }
 
-}
+};
