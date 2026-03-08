@@ -13,173 +13,88 @@
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
 rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<script>
-tailwind.config = {
-theme:{
-extend:{
-colors:{
-primary:"#1A3668",
-medium:"#2596D9",
-lightblue:"#3FA9F5"
-}
-}
-}
-}
-</script>
-
 <style>
-
-/* BACKGROUND */
 
 body{
 background:linear-gradient(180deg,#0f2145,#1A3668);
 }
 
-
-/* DOSSIERS */
-
 .folder{
-
 position:relative;
-
 display:flex;
 flex-direction:column;
 align-items:center;
-
 gap:8px;
-
 cursor:pointer;
-
-transition:transform .18s ease;
-
+transition:.18s;
 }
 
 .folder:hover{
-
 transform:translateY(-2px);
-
 }
-
-
-/* ICON */
 
 .folderIcon{
-
-font-size:50px;
+font-size:48px;
 color:#3FA9F5;
-
 }
-
-
-/* LABEL */
 
 .folderName{
-
 font-size:13px;
 font-weight:500;
-opacity:.9;
 text-align:center;
-
 }
-
-
-/* BUBBLE */
 
 .bubble{
-
 position:absolute;
-
 top:-4px;
 right:-6px;
-
 background:#ef4444;
 color:white;
-
 font-size:10px;
 font-weight:600;
-
 padding:2px 7px;
-
 border-radius:30px;
-
 }
 
-
-/* LISTE UTILISATEURS */
-
 .userRow{
-
 display:flex;
 align-items:center;
-
 gap:12px;
-
 padding:12px;
-
 border-radius:10px;
-
 background:rgba(255,255,255,.06);
-
 border:1px solid rgba(255,255,255,.08);
-
 cursor:pointer;
-
-transition:.2s;
-
 }
 
 .userRow:hover{
-
 background:rgba(255,255,255,.12);
-
 }
-
-
-/* FICHE */
 
 .card{
-
 background:rgba(255,255,255,.06);
-
 border:1px solid rgba(255,255,255,.08);
-
 border-radius:14px;
-
 padding:16px;
-
 }
 
-
-/* BOUTONS */
-
 .btn{
-
 padding:10px;
-
 border-radius:10px;
-
 font-weight:600;
-
 }
 
 .btnApprove{
-
 background:#16a34a;
-
 }
 
 .btnReject{
-
 background:#dc2626;
-
 }
 
 </style>
@@ -187,21 +102,15 @@ background:#dc2626;
 </head>
 
 
-
 <body class="flex justify-center font-[Inter] text-white">
 
 <div class="w-full max-w-[420px] min-h-screen flex flex-col">
 
 
-<!-- HEADER -->
-
 <header class="flex items-center gap-3 p-5 border-b border-white/10">
 
-<button id="backBtn"
-class="hidden text-white/70 text-lg">
-
+<button id="backBtn" class="hidden text-white/70 text-lg">
 <i class="bi bi-arrow-left"></i>
-
 </button>
 
 <h1 id="pageTitle" class="text-lg font-semibold">
@@ -211,196 +120,20 @@ Gestion des membres
 </header>
 
 
-
-<!-- DOSSIERS -->
-
-<main id="foldersView"
-class="flex-1 overflow-y-auto p-6">
+<main id="foldersView" class="flex-1 overflow-y-auto p-6">
 
 <div id="foldersGrid"
-class="grid grid-cols-3 gap-10 text-center">
-
-
-<div class="folder">
-
-<div class="bubble">5</div>
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Choriste
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<div class="bubble">2</div>
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Administrateur
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<div class="bubble">1</div>
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Corps administratif
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Président
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Vice Président
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Responsable UM
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Comité chorale
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Conducteur
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Instrumentiste
-</div>
-
-</div>
-
-
-<div class="folder">
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">
-Visiteur
-</div>
-
-</div>
-
-
-</div>
+class="grid grid-cols-3 gap-10 text-center"></div>
 
 </main>
 
 
-
-<!-- LISTE UTILISATEURS -->
-
 <section id="usersView"
-class="hidden flex-1 overflow-y-auto p-5 space-y-3">
+class="hidden flex-1 overflow-y-auto p-5 space-y-3"></section>
 
-<div class="userRow">
-
-<i class="bi bi-file-earmark-text text-lightblue text-xl"></i>
-
-<div>
-
-<div class="text-sm font-semibold">
-Jean Mukendi
-</div>
-
-<div class="text-xs opacity-70">
-+243 000 000
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-
-<!-- FICHE UTILISATEUR -->
 
 <section id="userDetailView"
-class="hidden flex-1 overflow-y-auto p-5 space-y-4">
-
-<div class="card space-y-2">
-
-<img src=""
-class="w-20 h-20 rounded-full">
-
-<div><b>Nom :</b> Mukendi</div>
-<div><b>Prénom :</b> Jean</div>
-<div><b>Fonction :</b> Choriste</div>
-<div><b>Chorale :</b> Vent Nouveau</div>
-<div><b>Téléphone :</b> +243000000</div>
-
-</div>
-
-<div class="flex gap-3">
-
-<button class="btn btnApprove flex-1">
-Approuver
-</button>
-
-<button class="btn btnReject flex-1">
-Refuser
-</button>
-
-</div>
-
-</section>
+class="hidden flex-1 overflow-y-auto p-5 space-y-4"></section>
 
 
 </div>
