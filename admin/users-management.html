@@ -40,179 +40,10 @@ lightblue:"#3FA9F5"
 }
 </script>
 
-<style>
-
-/* BACKGROUND FUTURISTE */
-
-body{
-background:
-radial-gradient(circle at 20% 20%, rgba(63,169,245,0.15), transparent 40%),
-radial-gradient(circle at 80% 30%, rgba(37,150,217,0.2), transparent 40%),
-linear-gradient(180deg,#0a1328,#111f3d,#091227);
-}
-
-
-/* DOSSIER FUTURISTE */
-
-.folder{
-
-position:relative;
-
-padding:18px;
-
-border-radius:16px;
-
-background:linear-gradient(
-180deg,
-rgba(255,255,255,0.06),
-rgba(255,255,255,0.02)
-);
-
-border:1px solid rgba(255,255,255,0.1);
-
-backdrop-filter:blur(12px);
-
-transition:all .25s ease;
-
-cursor:pointer;
-
-}
-
-
-/* TAB DU DOSSIER */
-
-.folder::before{
-
-content:"";
-
-position:absolute;
-
-top:-10px;
-
-left:20px;
-
-width:70px;
-
-height:18px;
-
-background:linear-gradient(
-90deg,
-#2596D9,
-#3FA9F5
-);
-
-border-radius:8px 8px 0 0;
-
-opacity:.85;
-
-}
-
-
-/* LIGNE TECH */
-
-.folder::after{
-
-content:"";
-
-position:absolute;
-
-bottom:0;
-
-left:0;
-
-height:2px;
-
-width:100%;
-
-background:linear-gradient(
-90deg,
-transparent,
-#3FA9F5,
-transparent
-);
-
-opacity:.4;
-
-}
-
-
-/* HOVER */
-
-.folder:hover{
-
-transform:translateY(-4px) scale(1.03);
-
-border-color:#3FA9F5;
-
-box-shadow:
-
-0 0 15px rgba(63,169,245,0.4),
-0 0 35px rgba(37,150,217,0.25);
-
-}
-
-
-/* BUBBLE */
-
-.bubble{
-
-position:absolute;
-
-top:-8px;
-
-right:-6px;
-
-background:#ff3b3b;
-
-color:white;
-
-font-size:10px;
-
-font-weight:600;
-
-padding:2px 7px;
-
-border-radius:50px;
-
-box-shadow:0 0 10px rgba(255,0,0,0.6);
-
-}
-
-
-/* ICON */
-
-.folderIcon{
-
-font-size:30px;
-
-color:#3FA9F5;
-
-}
-
-
-/* TITLE */
-
-.folderTitle{
-
-margin-top:8px;
-
-font-size:13px;
-
-font-weight:600;
-
-letter-spacing:.3px;
-
-color:white;
-
-}
-
-</style>
-
 </head>
 
 
-
-<body class="flex justify-center font-[Inter]">
+<body class="bg-gradient-to-b from-primary to-[#0f2145] flex justify-center font-[Inter]">
 
 <div class="w-full max-w-[420px] min-h-screen text-white flex flex-col">
 
@@ -228,147 +59,162 @@ class="text-white/70 text-lg hover:text-white">
 
 </a>
 
-<h1 class="text-lg font-semibold tracking-wide">
+<h1 class="text-lg font-semibold">
 Gestion des membres
 </h1>
 
 </header>
 
 
-
 <!-- MAIN -->
 
 <main class="flex-1 overflow-y-auto p-5">
 
-<div class="grid grid-cols-2 gap-4" id="foldersGrid">
+<div class="grid grid-cols-3 gap-6 text-center" id="foldersGrid">
 
 
 <!-- DOSSIER -->
 
-<div class="folder">
+<div class="relative cursor-pointer group">
 
-<div class="bubble">5</div>
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
+<div class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+5
+</div>
 
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Choriste
 </div>
 
 </div>
 
 
+<div class="relative cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<div class="bubble">2</div>
+<div class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+2
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Administrateur
 </div>
 
 </div>
 
 
+<div class="relative cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<div class="bubble">1</div>
+<div class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+1
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Corps administratif
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Président
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Vice Président
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Responsable UM
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Comité chorale
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Conducteur
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Instrumentiste
 </div>
 
 </div>
 
 
+<div class="cursor-pointer group">
 
-<div class="folder">
+<div class="text-lightblue text-5xl">
+<i class="bi bi-folder-fill"></i>
+</div>
 
-<i class="bi bi-folder2-open folderIcon"></i>
-
-<div class="folderTitle">
+<div class="text-xs mt-2 group-hover:text-lightblue transition">
 Visiteur
 </div>
 
 </div>
-
 
 
 </div>
