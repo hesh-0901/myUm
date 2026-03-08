@@ -1,382 +1,203 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestion des utilisateurs - MyUm</title>
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Gestion membres - MyUm</title>
+
+<link rel="manifest" href="/myUm/manifest.json">
+<link rel="icon" href="/myUm/assets/favicon.png">
+
+<meta name="theme-color" content="#1A3668">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        danger: '#DC2626'
-      }
-    }
-  }
-}
-</script>
 </head>
 
-<body class="bg-gray-100 text-gray-800 pb-24">
 
-<div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+<body class="bg-gray-100 flex justify-center overflow-x-hidden font-display">
 
-  <!-- ========================= -->
-  <!-- HEADER MOBILE FIRST -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-3xl shadow-sm p-5 space-y-4">
-  <div class="mb-3">
-  <button onclick="history.back()"
-    class="text-gray-400 hover:text-primary transition">
-    <i class="bi bi-chevron-left text-sm"></i>
-  </button>
-</div>
-
-    <div>
-      <h1 class="text-lg font-semibold">Gestion des utilisateurs</h1>
-      <p id="usersCount" class="text-xs text-gray-500 mt-1">
-        Chargement...
-      </p>
-    </div>
-
-    <!-- RECHERCHE -->
-    <div class="relative">
-      <input type="text"
-             id="searchInput"
-             placeholder="Rechercher par username ou nom..."
-             class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
-      <i class="bi bi-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
-    </div>
-
-    <!-- ACTIONS -->
-    <div class="flex gap-3">
-
-      <select id="choraleFilter"
-              class="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
-        <option value="all">Toutes les chorales</option>
-      </select>
-
-      <button id="exportBtn"
-        class="w-11 h-11 rounded-xl bg-primary text-white flex items-center justify-center shadow-md active:scale-95 transition">
-        <i class="bi bi-file-earmark-spreadsheet"></i>
-      </button>
-
-    </div>
-
-  </div>
+<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
 
-  <!-- ========================= -->
-  <!-- TABLE -->
-  <!-- ========================= -->
-  <div class="bg-white rounded-3xl shadow-sm overflow-hidden">
+<!-- HEADER -->
 
-    <div class="overflow-x-auto">
+<header class="flex items-center gap-3 p-5 border-b">
 
-      <table class="min-w-full text-sm">
+<a href="/myUm/public/dashboard.html"
+class="text-gray-600 text-lg">
 
-        <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-          <tr>
-            <th class="px-4 py-3 text-left">#</th>
-            <th class="px-4 py-3 text-left">Username</th>
-            <th class="px-4 py-3 text-left">Nom complet</th>
-            <th class="px-4 py-3 text-left">Rôle</th>
-            <th class="px-4 py-3 text-left">Chorale</th>
-            <th class="px-4 py-3 text-left">Statut</th>
-            <th class="px-4 py-3 text-center">Actions</th>
-          </tr>
-        </thead>
+<i class="bi bi-arrow-left"></i>
 
-        <tbody id="usersTableBody"
-               class="divide-y divide-gray-100">
-        </tbody>
+</a>
 
-      </table>
+<h1 class="text-lg font-semibold">
+Gestion des membres
+</h1>
 
-    </div>
+</header>
 
-  </div>
+
+<!-- MAIN -->
+
+<main class="flex-1 overflow-y-auto p-5">
+
+<div class="grid grid-cols-2 gap-4" id="foldersGrid">
+
+
+<!-- DOSSIER -->
+
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
+
+<div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+
+5
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-<script type="module">
+<div class="mt-2 text-sm font-semibold">
+Choriste
+</div>
 
-import { db } from "/myUm/mains.js/firebase-config.js";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+</div>
 
-const tableBody = document.getElementById("usersTableBody");
-const usersCount = document.getElementById("usersCount");
-const searchInput = document.getElementById("searchInput");
-const choraleFilter = document.getElementById("choraleFilter");
-const exportBtn = document.getElementById("exportBtn");
 
-let allUsers = [];
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-// =========================
-// LOAD USERS
-// =========================
-async function loadUsers() {
+<div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
 
-  const snapshot = await getDocs(collection(db, "users"));
+2
 
-  allUsers = [];
+</div>
 
-  snapshot.forEach(docSnap => {
-    allUsers.push({ id: docSnap.id, ...docSnap.data() });
-  });
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-  usersCount.innerText = `${allUsers.length} membres`;
+<div class="mt-2 text-sm font-semibold">
+Administrateur
+</div>
 
-  populateChoraleFilter();
-  renderUsers(allUsers);
-}
+</div>
 
-loadUsers();
 
-// =========================
-// RENDER TABLE
-// =========================
-function renderUsers(users) {
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-  tableBody.innerHTML = "";
+<div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
 
-  users.forEach((user, index) => {
+1
 
-    const roleColor =
-      user.role === "super_admin"
-        ? "bg-purple-100 text-purple-700"
-        : user.role === "admin"
-        ? "bg-primary/10 text-primary"
-        : "bg-gray-100 text-gray-700";
+</div>
 
-    const activeColor =
-      user.isActive
-        ? "bg-green-100 text-green-700"
-        : "bg-red-100 text-red-600";
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-    const row = document.createElement("tr");
-    row.className = "hover:bg-gray-50 transition";
+<div class="mt-2 text-sm font-semibold">
+Corps administratif
+</div>
 
-    row.innerHTML = `
-      <td class="px-4 py-3">${index + 1}</td>
+</div>
 
-      <td class="px-4 py-3 font-medium">
-        ${user.username}
-      </td>
 
-      <td class="px-4 py-3">
-        ${user.firstName} ${user.lastName}
-      </td>
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-      <td class="px-4 py-3">
-        <span class="px-2 py-1 text-xs rounded-full ${roleColor}">
-          ${user.role}
-        </span>
-      </td>
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-      <td class="px-4 py-3">
-        ${user.chorale ?? "-"}
-      </td>
+<div class="mt-2 text-sm font-semibold">
+Président
+</div>
 
-      <td class="px-4 py-3">
-        <span class="px-2 py-1 text-xs rounded-full ${activeColor}">
-          ${user.isActive ? "Actif" : "Inactif"}
-        </span>
-      </td>
+</div>
 
-      <td class="px-4 py-3 text-center">
-        <div class="flex justify-center gap-3">
 
-          <button onclick="toggleActive('${user.id}')"
-            class="text-gray-400 hover:text-primary">
-            <i class="bi bi-power"></i>
-          </button>
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-          <button onclick="changeRole('${user.id}')"
-            class="text-gray-400 hover:text-primary">
-            <i class="bi bi-person-gear"></i>
-          </button>
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-          <button onclick="viewDetails('${user.id}')"
-            class="text-gray-400 hover:text-primary">
-            <i class="bi bi-eye"></i>
-          </button>
+<div class="mt-2 text-sm font-semibold">
+Vice Président
+</div>
 
-        </div>
-      </td>
-    `;
+</div>
 
-    tableBody.appendChild(row);
-  });
-}
 
-// =========================
-// SEARCH
-// =========================
-searchInput.addEventListener("input", () => {
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-  const value = searchInput.value.toLowerCase();
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-  const filtered = allUsers.filter(user =>
-    user.username.toLowerCase().includes(value) ||
-    (user.firstName + " " + user.lastName).toLowerCase().includes(value)
-  );
+<div class="mt-2 text-sm font-semibold">
+Responsable UM
+</div>
 
-  renderUsers(filtered);
-});
+</div>
 
-// =========================
-// FILTER CHORALE
-// =========================
-function populateChoraleFilter() {
 
-  choraleFilter.innerHTML = `<option value="all">Toutes les chorales</option>`;
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-  const chorales = [...new Set(allUsers.map(u => u.chorale).filter(Boolean))];
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-  chorales.forEach(c => {
-    const option = document.createElement("option");
-    option.value = c;
-    option.innerText = c;
-    choraleFilter.appendChild(option);
-  });
-}
+<div class="mt-2 text-sm font-semibold">
+Comité chorale
+</div>
 
-choraleFilter.addEventListener("change", () => {
+</div>
 
-  if (choraleFilter.value === "all") {
-    renderUsers(allUsers);
-  } else {
-    const filtered = allUsers.filter(u => u.chorale === choraleFilter.value);
-    renderUsers(filtered);
-  }
-});
 
-// =========================
-// ACTIONS
-// =========================
-window.viewDetails = function(id) {
-  window.location.href = `/myUm/admin/user-details.html?uid=${id}`;
-};
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-window.toggleActive = async function(id) {
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-  const user = allUsers.find(u => u.id === id);
-  if (!user) return;
+<div class="mt-2 text-sm font-semibold">
+Conducteur
+</div>
 
-  await updateDoc(doc(db, "users", id), {
-    isActive: !user.isActive
-  });
+</div>
 
-  loadUsers();
-};
 
-window.changeRole = async function(id) {
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-  const newRole = prompt("Nouveau rôle ? (choriste / admin / super_admin)");
-  if (!newRole) return;
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-  await updateDoc(doc(db, "users", id), {
-    role: newRole
-  });
+<div class="mt-2 text-sm font-semibold">
+Instrumentiste
+</div>
 
-  loadUsers();
-};
+</div>
 
-// =========================
-// EXPORT XLSX STRUCTURÉ
-// =========================
-exportBtn.addEventListener("click", () => {
 
-  if (allUsers.length === 0) return;
+<div class="folderCard relative bg-gray-50 border border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-100 transition">
 
-  if (typeof XLSX === "undefined") {
-    alert("La librairie XLSX n'est pas chargée.");
-    return;
-  }
+<i class="bi bi-folder-fill text-3xl text-medium"></i>
 
-  const formattedData = allUsers.map(user => ({
+<div class="mt-2 text-sm font-semibold">
+Visiteur
+</div>
 
-    // =========================
-    // IDENTITÉ
-    // =========================
-    ID: user.id,
-    Username: user.username ?? "",
-    Prénom: user.firstName ?? "",
-    Nom: user.lastName ?? "",
-    Date_naissance: user.birthday ?? "",
-    Âge: user.age ?? "",
-    Téléphone: user.phone ?? "",
-    Genre: user.genre ?? "",
+</div>
 
-    // =========================
-    // SITUATION PERSONNELLE
-    // =========================
-    État_civil: user.etatCivil ?? "",
-    Statut_relationnel: user.statutRelationnel ?? "",
-    Avenue: user.avenue ?? "",
-    Commune: user.commune ?? "",
-    Bio: user.bio ?? "",
 
-    // =========================
-    // INFORMATIONS ECCLÉSIASTIQUES
-    // =========================
-    Chorale: user.chorale ?? "",
-    Fonction_actuelle: user.fonction ?? "",
-    Ancienne_fonction: user.ancienneFonction ?? "",
-    Église_provenance: user.egliseProvenance ?? "",
-    Année_baptême: user.anneeBapteme ?? "",
-    Type_baptême: user.typeBapteme ?? "",
-    Statut_affermissement: user.statutAffermissement ?? "",
-    Responsable_ministère: user.responsableMinistere ?? "",
-    Groupe_musique: user.groupeMusique ?? "",
-    Registre_voix: user.registreVoix ?? "",
+</div>
 
-    // =========================
-    // SYSTÈME
-    // =========================
-    Rôle_système: user.role ?? "",
-    Nombre_amis: user.friendsCount ?? 0,
-    Vie_séculière: Array.isArray(user.vieSeculiere)
-      ? user.vieSeculiere.join(", ")
-      : ""
-  }));
+</main>
 
-  const worksheet = XLSX.utils.json_to_sheet(formattedData);
 
-  // Largeur propre des colonnes
-  worksheet["!cols"] = [
-    { wch: 28 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
-    { wch: 15 }, { wch: 8 },  { wch: 18 }, { wch: 12 },
-    { wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 15 },
-    { wch: 40 },
-    { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 25 },
-    { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 20 },
-    { wch: 18 }, { wch: 18 },
-    { wch: 18 }, { wch: 14 }, { wch: 30 }
-  ];
+</div>
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Utilisateurs");
 
-  const today = new Date().toISOString().split("T")[0];
+<script type="module" src="/myUm/admin/js/users-management.js"></script>
 
-  XLSX.writeFile(workbook, `users_export_complet_${today}.xlsx`);
-});
-
-</script>
 </body>
 </html>
