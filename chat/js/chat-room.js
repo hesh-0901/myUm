@@ -82,7 +82,7 @@ const scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
    - Retour menu chat
 ============================================================ */
 backBtn?.addEventListener("click", () => {
-  window.location.href = "list.html";
+  window.location.href = "index.html";
 });
 
 chatHomeBtn?.addEventListener("click", () => {
