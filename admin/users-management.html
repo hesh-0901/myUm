@@ -31,7 +31,7 @@ flex-direction:column;
 align-items:center;
 gap:8px;
 cursor:pointer;
-transition:.18s;
+transition:.2s;
 }
 
 .folder:hover{
@@ -39,7 +39,7 @@ transform:translateY(-2px);
 }
 
 .folderIcon{
-font-size:48px;
+font-size:46px;
 color:#3FA9F5;
 }
 
@@ -97,10 +97,18 @@ background:#16a34a;
 background:#dc2626;
 }
 
+.searchBox{
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.08);
+border-radius:10px;
+padding:10px;
+color:white;
+width:100%;
+}
+
 </style>
 
 </head>
-
 
 <body class="flex justify-center font-[Inter] text-white">
 
@@ -109,18 +117,28 @@ background:#dc2626;
 
 <header class="flex items-center gap-3 p-5 border-b border-white/10">
 
-<button id="backBtn" class="hidden text-white/70 text-lg">
+<button id="backBtn"
+class="hidden text-white/70 text-lg">
+
 <i class="bi bi-arrow-left"></i>
+
 </button>
 
-<h1 id="pageTitle" class="text-lg font-semibold">
+<h1 id="pageTitle"
+class="text-lg font-semibold flex-1">
+
 Gestion des membres
+
 </h1>
 
 </header>
 
 
-<main id="foldersView" class="flex-1 overflow-y-auto p-6">
+
+<!-- DOSSIERS -->
+
+<main id="foldersView"
+class="flex-1 overflow-y-auto p-6">
 
 <div id="foldersGrid"
 class="grid grid-cols-3 gap-10 text-center"></div>
@@ -128,9 +146,32 @@ class="grid grid-cols-3 gap-10 text-center"></div>
 </main>
 
 
-<section id="usersView"
-class="hidden flex-1 overflow-y-auto p-5 space-y-3"></section>
 
+<!-- LISTE USERS -->
+
+<section id="usersView"
+class="hidden flex-1 overflow-y-auto p-5 space-y-3">
+
+<input id="searchInput"
+placeholder="Recherche..."
+class="searchBox">
+
+<select id="sortSelect"
+class="searchBox">
+
+<option value="date">Date inscription</option>
+<option value="age">Age</option>
+
+</select>
+
+<div id="usersList"
+class="space-y-2"></div>
+
+</section>
+
+
+
+<!-- DETAIL USER -->
 
 <section id="userDetailView"
 class="hidden flex-1 overflow-y-auto p-5 space-y-4"></section>
@@ -138,7 +179,9 @@ class="hidden flex-1 overflow-y-auto p-5 space-y-4"></section>
 
 </div>
 
-<script type="module" src="/myUm/admin/js/users-management.js"></script>
+
+<script type="module"
+src="/myUm/admin/js/users-management.js"></script>
 
 </body>
 </html>
