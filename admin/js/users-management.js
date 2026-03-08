@@ -10,7 +10,7 @@ updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-// DOSSIERS CHORALES
+// CHORALES
 
 const GROUPS = [
 
@@ -27,15 +27,26 @@ const GROUPS = [
 // DOM
 
 const foldersGrid = document.getElementById("foldersGrid");
-const foldersView = document.getElementById("foldersView");
 
+const foldersView = document.getElementById("foldersView");
 const usersView = document.getElementById("usersView");
 const userDetailView = document.getElementById("userDetailView");
 
+const usersList = document.getElementById("usersList");
+
 const backBtn = document.getElementById("backBtn");
+
 const pageTitle = document.getElementById("pageTitle");
 
-let navigationStack=[];
+const searchInput = document.getElementById("searchInput");
+const sortSelect = document.getElementById("sortSelect");
+
+
+// STATE
+
+let usersCache=[];
+let currentGroup=null;
+let nav=[];
 
 
 // INIT
@@ -45,7 +56,7 @@ init();
 function init(){
 
 renderFolders();
-listenPending();
+listenCounters();
 
 }
 
@@ -61,12 +72,16 @@ GROUPS.forEach(group=>{
 const folder=document.createElement("div");
 
 folder.className="folder";
-folder.dataset.group=group.code;
+folder.dataset.code=group.code;
 
 folder.innerHTML=`
+
 <div class="bubble hidden">0</div>
+
 <i class="bi bi-folder-fill folderIcon"></i>
+
 <div class="folderName">${group.name}</div>
+
 `;
 
 folder.onclick=()=>openFolder(group);
@@ -78,16 +93,16 @@ foldersGrid.appendChild(folder);
 }
 
 
-// ECOUTER FIRESTORE
+// BADGES
 
-function listenPending(){
+function listenCounters(){
 
 const q=query(
 collection(db,"users"),
 where("isActive","==","pending")
 );
 
-onSnapshot(q,(snapshot)=>{
+onSnapshot(q,(snap)=>{
 
 const counters={};
 
@@ -95,12 +110,12 @@ GROUPS.forEach(g=>{
 counters[g.code]=0;
 });
 
-snapshot.forEach(docSnap=>{
+snap.forEach(docSnap=>{
 
-const user=docSnap.data();
+const u=docSnap.data();
 
-if(counters[user.chorale]!==undefined){
-counters[user.chorale]++;
+if(counters[u.chorale]!==undefined){
+counters[u.chorale]++;
 }
 
 });
@@ -112,13 +127,11 @@ updateBubbles(counters);
 }
 
 
-// UPDATE BADGES
-
 function updateBubbles(counters){
 
 document.querySelectorAll(".folder").forEach(folder=>{
 
-const code=folder.dataset.group;
+const code=folder.dataset.code;
 const bubble=folder.querySelector(".bubble");
 
 const count=counters[code]||0;
@@ -139,11 +152,13 @@ bubble.classList.add("hidden");
 }
 
 
-// OUVRIR DOSSIER
+// OPEN FOLDER
 
 function openFolder(group){
 
-navigationStack.push("folders");
+currentGroup=group.code;
+
+nav.push("folders");
 
 foldersView.classList.add("hidden");
 usersView.classList.remove("hidden");
@@ -152,30 +167,84 @@ backBtn.classList.remove("hidden");
 
 pageTitle.textContent=group.name;
 
-loadUsers(group.code);
+listenUsers();
 
 }
 
 
-// CHARGER UTILISATEURS
+// USERS
 
-function loadUsers(code){
-
-usersView.innerHTML="Chargement...";
+function listenUsers(){
 
 const q=query(
 collection(db,"users"),
 where("isActive","==","pending"),
-where("chorale","==",code)
+where("chorale","==",currentGroup)
 );
 
-onSnapshot(q,(snapshot)=>{
+onSnapshot(q,(snap)=>{
 
-usersView.innerHTML="";
+usersCache=[];
 
-snapshot.forEach(docSnap=>{
+snap.forEach(docSnap=>{
 
-const user=docSnap.data();
+usersCache.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+renderUsers();
+
+});
+
+}
+
+
+// RENDER USERS
+
+function renderUsers(){
+
+let list=[...usersCache];
+
+const search=searchInput.value.toLowerCase();
+
+if(search){
+
+list=list.filter(u=>
+
+(u.firstName||"").toLowerCase().includes(search) ||
+(u.lastName||"").toLowerCase().includes(search) ||
+(u.phone||"").includes(search) ||
+(u.username||"").toLowerCase().includes(search)
+
+);
+
+}
+
+
+// SORT
+
+if(sortSelect.value==="age"){
+
+list.sort((a,b)=>(b.age||0)-(a.age||0));
+
+}else{
+
+list.sort((a,b)=>{
+
+return (b.createdAt?.seconds||0) -
+(a.createdAt?.seconds||0);
+
+});
+
+}
+
+
+usersList.innerHTML="";
+
+list.forEach(u=>{
 
 const row=document.createElement("div");
 
@@ -188,33 +257,42 @@ row.innerHTML=`
 <div>
 
 <div class="text-sm font-semibold">
-${user.firstName} ${user.lastName}
+
+${u.firstName} ${u.lastName}
+
 </div>
 
 <div class="text-xs opacity-70">
-${user.phone}
+
+${u.phone||""}
+
 </div>
 
 </div>
 
 `;
 
-row.onclick=()=>openUser(docSnap.id,user);
+row.onclick=()=>openUser(u);
 
-usersView.appendChild(row);
-
-});
+usersList.appendChild(row);
 
 });
 
 }
 
 
-// FICHE UTILISATEUR
+// SEARCH EVENTS
 
-function openUser(id,user){
+searchInput.oninput=renderUsers;
 
-navigationStack.push("users");
+sortSelect.onchange=renderUsers;
+
+
+// USER DETAIL
+
+function openUser(user){
+
+nav.push("users");
 
 usersView.classList.add("hidden");
 userDetailView.classList.remove("hidden");
@@ -232,6 +310,7 @@ class="w-20 h-20 rounded-full object-cover">
 <div><b>Prénom :</b> ${user.firstName}</div>
 <div><b>Chorale :</b> ${user.chorale}</div>
 <div><b>Téléphone :</b> ${user.phone}</div>
+<div><b>Username :</b> ${user.username}</div>
 
 </div>
 
@@ -255,13 +334,13 @@ Refuser
 
 `;
 
-document.getElementById("approveBtn").onclick=()=>approve(id);
-document.getElementById("rejectBtn").onclick=()=>reject(id);
+document.getElementById("approveBtn").onclick=()=>approve(user.id);
+document.getElementById("rejectBtn").onclick=()=>reject(user.id);
 
 }
 
 
-// APPROUVER
+// APPROVE
 
 async function approve(id){
 
@@ -276,7 +355,7 @@ location.reload();
 }
 
 
-// REFUSER
+// REJECT
 
 async function reject(id){
 
@@ -295,7 +374,7 @@ location.reload();
 
 backBtn.onclick=()=>{
 
-const last=navigationStack.pop();
+const last=nav.pop();
 
 if(last==="users"){
 
