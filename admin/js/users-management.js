@@ -20,6 +20,7 @@ const tabPending = document.getElementById("tabPending");
 const tabRejected = document.getElementById("tabRejected");
 
 const searchInput = document.getElementById("searchInput");
+const choraleFilter = document.getElementById("choraleFilter");
 
 const countActive = document.getElementById("countActive");
 const countPending = document.getElementById("countPending");
@@ -66,6 +67,7 @@ tabRejected.addEventListener("click",()=>switchTab("rejected"));
 // Recherche utilisateurs
 
 searchInput.addEventListener("input",filterUsers);
+choraleFilter.addEventListener("change",filterUsers);
 
 
 // Fermeture modal
@@ -208,14 +210,22 @@ usersContainer.appendChild(el);
 
 function filterUsers(){
 
-const term=searchInput.value.toLowerCase();
+const term = searchInput.value.toLowerCase();
+const chorale = choraleFilter.value;
 
-filteredUsers=users.filter(user=>{
+filteredUsers = users.filter(user => {
 
-const name=(user.displayName||"").toLowerCase();
-const email=(user.email||"").toLowerCase();
+const name = `${user.firstName||""} ${user.lastName||""}`.toLowerCase();
+const username = (user.username||"").toLowerCase();
 
-return name.includes(term)||email.includes(term);
+const matchSearch =
+name.includes(term) ||
+username.includes(term);
+
+const matchChorale =
+!chorale || user.chorale === chorale;
+
+return matchSearch && matchChorale;
 
 });
 
