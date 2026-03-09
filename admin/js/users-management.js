@@ -215,26 +215,34 @@ return;
 
 }
 
-filteredUsers.forEach(user=>{
+filteredUsers.forEach((user,index)=>{
 
 const row=document.createElement("div");
 
-row.className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50";
+row.className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50";
 
 row.innerHTML=`
 
+<div class="text-xs w-6 text-gray-400">
+${index+1}
+</div>
+
 <img
 src="${user.photoURL||"/myUm/assets/default-avatar.png"}"
-class="w-12 h-12 rounded-full object-cover">
+class="w-10 h-10 rounded-full object-cover">
 
 <div class="flex-1">
 
 <div class="text-sm font-medium">
-${user.displayName||"Utilisateur"}
+
+${user.firstName||""} ${user.lastName||""}
+
 </div>
 
-<div class="text-xs opacity-60">
-${user.email||""}
+<div class="text-xs text-gray-500">
+
+@${user.username||"username"}
+
 </div>
 
 </div>
