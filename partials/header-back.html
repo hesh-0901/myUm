@@ -1,19 +1,36 @@
 <header id="globalBackHeader"
-class="fixed top-0 left-0 right-0 z-50
+class="fixed top-0
+       w-full max-w-[420px]
        h-16 flex items-center
-       px-5
-       bg-white/80 backdrop-blur-xl
-       border-b border-gray-200">
+       px-4
+       bg-white/90 backdrop-blur-md
+       border-b border-gray-200
+       z-50">
+
+  <!-- BACK BUTTON -->
 
   <button id="globalBackBtn"
-    class="w-10 h-10 flex items-center justify-center
+    class="w-9 h-9 flex items-center justify-center
            rounded-full
-           text-blue-600
-           hover:bg-blue-50
+           text-gray-500
+           hover:bg-gray-100
            active:scale-90 transition">
 
-    <i class="bi bi-arrow-left text-xl"></i>
+    <i class="bi bi-arrow-left text-lg"></i>
 
   </button>
+
+  <!-- PAGE TITLE -->
+
+  <h1 id="backHeaderTitle"
+      class="flex-1 text-center
+             text-sm font-semibold
+             text-gray-800">
+
+  </h1>
+
+  <!-- SPACER (align title center) -->
+
+  <div class="w-9"></div>
 
 </header>
