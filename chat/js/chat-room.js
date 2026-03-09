@@ -74,6 +74,7 @@ const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
 const scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
+const voiceCallBtn = document.getElementById("voiceCallBtn");
 
 /* ============================================================
    BLOC 4 : NAVIGATION LOCALE
@@ -88,7 +89,9 @@ backBtn?.addEventListener("click", () => {
 chatHomeBtn?.addEventListener("click", () => {
   window.location.href = "index.html";
 });
-
+voiceCallBtn?.addEventListener("click", () => {
+  window.location.href = `call-voice.html?uid=${encodeURIComponent(friendId)}&mode=caller`;
+});
 /* ============================================================
    BLOC 5 : CHAT ID STABLE
    Rôle :
