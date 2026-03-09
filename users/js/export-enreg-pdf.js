@@ -231,16 +231,30 @@ return y+6;
 
 function imageToBase64(img){
 
+return new Promise((resolve)=>{
+
+const image = new Image();
+
+image.crossOrigin = "anonymous";
+
+image.onload = () => {
+
 const canvas = document.createElement("canvas");
 
-canvas.width = img.naturalWidth;
-canvas.height = img.naturalHeight;
+canvas.width = image.width;
+canvas.height = image.height;
 
 const ctx = canvas.getContext("2d");
 
-ctx.drawImage(img,0,0);
+ctx.drawImage(image,0,0);
 
-return canvas.toDataURL("image/jpeg");
+resolve(canvas.toDataURL("image/jpeg"));
+
+};
+
+image.src = img.src;
+
+});
 
 }
 
