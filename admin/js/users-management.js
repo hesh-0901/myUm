@@ -96,9 +96,9 @@ try{
 
 const ref = collection(db,"users");
 
-const activeSnap = await getDocs(query(ref,where("status","==","active")));
-const pendingSnap = await getDocs(query(ref,where("status","==","pending")));
-const rejectedSnap = await getDocs(query(ref,where("status","==","rejected")));
+const activeSnap = await getDocs(query(ref,where("isActive","==","active")));
+const pendingSnap = await getDocs(query(ref,where("isActive","==","pending")));
+const rejectedSnap = await getDocs(query(ref,where("isActive","==","rejected")));
 
 countActive.textContent = activeSnap.size;
 countPending.textContent = pendingSnap.size;
