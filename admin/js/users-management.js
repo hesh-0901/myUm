@@ -228,7 +228,7 @@ ${index+1}
 </div>
 
 <img
-src="${user.photoURL||"/myUm/assets/default-avatar.png"}"
+src="${user.photoURL || "https://ui-avatars.com/api/?name=User"}"
 class="w-10 h-10 rounded-full object-cover">
 
 <div class="flex-1">
