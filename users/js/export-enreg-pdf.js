@@ -1,5 +1,5 @@
 // =======================================
-// EXPORT ENREG PDF - MYUM OFFICIAL
+// EXPORT ENREG PDF - MYUM
 // =======================================
 
 import { db } from "/myUm/mains.js/firebase-config.js";
@@ -24,7 +24,7 @@ async function init() {
 
   currentUserId = sessionUser.id;
 
-  const snap = await getDoc(doc(db, "users", currentUserId));
+  const snap = await getDoc(doc(db,"users",currentUserId));
   if (!snap.exists()) return;
 
   userData = snap.data();
@@ -35,38 +35,45 @@ async function init() {
 
 
 // =======================================
-// WAIT HEADER (partials load)
+// WAIT HEADER LOAD
 // =======================================
 
-function waitForHeader() {
+function waitForHeader(){
 
-  const interval = setInterval(() => {
+  const observer = new MutationObserver(() => {
 
     const container = document.getElementById("header-actions");
 
-    if (container) {
-
-      clearInterval(interval);
+    if(container){
 
       injectPDFButton(container);
 
+      observer.disconnect();
+
     }
 
-  }, 100);
+  });
+
+  observer.observe(document.body,{
+    childList:true,
+    subtree:true
+  });
 
 }
 
 
 // =======================================
-// BUTTON IN HEADER
+// ADD BUTTON
 // =======================================
 
-function injectPDFButton(container) {
+function injectPDFButton(container){
+
+  if(container.querySelector(".pdf-export-btn")) return;
 
   const btn = document.createElement("button");
 
   btn.className =
-  "w-10 h-10 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition";
+  "pdf-export-btn w-10 h-10 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition";
 
   btn.innerHTML =
   `<i class="bi bi-file-earmark-pdf text-lg"></i>`;
@@ -84,22 +91,20 @@ function injectPDFButton(container) {
 // GENERATE PDF
 // =======================================
 
-async function generatePDF() {
+async function generatePDF(){
 
   const { jsPDF } = window.jspdf;
 
   const pdf = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4"
+    orientation:"portrait",
+    unit:"mm",
+    format:"a4"
   });
 
   let y = 20;
 
 
-  // =========================
-  // LOGO MYUM
-  // =========================
+  // LOGO
 
   const logo = await loadImage("/myUm/assets/logo-myum.png");
 
@@ -113,13 +118,11 @@ async function generatePDF() {
   y += 15;
 
 
-  // =========================
-  // PHOTO PROFIL
-  // =========================
+  // PHOTO
 
   const imgEl = document.getElementById("profilePhoto");
 
-  if (imgEl && imgEl.src) {
+  if(imgEl && imgEl.src){
 
     const base64 = imageToBase64(imgEl);
 
@@ -130,39 +133,30 @@ async function generatePDF() {
   y += 50;
 
 
-  // =========================
-  // NOM
-  // =========================
+  // NAME
 
   const fullName =
   `${userData.firstName || ""} ${userData.lastName || ""}`;
 
   pdf.setFontSize(18);
-
   pdf.text(fullName,105,y,{align:"center"});
 
   y += 8;
 
-
   pdf.setFontSize(12);
-
   pdf.text(`@${userData.username}`,105,y,{align:"center"});
 
   y += 6;
 
-
-  if (userData.fonction) {
+  if(userData.fonction){
 
     pdf.text(userData.fonction,105,y,{align:"center"});
-
     y += 10;
 
   }
 
 
-  // =========================
-  // ID UTILISATEUR
-  // =========================
+  // ID
 
   pdf.setFontSize(10);
 
@@ -171,9 +165,7 @@ async function generatePDF() {
   y += 15;
 
 
-  // =========================
-  // INFOS PERSONNELLES
-  // =========================
+  // PERSONAL
 
   addSection(pdf,"Informations personnelles",y);
 
@@ -185,52 +177,21 @@ async function generatePDF() {
   y = addLine(pdf,"Commune",userData.commune,y);
   y = addLine(pdf,"Avenue",userData.avenue,y);
 
-  if (userData.vieSeculiere) {
+  if(userData.vieSeculiere){
 
-    const value =
+    const v =
     Array.isArray(userData.vieSeculiere)
     ? userData.vieSeculiere.join(", ")
     : userData.vieSeculiere;
 
-    y = addLine(pdf,"Vie séculière",value,y);
+    y = addLine(pdf,"Vie séculière",v,y);
 
   }
 
   y += 10;
 
 
-  // =========================
-  // INFOS EGLISE
-  // =========================
-
-  addSection(pdf,"Informations ecclésiastiques",y);
-
-  y += 8;
-
-  y = addLine(pdf,"Eglise",userData.egliseProvenance,y);
-  y = addLine(pdf,"Année baptême",userData.anneeBapteme,y);
-  y = addLine(pdf,"Responsable",userData.responsableMinistere,y);
-
-  y += 10;
-
-
-  // =========================
-  // MUSIQUE
-  // =========================
-
-  addSection(pdf,"Compétences musicales",y);
-
-  y += 8;
-
-  y = addLine(pdf,"Registre",userData.registreVoix,y);
-  y = addLine(pdf,"Groupe",userData.groupeMusique,y);
-
-  y += 20;
-
-
-  // =========================
-  // DATE CREATION
-  // =========================
+  // DATE
 
   const now = new Date();
 
@@ -246,27 +207,7 @@ async function generatePDF() {
   y += 12;
 
 
-  // =========================
-  // SIGNATURE NUMERIQUE
-  // =========================
-
-  const signature = await createSignature();
-
-  pdf.setFontSize(9);
-
-  pdf.text(
-  `Signature numérique : ${signature}`,
-  105,
-  y,
-  {align:"center"}
-  );
-
-  y += 15;
-
-
-  // =========================
-  // QR CODE VERIFICATION
-  // =========================
+  // QR
 
   const verifyURL =
   `${window.location.origin}/verify.html?uid=${currentUserId}`;
@@ -279,8 +220,6 @@ async function generatePDF() {
 
   y += 35;
 
-  pdf.setFontSize(9);
-
   pdf.text(
   "Scanner pour vérifier l'authenticité",
   105,
@@ -289,23 +228,7 @@ async function generatePDF() {
   );
 
 
-  // =========================
-  // FOOTER
-  // =========================
-
-  pdf.setFontSize(8);
-
-  pdf.text(
-  "Document officiel généré par MyUm",
-  105,
-  285,
-  {align:"center"}
-  );
-
-
-  // =========================
   // SAVE
-  // =========================
 
   pdf.save(`myum-${userData.username}.pdf`);
 
@@ -313,18 +236,17 @@ async function generatePDF() {
 
 
 // =======================================
-// SECTION
+// HELPERS
 // =======================================
 
-function addSection(pdf,title,y) {
+function addSection(pdf,title,y){
 
   pdf.setFontSize(14);
-
   pdf.text(title,20,y);
 
 }
 
-function addLine(pdf,label,value,y) {
+function addLine(pdf,label,value,y){
 
   pdf.setFontSize(11);
 
@@ -337,38 +259,7 @@ function addLine(pdf,label,value,y) {
 }
 
 
-// =======================================
-// SIGNATURE
-// =======================================
-
-async function createSignature() {
-
-  const data =
-  `${userData.username}-${currentUserId}-${Date.now()}`;
-
-  const encoder = new TextEncoder();
-
-  const buffer = await crypto.subtle.digest(
-  "SHA-256",
-  encoder.encode(data)
-  );
-
-  const hashArray =
-  Array.from(new Uint8Array(buffer));
-
-  return hashArray
-  .map(b=>b.toString(16).padStart(2,"0"))
-  .join("")
-  .substring(0,16);
-
-}
-
-
-// =======================================
-// IMAGE BASE64
-// =======================================
-
-function imageToBase64(img) {
+function imageToBase64(img){
 
   const canvas = document.createElement("canvas");
 
@@ -384,21 +275,17 @@ function imageToBase64(img) {
 }
 
 
-// =======================================
-// LOAD IMAGE
-// =======================================
-
-async function loadImage(url) {
+async function loadImage(url){
 
   const res = await fetch(url);
 
   const blob = await res.blob();
 
-  return new Promise(resolve => {
+  return new Promise(resolve=>{
 
     const reader = new FileReader();
 
-    reader.onloadend = () => resolve(reader.result);
+    reader.onloadend = ()=>resolve(reader.result);
 
     reader.readAsDataURL(blob);
 
