@@ -10,43 +10,21 @@ updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-// CHORALES
-
-const GROUPS = [
-
-{code:"PC",name:"Prophetic Choir"},
-{code:"WS",name:"Wake up song"},
-{code:"VN",name:"Vent Nouveau"},
-{code:"IN",name:"Instrumentiste"},
-{code:"AD",name:"Administration"},
-{code:"GT",name:"Visiteur"}
-
-];
-
-
 // DOM
 
-const foldersGrid = document.getElementById("foldersGrid");
-
-const foldersView = document.getElementById("foldersView");
-const usersView = document.getElementById("usersView");
-const userDetailView = document.getElementById("userDetailView");
-
 const usersList = document.getElementById("usersList");
-
-const backBtn = document.getElementById("backBtn");
-
-const pageTitle = document.getElementById("pageTitle");
+const userDetailView = document.getElementById("userDetailView");
 
 const searchInput = document.getElementById("searchInput");
 const sortSelect = document.getElementById("sortSelect");
 
+const tabs = document.querySelectorAll(".tab");
+
 
 // STATE
 
-let usersCache=[];
-let currentGroup=null;
-let nav=[];
+let usersCache = [];
+let currentStatus = "active";
 
 
 // INIT
@@ -55,131 +33,42 @@ init();
 
 function init(){
 
-renderFolders();
-listenCounters();
+listenUsers();
+bindTabs();
 
 }
 
 
-// DOSSIERS
+// TABS
 
-function renderFolders(){
+function bindTabs(){
 
-foldersGrid.innerHTML="";
+tabs.forEach(tab=>{
 
-GROUPS.forEach(group=>{
+tab.onclick = ()=>{
 
-const folder=document.createElement("div");
+tabs.forEach(t=>t.classList.remove("active"));
 
-folder.className="folder";
-folder.dataset.code=group.code;
+tab.classList.add("active");
 
-folder.innerHTML=`
-
-<div class="bubble hidden">0</div>
-
-<i class="bi bi-folder-fill folderIcon"></i>
-
-<div class="folderName">${group.name}</div>
-
-`;
-
-folder.onclick=()=>openFolder(group);
-
-foldersGrid.appendChild(folder);
-
-});
-
-}
-
-
-// BADGES
-
-function listenCounters(){
-
-const q=query(
-collection(db,"users"),
-where("isActive","==","pending")
-);
-
-onSnapshot(q,(snap)=>{
-
-const counters={};
-
-GROUPS.forEach(g=>{
-counters[g.code]=0;
-});
-
-snap.forEach(docSnap=>{
-
-const u=docSnap.data();
-
-if(counters[u.chorale]!==undefined){
-counters[u.chorale]++;
-}
-
-});
-
-updateBubbles(counters);
-
-});
-
-}
-
-
-function updateBubbles(counters){
-
-document.querySelectorAll(".folder").forEach(folder=>{
-
-const code=folder.dataset.code;
-const bubble=folder.querySelector(".bubble");
-
-const count=counters[code]||0;
-
-if(count>0){
-
-bubble.textContent=count;
-bubble.classList.remove("hidden");
-
-}else{
-
-bubble.classList.add("hidden");
-
-}
-
-});
-
-}
-
-
-// OPEN FOLDER
-
-function openFolder(group){
-
-currentGroup=group.code;
-
-nav.push("folders");
-
-foldersView.classList.add("hidden");
-usersView.classList.remove("hidden");
-
-backBtn.classList.remove("hidden");
-
-pageTitle.textContent=group.name;
+currentStatus = tab.dataset.status;
 
 listenUsers();
 
+};
+
+});
+
 }
 
 
-// USERS
+// FIRESTORE
 
 function listenUsers(){
 
-const q=query(
+const q = query(
 collection(db,"users"),
-where("isActive","==","pending"),
-where("chorale","==",currentGroup)
+where("isActive","==",currentStatus)
 );
 
 onSnapshot(q,(snap)=>{
@@ -208,7 +97,7 @@ function renderUsers(){
 
 let list=[...usersCache];
 
-const search=searchInput.value.toLowerCase();
+const search = searchInput.value.toLowerCase();
 
 if(search){
 
@@ -244,7 +133,7 @@ return (b.createdAt?.seconds||0) -
 
 usersList.innerHTML="";
 
-list.forEach(u=>{
+list.forEach(user=>{
 
 const row=document.createElement("div");
 
@@ -252,27 +141,23 @@ row.className="userRow";
 
 row.innerHTML=`
 
-<i class="bi bi-file-earmark-text text-lightblue text-xl"></i>
+<i class="bi bi-person-circle text-lightblue text-xl"></i>
 
 <div>
 
 <div class="text-sm font-semibold">
-
-${u.firstName} ${u.lastName}
-
+${user.firstName} ${user.lastName}
 </div>
 
 <div class="text-xs opacity-70">
-
-${u.phone||""}
-
+${user.phone || ""}
 </div>
 
 </div>
 
 `;
 
-row.onclick=()=>openUser(u);
+row.onclick = ()=>openUser(user);
 
 usersList.appendChild(row);
 
@@ -281,23 +166,17 @@ usersList.appendChild(row);
 }
 
 
-// SEARCH EVENTS
+// EVENTS
 
-searchInput.oninput=renderUsers;
-
-sortSelect.onchange=renderUsers;
+searchInput.oninput = renderUsers;
+sortSelect.onchange = renderUsers;
 
 
 // USER DETAIL
 
 function openUser(user){
 
-nav.push("users");
-
-usersView.classList.add("hidden");
 userDetailView.classList.remove("hidden");
-
-pageTitle.textContent="Demande";
 
 userDetailView.innerHTML=`
 
@@ -334,13 +213,13 @@ Refuser
 
 `;
 
-document.getElementById("approveBtn").onclick=()=>approve(user.id);
-document.getElementById("rejectBtn").onclick=()=>reject(user.id);
+document.getElementById("approveBtn").onclick = ()=>approve(user.id);
+document.getElementById("rejectBtn").onclick = ()=>reject(user.id);
 
 }
 
 
-// APPROVE
+// ACTIONS
 
 async function approve(id){
 
@@ -350,12 +229,7 @@ isActive:"active"
 
 alert("Utilisateur approuvé");
 
-location.reload();
-
 }
-
-
-// REJECT
 
 async function reject(id){
 
@@ -365,31 +239,4 @@ isActive:"rejected"
 
 alert("Utilisateur refusé");
 
-location.reload();
-
 }
-
-
-// BACK
-
-backBtn.onclick=()=>{
-
-const last=nav.pop();
-
-if(last==="users"){
-
-userDetailView.classList.add("hidden");
-usersView.classList.remove("hidden");
-
-}else{
-
-usersView.classList.add("hidden");
-foldersView.classList.remove("hidden");
-
-backBtn.classList.add("hidden");
-
-pageTitle.textContent="Gestion des membres";
-
-}
-
-};
