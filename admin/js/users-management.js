@@ -1,20 +1,16 @@
-import {
-  db
-} from "../../mains.js/firebase-config.js";
+import { db } from "../../mains.js/firebase-config.js";
 
 import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  updateDoc
+collection,
+query,
+where,
+orderBy,
+limit,
+getDocs,
+doc,
+updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-
-/* =========================
-   DOM
-========================= */
 
 const usersContainer = document.getElementById("usersContainer");
 
@@ -22,339 +18,371 @@ const tabActive = document.getElementById("tabActive");
 const tabPending = document.getElementById("tabPending");
 const tabRejected = document.getElementById("tabRejected");
 
+const searchInput = document.getElementById("searchInput");
+
+const countActive = document.getElementById("countActive");
+const countPending = document.getElementById("countPending");
+const countRejected = document.getElementById("countRejected");
+
 const modal = document.getElementById("userDetailModal");
 const modalCard = document.getElementById("userDetailCard");
 const closeModal = document.getElementById("closeUserModal");
 
 
-/* =========================
-   STATE
-========================= */
+let users = [];
+let filteredUsers = [];
 
 let currentStatus = "active";
-let usersCache = [];
+
+const PAGE_LIMIT = 25;
 
 
-/* =========================
-   TAB EVENTS
-========================= */
-
-tabActive.addEventListener("click", () => {
-  switchTab("active");
-});
-
-tabPending.addEventListener("click", () => {
-  switchTab("pending");
-});
-
-tabRejected.addEventListener("click", () => {
-  switchTab("rejected");
-});
+init();
 
 
-function switchTab(status) {
+async function init(){
 
-  currentStatus = status;
+await loadStats();
 
-  tabActive.classList.remove("bg-[#2596D9]", "text-white");
-  tabPending.classList.remove("bg-[#2596D9]", "text-white");
-  tabRejected.classList.remove("bg-[#2596D9]", "text-white");
+await loadUsers();
 
-  if (status === "active") {
-    tabActive.classList.add("bg-[#2596D9]", "text-white");
-  }
-
-  if (status === "pending") {
-    tabPending.classList.add("bg-[#2596D9]", "text-white");
-  }
-
-  if (status === "rejected") {
-    tabRejected.classList.add("bg-[#2596D9]", "text-white");
-  }
-
-  loadUsers();
+initEvents();
 
 }
 
 
-/* =========================
-   LOAD USERS
-========================= */
 
-async function loadUsers() {
+function initEvents(){
 
-  usersContainer.innerHTML = `
-  <div class="text-sm opacity-60">Chargement...</div>
-  `;
+tabActive.addEventListener("click",()=>switchTab("active"));
+tabPending.addEventListener("click",()=>switchTab("pending"));
+tabRejected.addEventListener("click",()=>switchTab("rejected"));
 
-  try {
+searchInput.addEventListener("input",filterUsers);
 
-    const usersRef = collection(db, "users");
+closeModal.addEventListener("click",()=>{
+modal.classList.add("hidden");
+});
 
-    const q = query(
-      usersRef,
-      where("status", "==", currentStatus)
-    );
-
-    const snap = await getDocs(q);
-
-    usersCache = [];
-
-    snap.forEach(docSnap => {
-
-      usersCache.push({
-        id: docSnap.id,
-        ...docSnap.data()
-      });
-
-    });
-
-    renderUsers();
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-    usersContainer.innerHTML = `
-    <div class="text-sm text-red-500">
-    Erreur chargement utilisateurs
-    </div>
-    `;
-
-  }
+modal.addEventListener("click",(e)=>{
+if(e.target===modal) modal.classList.add("hidden");
+});
 
 }
 
 
-/* =========================
-   RENDER USERS
-========================= */
 
-function renderUsers() {
+async function switchTab(status){
 
-  usersContainer.innerHTML = "";
+currentStatus = status;
 
-  if (usersCache.length === 0) {
+tabActive.classList.remove("bg-[#2596D9]","text-white");
+tabPending.classList.remove("bg-[#2596D9]","text-white");
+tabRejected.classList.remove("bg-[#2596D9]","text-white");
 
-    usersContainer.innerHTML = `
-    <div class="text-sm opacity-60">
-    Aucun utilisateur
-    </div>
-    `;
+if(status==="active") tabActive.classList.add("bg-[#2596D9]","text-white");
+if(status==="pending") tabPending.classList.add("bg-[#2596D9]","text-white");
+if(status==="rejected") tabRejected.classList.add("bg-[#2596D9]","text-white");
 
-    return;
-  }
-
-  usersCache.forEach(user => {
-
-    const row = document.createElement("div");
-
-    row.className =
-      "flex items-center gap-3 p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50";
-
-    row.innerHTML = `
-
-      <img
-      src="${user.photoURL || "/myUm/assets/default-avatar.png"}"
-      class="w-12 h-12 rounded-full object-cover">
-
-      <div class="flex-1">
-
-        <div class="text-sm font-medium">
-        ${user.displayName || "Utilisateur"}
-        </div>
-
-        <div class="text-xs opacity-60">
-        ${user.email || ""}
-        </div>
-
-      </div>
-
-      <i class="bi bi-chevron-right text-gray-400"></i>
-
-    `;
-
-    row.addEventListener("click", () => {
-      openUserModal(user);
-    });
-
-    usersContainer.appendChild(row);
-
-  });
+await loadUsers();
 
 }
 
 
-/* =========================
-   USER MODAL
-========================= */
 
-function openUserModal(user) {
+async function loadStats(){
 
-  modal.classList.remove("hidden");
+try{
 
-  modalCard.innerHTML = `
+const ref = collection(db,"users");
 
-  <div class="flex flex-col items-center text-center gap-2">
+const activeSnap = await getDocs(query(ref,where("status","==","active")));
+const pendingSnap = await getDocs(query(ref,where("status","==","pending")));
+const rejectedSnap = await getDocs(query(ref,where("status","==","rejected")));
 
-    <img
-    src="${user.photoURL || "/myUm/assets/default-avatar.png"}"
-    class="w-20 h-20 rounded-full object-cover">
+countActive.textContent = activeSnap.size;
+countPending.textContent = pendingSnap.size;
+countRejected.textContent = rejectedSnap.size;
 
-    <div class="text-lg font-semibold">
-    ${user.displayName || "Utilisateur"}
-    </div>
+}
 
-    <div class="text-sm opacity-60">
-    ${user.email || ""}
-    </div>
+catch(err){
 
-  </div>
+console.error("stats error",err);
 
-
-  <div class="flex gap-2 pt-2">
-
-  ${buildActions(user)}
-
-  </div>
-
-  `;
+}
 
 }
 
 
-/* =========================
-   ACTION BUTTONS
-========================= */
 
-function buildActions(user) {
+async function loadUsers(){
 
-  if (user.status === "pending") {
+showSkeleton();
 
-    return `
+try{
 
-    <button
-    id="approveUser"
-    class="flex-1 bg-green-600 text-white rounded-xl py-2 text-sm font-semibold">
+const ref = collection(db,"users");
 
-    Approuver
+const q = query(
+ref,
+where("status","==",currentStatus),
+orderBy("createdAt","desc"),
+limit(PAGE_LIMIT)
+);
 
-    </button>
+const snap = await getDocs(q);
 
-    <button
-    id="rejectUser"
-    class="flex-1 bg-red-600 text-white rounded-xl py-2 text-sm font-semibold">
+users = [];
 
-    Refuser
+snap.forEach(docSnap=>{
+users.push({
+id:docSnap.id,
+...docSnap.data()
+});
+});
 
-    </button>
+filteredUsers=[...users];
 
-    `;
+renderUsers();
 
-  }
+}
 
-  if (user.status === "rejected") {
+catch(err){
 
-    return `
+console.error(err);
 
-    <button
-    id="restoreUser"
-    class="flex-1 bg-blue-500 text-white rounded-xl py-2 text-sm font-semibold">
+usersContainer.innerHTML=`
+<div class="text-sm text-red-500">
+Erreur chargement utilisateurs
+</div>
+`;
 
-    Restaurer
-
-    </button>
-
-    `;
-
-  }
-
-  return `
-  <div class="text-sm opacity-60 w-full text-center">
-  Utilisateur actif
-  </div>
-  `;
+}
 
 }
 
 
-/* =========================
-   MODAL EVENTS
-========================= */
 
-modal.addEventListener("click", (e) => {
+function showSkeleton(){
 
-  if (e.target === modal) {
-    modal.classList.add("hidden");
-  }
+usersContainer.innerHTML="";
+
+for(let i=0;i<5;i++){
+
+const el=document.createElement("div");
+
+el.className="animate-pulse p-3 rounded-xl bg-gray-100 h-16";
+
+usersContainer.appendChild(el);
+
+}
+
+}
+
+
+
+function filterUsers(){
+
+const term=searchInput.value.toLowerCase();
+
+filteredUsers=users.filter(user=>{
+
+const name=(user.displayName||"").toLowerCase();
+const email=(user.email||"").toLowerCase();
+
+return name.includes(term)||email.includes(term);
 
 });
 
-closeModal.addEventListener("click", () => {
+renderUsers();
 
-  modal.classList.add("hidden");
-
-});
+}
 
 
-/* =========================
-   USER ACTIONS
-========================= */
 
-document.addEventListener("click", async (e) => {
+function renderUsers(){
 
-  const approveBtn = e.target.closest("#approveUser");
-  const rejectBtn = e.target.closest("#rejectUser");
-  const restoreBtn = e.target.closest("#restoreUser");
+usersContainer.innerHTML="";
 
-  if (!approveBtn && !rejectBtn && !restoreBtn) return;
+if(filteredUsers.length===0){
 
-  const userName =
-    modalCard.querySelector("div.text-lg").textContent;
+usersContainer.innerHTML=`
+<div class="text-sm opacity-60">
+Aucun utilisateur
+</div>
+`;
 
-  const user = usersCache.find(
-    u => u.displayName === userName
-  );
+return;
 
-  if (!user) return;
+}
 
-  try {
+filteredUsers.forEach(user=>{
 
-    const ref = doc(db, "users", user.id);
+const row=document.createElement("div");
 
-    if (approveBtn) {
-      await updateDoc(ref, { status: "active" });
-    }
+row.className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50";
 
-    if (rejectBtn) {
-      await updateDoc(ref, { status: "rejected" });
-    }
+row.innerHTML=`
 
-    if (restoreBtn) {
-      await updateDoc(ref, { status: "active" });
-    }
+<img
+src="${user.photoURL||"/myUm/assets/default-avatar.png"}"
+class="w-12 h-12 rounded-full object-cover">
 
-    modal.classList.add("hidden");
+<div class="flex-1">
 
-    loadUsers();
+<div class="text-sm font-medium">
+${user.displayName||"Utilisateur"}
+</div>
 
-  }
+<div class="text-xs opacity-60">
+${user.email||""}
+</div>
 
-  catch (err) {
+</div>
 
-    console.error(err);
+<i class="bi bi-chevron-right text-gray-400"></i>
 
-    alert("Erreur mise à jour utilisateur");
+`;
 
-  }
+row.addEventListener("click",()=>openUserModal(user));
+
+usersContainer.appendChild(row);
 
 });
 
+}
 
-/* =========================
-   INIT
-========================= */
 
-loadUsers();
+
+function openUserModal(user){
+
+modal.classList.remove("hidden");
+
+modalCard.innerHTML=`
+
+<div class="flex flex-col items-center text-center gap-2">
+
+<img
+src="${user.photoURL||"/myUm/assets/default-avatar.png"}"
+class="w-20 h-20 rounded-full object-cover">
+
+<div class="text-lg font-semibold">
+${user.displayName||"Utilisateur"}
+</div>
+
+<div class="text-sm opacity-60">
+${user.email||""}
+</div>
+
+</div>
+
+<div class="flex gap-2 pt-3">
+
+${buildActions(user)}
+
+</div>
+
+`;
+
+bindActionButtons(user);
+
+}
+
+
+
+function buildActions(user){
+
+if(user.status==="pending"){
+
+return`
+
+<button id="approveBtn"
+class="flex-1 bg-green-600 text-white rounded-xl py-2 text-sm font-semibold">
+
+Approuver
+
+</button>
+
+<button id="rejectBtn"
+class="flex-1 bg-red-600 text-white rounded-xl py-2 text-sm font-semibold">
+
+Refuser
+
+</button>
+
+`;
+
+}
+
+if(user.status==="rejected"){
+
+return`
+
+<button id="restoreBtn"
+class="flex-1 bg-blue-500 text-white rounded-xl py-2 text-sm font-semibold">
+
+Restaurer
+
+</button>
+
+`;
+
+}
+
+return`
+<div class="text-sm opacity-60 w-full text-center">
+Utilisateur actif
+</div>
+`;
+
+}
+
+
+
+function bindActionButtons(user){
+
+const approveBtn=document.getElementById("approveBtn");
+const rejectBtn=document.getElementById("rejectBtn");
+const restoreBtn=document.getElementById("restoreBtn");
+
+if(approveBtn){
+approveBtn.onclick=()=>updateStatus(user,"active");
+}
+
+if(rejectBtn){
+rejectBtn.onclick=()=>updateStatus(user,"rejected");
+}
+
+if(restoreBtn){
+restoreBtn.onclick=()=>updateStatus(user,"active");
+}
+
+}
+
+
+
+async function updateStatus(user,status){
+
+try{
+
+const ref=doc(db,"users",user.id);
+
+await updateDoc(ref,{status:status});
+
+modal.classList.add("hidden");
+
+await loadStats();
+await loadUsers();
+
+}
+
+catch(err){
+
+console.error(err);
+
+alert("Erreur mise à jour");
+
+}
+
+}
