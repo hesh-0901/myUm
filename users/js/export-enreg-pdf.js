@@ -5,10 +5,15 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-let currentUserId = null;
 let userData = null;
+let currentUserId = null;
 
 document.addEventListener("DOMContentLoaded", initPDFExport);
+
+
+// =======================================
+// INIT
+// =======================================
 
 async function initPDFExport() {
 
@@ -16,6 +21,7 @@ async function initPDFExport() {
   if (!storedUser) return;
 
   const sessionUser = JSON.parse(storedUser);
+
   currentUserId = sessionUser.id;
 
   const snap = await getDoc(doc(db, "users", currentUserId));
@@ -55,131 +61,141 @@ function injectPDFButton() {
 
 async function generatePDF() {
 
-const { jsPDF } = window.jspdf;
+  const { jsPDF } = window.jspdf;
 
-const doc = new jsPDF({
-  orientation: "portrait",
-  unit: "mm",
-  format: "a4"
-});
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
 
-let y = 20;
+  let y = 20;
+
+  // =============================
+  // LOGO MYUM
+  // =============================
+
+  const logo = await loadImage("/myUm/assets/logo-myum.png");
+
+  pdf.addImage(logo, "PNG", 85, 10, 40, 15);
+
+  y = 35;
+
+  pdf.setFontSize(16);
+  pdf.text("Fiche d'enregistrement", 105, y, { align: "center" });
+
+  y += 15;
 
 
-// =============================
-// LOGO MYUM
-// =============================
-
-const logo = await loadImage("/myUm/assets/logo-myum.png");
-
-doc.addImage(logo, "PNG", 85, 10, 40, 15);
   // =============================
   // PHOTO
   // =============================
 
-
-
   if (userData.photoURL) {
 
-    const img = await loadImage(userData.photoURL);
+    const photo = await loadImage(userData.photoURL);
 
-    doc.addImage(img, "JPEG", 85, y, 40, 40);
+    pdf.addImage(photo, "JPEG", 85, y, 40, 40);
 
   }
 
   y += 50;
 
   // =============================
-  // NAME
+  // NOM
   // =============================
 
-  const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
+  const fullName =
+    `${userData.firstName || ""} ${userData.lastName || ""}`;
 
-  doc.setFontSize(18);
-  doc.text(fullName, 105, y, { align: "center" });
+  pdf.setFontSize(18);
+  pdf.text(fullName, 105, y, { align: "center" });
 
   y += 8;
 
-  doc.setFontSize(12);
-  doc.text(`@${userData.username || ""}`, 105, y, { align: "center" });
+  pdf.setFontSize(12);
+  pdf.text(`@${userData.username}`, 105, y, { align: "center" });
 
   y += 6;
 
   if (userData.fonction) {
 
-    doc.text(userData.fonction, 105, y, { align: "center" });
+    pdf.text(userData.fonction, 105, y, { align: "center" });
 
     y += 10;
+
   }
 
   y += 10;
 
+
   // =============================
-  // PERSONAL INFO
+  // INFORMATIONS PERSONNELLES
   // =============================
 
-  addSectionTitle(doc, "Informations personnelles", y);
+  addSection(pdf, "Informations personnelles", y);
+
   y += 8;
 
-  y = addLine(doc, "Genre", userData.genre, y);
-  y = addLine(doc, "Etat civil", userData.etatCivil, y);
-  y = addLine(doc, "Statut relationnel", userData.statutRelationnel, y);
-  y = addLine(doc, "Commune", userData.commune, y);
-  y = addLine(doc, "Avenue", userData.avenue, y);
+  y = addLine(pdf, "Genre", userData.genre, y);
+  y = addLine(pdf, "Etat civil", userData.etatCivil, y);
+  y = addLine(pdf, "Statut relationnel", userData.statutRelationnel, y);
+  y = addLine(pdf, "Commune", userData.commune, y);
+  y = addLine(pdf, "Avenue", userData.avenue, y);
 
   if (userData.vieSeculiere) {
 
-    y = addLine(
-      doc,
-      "Vie séculière",
+    const v =
       Array.isArray(userData.vieSeculiere)
         ? userData.vieSeculiere.join(", ")
-        : userData.vieSeculiere,
-      y
-    );
+        : userData.vieSeculiere;
+
+    y = addLine(pdf, "Vie séculière", v, y);
 
   }
 
   y += 10;
 
+
   // =============================
-  // CHURCH INFO
+  // INFOS ECCLESIASTIQUES
   // =============================
 
-  addSectionTitle(doc, "Informations ecclésiastiques", y);
+  addSection(pdf, "Informations ecclésiastiques", y);
+
   y += 8;
 
-  y = addLine(doc, "Eglise de provenance", userData.egliseProvenance, y);
-  y = addLine(doc, "Année baptême", userData.anneeBapteme, y);
-  y = addLine(doc, "Responsable ministère", userData.responsableMinistere, y);
+  y = addLine(pdf, "Eglise", userData.egliseProvenance, y);
+  y = addLine(pdf, "Année baptême", userData.anneeBapteme, y);
+  y = addLine(pdf, "Responsable", userData.responsableMinistere, y);
 
   y += 10;
 
+
   // =============================
-  // MUSIC
+  // MUSIQUE
   // =============================
 
-  addSectionTitle(doc, "Compétences musicales", y);
+  addSection(pdf, "Compétences musicales", y);
+
   y += 8;
 
-  y = addLine(doc, "Registre de voix", userData.registreVoix, y);
-  y = addLine(doc, "Groupe musical", userData.groupeMusique, y);
+  y = addLine(pdf, "Registre", userData.registreVoix, y);
+  y = addLine(pdf, "Groupe", userData.groupeMusique, y);
 
   y += 20;
 
+
   // =============================
-  // CREATED AT
+  // DATE
   // =============================
 
   const now = new Date();
 
-  const dateString = now.toLocaleDateString();
-  const timeString = now.toLocaleTimeString();
+  pdf.setFontSize(10);
 
-  doc.setFontSize(10);
-
-  doc.text(
-    `Document généré le ${dateString} à ${timeString}`,
+  pdf.text(
+    `Créé le ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`,
     105,
     y,
     { align: "center" }
@@ -187,101 +203,84 @@ doc.addImage(logo, "PNG", 85, 10, 40, 15);
 
   y += 15;
 
+
   // =============================
   // QR CODE
   // =============================
 
-  const verificationURL =
+  const verifyURL =
     `${window.location.origin}/verify.html?user=${userData.username}`;
 
-  const qr = await generateQR(verificationURL);
+  const qr = await loadImage(
+    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
+  );
 
-  doc.addImage(qr, "PNG", 90, y, 30, 30);
+  pdf.addImage(qr, "PNG", 90, y, 30, 30);
 
   y += 35;
 
-  doc.setFontSize(9);
+  pdf.setFontSize(9);
 
-  doc.text(
+  pdf.text(
     "Scanner pour vérifier l'authenticité",
     105,
     y,
     { align: "center" }
   );
 
+
   // =============================
   // SAVE
   // =============================
 
-  doc.save(`myum-${userData.username}.pdf`);
+  pdf.save(`myum-${userData.username}.pdf`);
 }
 
 
 // =======================================
-// HELPERS
+// SECTIONS
 // =======================================
 
-function addSectionTitle(doc, title, y) {
+function addSection(pdf, title, y) {
 
-  doc.setFontSize(14);
-  doc.text(title, 20, y);
+  pdf.setFontSize(14);
+
+  pdf.text(title, 20, y);
 
 }
 
-function addLine(doc, label, value, y) {
 
-  doc.setFontSize(11);
+function addLine(pdf, label, value, y) {
 
-  doc.text(`${label}:`, 20, y);
+  pdf.setFontSize(11);
 
-  doc.text(value ? String(value) : "-", 70, y);
+  pdf.text(`${label}:`, 20, y);
+
+  pdf.text(value ? String(value) : "-", 70, y);
 
   return y + 6;
+
 }
 
 
 // =======================================
-// LOAD IMAGE
+// IMAGE LOADER (CORS SAFE)
 // =======================================
 
-function loadImage(url) {
+async function loadImage(url) {
 
-  return new Promise((resolve) => {
+  const res = await fetch(url);
 
-    const img = new Image();
+  const blob = await res.blob();
 
-    img.crossOrigin = "anonymous";
+  return await new Promise((resolve) => {
 
-    img.onload = () => {
+    const reader = new FileReader();
 
-      const canvas = document.createElement("canvas");
+    reader.onloadend = () => resolve(reader.result);
 
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      const ctx = canvas.getContext("2d");
-
-      ctx.drawImage(img, 0, 0);
-
-      resolve(canvas.toDataURL("image/jpeg"));
-
-    };
-
-    img.src = url;
+    reader.readAsDataURL(blob);
 
   });
-
-}
-
-
-// =======================================
-// QR CODE
-// =======================================
-
-async function generateQR(text) {
-
-  const url = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
-
-  return await loadImage(url);
 
 }
