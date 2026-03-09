@@ -436,3 +436,27 @@ alert("Erreur mise à jour");
 }
 
 }
+
+function formatDate(timestamp){
+
+if(!timestamp) return "-";
+
+try{
+
+const date = timestamp.toDate
+? timestamp.toDate()
+: new Date(timestamp);
+
+return date.toLocaleDateString("fr-FR",{
+day:"2-digit",
+month:"2-digit",
+year:"numeric"
+});
+
+}catch(e){
+
+return "-";
+
+}
+
+}
