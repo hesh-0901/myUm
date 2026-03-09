@@ -1,289 +1,454 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Enregistrement - MyUm</title>
 
+<link rel="manifest" href="/myUm/manifest.json">
+<link rel="icon" href="/myUm/assets/favicon.png">
+<meta name="theme-color" content="#1A3668">
+
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+rel="stylesheet">
 
 <script>
 tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        lightblue: '#3FA9F5',
-        danger: '#DC2626'
-      },
-      fontFamily: {
-        display: ['Inter', 'sans-serif']
-      }
-    }
-  }
+theme: {
+extend: {
+colors: {
+primary:'#1A3668',
+medium:'#2596D9',
+lightblue:'#3FA9F5',
+danger:'#DC2626'
+},
+fontFamily:{
+display:['Inter','sans-serif']
+}
+}
+}
 }
 </script>
+
 </head>
 
-<body class="bg-gray-100 font-display text-gray-800 pb-28">
 
-<div class="max-w-md mx-auto px-4 py-6 space-y-8">
+
+<body
+data-title="Enregistrement"
+class="bg-gray-100 flex justify-center overflow-x-hidden font-display">
+
+<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+
+
+<!-- HEADER BACK -->
+
+<header id="header-back"></header>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="flex-1 overflow-y-auto p-5 space-y-6 pt-16">
+
+
 
 <!-- =============================== -->
 <!-- PROFIL RESUME -->
 <!-- =============================== -->
-<div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-  <div class="flex items-center gap-4">
-    <img id="profilePhoto"
-         class="w-20 h-20 rounded-full object-cover border-4 border-lightblue/30 shadow-md bg-gray-200">
-    <div class="space-y-1">
-      <h1 id="fullName" class="font-bold text-xl text-primary"></h1>
-      <p id="username" class="text-sm text-gray-400"></p>
-      <p id="userFunction" class="text-xs text-medium font-semibold"></p>
-    </div>
-  </div>
+
+<div class="rounded-3xl shadow-sm p-5 bg-white space-y-4 border border-gray-100">
+
+<div class="flex items-center gap-4">
+
+<img
+id="profilePhoto"
+class="w-20 h-20 rounded-full object-cover border-2 border-lightblue/30 bg-gray-200">
+
+<div class="space-y-1">
+
+<h1
+id="fullName"
+class="text-lg font-semibold text-gray-800">
+</h1>
+
+<p
+id="username"
+class="text-sm text-gray-500">
+</p>
+
+<p
+id="userFunction"
+class="text-xs text-medium font-semibold">
+</p>
+
 </div>
+
+</div>
+
+</div>
+
+
 
 <!-- =============================== -->
 <!-- INFORMATIONS PERSONNELLES -->
 <!-- =============================== -->
-<div class="bg-white rounded-3xl shadow-md p-6 space-y-6 border border-gray-100">
 
-<h2 class="font-semibold text-sm uppercase tracking-wide text-primary">
+<div class="rounded-3xl shadow-sm p-5 bg-white space-y-6 border border-gray-100">
+
+<h2 class="text-sm font-semibold text-primary">
 Informations personnelles
 </h2>
 
-<!-- Genre -->
+
+
 <div class="field border-b border-gray-100 pb-4"
-     data-field="genre" data-type="radio" data-required="true">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">
-        Genre <span class="text-danger font-semibold">*</span>
-      </p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="genre" data-type="radio" data-required="true">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Genre <span class="text-danger">*</span>
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
 
-<!-- Etat Civil -->
-<div class="field border-b border-gray-100 pb-4"
-     data-field="etatCivil" data-type="radio" data-required="true">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">
-        État civil <span class="text-danger font-semibold">*</span>
-      </p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
 </div>
 
-<!-- Statut Relationnel -->
+</div>
+
+
+
+<div class="field border-b border-gray-100 pb-4"
+data-field="etatCivil" data-type="radio" data-required="true">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+État civil <span class="text-danger">*</span>
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
+</div>
+
+</div>
+
+
+
 <div class="field hidden border-b border-gray-100 pb-4"
-     id="statutRelationnelWrapper"
-     data-field="statutRelationnel" data-type="select">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Statut relationnel</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+id="statutRelationnelWrapper"
+data-field="statutRelationnel" data-type="select">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Statut relationnel
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
 
-<!-- Vie Seculiere -->
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
+</div>
+
+</div>
+
+
+
 <div class="field border-b border-gray-100 pb-4"
-     data-field="vieSeculiere" data-type="checkbox">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">
-        Vie séculière (max 2)
-      </p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="vieSeculiere" data-type="checkbox">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Vie séculière (max 2)
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
 
-<!-- Commune -->
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
+</div>
+
+</div>
+
+
+
 <div class="field border-b border-gray-100 pb-4"
-     data-field="commune" data-type="select" data-required="true">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">
-        Commune <span class="text-danger font-semibold">*</span>
-      </p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="commune" data-type="select" data-required="true">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Commune <span class="text-danger">*</span>
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
 
-<!-- Avenue -->
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
+</div>
+
+</div>
+
+
+
 <div class="field"
-     data-field="avenue" data-type="text">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">
-        Avenue / Référence
-      </p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="avenue" data-type="text">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Avenue / Référence
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
 </div>
 
 </div>
+
+</div>
+
+
 
 <!-- =============================== -->
 <!-- INFORMATIONS ECCLESIASTIQUES -->
 <!-- =============================== -->
-<div class="bg-white rounded-3xl shadow-md p-6 space-y-6 border border-gray-100">
 
-<h2 class="font-semibold text-sm uppercase tracking-wide text-primary">
+<div class="rounded-3xl shadow-sm p-5 bg-white space-y-6 border border-gray-100">
+
+<h2 class="text-sm font-semibold text-primary">
 Informations ecclésiastiques
 </h2>
 
-<div class="field border-b border-gray-100 pb-4"
-     data-field="egliseProvenance" data-type="text">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Église de provenance</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
-</div>
+
 
 <div class="field border-b border-gray-100 pb-4"
-     data-field="anneeBapteme" data-type="year">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Année de baptême</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="egliseProvenance" data-type="text">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Église de provenance
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
 
-<div class="field border-b border-gray-100 pb-4"
-     data-field="typeBapteme" data-type="radio">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Type de baptême</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
 </div>
 
-<div class="field border-b border-gray-100 pb-4"
-     data-field="statutAffermissement" data-type="select">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Statut d'affermissement</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
 </div>
 
+
+
 <div class="field border-b border-gray-100 pb-4"
-     data-field="ancienneFonction" data-type="text">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Fonction ancienne église</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="anneeBapteme" data-type="year">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Année de baptême
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
+</div>
+
+</div>
+
+
 
 <div class="field"
-     data-field="responsableMinistere" data-type="radio">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Responsable d’un ministère ?</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="responsableMinistere" data-type="radio">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Responsable d’un ministère ?
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
 </div>
 
 </div>
+
+</div>
+
+
 
 <!-- =============================== -->
 <!-- COMPETENCES MUSICALES -->
 <!-- =============================== -->
-<div class="bg-white rounded-3xl shadow-md p-6 space-y-6 border border-gray-100">
 
-<h2 class="font-semibold text-sm uppercase tracking-wide text-primary">
+<div class="rounded-3xl shadow-sm p-5 bg-white space-y-6 border border-gray-100">
+
+<h2 class="text-sm font-semibold text-primary">
 Compétences musicales
 </h2>
 
+
+
 <div class="field border-b border-gray-100 pb-4"
-     data-field="registreVoix" data-type="select">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Registre de voix</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="registreVoix" data-type="select">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Registre de voix
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
 </div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
+</div>
+
+</div>
+
+
 
 <div class="field"
-     data-field="groupeMusique" data-type="radio">
-  <div class="flex justify-between items-start">
-    <div>
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Évolue dans un groupe ?</p>
-      <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-    </div>
-    <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-      <i class="bi bi-pencil text-sm"></i>
-    </button>
-  </div>
+data-field="groupeMusique" data-type="radio">
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<p class="text-xs text-gray-500">
+Évolue dans un groupe ?
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+
+<i class="bi bi-pencil text-sm"></i>
+
+</button>
+
 </div>
 
 </div>
 
 </div>
 
-<div id="navbar-container"></div>
 
+
+</main>
+
+
+<footer id="navbar-container"></footer>
+
+</div>
+
+
+
+<script type="module" src="/myUm/partials/js/back-header.js"></script>
 <script type="module" src="/myUm/users/js/enreg.js"></script>
+<script type="module" src="/myUm/mains.js/app-init.js"></script>
 
 </body>
 </html>
