@@ -6,7 +6,14 @@ let userId = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
+
+// ===============================
+// INIT
+// ===============================
+
 async function init(){
+
+try{
 
 const stored = localStorage.getItem("myum_user");
 if(!stored) return;
@@ -23,20 +30,26 @@ userData = snap.data();
 
 const btn = document.getElementById("exportPdfBtn");
 
-if(btn) btn.addEventListener("click",generatePDF);
+if(btn){
+btn.addEventListener("click",generatePDF);
+}
+
+}catch(e){
+
+console.error("Erreur init PDF :",e);
 
 }
-document.addEventListener("DOMContentLoaded", () => {
 
-const btn = document.getElementById("exportPdfBtn");
+}
 
-if (!btn) return;
 
-btn.addEventListener("click", generatePDF);
-
-});
+// ===============================
+// GENERATE PDF
+// ===============================
 
 async function generatePDF(){
+
+try{
 
 const { jsPDF } = window.jspdf;
 
@@ -68,9 +81,9 @@ y = 40;
 
 const img = document.getElementById("profilePhoto");
 
-if(img){
+if(img && img.src){
 
-const base64 = imageToBase64(img);
+const base64 = await imageToBase64(img);
 
 pdf.addImage(base64,"JPEG",85,y,40,40);
 
@@ -81,7 +94,7 @@ y += 50;
 
 // NAME
 
-const fullName = `${userData.firstName} ${userData.lastName}`;
+const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
 
 pdf.setFontSize(18);
 pdf.text(fullName,105,y,{align:"center"});
@@ -89,14 +102,13 @@ pdf.text(fullName,105,y,{align:"center"});
 y += 7;
 
 pdf.setFontSize(12);
-pdf.text(`@${userData.username}`,105,y,{align:"center"});
+pdf.text(`@${userData.username || ""}`,105,y,{align:"center"});
 
 y += 6;
 
 if(userData.fonction){
 
 pdf.text(userData.fonction,105,y,{align:"center"});
-
 y += 8;
 
 }
@@ -105,13 +117,14 @@ y += 8;
 // USER ID
 
 pdf.setFontSize(10);
-
 pdf.text(`ID MyUm : ${userId}`,105,y,{align:"center"});
 
 y += 12;
 
 
-// SECTION
+// ===============================
+// INFORMATIONS PERSONNELLES
+// ===============================
 
 section(pdf,"Informations personnelles",y);
 
@@ -124,6 +137,11 @@ y = line(pdf,"Avenue",userData.avenue,y);
 
 y += 6;
 
+
+// ===============================
+// INFORMATIONS ECCLESIASTIQUES
+// ===============================
+
 section(pdf,"Informations ecclésiastiques",y);
 
 y += 7;
@@ -132,6 +150,11 @@ y = line(pdf,"Eglise",userData.egliseProvenance,y);
 y = line(pdf,"Année baptême",userData.anneeBapteme,y);
 
 y += 6;
+
+
+// ===============================
+// COMPETENCES MUSICALES
+// ===============================
 
 section(pdf,"Compétences musicales",y);
 
@@ -143,7 +166,7 @@ y = line(pdf,"Groupe",userData.groupeMusique,y);
 y += 15;
 
 
-// DATE
+// DATE CREATION
 
 const now = new Date();
 
@@ -178,7 +201,7 @@ y += 10;
 // QR CODE
 
 const verifyURL =
-`${window.location.origin}/verify.html?uid=${userId}`;
+`${window.location.origin}/myUm/verify.html?uid=${userId}`;
 
 const qr = await loadImage(
 `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
@@ -205,11 +228,19 @@ pdf.text(
 
 pdf.save(`myum-${userData.username}.pdf`);
 
+}catch(e){
+
+console.error("Erreur génération PDF :",e);
+
+}
+
 }
 
 
 
+// ===============================
 // HELPERS
+// ===============================
 
 function section(pdf,title,y){
 
@@ -228,6 +259,11 @@ pdf.text(value || "-",70,y);
 return y+6;
 
 }
+
+
+// ===============================
+// IMAGE BASE64 SAFE
+// ===============================
 
 function imageToBase64(img){
 
@@ -252,28 +288,49 @@ resolve(canvas.toDataURL("image/jpeg"));
 
 };
 
+image.onerror = () => resolve(null);
+
 image.src = img.src;
 
 });
 
 }
 
+
+// ===============================
+// LOAD IMAGE SAFE
+// ===============================
+
 async function loadImage(url){
 
+try{
+
 const res = await fetch(url);
+
 const blob = await res.blob();
 
-return new Promise(resolve=>{
+return await new Promise(resolve=>{
 
 const reader = new FileReader();
 
-reader.onloadend=()=>resolve(reader.result);
+reader.onloadend = ()=>resolve(reader.result);
 
 reader.readAsDataURL(blob);
 
 });
 
+}catch{
+
+return null;
+
 }
+
+}
+
+
+// ===============================
+// SIGNATURE NUMERIQUE
+// ===============================
 
 async function createSignature(){
 
@@ -288,6 +345,9 @@ enc.encode(data)
 
 const arr = Array.from(new Uint8Array(buffer));
 
-return arr.map(b=>b.toString(16).padStart(2,"0")).join("").substring(0,16);
+return arr
+.map(b=>b.toString(16).padStart(2,"0"))
+.join("")
+.substring(0,16);
 
 }
