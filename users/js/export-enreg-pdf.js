@@ -26,6 +26,15 @@ const btn = document.getElementById("exportPdfBtn");
 if(btn) btn.addEventListener("click",generatePDF);
 
 }
+document.addEventListener("DOMContentLoaded", () => {
+
+const btn = document.getElementById("exportPdfBtn");
+
+if (!btn) return;
+
+btn.addEventListener("click", generatePDF);
+
+});
 
 async function generatePDF(){
 
