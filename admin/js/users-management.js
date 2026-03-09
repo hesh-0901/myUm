@@ -8,7 +8,8 @@ orderBy,
 limit,
 getDocs,
 doc,
-updateDoc
+updateDoc,
+startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -36,6 +37,9 @@ let currentStatus = "active";
 
 const PAGE_LIMIT = 25;
 
+let lastVisible = null;
+let loadingMore = false;
+
 
 init();
 
@@ -52,19 +56,38 @@ initEvents();
 
 function initEvents(){
 
+// Tabs navigation
+
 tabActive.addEventListener("click",()=>switchTab("active"));
 tabPending.addEventListener("click",()=>switchTab("pending"));
 tabRejected.addEventListener("click",()=>switchTab("rejected"));
 
+
+// Recherche utilisateurs
+
 searchInput.addEventListener("input",filterUsers);
+
+
+// Fermeture modal
 
 closeModal.addEventListener("click",()=>{
 modal.classList.add("hidden");
 });
 
 modal.addEventListener("click",(e)=>{
-if(e.target===modal) modal.classList.add("hidden");
+if(e.target===modal){
+modal.classList.add("hidden");
+}
 });
+
+
+// Pagination (Load More)
+
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+if(loadMoreBtn){
+loadMoreBtn.addEventListener("click",loadMoreUsers);
+}
 
 }
 
@@ -130,6 +153,9 @@ limit(PAGE_LIMIT)
 );
 
 const snap = await getDocs(q);
+if(!snap.empty){
+lastVisible = snap.docs[snap.docs.length - 1];
+}
 
 users = [];
 
@@ -458,5 +484,53 @@ year:"numeric"
 return "-";
 
 }
+
+}
+
+async function loadMoreUsers(){
+
+if(!lastVisible || loadingMore) return;
+
+loadingMore = true;
+
+try{
+
+const ref = collection(db,"users");
+
+const q = query(
+ref,
+where("isActive","==",currentStatus),
+orderBy("createdAt","desc"),
+startAfter(lastVisible),
+limit(PAGE_LIMIT)
+);
+
+const snap = await getDocs(q);
+
+if(snap.empty){
+loadingMore = false;
+return;
+}
+
+snap.forEach(docSnap=>{
+users.push({
+id:docSnap.id,
+...docSnap.data()
+});
+});
+
+lastVisible = snap.docs[snap.docs.length - 1];
+
+filteredUsers = [...users];
+
+renderUsers();
+
+}catch(err){
+
+console.error("pagination error",err);
+
+}
+
+loadingMore = false;
 
 }
