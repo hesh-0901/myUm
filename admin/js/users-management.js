@@ -13,18 +13,18 @@ updateDoc
 // DOM
 
 const usersList = document.getElementById("usersList");
-const userDetailView = document.getElementById("userDetailView");
+const userDetail = document.getElementById("userDetail");
 
-const searchInput = document.getElementById("searchInput");
-const sortSelect = document.getElementById("sortSelect");
+const tabActive = document.getElementById("tabActive");
+const tabPending = document.getElementById("tabPending");
+const tabRejected = document.getElementById("tabRejected");
 
-const tabs = document.querySelectorAll(".tab");
+const backBtn = document.getElementById("backBtn");
 
 
 // STATE
 
-let usersCache = [];
-let currentStatus = "active";
+let currentTab="active";
 
 
 // INIT
@@ -34,30 +34,39 @@ init();
 function init(){
 
 listenUsers();
-bindTabs();
 
 }
 
 
-// TABS
+// NAV DASHBOARD
 
-function bindTabs(){
+backBtn.onclick=()=>{
 
-tabs.forEach(tab=>{
-
-tab.onclick = ()=>{
-
-tabs.forEach(t=>t.classList.remove("active"));
-
-tab.classList.add("active");
-
-currentStatus = tab.dataset.status;
-
-listenUsers();
+window.location.href="/myUm/public/dashboard.html";
 
 };
 
-});
+
+// TABS
+
+tabActive.onclick=()=>switchTab("active");
+tabPending.onclick=()=>switchTab("pending");
+tabRejected.onclick=()=>switchTab("rejected");
+
+
+function switchTab(tab){
+
+currentTab=tab;
+
+tabActive.classList.remove("tabActive");
+tabPending.classList.remove("tabActive");
+tabRejected.classList.remove("tabActive");
+
+if(tab==="active") tabActive.classList.add("tabActive");
+if(tab==="pending") tabPending.classList.add("tabActive");
+if(tab==="rejected") tabRejected.classList.add("tabActive");
+
+listenUsers();
 
 }
 
@@ -66,74 +75,29 @@ listenUsers();
 
 function listenUsers(){
 
-const q = query(
+usersList.innerHTML="Chargement...";
+
+const q=query(
 collection(db,"users"),
-where("isActive","==",currentStatus)
+where("isActive","==",currentTab)
 );
 
 onSnapshot(q,(snap)=>{
 
-usersCache=[];
+usersList.innerHTML="";
+
+if(snap.empty){
+
+usersList.innerHTML=
+"<div class='text-sm opacity-60'>Aucun utilisateur</div>";
+
+return;
+
+}
 
 snap.forEach(docSnap=>{
 
-usersCache.push({
-id:docSnap.id,
-...docSnap.data()
-});
-
-});
-
-renderUsers();
-
-});
-
-}
-
-
-// RENDER USERS
-
-function renderUsers(){
-
-let list=[...usersCache];
-
-const search = searchInput.value.toLowerCase();
-
-if(search){
-
-list=list.filter(u=>
-
-(u.firstName||"").toLowerCase().includes(search) ||
-(u.lastName||"").toLowerCase().includes(search) ||
-(u.phone||"").includes(search) ||
-(u.username||"").toLowerCase().includes(search)
-
-);
-
-}
-
-
-// SORT
-
-if(sortSelect.value==="age"){
-
-list.sort((a,b)=>(b.age||0)-(a.age||0));
-
-}else{
-
-list.sort((a,b)=>{
-
-return (b.createdAt?.seconds||0) -
-(a.createdAt?.seconds||0);
-
-});
-
-}
-
-
-usersList.innerHTML="";
-
-list.forEach(user=>{
+const user=docSnap.data();
 
 const row=document.createElement("div");
 
@@ -141,44 +105,45 @@ row.className="userRow";
 
 row.innerHTML=`
 
-<i class="bi bi-person-circle text-lightblue text-xl"></i>
+<i class="bi bi-person-circle text-xl text-lightblue"></i>
 
 <div>
 
 <div class="text-sm font-semibold">
+
 ${user.firstName} ${user.lastName}
+
 </div>
 
 <div class="text-xs opacity-70">
+
 ${user.phone || ""}
+
 </div>
 
 </div>
 
 `;
 
-row.onclick = ()=>openUser(user);
+row.onclick=()=>openUser(docSnap.id,user);
 
 usersList.appendChild(row);
+
+});
 
 });
 
 }
 
 
-// EVENTS
-
-searchInput.oninput = renderUsers;
-sortSelect.onchange = renderUsers;
-
-
 // USER DETAIL
 
-function openUser(user){
+function openUser(id,user){
 
-userDetailView.classList.remove("hidden");
+usersList.classList.add("hidden");
+userDetail.classList.remove("hidden");
 
-userDetailView.innerHTML=`
+userDetail.innerHTML=`
 
 <div class="card space-y-2">
 
@@ -187,56 +152,97 @@ class="w-20 h-20 rounded-full object-cover">
 
 <div><b>Nom :</b> ${user.lastName}</div>
 <div><b>Prénom :</b> ${user.firstName}</div>
+<div><b>Fonction :</b> ${user.fonction}</div>
 <div><b>Chorale :</b> ${user.chorale}</div>
 <div><b>Téléphone :</b> ${user.phone}</div>
-<div><b>Username :</b> ${user.username}</div>
 
 </div>
 
 <div class="flex gap-3">
 
-<button id="approveBtn"
-class="btn btnApprove flex-1">
-
-Approuver
-
-</button>
-
-<button id="rejectBtn"
-class="btn btnReject flex-1">
-
-Refuser
-
-</button>
+${renderButtons(id)}
 
 </div>
 
 `;
 
-document.getElementById("approveBtn").onclick = ()=>approve(user.id);
-document.getElementById("rejectBtn").onclick = ()=>reject(user.id);
+}
+
+
+// ACTION BUTTONS
+
+function renderButtons(id){
+
+if(currentTab==="pending"){
+
+return `
+
+<button class="btn btnApprove flex-1"
+onclick="approveUser('${id}')">
+
+Approuver
+
+</button>
+
+<button class="btn btnReject flex-1"
+onclick="rejectUser('${id}')">
+
+Refuser
+
+</button>
+
+`;
+
+}
+
+if(currentTab==="rejected"){
+
+return `
+
+<button class="btn btnRestore flex-1"
+onclick="restoreUser('${id}')">
+
+Restaurer
+
+</button>
+
+`;
+
+}
+
+return "";
 
 }
 
 
 // ACTIONS
 
-async function approve(id){
+window.approveUser=async(id)=>{
 
 await updateDoc(doc(db,"users",id),{
 isActive:"active"
 });
 
-alert("Utilisateur approuvé");
+location.reload();
 
-}
+};
 
-async function reject(id){
+window.rejectUser=async(id)=>{
 
 await updateDoc(doc(db,"users",id),{
 isActive:"rejected"
 });
 
-alert("Utilisateur refusé");
+location.reload();
 
-}
+};
+
+window.restoreUser=async(id)=>{
+
+await updateDoc(doc(db,"users",id),{
+isActive:"pending"
+});
+
+location.reload();
+
+};
