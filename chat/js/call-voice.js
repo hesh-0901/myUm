@@ -23,7 +23,9 @@ import {
   createOffer,
   createAnswer,
   setRemoteDescriptionSafe,
-  addRemoteIceCandidate,
+  createIceQueue,
+  addRemoteIceCandidateBuffered,
+  flushIceQueue,
   closeCallResources
 } from "../../calls/webrtc-core.js";
 
@@ -48,9 +50,6 @@ if (!myId) {
 
 /* ============================================================
    BLOC 2 : PARAMS
-   Rôle :
-   - uid = correspondant
-   - mode = caller | callee
 ============================================================ */
 const params = new URLSearchParams(window.location.search);
 const friendId = params.get("uid");
@@ -99,6 +98,9 @@ let unlistenCalleeIce = null;
 let isMuted = false;
 let hasCreatedAnswer = false;
 
+// ✅ NEW : file d’attente ICE
+const pendingIceQueue = createIceQueue();
+
 /* ============================================================
    BLOC 6 : INIT
 ============================================================ */
@@ -117,7 +119,7 @@ async function init() {
   if (mode === "caller") {
     await startOutgoingCall();
   } else {
-    prepareIncomingCall();
+    await prepareIncomingCall();
   }
 }
 
@@ -194,18 +196,27 @@ async function setupMediaAndPeer() {
     await addIceCandidate(callId, side, event.candidate.toJSON()).catch(console.error);
   };
 
+  /* ------------------------------------------------------------
+     ÉTATS DEBUG PLUS CLAIRS
+  ------------------------------------------------------------ */
   pc.onconnectionstatechange = () => {
     const state = pc.connectionState;
+    console.log("connectionState =", state);
 
-    if (state === "connected") {
-      callStatus.textContent = "Connecté";
-    } else if (state === "connecting") {
-      callStatus.textContent = "Connexion...";
-    } else if (state === "disconnected" || state === "failed") {
-      callStatus.textContent = "Connexion perdue";
-    } else if (state === "closed") {
-      callStatus.textContent = "Appel terminé";
-    }
+    if (state === "new") callStatus.textContent = "Initialisation...";
+    else if (state === "connecting") callStatus.textContent = "Connexion...";
+    else if (state === "connected") callStatus.textContent = "Connecté";
+    else if (state === "disconnected") callStatus.textContent = "Déconnecté";
+    else if (state === "failed") callStatus.textContent = "Échec connexion";
+    else if (state === "closed") callStatus.textContent = "Appel terminé";
+  };
+
+  pc.oniceconnectionstatechange = () => {
+    console.log("iceConnectionState =", pc.iceConnectionState);
+  };
+
+  pc.onsignalingstatechange = () => {
+    console.log("signalingState =", pc.signalingState);
   };
 }
 
@@ -239,7 +250,7 @@ function toggleMute() {
 }
 
 /* ============================================================
-   BLOC 10 : MODE APPEL SORTANT
+   BLOC 10 : APPEL SORTANT
 ============================================================ */
 async function startOutgoingCall() {
   callStatus.textContent = "Appel en cours...";
@@ -253,28 +264,17 @@ async function startOutgoingCall() {
 }
 
 /* ============================================================
-   BLOC 11 : MODE APPEL ENTRANT
-============================================================ */
-/* ============================================================
-   BLOC 11 : MODE APPEL ENTRANT
-   Rôle :
-   - Préparer l'écran callee
-   - L'appel a déjà été accepté depuis la popup globale
+   BLOC 11 : APPEL ENTRANT
 ============================================================ */
 async function prepareIncomingCall() {
   callStatus.textContent = "Connexion...";
   acceptBtn.classList.add("hidden");
 
-  // si on arrive déjà en mode callee après acceptation popup,
-  // on construit directement la réponse
   if (!hasCreatedAnswer) {
     await acceptIncomingCall();
   }
 }
 
-/* ============================================================
-   BLOC 12 : ACCEPTER APPEL ENTRANT
-============================================================ */
 async function acceptIncomingCall() {
   callStatus.textContent = "Connexion...";
 
@@ -286,7 +286,11 @@ async function acceptIncomingCall() {
     return;
   }
 
+  // ✅ Poser l’offre distante
   await setRemoteDescriptionSafe(pc, sdpData.offer);
+
+  // ✅ Ensuite flush des ICE qui seraient arrivées avant
+  await flushIceQueue(pc, pendingIceQueue);
 
   const answer = await createAnswer(pc);
   await saveAnswer(callId, answer);
@@ -296,7 +300,7 @@ async function acceptIncomingCall() {
 }
 
 /* ============================================================
-   BLOC 13 : SUBSCRIPTIONS REALTIME
+   BLOC 12 : SUBSCRIPTIONS REALTIME
 ============================================================ */
 function subscribeRealtime() {
   unlistenCall = listenCall(callId, async (callData) => {
@@ -319,24 +323,28 @@ function subscribeRealtime() {
   unlistenSDP = listenSDP(callId, async (sdpData) => {
     if (!sdpData) return;
 
+    // ✅ caller reçoit la réponse
     if (mode === "caller" && sdpData.answer) {
-      await setRemoteDescriptionSafe(pc, sdpData.answer);
+      const applied = await setRemoteDescriptionSafe(pc, sdpData.answer);
+      if (applied) {
+        await flushIceQueue(pc, pendingIceQueue);
+      }
     }
   }, console.error);
 
   // caller écoute les candidats du callee
   unlistenCalleeIce = listenIceCandidates(callId, "callee", async (candidate) => {
-    await addRemoteIceCandidate(pc, candidate);
+    await addRemoteIceCandidateBuffered(pc, pendingIceQueue, candidate);
   }, console.error);
 
   // callee écoute les candidats du caller
   unlistenCallerIce = listenIceCandidates(callId, "caller", async (candidate) => {
-    await addRemoteIceCandidate(pc, candidate);
+    await addRemoteIceCandidateBuffered(pc, pendingIceQueue, candidate);
   }, console.error);
 }
 
 /* ============================================================
-   BLOC 14 : FIN D’APPEL
+   BLOC 13 : FIN D’APPEL
 ============================================================ */
 async function terminateCallAndExit() {
   try {
@@ -350,7 +358,7 @@ async function terminateCallAndExit() {
 }
 
 /* ============================================================
-   BLOC 15 : NETTOYAGE LOCAL
+   BLOC 14 : CLEANUP
 ============================================================ */
 function cleanupResources() {
   try { unlistenCall?.(); } catch {}
