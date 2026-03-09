@@ -75,15 +75,30 @@ class="bg-gray-100 flex justify-center overflow-x-hidden font-[Inter]">
 
 
 <!-- SEARCH -->
+<div class="flex gap-2">
 
 <input
 id="searchInput"
 type="text"
 placeholder="Rechercher utilisateur..."
-class="w-full p-3 rounded-xl border text-sm">
+class="flex-1 p-3 rounded-xl border text-sm">
+
+
+<select
+id="choraleFilter"
+class="w-32 p-3 rounded-xl border text-sm bg-white">
+
+<option value="">Tous</option>
+<option value="PC">Prophetic Choir</option>
+<option value="WS">Wake up song</option>
+<option value="VN">Vent Nouveau</option>
+<option value="IN">Instrumentiste</option>
+<option value="AD">Administration</option>
+<option value="GT">Visiteur</option>
+
+</select>
 
 </div>
-
 
 
 <!-- TABS -->
