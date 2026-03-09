@@ -20,62 +20,223 @@ rel="stylesheet">
 
 <style>
 
+/* =========================
+   BACKGROUND
+========================= */
+
 body{
 background:linear-gradient(180deg,#0f2145,#1A3668);
 }
 
-.tabBtn{
-padding:8px 14px;
-border-radius:8px;
-font-size:13px;
-font-weight:500;
+
+/* =========================
+   SEGMENTED TABS
+========================= */
+
+.tabsContainer{
+
+display:flex;
+
+margin:16px;
+
 background:rgba(255,255,255,.06);
+
 border:1px solid rgba(255,255,255,.08);
-cursor:pointer;
+
+border-radius:12px;
+
+overflow:hidden;
+
 }
+
+
+.tabItem{
+
+flex:1;
+
+padding:10px;
+
+font-size:13px;
+
+font-weight:500;
+
+text-align:center;
+
+cursor:pointer;
+
+transition:.2s;
+
+color:white;
+
+border-right:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.tabItem:last-child{
+border-right:none;
+}
+
+
+.tabItem:hover{
+
+background:rgba(255,255,255,.1);
+
+}
+
 
 .tabActive{
+
 background:#2596D9;
+
+color:white;
+
 }
+
+
+/* =========================
+   USER ROW
+========================= */
 
 .userRow{
+
 display:flex;
+
 align-items:center;
+
 gap:12px;
+
 padding:12px;
+
 border-radius:10px;
+
 background:rgba(255,255,255,.06);
+
 border:1px solid rgba(255,255,255,.08);
+
 cursor:pointer;
+
+transition:.2s;
+
 }
+
 
 .userRow:hover{
+
 background:rgba(255,255,255,.12);
+
 }
+
+
+/* =========================
+   USER CARD
+========================= */
 
 .card{
+
 background:rgba(255,255,255,.06);
+
 border:1px solid rgba(255,255,255,.08);
+
 border-radius:14px;
+
 padding:16px;
+
 }
+
+
+/* =========================
+   BUTTONS
+========================= */
 
 .btn{
+
 padding:10px;
+
 border-radius:10px;
+
 font-weight:600;
+
+flex:1;
+
+transition:.15s;
+
+cursor:pointer;
+
 }
+
 
 .btnApprove{
+
 background:#16a34a;
+
 }
+
+
+.btnApprove:hover{
+
+background:#15803d;
+
+}
+
 
 .btnReject{
+
 background:#dc2626;
+
 }
 
+
+.btnReject:hover{
+
+background:#b91c1c;
+
+}
+
+
 .btnRestore{
+
 background:#3FA9F5;
+
+}
+
+
+.btnRestore:hover{
+
+background:#1e81ce;
+
+}
+
+
+/* =========================
+   AVATAR
+========================= */
+
+.avatar{
+
+width:70px;
+
+height:70px;
+
+border-radius:50%;
+
+object-fit:cover;
+
+border:2px solid rgba(255,255,255,.15);
+
+}
+
+
+/* =========================
+   TEXT HELPERS
+========================= */
+
+.textMuted{
+
+opacity:.65;
+
+font-size:12px;
+
 }
 
 </style>
@@ -111,32 +272,21 @@ Gestion des membres
 
 <!-- TABS -->
 
-<div class="flex gap-2 p-4">
+<div class="tabsContainer">
 
-<button id="tabActive"
-class="tabBtn tabActive">
-
+<button id="tabActive" class="tabItem tabActive">
 Actifs
-
 </button>
 
-<button id="tabPending"
-class="tabBtn">
-
+<button id="tabPending" class="tabItem">
 En attente
-
 </button>
 
-<button id="tabRejected"
-class="tabBtn">
-
+<button id="tabRejected" class="tabItem">
 Refusés
-
 </button>
 
 </div>
-
-
 
 <!-- USERS LIST -->
 
