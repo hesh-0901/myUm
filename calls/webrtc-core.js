@@ -1,11 +1,11 @@
 // calls/webrtc-core.js
 
 /* ============================================================
-   BLOC 1 : CONFIGURATION STUN
+   BLOC 1 : CONFIGURATION ICE
    Rôle :
-   - Fournir une connectivité WebRTC minimale
-   Utilité scientifique :
-   - STUN aide les pairs à découvrir leur adresse réseau publique
+   - STUN minimum pour WebRTC
+   Note :
+   - plus tard, pour une vraie fiabilité mobile, il faudra un TURN
 ============================================================ */
 const rtcConfig = {
   iceServers: [
@@ -15,9 +15,7 @@ const rtcConfig = {
 };
 
 /* ============================================================
-   BLOC 2 : CRÉATION PEER CONNECTION
-   Rôle :
-   - Centraliser la création de RTCPeerConnection
+   BLOC 2 : PEER CONNECTION
 ============================================================ */
 export function createPeerConnection() {
   return new RTCPeerConnection(rtcConfig);
@@ -25,8 +23,6 @@ export function createPeerConnection() {
 
 /* ============================================================
    BLOC 3 : MICRO LOCAL
-   Rôle :
-   - Récupérer le flux audio du micro
 ============================================================ */
 export async function getLocalAudioStream() {
   return await navigator.mediaDevices.getUserMedia({
@@ -36,9 +32,7 @@ export async function getLocalAudioStream() {
 }
 
 /* ============================================================
-   BLOC 4 : AJOUT DU FLUX LOCAL
-   Rôle :
-   - Injecter les pistes micro dans le peer connection
+   BLOC 4 : ATTACH LOCAL STREAM
 ============================================================ */
 export function attachLocalStream(pc, stream) {
   stream.getTracks().forEach((track) => {
@@ -47,7 +41,7 @@ export function attachLocalStream(pc, stream) {
 }
 
 /* ============================================================
-   BLOC 5 : CRÉATION OFFRE
+   BLOC 5 : OFFER / ANSWER
 ============================================================ */
 export async function createOffer(pc) {
   const offer = await pc.createOffer();
@@ -55,9 +49,6 @@ export async function createOffer(pc) {
   return offer;
 }
 
-/* ============================================================
-   BLOC 6 : CRÉATION RÉPONSE
-============================================================ */
 export async function createAnswer(pc) {
   const answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
@@ -65,28 +56,60 @@ export async function createAnswer(pc) {
 }
 
 /* ============================================================
-   BLOC 7 : APPLICATION DESCRIPTION DISTANTE
+   BLOC 6 : REMOTE DESCRIPTION
+   Rôle :
+   - Poser la description distante une seule fois
 ============================================================ */
 export async function setRemoteDescriptionSafe(pc, sdp) {
-  if (!sdp) return;
-  if (pc.currentRemoteDescription) return;
+  if (!sdp) return false;
+  if (pc.currentRemoteDescription) return true;
+
   await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+  return true;
 }
 
 /* ============================================================
-   BLOC 8 : AJOUT ICE DISTANT
+   BLOC 7 : ICE QUEUE
+   Rôle :
+   - Stocker les candidats reçus avant la remote description
+   Utilité scientifique :
+   - Empêche la perte des candidates si elles arrivent trop tôt
 ============================================================ */
-export async function addRemoteIceCandidate(pc, candidate) {
+export function createIceQueue() {
+  return [];
+}
+
+export async function addRemoteIceCandidateBuffered(pc, queue, candidate) {
   if (!candidate) return;
+
+  // Si la remote description n'est pas encore prête, on stocke
+  if (!pc.remoteDescription) {
+    queue.push(candidate);
+    return;
+  }
+
   try {
     await pc.addIceCandidate(new RTCIceCandidate(candidate));
   } catch (err) {
-    console.error("Erreur addIceCandidate:", err);
+    console.error("Erreur addIceCandidate immédiat :", err);
+  }
+}
+
+export async function flushIceQueue(pc, queue) {
+  if (!pc.remoteDescription || !queue.length) return;
+
+  while (queue.length > 0) {
+    const candidate = queue.shift();
+    try {
+      await pc.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (err) {
+      console.error("Erreur flushIceQueue :", err);
+    }
   }
 }
 
 /* ============================================================
-   BLOC 9 : FERMETURE PROPRE
+   BLOC 8 : FERMETURE
 ============================================================ */
 export function closeCallResources(pc, localStream) {
   try {
