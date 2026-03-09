@@ -255,9 +255,21 @@ async function startOutgoingCall() {
 /* ============================================================
    BLOC 11 : MODE APPEL ENTRANT
 ============================================================ */
-function prepareIncomingCall() {
-  callStatus.textContent = "Appel entrant...";
-  acceptBtn.classList.remove("hidden");
+/* ============================================================
+   BLOC 11 : MODE APPEL ENTRANT
+   Rôle :
+   - Préparer l'écran callee
+   - L'appel a déjà été accepté depuis la popup globale
+============================================================ */
+async function prepareIncomingCall() {
+  callStatus.textContent = "Connexion...";
+  acceptBtn.classList.add("hidden");
+
+  // si on arrive déjà en mode callee après acceptation popup,
+  // on construit directement la réponse
+  if (!hasCreatedAnswer) {
+    await acceptIncomingCall();
+  }
 }
 
 /* ============================================================
