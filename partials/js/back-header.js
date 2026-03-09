@@ -1,98 +1,66 @@
-/* =====================================
-   BACK HEADER MODULE
-   MyUm
-===================================== */
+/* ===============================
+   LOAD HEADER BACK PARTIAL
+================================ */
 
-/*
-Ce module gère :
+async function loadHeaderBack(){
 
-- le bouton retour global
-- le titre dynamique des pages
-- la compatibilité navigation stack
-*/
+const container = document.getElementById("header-back");
 
-import navigationStack from "./navigation-stack.js";
+if(!container) return;
+
+try{
+
+const response = await fetch("/myUm/partials/header-back.html");
+
+const html = await response.text();
+
+container.innerHTML = html;
+
+initHeaderBack();
+
+}
+
+catch(error){
+
+console.error("Erreur chargement header-back :", error);
+
+}
+
+}
 
 
-/* =====================================
-   DOM ELEMENTS
-===================================== */
+/* ===============================
+   INIT HEADER
+================================ */
+
+function initHeaderBack(){
 
 const backBtn = document.getElementById("globalBackBtn");
-const titleEl = document.getElementById("backHeaderTitle");
+const title = document.getElementById("backHeaderTitle");
 
+const pageTitle = document.body.dataset.title;
 
-/* =====================================
-   SET PAGE TITLE
-===================================== */
+if(title && pageTitle){
 
-function setPageTitle() {
+title.textContent = pageTitle;
 
-  if (!titleEl) return;
+}
 
-  /*
-  Le titre est défini dans le body
-  Exemple :
+if(backBtn){
 
-  <body data-title="Gestion membres">
-  */
+backBtn.addEventListener("click",()=>{
 
-  const pageTitle = document.body.dataset.title;
+window.history.back();
 
-  if (pageTitle && pageTitle.trim() !== "") {
-    titleEl.textContent = pageTitle;
-  }
+});
+
+}
 
 }
 
 
-/* =====================================
-   BACK BUTTON HANDLER
-===================================== */
-
-function initBackButton() {
-
-  if (!backBtn) return;
-
-  backBtn.addEventListener("click", () => {
-
-    /*
-    Priorité au navigation stack
-    */
-
-    if (navigationStack && typeof navigationStack.back === "function") {
-
-      navigationStack.back();
-      return;
-
-    }
-
-    /*
-    Fallback navigateur
-    */
-
-    window.history.back();
-
-  });
-
-}
-
-
-/* =====================================
-   INIT MODULE
-===================================== */
-
-function initBackHeader() {
-
-  setPageTitle();
-
-  initBackButton();
-
-}
-
-
-/* =====================================
+/* ===============================
    START
-===================================== */
+================================ */
 
-document.addEventListener("DOMContentLoaded", initBackHeader);
+document.addEventListener("DOMContentLoaded", loadHeaderBack);
