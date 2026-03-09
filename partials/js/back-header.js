@@ -1,21 +1,31 @@
-export function initBackHeader(customUrl = null) {
+import navigationStack from "./navigation-stack.js";
 
-  const btn = document.getElementById("globalBackBtn");
-  if (!btn) return;
 
-  btn.addEventListener("click", () => {
+/* =========================
+ELEMENTS
+========================= */
 
-    if (customUrl) {
-      window.location.href = customUrl;
-      return;
-    }
+const titleEl = document.getElementById("backHeaderTitle");
+const backBtn = document.getElementById("globalBackBtn");
 
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = "/myUm/admin/presence-management.html";
-    }
 
-  });
+/* =========================
+SET TITLE
+========================= */
 
+const pageTitle = document.body.dataset.title;
+
+if(pageTitle){
+titleEl.textContent = pageTitle;
 }
+
+
+/* =========================
+BACK BUTTON
+========================= */
+
+backBtn.addEventListener("click",()=>{
+
+navigationStack.back();
+
+});
