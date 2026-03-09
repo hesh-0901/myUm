@@ -16,10 +16,9 @@ import {
 } from "../calls/signaling.js";
 
 /* ============================================================
-   BLOC 1 : SESSION UTILISATEUR
+   BLOC 1 : SESSION
    Rôle :
    - Identifier l'utilisateur connecté
-   - Savoir si un appel entrant me concerne
 ============================================================ */
 function getCurrentUser() {
   try {
@@ -31,8 +30,6 @@ function getCurrentUser() {
 
 /* ============================================================
    BLOC 2 : BASE PATH
-   Rôle :
-   - Compatibilité GitHub Pages et racine locale
 ============================================================ */
 function getBasePath() {
   const { pathname, hostname } = window.location;
@@ -46,9 +43,7 @@ function getBasePath() {
 }
 
 /* ============================================================
-   BLOC 3 : AUDIO SONNERIE
-   Rôle :
-   - Jouer une sonnerie locale pour appel entrant
+   BLOC 3 : SONNERIE
 ============================================================ */
 let ringtoneAudio = null;
 
@@ -78,18 +73,41 @@ function stopRingtone() {
 }
 
 /* ============================================================
-   BLOC 4 : ÉTAT LOCAL
+   BLOC 4 : TOAST DEBUG
    Rôle :
-   - Éviter d’ouvrir 2 fois la même popup
+   - Afficher des infos visibles sans console
+============================================================ */
+function showDebugToast(message) {
+  let t = document.getElementById("incoming_call_debug_toast");
+
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "incoming_call_debug_toast";
+    t.className =
+      "fixed top-4 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-xl shadow-lg opacity-0 transition z-[10001]";
+    document.body.appendChild(t);
+  }
+
+  t.textContent = message;
+  t.style.opacity = "1";
+
+  clearTimeout(window.__incomingCallDebugTimer);
+  window.__incomingCallDebugTimer = setTimeout(() => {
+    t.style.opacity = "0";
+  }, 1800);
+}
+
+/* ============================================================
+   BLOC 5 : ÉTAT LOCAL
 ============================================================ */
 let unsubscribeIncomingCalls = null;
 let activeIncomingCallId = null;
 
 /* ============================================================
-   BLOC 5 : INIT LISTENER GLOBAL
+   BLOC 6 : INIT LISTENER GLOBAL
    Rôle :
-   - Observer les appels où je suis destinataire
-   - Déclencher popup appel entrant
+   - Écouter tous les appels qui me ciblent
+   - Filtrer status côté JS pour éviter un query trop fragile
 ============================================================ */
 export function initIncomingCalls() {
   const me = getCurrentUser();
@@ -98,10 +116,10 @@ export function initIncomingCalls() {
 
   const callsRef = collection(db, "calls");
 
+  // ✅ requête plus simple = moins de risque d’index / échec silencieux
   const q = query(
     callsRef,
-    where("toUserId", "==", myId),
-    where("status", "==", "ringing")
+    where("toUserId", "==", myId)
   );
 
   if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
@@ -114,14 +132,23 @@ export function initIncomingCalls() {
       return;
     }
 
-    // On prend le premier appel entrant actif
-    const callDoc = snap.docs[0];
-    const callData = callDoc.data();
-    const callId = callDoc.id;
+    // On cherche un appel ringing dans les résultats
+    const ringingDoc = snap.docs.find((d) => {
+      const data = d.data();
+      return data.status === "ringing";
+    });
 
-    // si c'est déjà affiché, on ne recrée pas
+    if (!ringingDoc) {
+      stopRingtone();
+      removeIncomingCallModal();
+      activeIncomingCallId = null;
+      return;
+    }
+
+    const callId = ringingDoc.id;
+    const callData = ringingDoc.data();
+
     if (activeIncomingCallId === callId) return;
-
     activeIncomingCallId = callId;
 
     const callerId = callData.fromUserId;
@@ -129,6 +156,7 @@ export function initIncomingCalls() {
 
     const callerProfile = await getUserProfile(callerId);
 
+    showDebugToast("Appel entrant détecté 📞");
     showIncomingCallModal({
       callId,
       callerId,
@@ -140,13 +168,12 @@ export function initIncomingCalls() {
 
   }, (error) => {
     console.error("Erreur incoming calls:", error);
+    showDebugToast("Erreur appels entrants ❌");
   });
 }
 
 /* ============================================================
-   BLOC 6 : LIRE PROFIL APPELANT
-   Rôle :
-   - Afficher avatar + nom dans la popup entrante
+   BLOC 7 : PROFIL APPELANT
 ============================================================ */
 async function getUserProfile(uid) {
   const snap = await getDoc(doc(db, "users", uid)).catch(() => null);
@@ -176,10 +203,7 @@ async function getUserProfile(uid) {
 }
 
 /* ============================================================
-   BLOC 7 : MODAL APPEL ENTRANT
-   Rôle :
-   - Afficher une UI flottante globale
-   - Accepter / refuser
+   BLOC 8 : MODAL APPEL ENTRANT
 ============================================================ */
 function showIncomingCallModal({ callId, callerId, type, callerProfile }) {
   removeIncomingCallModal();
@@ -242,10 +266,9 @@ function showIncomingCallModal({ callId, callerId, type, callerProfile }) {
     try {
       await updateCallStatus(callId, "accepted");
     } catch (error) {
-      console.error("Erreur accept call status:", error);
+      console.error("Erreur accept status:", error);
     }
 
-    // redirection vers l'écran d'appel entrant
     if (type === "video") {
       window.location.href = `${getBasePath()}chat/call-video.html?uid=${encodeURIComponent(callerId)}&mode=callee`;
     } else {
@@ -255,7 +278,7 @@ function showIncomingCallModal({ callId, callerId, type, callerProfile }) {
 }
 
 /* ============================================================
-   BLOC 8 : SUPPRESSION MODAL
+   BLOC 9 : REMOVE MODAL
 ============================================================ */
 function removeIncomingCallModal() {
   const existing = document.getElementById("incomingCallOverlay");
@@ -263,7 +286,7 @@ function removeIncomingCallModal() {
 }
 
 /* ============================================================
-   BLOC 9 : HELPERS HTML
+   BLOC 10 : HELPERS HTML
 ============================================================ */
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (m) => ({
