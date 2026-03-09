@@ -267,23 +267,68 @@ modal.classList.remove("hidden");
 
 modalCard.innerHTML=`
 
-<div class="flex flex-col items-center text-center gap-2">
+<div class="flex flex-col items-center text-center gap-3">
 
 <img
 src="${user.photoURL||"/myUm/assets/default-avatar.png"}"
 class="w-20 h-20 rounded-full object-cover">
 
 <div class="text-lg font-semibold">
-${user.displayName||"Utilisateur"}
-</div>
 
-<div class="text-sm opacity-60">
-${user.email||""}
-</div>
+${user.firstName||""} ${user.lastName||""}
 
 </div>
 
-<div class="flex gap-2 pt-3">
+<div class="text-sm text-gray-500">
+
+@${user.username||"username"}
+
+</div>
+
+</div>
+
+
+<div class="space-y-2 text-sm pt-4">
+
+<div class="flex justify-between">
+<span class="text-gray-500">Âge</span>
+<span>${user.age||"-"}</span>
+</div>
+
+<div class="flex justify-between">
+<span class="text-gray-500">Fonction</span>
+<span>${user.fonction||"-"}</span>
+</div>
+
+<div class="flex justify-between">
+<span class="text-gray-500">Chorale</span>
+<span>${user.chorale||"-"}</span>
+</div>
+
+<div class="flex justify-between">
+<span class="text-gray-500">Téléphone</span>
+<span>${user.phone||"-"}</span>
+</div>
+
+<div class="flex justify-between">
+<span class="text-gray-500">Email</span>
+<span>${user.email||"-"}</span>
+</div>
+
+<div class="flex justify-between">
+<span class="text-gray-500">Date inscription</span>
+<span>${formatDate(user.createdAt)}</span>
+</div>
+
+<div class="flex justify-between">
+<span class="text-gray-500">Dernière connexion</span>
+<span>${formatDate(user.lastLogin)}</span>
+</div>
+
+</div>
+
+
+<div class="flex gap-2 pt-5">
 
 ${buildActions(user)}
 
@@ -294,7 +339,6 @@ ${buildActions(user)}
 bindActionButtons(user);
 
 }
-
 
 
 function buildActions(user){
