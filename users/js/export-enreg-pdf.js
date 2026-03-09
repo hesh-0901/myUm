@@ -1,38 +1,26 @@
-import { db } from "/myUm/mains.js/firebase-config.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 console.log("export-enreg-pdf chargé");
 
-document.addEventListener("DOMContentLoaded", init);
-
-function init(){
-
-waitForHeader();
-
-}
-
-
-// =======================================
-// WAIT HEADER
-// =======================================
-
-function waitForHeader(){
-
-const interval = setInterval(()=>{
+document.addEventListener("DOMContentLoaded", () => {
 
 const header = document.getElementById("header-back");
 
-if(!header) return;
+if (!header) return;
 
 
-// chercher header-actions
+// observer les changements du header
 
-let actions = document.getElementById("header-actions");
+const observer = new MutationObserver(() => {
+
+const title = header.querySelector("h1, h2, span");
+
+if (!title) return;
 
 
-// créer si absent
+// créer container actions
 
-if(!actions){
+let actions = header.querySelector("#header-actions");
+
+if (!actions) {
 
 actions = document.createElement("div");
 
@@ -41,14 +29,16 @@ actions.id = "header-actions";
 actions.className =
 "absolute right-4 top-1/2 -translate-y-1/2 flex items-center";
 
+header.style.position = "relative";
+
 header.appendChild(actions);
 
 }
 
 
-// injecter bouton
+// ajouter bouton
 
-if(!actions.querySelector(".pdf-btn")){
+if (!actions.querySelector(".pdf-btn")) {
 
 const btn = document.createElement("button");
 
@@ -58,14 +48,20 @@ btn.className =
 btn.innerHTML =
 `<i class="bi bi-file-earmark-pdf text-lg"></i>`;
 
-btn.onclick = ()=>alert("PDF export");
+btn.onclick = () => alert("PDF export prêt");
 
 actions.appendChild(btn);
 
 }
 
-clearInterval(interval);
+observer.disconnect();
 
-},200);
+});
 
-}
+
+observer.observe(header,{
+childList:true,
+subtree:true
+});
+
+});
