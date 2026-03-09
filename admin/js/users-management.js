@@ -508,8 +508,17 @@ limit(PAGE_LIMIT)
 const snap = await getDocs(q);
 
 if(snap.empty){
+
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+if(loadMoreBtn){
+loadMoreBtn.style.display = "none";
+}
+
 loadingMore = false;
+
 return;
+
 }
 
 snap.forEach(docSnap=>{
