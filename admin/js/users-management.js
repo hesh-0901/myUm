@@ -311,8 +311,8 @@ ${user.firstName||""} ${user.lastName||""}
 </div>
 
 <div class="flex justify-between">
-<span class="text-gray-500">Email</span>
-<span>${user.email||"-"}</span>
+<span class="text-gray-500">Rôle</span>
+<span>${user.role||"-"}</span>
 </div>
 
 <div class="flex justify-between">
