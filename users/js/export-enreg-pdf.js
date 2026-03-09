@@ -55,19 +55,29 @@ function injectPDFButton() {
 
 async function generatePDF() {
 
-  const { jsPDF } = window.jspdf;
+const { jsPDF } = window.jspdf;
 
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4"
-  });
+const doc = new jsPDF({
+  orientation: "portrait",
+  unit: "mm",
+  format: "a4"
+});
 
-  let y = 20;
+let y = 20;
 
+
+// =============================
+// LOGO MYUM
+// =============================
+
+const logo = await loadImage("/myUm/assets/logo-myum.png");
+
+doc.addImage(logo, "PNG", 85, 10, 40, 15);
   // =============================
   // PHOTO
   // =============================
+
+
 
   if (userData.photoURL) {
 
