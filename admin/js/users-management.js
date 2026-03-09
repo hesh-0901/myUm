@@ -1,248 +1,360 @@
-import { db } from "../../mains.js/firebase-config.js";
+import {
+  db
+} from "../../mains.js/firebase-config.js";
 
 import {
-collection,
-query,
-where,
-onSnapshot,
-doc,
-updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-// DOM
+/* =========================
+   DOM
+========================= */
 
-const usersList = document.getElementById("usersList");
-const userDetail = document.getElementById("userDetail");
+const usersContainer = document.getElementById("usersContainer");
 
 const tabActive = document.getElementById("tabActive");
 const tabPending = document.getElementById("tabPending");
 const tabRejected = document.getElementById("tabRejected");
 
-const backBtn = document.getElementById("backBtn");
+const modal = document.getElementById("userDetailModal");
+const modalCard = document.getElementById("userDetailCard");
+const closeModal = document.getElementById("closeUserModal");
 
 
-// STATE
+/* =========================
+   STATE
+========================= */
 
-let currentTab="active";
+let currentStatus = "active";
+let usersCache = [];
 
 
-// INIT
+/* =========================
+   TAB EVENTS
+========================= */
 
-init();
+tabActive.addEventListener("click", () => {
+  switchTab("active");
+});
 
-function init(){
+tabPending.addEventListener("click", () => {
+  switchTab("pending");
+});
 
-listenUsers();
+tabRejected.addEventListener("click", () => {
+  switchTab("rejected");
+});
+
+
+function switchTab(status) {
+
+  currentStatus = status;
+
+  tabActive.classList.remove("bg-[#2596D9]", "text-white");
+  tabPending.classList.remove("bg-[#2596D9]", "text-white");
+  tabRejected.classList.remove("bg-[#2596D9]", "text-white");
+
+  if (status === "active") {
+    tabActive.classList.add("bg-[#2596D9]", "text-white");
+  }
+
+  if (status === "pending") {
+    tabPending.classList.add("bg-[#2596D9]", "text-white");
+  }
+
+  if (status === "rejected") {
+    tabRejected.classList.add("bg-[#2596D9]", "text-white");
+  }
+
+  loadUsers();
+
+}
+
+
+/* =========================
+   LOAD USERS
+========================= */
+
+async function loadUsers() {
+
+  usersContainer.innerHTML = `
+  <div class="text-sm opacity-60">Chargement...</div>
+  `;
+
+  try {
+
+    const usersRef = collection(db, "users");
+
+    const q = query(
+      usersRef,
+      where("status", "==", currentStatus)
+    );
+
+    const snap = await getDocs(q);
+
+    usersCache = [];
+
+    snap.forEach(docSnap => {
+
+      usersCache.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      });
+
+    });
+
+    renderUsers();
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    usersContainer.innerHTML = `
+    <div class="text-sm text-red-500">
+    Erreur chargement utilisateurs
+    </div>
+    `;
+
+  }
 
 }
 
 
-// NAV DASHBOARD
+/* =========================
+   RENDER USERS
+========================= */
 
-backBtn.onclick=()=>{
+function renderUsers() {
 
-window.location.href="/myUm/public/dashboard.html";
+  usersContainer.innerHTML = "";
 
-};
+  if (usersCache.length === 0) {
 
+    usersContainer.innerHTML = `
+    <div class="text-sm opacity-60">
+    Aucun utilisateur
+    </div>
+    `;
 
-// TABS
+    return;
+  }
 
-tabActive.onclick=()=>switchTab("active");
-tabPending.onclick=()=>switchTab("pending");
-tabRejected.onclick=()=>switchTab("rejected");
+  usersCache.forEach(user => {
 
+    const row = document.createElement("div");
 
-function switchTab(tab){
+    row.className =
+      "flex items-center gap-3 p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50";
 
-currentTab=tab;
+    row.innerHTML = `
 
-tabActive.classList.remove("tabActive");
-tabPending.classList.remove("tabActive");
-tabRejected.classList.remove("tabActive");
+      <img
+      src="${user.photoURL || "/myUm/assets/default-avatar.png"}"
+      class="w-12 h-12 rounded-full object-cover">
 
-if(tab==="active") tabActive.classList.add("tabActive");
-if(tab==="pending") tabPending.classList.add("tabActive");
-if(tab==="rejected") tabRejected.classList.add("tabActive");
+      <div class="flex-1">
 
-listenUsers();
+        <div class="text-sm font-medium">
+        ${user.displayName || "Utilisateur"}
+        </div>
+
+        <div class="text-xs opacity-60">
+        ${user.email || ""}
+        </div>
+
+      </div>
+
+      <i class="bi bi-chevron-right text-gray-400"></i>
+
+    `;
+
+    row.addEventListener("click", () => {
+      openUserModal(user);
+    });
+
+    usersContainer.appendChild(row);
+
+  });
 
 }
 
 
-// FIRESTORE
+/* =========================
+   USER MODAL
+========================= */
 
-function listenUsers(){
+function openUserModal(user) {
 
-usersList.innerHTML="Chargement...";
+  modal.classList.remove("hidden");
 
-const q=query(
-collection(db,"users"),
-where("isActive","==",currentTab)
-);
+  modalCard.innerHTML = `
 
-onSnapshot(q,(snap)=>{
+  <div class="flex flex-col items-center text-center gap-2">
 
-usersList.innerHTML="";
+    <img
+    src="${user.photoURL || "/myUm/assets/default-avatar.png"}"
+    class="w-20 h-20 rounded-full object-cover">
 
-if(snap.empty){
+    <div class="text-lg font-semibold">
+    ${user.displayName || "Utilisateur"}
+    </div>
 
-usersList.innerHTML=
-"<div class='text-sm opacity-60'>Aucun utilisateur</div>";
+    <div class="text-sm opacity-60">
+    ${user.email || ""}
+    </div>
 
-return;
+  </div>
+
+
+  <div class="flex gap-2 pt-2">
+
+  ${buildActions(user)}
+
+  </div>
+
+  `;
 
 }
 
-snap.forEach(docSnap=>{
 
-const user=docSnap.data();
+/* =========================
+   ACTION BUTTONS
+========================= */
 
-const row=document.createElement("div");
+function buildActions(user) {
 
-row.className="userRow";
+  if (user.status === "pending") {
 
-row.innerHTML=`
+    return `
 
-<i class="bi bi-person-circle text-xl text-lightblue"></i>
+    <button
+    id="approveUser"
+    class="flex-1 bg-green-600 text-white rounded-xl py-2 text-sm font-semibold">
 
-<div>
+    Approuver
 
-<div class="text-sm font-semibold">
+    </button>
 
-${user.firstName} ${user.lastName}
+    <button
+    id="rejectUser"
+    class="flex-1 bg-red-600 text-white rounded-xl py-2 text-sm font-semibold">
 
-</div>
+    Refuser
 
-<div class="text-xs opacity-70">
+    </button>
 
-${user.phone || ""}
+    `;
 
-</div>
+  }
 
-</div>
+  if (user.status === "rejected") {
 
-`;
+    return `
 
-row.onclick=()=>openUser(docSnap.id,user);
+    <button
+    id="restoreUser"
+    class="flex-1 bg-blue-500 text-white rounded-xl py-2 text-sm font-semibold">
 
-usersList.appendChild(row);
+    Restaurer
+
+    </button>
+
+    `;
+
+  }
+
+  return `
+  <div class="text-sm opacity-60 w-full text-center">
+  Utilisateur actif
+  </div>
+  `;
+
+}
+
+
+/* =========================
+   MODAL EVENTS
+========================= */
+
+modal.addEventListener("click", (e) => {
+
+  if (e.target === modal) {
+    modal.classList.add("hidden");
+  }
 
 });
 
+closeModal.addEventListener("click", () => {
+
+  modal.classList.add("hidden");
+
 });
 
-}
 
+/* =========================
+   USER ACTIONS
+========================= */
 
-// USER DETAIL
+document.addEventListener("click", async (e) => {
 
-function openUser(id,user){
+  const approveBtn = e.target.closest("#approveUser");
+  const rejectBtn = e.target.closest("#rejectUser");
+  const restoreBtn = e.target.closest("#restoreUser");
 
-usersList.classList.add("hidden");
-userDetail.classList.remove("hidden");
+  if (!approveBtn && !rejectBtn && !restoreBtn) return;
 
-userDetail.innerHTML=`
+  const userName =
+    modalCard.querySelector("div.text-lg").textContent;
 
-<div class="card space-y-2">
+  const user = usersCache.find(
+    u => u.displayName === userName
+  );
 
-<img src="${user.photoURL || '/myUm/assets/default-avatar.png'}"
-class="w-20 h-20 rounded-full object-cover">
+  if (!user) return;
 
-<div><b>Nom :</b> ${user.lastName}</div>
-<div><b>Prénom :</b> ${user.firstName}</div>
-<div><b>Fonction :</b> ${user.fonction}</div>
-<div><b>Chorale :</b> ${user.chorale}</div>
-<div><b>Téléphone :</b> ${user.phone}</div>
+  try {
 
-</div>
+    const ref = doc(db, "users", user.id);
 
-<div class="flex gap-3">
+    if (approveBtn) {
+      await updateDoc(ref, { status: "active" });
+    }
 
-${renderButtons(id)}
+    if (rejectBtn) {
+      await updateDoc(ref, { status: "rejected" });
+    }
 
-</div>
+    if (restoreBtn) {
+      await updateDoc(ref, { status: "active" });
+    }
 
-`;
+    modal.classList.add("hidden");
 
-}
+    loadUsers();
 
+  }
 
-// ACTION BUTTONS
+  catch (err) {
 
-function renderButtons(id){
+    console.error(err);
 
-if(currentTab==="pending"){
+    alert("Erreur mise à jour utilisateur");
 
-return `
+  }
 
-<button class="btn btnApprove flex-1"
-onclick="approveUser('${id}')">
-
-Approuver
-
-</button>
-
-<button class="btn btnReject flex-1"
-onclick="rejectUser('${id}')">
-
-Refuser
-
-</button>
-
-`;
-
-}
-
-if(currentTab==="rejected"){
-
-return `
-
-<button class="btn btnRestore flex-1"
-onclick="restoreUser('${id}')">
-
-Restaurer
-
-</button>
-
-`;
-
-}
-
-return "";
-
-}
-
-
-// ACTIONS
-
-window.approveUser=async(id)=>{
-
-await updateDoc(doc(db,"users",id),{
-isActive:"active"
 });
 
-location.reload();
 
-};
+/* =========================
+   INIT
+========================= */
 
-window.rejectUser=async(id)=>{
-
-await updateDoc(doc(db,"users",id),{
-isActive:"rejected"
-});
-
-location.reload();
-
-};
-
-window.restoreUser=async(id)=>{
-
-await updateDoc(doc(db,"users",id),{
-isActive:"pending"
-});
-
-location.reload();
-
-};
+loadUsers();
