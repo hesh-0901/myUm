@@ -9,6 +9,8 @@
 <title>Gestion membres - MyUm</title>
 
 <link rel="manifest" href="/myUm/manifest.json">
+<link rel="icon" href="/myUm/assets/favicon.png">
+<meta name="theme-color" content="#1A3668">
 
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -18,314 +20,79 @@ rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-
-/* =========================
-   BACKGROUND
-========================= */
-
-body{
-background:linear-gradient(180deg,#0f2145,#1A3668);
-}
-
-
-/* =========================
-   SEGMENTED TABS
-========================= */
-
-.tabsContainer{
-
-display:flex;
-
-margin:16px;
-
-background:rgba(255,255,255,.06);
-
-border:1px solid rgba(255,255,255,.08);
-
-border-radius:12px;
-
-overflow:hidden;
-
-}
-
-
-.tabItem{
-
-flex:1;
-
-padding:10px;
-
-font-size:13px;
-
-font-weight:500;
-
-text-align:center;
-
-cursor:pointer;
-
-transition:.2s;
-
-color:white;
-
-border-right:1px solid rgba(255,255,255,.08);
-
-}
-
-
-.tabItem:last-child{
-border-right:none;
-}
-
-
-.tabItem:hover{
-
-background:rgba(255,255,255,.1);
-
-}
-
-
-.tabActive{
-
-background:#2596D9;
-
-color:white;
-
-}
-
-
-/* =========================
-   USER ROW
-========================= */
-
-.userRow{
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-padding:12px;
-
-border-radius:10px;
-
-background:rgba(255,255,255,.06);
-
-border:1px solid rgba(255,255,255,.08);
-
-cursor:pointer;
-
-transition:.2s;
-
-}
-
-
-.userRow:hover{
-
-background:rgba(255,255,255,.12);
-
-}
-
-
-/* =========================
-   USER CARD
-========================= */
-
-.card{
-
-background:rgba(255,255,255,.06);
-
-border:1px solid rgba(255,255,255,.08);
-
-border-radius:14px;
-
-padding:16px;
-
-}
-
-
-/* =========================
-   BUTTONS
-========================= */
-
-.btn{
-
-padding:10px;
-
-border-radius:10px;
-
-font-weight:600;
-
-flex:1;
-
-transition:.15s;
-
-cursor:pointer;
-
-}
-
-
-.btnApprove{
-
-background:#16a34a;
-
-}
-
-
-.btnApprove:hover{
-
-background:#15803d;
-
-}
-
-
-.btnReject{
-
-background:#dc2626;
-
-}
-
-
-.btnReject:hover{
-
-background:#b91c1c;
-
-}
-
-
-.btnRestore{
-
-background:#3FA9F5;
-
-}
-
-
-.btnRestore:hover{
-
-background:#1e81ce;
-
-}
-
-
-/* =========================
-   AVATAR
-========================= */
-
-.avatar{
-
-width:70px;
-
-height:70px;
-
-border-radius:50%;
-
-object-fit:cover;
-
-border:2px solid rgba(255,255,255,.15);
-
-}
-
-
-/* =========================
-   TEXT HELPERS
-========================= */
-
-.textMuted{
-
-opacity:.65;
-
-font-size:12px;
-
-}
-
-</style>
-
 </head>
 
 
-<body class="flex justify-center font-[Inter] text-white">
+<body class="bg-gray-100 flex justify-center overflow-x-hidden font-[Inter]">
 
-<div class="w-full max-w-[420px] min-h-screen flex flex-col">
+<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
-
-<!-- HEADER -->
-
-<header class="flex items-center gap-3 p-5 border-b border-white/10">
-
-<button id="backBtn"
-class="text-white/70 text-lg">
-
-<i class="bi bi-arrow-left"></i>
-
-</button>
-
-<h1 class="text-lg font-semibold flex-1">
-
-Gestion des membres
-
-</h1>
-
-</header>
-
-
+<header id="header-back"></header>
 
 <!-- TABS -->
 
-<div class="tabsContainer">
+<div class="flex m-4 bg-gray-100 border rounded-xl overflow-hidden">
 
-<button id="tabActive" class="tabItem tabActive">
+<button id="tabActive"
+class="flex-1 py-2 text-sm font-medium text-center bg-[#2596D9] text-white">
+
 Actifs
+
 </button>
 
-<button id="tabPending" class="tabItem">
+<button id="tabPending"
+class="flex-1 py-2 text-sm font-medium text-center">
+
 En attente
+
 </button>
 
-<button id="tabRejected" class="tabItem">
+<button id="tabRejected"
+class="flex-1 py-2 text-sm font-medium text-center">
+
 Refusés
+
 </button>
 
 </div>
 
-<!-- USERS LIST -->
 
 <main
 id="usersList"
 class="flex-1 overflow-y-auto p-5 space-y-3">
 
 <div class="text-xs uppercase tracking-wide opacity-60 mb-2">
+
 Liste des utilisateurs
+
 </div>
 
-<div id="usersContainer"
-class="space-y-2">
-
-<!-- Injecté par JS -->
+<div id="usersContainer" class="space-y-3">
 
 </div>
 
 </main>
 
-<!-- USER DETAIL MODAL -->
+</div>
+
+
+<!-- MODAL -->
 
 <div
 id="userDetailModal"
 class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-5">
 
-<div class="w-full max-w-md">
+<div class="w-full max-w-md space-y-3">
 
-<!-- HEADER MODAL -->
-
-<div class="flex items-center justify-between mb-3">
+<div class="flex items-center justify-between">
 
 <div class="text-xs uppercase tracking-wide opacity-70">
+
 Dossier utilisateur
+
 </div>
 
-<button
-id="closeUserModal"
-class="text-white/60 hover:text-white text-lg">
+<button id="closeUserModal" class="text-gray-500 text-lg">
 
 <i class="bi bi-x-lg"></i>
 
@@ -333,27 +100,25 @@ class="text-white/60 hover:text-white text-lg">
 
 </div>
 
-
-<!-- CARD -->
-
 <div
 id="userDetailCard"
-class="card space-y-4">
-
-<!-- Injecté par JS -->
+class="rounded-3xl shadow-sm p-5 bg-white space-y-4">
 
 </div>
 
 </div>
-
-</div>
-
 
 </div>
 
 
 <script type="module"
+src="/myUm/partials/js/back-header.js"></script>
+
+<script type="module"
 src="/myUm/admin/js/users-management.js"></script>
+
+<script type="module"
+src="/myUm/mains.js/app-init.js"></script>
 
 </body>
 </html>
