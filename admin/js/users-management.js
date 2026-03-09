@@ -43,9 +43,7 @@ init();
 async function init(){
 
 await loadStats();
-
 await loadUsers();
-
 initEvents();
 
 }
@@ -126,7 +124,7 @@ const ref = collection(db,"users");
 
 const q = query(
 ref,
-where("status","==",currentStatus),
+where("isActive","==",currentStatus),
 orderBy("createdAt","desc"),
 limit(PAGE_LIMIT)
 );
@@ -293,7 +291,7 @@ bindActionButtons(user);
 
 function buildActions(user){
 
-if(user.status==="pending"){
+if(user.isActive==="pending"){
 
 return`
 
@@ -315,7 +313,7 @@ Refuser
 
 }
 
-if(user.status==="rejected"){
+if(user.isActive==="rejected"){
 
 return`
 
@@ -368,7 +366,7 @@ try{
 
 const ref=doc(db,"users",user.id);
 
-await updateDoc(ref,{status:status});
+await updateDoc(ref,{isActive:status});
 
 modal.classList.add("hidden");
 
