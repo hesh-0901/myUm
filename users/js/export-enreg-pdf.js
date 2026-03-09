@@ -1,3 +1,4 @@
+console.log("export-enreg-pdf chargé");
 // =======================================
 // EXPORT ENREG PDF - MYUM
 // =======================================
