@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", initPdfExport);
 
 
 // =======================================
-// INITIALISE BOUTON PDF
+// INIT PDF BUTTON
 // =======================================
 
 function initPdfExport(){
@@ -15,13 +15,8 @@ if(!container) return;
 
 const btn = document.createElement("button");
 
-btn.className = `
-w-9 h-9 flex items-center justify-center
-rounded-full
-text-gray-600
-hover:bg-gray-100
-transition
-`;
+btn.className =
+"w-9 h-9 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition";
 
 btn.innerHTML = `<i class="bi bi-file-earmark-pdf text-lg"></i>`;
 
@@ -47,7 +42,7 @@ let y = 20;
 
 
 // ============================
-// LOAD USER DATA
+// USER DATA
 // ============================
 
 const fullName = document.getElementById("fullName").innerText;
@@ -61,13 +56,15 @@ const photoEl = document.getElementById("profilePhoto");
 // LOAD IMAGES
 // ============================
 
-const logo = await loadImage("/myUm/assets/logo-myum.png");
+const logo = await loadImageBase64("/myUm/assets/logo-myum.png");
 
 let photo = null;
 
 try{
-photo = await loadImage(photoEl.src);
-}catch(e){}
+photo = await loadImageBase64(photoEl.src);
+}catch(e){
+console.warn("Photo non chargée");
+}
 
 
 // ============================
@@ -75,16 +72,19 @@ photo = await loadImage(photoEl.src);
 // ============================
 
 // logo
-doc.addImage(logo,"PNG",15,10,30,10);
+if(logo){
+doc.addImage(logo,"PNG",15,10,40,12);
+}
+
 
 // header background
 doc.setFillColor(230,220,210);
-doc.roundedRect(10,18,pageWidth-20,40,10,10,"F");
+doc.roundedRect(10,20,pageWidth-20,40,10,10,"F");
 
 
 // photo
 if(photo){
-doc.addImage(photo,"JPEG",15,22,30,30);
+doc.addImage(photo,"JPEG",15,24,30,30);
 }
 
 
@@ -93,29 +93,29 @@ doc.setFont("helvetica","bold");
 doc.setFontSize(22);
 doc.setTextColor(40,40,40);
 
-doc.text(fullName,55,32);
+doc.text(fullName,55,35);
 
 
 // username
 doc.setFont("helvetica","normal");
 doc.setFontSize(12);
 
-doc.text(username,55,40);
+doc.text(username,55,43);
 
 
 // fonction
 doc.setFontSize(11);
 doc.setTextColor(80,80,80);
 
-doc.text(fonction,55,47);
+doc.text(fonction,55,50);
 
 
 // decorative line
 doc.setFillColor(26,54,104);
-doc.rect(10,60,pageWidth-20,1,"F");
+doc.rect(10,65,pageWidth-20,1,"F");
 
 
-y = 75;
+y = 80;
 
 
 // =======================================
@@ -206,9 +206,12 @@ field("Groupe musique",getField("groupeMusique"));
 
 const qrUrl = generateQR(username);
 
-const qrImg = await loadImage(qrUrl);
+const qr = await loadImageBase64(qrUrl);
 
-doc.addImage(qrImg,"PNG",15,270,18,18);
+if(qr){
+doc.addImage(qr,"PNG",15,270,18,18);
+}
+
 
 
 // =======================================
@@ -271,21 +274,33 @@ return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://my
 
 
 // =======================================
-// LOAD IMAGE
+// LOAD IMAGE BASE64 (CORS SAFE)
 // =======================================
 
-function loadImage(url){
+async function loadImageBase64(url){
 
-return new Promise((resolve)=>{
+try{
 
-const img = new Image();
+const response = await fetch(url,{mode:"cors"});
 
-img.crossOrigin = "anonymous";
+const blob = await response.blob();
 
-img.onload = () => resolve(img);
+return await new Promise(resolve=>{
 
-img.src = url;
+const reader = new FileReader();
+
+reader.onloadend = () => resolve(reader.result);
+
+reader.readAsDataURL(blob);
 
 });
+
+}catch(e){
+
+console.warn("Image non chargée :",url);
+
+return null;
+
+}
 
 }
