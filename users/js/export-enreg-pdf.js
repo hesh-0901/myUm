@@ -2,379 +2,325 @@ import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 
 document.addEventListener("DOMContentLoaded", initPdfExport);
 
+/* =====================================================
+   CONFIG
+===================================================== */
 
-// ==============================
-// INIT PDF BUTTON
-// ==============================
+const CONFIG = {
+  headerHeight: 60,
+  leftColumnWidth: 95,
+  startY: 80
+};
 
-function initPdfExport(){
+/* =====================================================
+   INIT BUTTON
+===================================================== */
 
-const container = document.getElementById("header-actions");
+function initPdfExport() {
 
-if(!container) return;
+  const container = document.getElementById("header-actions");
+  if (!container) return;
 
-const btn = document.createElement("button");
+  const btn = document.createElement("button");
 
-btn.className =
-"w-9 h-9 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition";
+  btn.className =
+    "w-9 h-9 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition";
 
-btn.innerHTML = `<i class="bi bi-file-earmark-pdf text-lg"></i>`;
+  btn.innerHTML = `<i class="bi bi-file-earmark-pdf text-lg"></i>`;
 
-btn.addEventListener("click", generatePDF);
+  btn.addEventListener("click", generatePDF);
 
-container.appendChild(btn);
-
+  container.appendChild(btn);
 }
 
+/* =====================================================
+   MAIN PDF GENERATOR
+===================================================== */
 
+async function generatePDF() {
 
-// ==============================
-// GENERATE PDF
-// ==============================
+  const doc = new jsPDF("p", "mm", "a4");
 
-async function generatePDF(){
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-const doc = new jsPDF("p","mm","a4");
+  let yLeft = CONFIG.startY;
+  let yRight = CONFIG.startY;
 
-const pageWidth = doc.internal.pageSize.getWidth();
+  const user = getUserData();
 
-const leftCol = 95;
+  const images = await loadImages(user);
 
-let yLeft = 80;
-let yRight = 80;
+  drawHeader(doc, pageWidth, user, images);
 
+  yLeft = drawPersonalSection(doc, yLeft);
+  yLeft = drawChurchSection(doc, yLeft);
 
+  yRight = drawMusicSection(doc, pageWidth, yRight);
 
-// ==============================
-// USER DATA
-// ==============================
+  drawQR(doc, pageWidth, images.qr);
 
-const fullName = document.getElementById("fullName").innerText;
-const username = document.getElementById("username").innerText;
-const fonction = document.getElementById("userFunction").innerText;
+  drawFooter(doc, pageWidth, user.username);
 
-const photoEl = document.getElementById("profilePhoto");
-
-const createdAt = new Date().toLocaleDateString("fr-FR");
-
-
-
-// ==============================
-// LOAD IMAGES
-// ==============================
-
-const logo = await loadImageBase64("/myUm/assets/logo-myum.png");
-
-let photo = null;
-
-try{
-photo = await loadImageBase64(photoEl.src);
-}catch(e){}
-
-
-
-const qrUrl = generateQR(username);
-const qr = await loadImageBase64(qrUrl);
-
-
-
-// ==============================
-// HEADER BACKGROUND
-// ==============================
-
-doc.setFillColor(26,54,104);
-doc.rect(0,0,pageWidth,60,"F");
-
-
-
-// ==============================
-// HEADER CARD
-// ==============================
-
-doc.setFillColor(37,150,217);
-doc.roundedRect(40,20,pageWidth-50,25,12,12,"F");
-
-
-
-// ==============================
-// LOGO
-// ==============================
-
-if(logo){
-doc.addImage(logo,"PNG",15,15,40,12);
+  doc.save(`fiche-membre-${user.username}.pdf`);
 }
 
+/* =====================================================
+   USER DATA
+===================================================== */
 
+function getUserData() {
 
-// ==============================
-// PHOTO
-// ==============================
+  const fullName = document.getElementById("fullName").innerText;
+  const username = document.getElementById("username").innerText;
+  const fonction = document.getElementById("userFunction").innerText;
+  const photoEl = document.getElementById("profilePhoto");
 
-if(photo){
-
-doc.setFillColor(255,255,255);
-doc.circle(30,32,18,"F");
-
-doc.addImage(photo,"JPEG",12,14,36,36);
-
+  return {
+    fullName,
+    username,
+    fonction,
+    photo: photoEl?.src,
+    createdAt: new Date().toLocaleDateString("fr-FR")
+  };
 }
 
+/* =====================================================
+   IMAGE LOADING
+===================================================== */
 
+async function loadImages(user) {
 
-// ==============================
-// NAME
-// ==============================
+  const logo = await loadImageBase64("/myUm/assets/logo-myum.png");
 
-doc.setFont("helvetica","bold");
-doc.setFontSize(24);
-doc.setTextColor(255,255,255);
+  let photo = null;
 
-doc.text(fullName,55,33);
+  try {
+    photo = await loadImageBase64(user.photo);
+  } catch (e) {}
 
+  const qr = await loadImageBase64(generateQR(user.username));
 
-
-doc.setFontSize(12);
-doc.text(username,55,41);
-
-
-
-doc.setFontSize(11);
-doc.text(fonction,55,48);
-
-
-
-// ==============================
-// SECTION LEFT
-// ==============================
-
-function sectionLeft(title){
-
-doc.setFillColor(37,150,217);
-doc.roundedRect(10,yLeft-6,leftCol-15,10,5,5,"F");
-
-doc.setTextColor(255,255,255);
-doc.setFontSize(12);
-
-doc.text(title,15,yLeft);
-
-yLeft += 10;
-
+  return { logo, photo, qr };
 }
 
+/* =====================================================
+   HEADER
+===================================================== */
 
+function drawHeader(doc, pageWidth, user, images) {
 
-function fieldLeft(label,value){
+  doc.setFillColor(26, 54, 104);
+  doc.rect(0, 0, pageWidth, 60, "F");
 
-doc.setTextColor(50,50,50);
-doc.setFontSize(10);
+  doc.setFillColor(37, 150, 217);
+  doc.roundedRect(40, 20, pageWidth - 50, 25, 12, 12, "F");
 
-doc.text(label,15,yLeft);
+  if (images.logo)
+    doc.addImage(images.logo, "PNG", 15, 15, 40, 12);
 
-doc.setFont("helvetica","bold");
-doc.text(value || "—",55,yLeft);
+  if (images.photo) {
 
-doc.setFont("helvetica","normal");
+    doc.setFillColor(255, 255, 255);
+    doc.circle(30, 32, 18, "F");
 
-yLeft += 7;
+    doc.addImage(images.photo, "JPEG", 12, 14, 36, 36);
+  }
 
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.setTextColor(255, 255, 255);
+
+  doc.text(user.fullName, 55, 33);
+
+  doc.setFontSize(12);
+  doc.text(user.username, 55, 41);
+
+  doc.setFontSize(11);
+  doc.text(user.fonction, 55, 48);
 }
 
+/* =====================================================
+   SECTIONS
+===================================================== */
 
+function drawPersonalSection(doc, y) {
 
-// ==============================
-// SECTION RIGHT
-// ==============================
+  y = sectionLeft(doc, "Informations personnelles", y);
 
-function sectionRight(title){
+  y = fieldLeft(doc, "Genre", getField("genre"), y);
+  y = fieldLeft(doc, "Etat civil", getField("etatCivil"), y);
+  y = fieldLeft(doc, "Relation", getField("statutRelationnel"), y);
+  y = fieldLeft(doc, "Vie séculière", getField("vieSeculiere"), y);
+  y = fieldLeft(doc, "Commune", getField("commune"), y);
+  y = fieldLeft(doc, "Avenue", getField("avenue"), y);
 
-doc.setFillColor(37,150,217);
-doc.roundedRect(leftCol,yRight-6,pageWidth-leftCol-10,10,5,5,"F");
-
-doc.setTextColor(255,255,255);
-doc.setFontSize(12);
-
-doc.text(title,leftCol+5,yRight);
-
-yRight += 10;
-
+  return y;
 }
 
+function drawChurchSection(doc, y) {
 
+  y = sectionLeft(doc, "Informations ecclésiastiques", y);
 
-function fieldRight(label,value){
+  y = fieldLeft(doc, "Eglise", getField("egliseProvenance"), y);
+  y = fieldLeft(doc, "Année baptême", getField("anneeBapteme"), y);
+  y = fieldLeft(doc, "Type baptême", getField("typeBapteme"), y);
+  y = fieldLeft(doc, "Affermissement", getField("statutAffermissement"), y);
+  y = fieldLeft(doc, "Ancienne fonction", getField("ancienneFonction"), y);
+  y = fieldLeft(doc, "Responsable", getField("responsableMinistere"), y);
 
-doc.setTextColor(50,50,50);
-doc.setFontSize(10);
-
-doc.text(label,leftCol+5,yRight);
-
-doc.setFont("helvetica","bold");
-doc.text(value || "—",leftCol+55,yRight);
-
-doc.setFont("helvetica","normal");
-
-yRight += 7;
-
+  return y;
 }
 
+function drawMusicSection(doc, pageWidth, y) {
 
+  y = sectionRight(doc, "Compétences musicales", pageWidth, y);
 
-// ==============================
-// PERSONAL
-// ==============================
+  y = fieldRight(doc, "Registre voix", getField("registreVoix"), pageWidth, y);
+  y = fieldRight(doc, "Groupe musique", getField("groupeMusique"), pageWidth, y);
 
-sectionLeft("Informations personnelles");
-
-fieldLeft("Genre",getField("genre"));
-fieldLeft("Etat civil",getField("etatCivil"));
-fieldLeft("Relation",getField("statutRelationnel"));
-fieldLeft("Vie séculière",getField("vieSeculiere"));
-fieldLeft("Commune",getField("commune"));
-fieldLeft("Avenue",getField("avenue"));
-
-
-
-// ==============================
-// ECCLESIASTIQUE
-// ==============================
-
-sectionLeft("Informations ecclésiastiques");
-
-fieldLeft("Eglise",getField("egliseProvenance"));
-fieldLeft("Année baptême",getField("anneeBapteme"));
-fieldLeft("Type baptême",getField("typeBapteme"));
-fieldLeft("Affermissement",getField("statutAffermissement"));
-fieldLeft("Ancienne fonction",getField("ancienneFonction"));
-fieldLeft("Responsable",getField("responsableMinistere"));
-
-
-
-// ==============================
-// MUSICAL
-// ==============================
-
-sectionRight("Compétences musicales");
-
-fieldRight("Registre voix",getField("registreVoix"));
-fieldRight("Groupe musique",getField("groupeMusique"));
-
-
-
-// ==============================
-// QR CODE
-// ==============================
-
-if(qr){
-
-doc.addImage(qr,"PNG",pageWidth-35,265,18,18);
-
+  return y;
 }
 
+/* =====================================================
+   LEFT COLUMN
+===================================================== */
 
+function sectionLeft(doc, title, y) {
 
-// ==============================
-// FOOTER
-// ==============================
+  doc.setFillColor(37, 150, 217);
+  doc.roundedRect(10, y - 6, CONFIG.leftColumnWidth - 15, 10, 5, 5, "F");
 
-doc.setDrawColor(200,200,200);
-doc.line(10,260,pageWidth-10,260);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
 
-doc.setFontSize(9);
-doc.setTextColor(120,120,120);
+  doc.text(title, 15, y);
 
-doc.text(
-`Document officiel MyUm`,
-pageWidth/2,
-268,
-{align:"center"}
-);
-
-doc.text(
-`Créé par ${username} • ${createdAt}`,
-pageWidth/2,
-273,
-{align:"center"}
-);
-
-doc.text(
-`https://myum.app`,
-pageWidth/2,
-278,
-{align:"center"}
-);
-
-
-
-// ==============================
-// SAVE
-// ==============================
-
-doc.save(`fiche-membre-${username}.pdf`);
-
+  return y + 10;
 }
 
+function fieldLeft(doc, label, value, y) {
 
+  doc.setTextColor(50, 50, 50);
+  doc.setFontSize(10);
 
-// ==============================
-// GET FIELD
-// ==============================
+  doc.text(label, 15, y);
 
-function getField(name){
+  doc.setFont("helvetica", "bold");
+  doc.text(value || "—", 55, y);
 
-const field = document.querySelector(`.field[data-field="${name}"]`);
+  doc.setFont("helvetica", "normal");
 
-if(!field) return "";
-
-const value = field.querySelector(".value");
-
-if(!value) return "";
-
-return value.innerText;
-
+  return y + 7;
 }
 
+/* =====================================================
+   RIGHT COLUMN
+===================================================== */
 
+function sectionRight(doc, title, pageWidth, y) {
 
-// ==============================
-// GENERATE QR
-// ==============================
+  const left = CONFIG.leftColumnWidth;
 
-function generateQR(username){
+  doc.setFillColor(37, 150, 217);
+  doc.roundedRect(left, y - 6, pageWidth - left - 10, 10, 5, 5, "F");
 
-const clean = username.replace("@","");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
 
-return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://myum.app/member/${clean}`;
+  doc.text(title, left + 5, y);
 
+  return y + 10;
 }
 
+function fieldRight(doc, label, value, pageWidth, y) {
 
+  const left = CONFIG.leftColumnWidth;
 
-// ==============================
-// LOAD IMAGE BASE64
-// ==============================
+  doc.setTextColor(50, 50, 50);
+  doc.setFontSize(10);
 
-async function loadImageBase64(url){
+  doc.text(label, left + 5, y);
 
-try{
+  doc.setFont("helvetica", "bold");
+  doc.text(value || "—", left + 55, y);
 
-const response = await fetch(url,{mode:"cors"});
+  doc.setFont("helvetica", "normal");
 
-const blob = await response.blob();
-
-return await new Promise(resolve=>{
-
-const reader = new FileReader();
-
-reader.onloadend = () => resolve(reader.result);
-
-reader.readAsDataURL(blob);
-
-});
-
-}catch(e){
-
-return null;
-
+  return y + 7;
 }
 
+/* =====================================================
+   QR CODE
+===================================================== */
+
+function drawQR(doc, pageWidth, qr) {
+
+  if (qr)
+    doc.addImage(qr, "PNG", pageWidth - 35, 265, 18, 18);
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+function drawFooter(doc, pageWidth, username) {
+
+  const createdAt = new Date().toLocaleDateString("fr-FR");
+
+  doc.setDrawColor(200, 200, 200);
+  doc.line(10, 260, pageWidth - 10, 260);
+
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+
+  doc.text(`Document officiel MyUm`, pageWidth / 2, 268, { align: "center" });
+
+  doc.text(`Créé par ${username} • ${createdAt}`, pageWidth / 2, 273, { align: "center" });
+
+  doc.text(`https://myum.app`, pageWidth / 2, 278, { align: "center" });
+}
+
+/* =====================================================
+   UTILITIES
+===================================================== */
+
+function getField(name) {
+
+  const field = document.querySelector(`.field[data-field="${name}"]`);
+  if (!field) return "";
+
+  const value = field.querySelector(".value");
+  if (!value) return "";
+
+  return value.innerText;
+}
+
+function generateQR(username) {
+
+  const clean = username.replace("@", "");
+
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://myum.app/member/${clean}`;
+}
+
+async function loadImageBase64(url) {
+
+  try {
+
+    const response = await fetch(url, { mode: "cors" });
+
+    const blob = await response.blob();
+
+    return await new Promise(resolve => {
+
+      const reader = new FileReader();
+
+      reader.onloadend = () => resolve(reader.result);
+
+      reader.readAsDataURL(blob);
+    });
+
+  } catch (e) {
+
+    return null;
+  }
 }
