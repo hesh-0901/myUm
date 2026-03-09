@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Messagerie - MyUm</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -33,17 +32,17 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
   <!-- ============================================================
        APP SHELL
        Rôle :
-       - Conteneur mobile-first stable
-       - Une seule vraie page de messagerie
+       - Conteneur mobile-first principal
+       - Page dédiée uniquement aux conversations
   ============================================================ -->
   <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- ============================================================
-         HEADER MESSENGER
+         HEADER
          Rôle :
          - Retour dashboard
-         - Titre principal
-         - Bouton refresh
+         - Titre
+         - Accès page amis avec badge requests
     ============================================================ -->
     <header class="sticky top-0 z-20 bg-white border-b border-gray-100">
       <div class="px-4 py-3 flex items-center justify-between gap-3">
@@ -54,99 +53,80 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
 
         <div class="min-w-0 flex-1">
           <div class="font-semibold text-sm truncate">Messagerie</div>
-          <div class="text-xs text-gray-400 truncate">Conversations, demandes et amis</div>
+          <div class="text-xs text-gray-400 truncate">Vos conversations</div>
         </div>
 
-        <button id="refreshBtn"
-          class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-          <i class="bi bi-arrow-clockwise"></i>
+        <!-- Bouton amis -->
+        <button id="friendsPageBtn"
+          class="relative w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+          <i class="bi bi-people-fill"></i>
+
+          <span id="friendRequestsBadge"
+            class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+            0
+          </span>
         </button>
       </div>
 
       <!-- ============================================================
-           RECHERCHE GLOBALE
+           RECHERCHE CONVERSATIONS / PERSONNES
            Rôle :
-           - Recherche amis / utilisateurs
-           - Recherche temps réel
+           - Recherche discrète
+           - Pas de double loupe inutile
       ============================================================ -->
       <div class="px-4 pb-3">
-        <div class="flex gap-2">
-          <input id="searchInput"
-            class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue text-sm"
-            placeholder="Rechercher un nom, username ou téléphone..." />
-          <button id="searchBtn"
-            class="px-4 py-3 rounded-2xl bg-primary text-white font-semibold active:scale-95 transition">
-            <i class="bi bi-search"></i>
-          </button>
+        <div class="relative">
+          <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <input id="conversationSearchInput"
+            class="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue text-sm bg-gray-50"
+            placeholder="Rechercher une conversation..." />
         </div>
       </div>
     </header>
 
     <!-- ============================================================
-         CONTENU PRINCIPAL
+         ACTIONS RAPIDES
          Rôle :
-         - Zone scrollable unique
+         - Préparer stories / calls plus tard
+         - Pour l’instant accès amis clair
     ============================================================ -->
-    <main class="flex-1 overflow-y-auto bg-gray-100 px-4 py-4 space-y-4">
-
-      <!-- ============================================================
-           RÉSULTATS DE RECHERCHE
-           Rôle :
-           - Montrer utilisateurs trouvés
-           - Ajouter en ami sans spam
-      ============================================================ -->
-      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-search text-primary"></i>
-          <h2 class="font-semibold text-sm">Résultats de recherche</h2>
+    <section class="px-4 pt-4 bg-gray-100">
+      <button id="friendsCardBtn"
+        class="w-full p-4 rounded-3xl bg-white border border-gray-100 shadow-sm flex items-center justify-between gap-3 active:scale-[0.99] transition">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+            <i class="bi bi-people-fill text-xl"></i>
+          </div>
+          <div class="min-w-0 text-left">
+            <div class="font-semibold text-sm truncate">Mes amis</div>
+            <div class="text-xs text-gray-500 truncate">Demandes, recherche et liste d’amis</div>
+          </div>
         </div>
-        <div id="searchResults" class="space-y-2"></div>
-      </section>
 
-      <!-- ============================================================
-           CONVERSATIONS
-           Rôle :
-           - Vraie entrée principale style Messenger
-           - Realtime, badges non lus, typing, online
-      ============================================================ -->
-      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-chat-dots text-primary"></i>
-          <h2 class="font-semibold text-sm">Conversations</h2>
+        <div class="flex items-center gap-2">
+          <span id="friendRequestsBadgeCard"
+            class="hidden min-w-[22px] h-[22px] px-2 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center">
+            0
+          </span>
+          <i class="bi bi-chevron-right text-gray-400"></i>
         </div>
-        <div id="chatList" class="space-y-2"></div>
-        <div id="chatEmptyState" class="hidden text-xs text-gray-500 text-center py-4">
-          Aucune conversation.
-        </div>
-      </section>
+      </button>
+    </section>
 
-      <!-- ============================================================
-           DEMANDES REÇUES
-           Rôle :
-           - Voir qui veut devenir ami
-      ============================================================ -->
-      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-person-plus text-primary"></i>
-          <h2 class="font-semibold text-sm">Demandes reçues</h2>
-        </div>
-        <div id="incomingList" class="space-y-2"></div>
-      </section>
+    <!-- ============================================================
+         ZONE CONVERSATIONS
+         Rôle :
+         - Realtime chats
+         - Typing
+         - Online
+         - Unread
+    ============================================================ -->
+    <main class="flex-1 overflow-y-auto bg-gray-100 px-4 py-4">
+      <div id="chatList" class="space-y-2"></div>
 
-      <!-- ============================================================
-           AMIS
-           Rôle :
-           - Liste rapide des amis
-           - Accès direct à la room
-      ============================================================ -->
-      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-people text-primary"></i>
-          <h2 class="font-semibold text-sm">Mes amis</h2>
-        </div>
-        <div id="friendsList" class="space-y-2"></div>
-      </section>
-
+      <div id="chatEmptyState" class="hidden text-center text-sm text-gray-500 py-8">
+        Aucune conversation pour l’instant.
+      </div>
     </main>
 
     <footer class="py-5 text-center text-xs text-gray-400 bg-white border-t border-gray-100">
@@ -154,20 +134,7 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
     </footer>
   </div>
 
-  <!-- ============================================================
-       APP INIT GLOBAL
-       Rôle :
-       - auth
-       - presence
-       - notifications
-  ============================================================ -->
   <script type="module" src="../mains.js/app-init.js"></script>
-
-  <!-- ============================================================
-       CHAT HOME LOGIC
-       Rôle :
-       - Fusion conversations + recherche + demandes + amis
-  ============================================================ -->
   <script type="module" src="./js/chat-home.js"></script>
 </body>
 </html>
