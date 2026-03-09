@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appel vocal - MyUm</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1A3668',
+            medium: '#2596D9',
+            lightblue: '#3FA9F5',
+            danger: '#DC2626',
+            success: '#16A34A'
+          },
+          fontFamily: {
+            display: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-100 font-display text-gray-800 flex justify-center overflow-x-hidden">
+  <!-- ============================================================
+       APP SHELL APPEL VOCAL
+       Rôle :
+       - Interface dédiée à l’appel
+  ============================================================ -->
+  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col items-center justify-between px-6 py-8">
+
+    <!-- ============================================================
+         HEADER APPEL
+    ============================================================ -->
+    <div class="w-full flex items-center justify-between">
+      <button id="backRoomBtn"
+        class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+
+      <div class="text-sm font-semibold">Appel vocal</div>
+
+      <div class="w-10 h-10"></div>
+    </div>
+
+    <!-- ============================================================
+         ZONE PROFIL
+    ============================================================ -->
+    <div class="flex flex-col items-center text-center">
+      <div id="callAvatar"
+        class="w-28 h-28 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-700">
+        —
+      </div>
+
+      <div id="callName" class="mt-5 text-xl font-semibold">—</div>
+      <div id="callStatus" class="mt-2 text-sm text-gray-500">Initialisation...</div>
+    </div>
+
+    <!-- ============================================================
+         AUDIO DISTANT
+         Rôle :
+         - Lecture du flux audio reçu
+    ============================================================ -->
+    <audio id="remoteAudio" autoplay playsinline></audio>
+
+    <!-- ============================================================
+         ACTIONS APPEL
+    ============================================================ -->
+    <div class="w-full grid grid-cols-3 gap-4">
+      <button id="muteBtn"
+        class="h-14 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
+        <i class="bi bi-mic-mute-fill text-lg"></i>
+      </button>
+
+      <button id="acceptBtn"
+        class="hidden h-14 rounded-2xl bg-success text-white flex items-center justify-center active:scale-95 transition">
+        <i class="bi bi-telephone-fill text-lg"></i>
+      </button>
+
+      <button id="endBtn"
+        class="h-14 rounded-2xl bg-danger text-white flex items-center justify-center active:scale-95 transition col-span-2">
+        <i class="bi bi-telephone-x-fill text-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="../mains.js/app-init.js"></script>
+  <script type="module" src="./js/call-voice.js"></script>
+</body>
+</html>
