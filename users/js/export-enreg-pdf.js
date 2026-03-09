@@ -1,250 +1,215 @@
 import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 
-/* ================================
-EXPORT CV
-================================ */
-
-export async function generateMemberCV(user){
+export async function generateCV(user){
 
 const doc = new jsPDF("p","mm","a4");
 
 const pageWidth = doc.internal.pageSize.getWidth();
 const pageHeight = doc.internal.pageSize.getHeight();
 
-const sidebarWidth = 65;
+const sidebarWidth = 75;
 
-let yLeft = 85;
-let yRight = 85;
+/* COLORS */
 
-/* ================================
-LOAD IMAGES
-================================ */
+const dark = [44,62,80];
+const light = [240,242,245];
+const accent = [52,152,219];
 
-const logo = await loadImageBase64("/myUm/assets/logo-myum.png");
+/* SIDEBAR BACKGROUND */
+
+doc.setFillColor(...dark);
+doc.rect(0,0,sidebarWidth,pageHeight,"F");
+
+/* MAIN BACKGROUND */
+
+doc.setFillColor(...light);
+doc.rect(sidebarWidth,0,pageWidth-sidebarWidth,pageHeight,"F");
+
+/* PHOTO */
+
 const photo = await loadImageBase64(user.photoURL);
-const qr = await loadImageBase64(generateQR(user.username));
-
-/* ================================
-HEADER
-================================ */
-
-doc.setFillColor(26,54,104);
-doc.rect(0,0,pageWidth,60,"F");
-
-doc.setFillColor(52,152,219);
-doc.roundedRect(45,22,pageWidth-55,25,12,12,"F");
-
-if(logo){
-doc.addImage(logo,"PNG",15,15,35,12);
-}
-
-/* ================================
-PHOTO CIRCLE
-================================ */
 
 if(photo){
-
-doc.setFillColor(255,255,255);
-doc.circle(30,35,18,"F");
-
-doc.addImage(photo,"JPEG",12,17,36,36);
-
+doc.addImage(photo,"JPEG",15,20,45,45);
 }
 
-/* ================================
-TEXT HEADER
-================================ */
+/* NAME */
+
+doc.setTextColor(44,62,80);
+doc.setFont("helvetica","bold");
+doc.setFontSize(26);
+
+doc.text(
+`${user.firstName} ${user.lastName}`,
+sidebarWidth+15,
+30
+);
+
+/* POSITION */
+
+doc.setFillColor(...dark);
+doc.roundedRect(sidebarWidth+15,35,60,10,3,3,"F");
 
 doc.setTextColor(255,255,255);
-
-doc.setFont("helvetica","bold");
-doc.setFontSize(24);
-
-doc.text(`${user.firstName} ${user.lastName}`,60,35);
-
-doc.setFontSize(12);
-doc.text(`@${user.username}`,60,43);
-
 doc.setFontSize(11);
-doc.text(user.fonction || "Membre",60,50);
 
-/* ================================
-SIDEBAR
-================================ */
+doc.text(
+user.fonction || "Membre",
+sidebarWidth+45,
+42,
+{align:"center"}
+);
 
-doc.setFillColor(245,247,250);
-doc.rect(0,60,sidebarWidth,pageHeight,"F");
+/* ======================
+SIDEBAR CONTENT
+====================== */
 
-/* ================================
-PERSONAL INFO
-================================ */
+let y = 80;
 
-sectionLeft("Profil");
+sectionSidebar("Profil");
 
-fieldLeft("Genre",user.genre);
-fieldLeft("Etat civil",user.etatCivil);
-fieldLeft("Relation",user.statutRelationnel);
-fieldLeft("Vie séculière",user.vieSeculiere);
-fieldLeft("Commune",user.commune);
-fieldLeft("Avenue",user.avenue);
+fieldSidebar("Genre",user.genre);
+fieldSidebar("Etat civil",user.etatCivil);
+fieldSidebar("Relation",user.statutRelationnel);
 
-yLeft += 5;
+y += 8;
 
-sectionLeft("Infos église");
+sectionSidebar("Infos Église");
 
-fieldLeft("Eglise",user.egliseProvenance);
-fieldLeft("Année baptême",user.anneeBapteme);
-fieldLeft("Type baptême",user.typeBapteme);
-fieldLeft("Affermissement",user.statutAffermissement);
-fieldLeft("Ancienne fonction",user.ancienneFonction);
-fieldLeft("Responsable",user.responsableMinistere);
+fieldSidebar("Église",user.egliseProvenance);
+fieldSidebar("Baptême",user.anneeBapteme);
+fieldSidebar("Affermissement",user.statutAffermissement);
 
-/* ================================
-RIGHT COLUMN
-================================ */
+y += 8;
 
-sectionRight("Compétences musicales");
+sectionSidebar("Contact");
 
-fieldRight("Registre voix",user.registreVoix);
-fieldRight("Groupe musique",user.groupeMusique);
+fieldSidebar("Téléphone",user.phone);
+fieldSidebar("Username",`@${user.username}`);
 
-/* ================================
-QR CODE
-================================ */
+
+/* ======================
+MAIN CONTENT
+====================== */
+
+let x = sidebarWidth + 15;
+let yMain = 70;
+
+sectionMain("Compétences musicales");
+
+fieldMain("Registre voix",user.registreVoix);
+fieldMain("Groupe musique",user.groupeMusique);
+
+yMain += 10;
+
+sectionMain("Responsabilités");
+
+fieldMain("Fonction",user.fonction);
+fieldMain("Responsable",user.responsableMinistere);
+
+yMain += 10;
+
+sectionMain("Informations supplémentaires");
+
+fieldMain("Ancienne fonction",user.ancienneFonction);
+
+/* ======================
+QR
+====================== */
+
+const qr = await loadImageBase64(generateQR(user.username));
 
 if(qr){
 
-doc.addImage(qr,"PNG",pageWidth-35,265,20,20);
+doc.addImage(qr,"PNG",pageWidth-40,pageHeight-40,25,25);
 
 }
 
-/* ================================
-FOOTER
-================================ */
-
-doc.setDrawColor(220,220,220);
-doc.line(15,260,pageWidth-15,260);
-
-doc.setFontSize(9);
-doc.setTextColor(120,120,120);
-
-doc.text("Document officiel MyUm",pageWidth/2,268,{align:"center"});
-
-doc.text(`Créé par @${user.username}`,pageWidth/2,273,{align:"center"});
-
-doc.text("https://myum.app",pageWidth/2,278,{align:"center"});
-
-/* ================================
-SAVE
-================================ */
+/* SAVE */
 
 doc.save(`myum-${user.username}.pdf`);
 
 
-/* ================================
-LEFT SECTION
-================================ */
+/* FUNCTIONS */
 
-function sectionLeft(title){
+function sectionSidebar(title){
 
+doc.setTextColor(255,255,255);
+doc.setFontSize(13);
 doc.setFont("helvetica","bold");
-doc.setFontSize(12);
-doc.setTextColor(26,54,104);
 
-doc.text(title,10,yLeft);
+doc.text(title,15,y);
 
-doc.setDrawColor(52,152,219);
-doc.line(10,yLeft+2,60,yLeft+2);
-
-yLeft += 8;
+y += 7;
 
 }
 
-function fieldLeft(label,value){
+function fieldSidebar(label,value){
 
 doc.setFontSize(9);
-doc.setTextColor(90,90,90);
+doc.setTextColor(220,220,220);
 
-doc.text(label,10,yLeft);
+doc.text(label,15,y);
 
 doc.setFont("helvetica","bold");
 
-doc.text(value || "—",10,yLeft+4);
+doc.text(value || "—",15,y+4);
 
 doc.setFont("helvetica","normal");
 
-yLeft += 10;
+y += 10;
 
 }
 
-/* ================================
-RIGHT SECTION
-================================ */
+function sectionMain(title){
 
-function sectionRight(title){
-
+doc.setTextColor(44,62,80);
 doc.setFont("helvetica","bold");
 doc.setFontSize(14);
-doc.setTextColor(26,54,104);
 
-doc.text(title,sidebarWidth+15,yRight);
+doc.text(title,x,yMain);
 
-doc.setDrawColor(52,152,219);
-doc.line(sidebarWidth+15,yRight+2,pageWidth-20,yRight+2);
+doc.setDrawColor(...accent);
+doc.line(x,yMain+2,x+40,yMain+2);
 
-yRight += 12;
+yMain += 10;
 
 }
 
-function fieldRight(label,value){
+function fieldMain(label,value){
 
 doc.setFontSize(11);
 
 doc.setTextColor(120,120,120);
-
-doc.text(label,sidebarWidth+15,yRight);
+doc.text(label,x,yMain);
 
 doc.setFont("helvetica","bold");
 doc.setTextColor(40,40,40);
 
-doc.text(value || "—",sidebarWidth+70,yRight);
+doc.text(value || "—",x+60,yMain);
 
 doc.setFont("helvetica","normal");
 
-yRight += 10;
+yMain += 10;
 
 }
 
 }
 
-/* ================================
-QR
-================================ */
-
-function generateQR(username){
-
-return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://myum.app/member/${username}`;
-
-}
-
-/* ================================
-LOAD IMAGE
-================================ */
+/* IMAGE LOADER */
 
 async function loadImageBase64(url){
 
 try{
 
-const response = await fetch(url);
+const res = await fetch(url);
 
-const blob = await response.blob();
+const blob = await res.blob();
 
 return await new Promise(resolve=>{
 
 const reader = new FileReader();
-
 reader.onloadend = ()=> resolve(reader.result);
-
 reader.readAsDataURL(blob);
 
 });
@@ -254,5 +219,11 @@ reader.readAsDataURL(blob);
 return null;
 
 }
+
+}
+
+function generateQR(username){
+
+return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://myum.app/member/${username}`;
 
 }
