@@ -3,9 +3,9 @@ import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 document.addEventListener("DOMContentLoaded", initPdfExport);
 
 
-// =======================================
+// ==============================
 // INIT PDF BUTTON
-// =======================================
+// ==============================
 
 function initPdfExport(){
 
@@ -28,9 +28,9 @@ container.appendChild(btn);
 
 
 
-// =======================================
+// ==============================
 // GENERATE PDF
-// =======================================
+// ==============================
 
 async function generatePDF(){
 
@@ -38,12 +38,16 @@ const doc = new jsPDF("p","mm","a4");
 
 const pageWidth = doc.internal.pageSize.getWidth();
 
-let y = 20;
+const leftCol = 95;
+
+let yLeft = 80;
+let yRight = 80;
 
 
-// ============================
+
+// ==============================
 // USER DATA
-// ============================
+// ==============================
 
 const fullName = document.getElementById("fullName").innerText;
 const username = document.getElementById("username").innerText;
@@ -51,10 +55,13 @@ const fonction = document.getElementById("userFunction").innerText;
 
 const photoEl = document.getElementById("profilePhoto");
 
+const createdAt = new Date().toLocaleDateString("fr-FR");
 
-// ============================
+
+
+// ==============================
 // LOAD IMAGES
-// ============================
+// ==============================
 
 const logo = await loadImageBase64("/myUm/assets/logo-myum.png");
 
@@ -62,186 +69,255 @@ let photo = null;
 
 try{
 photo = await loadImageBase64(photoEl.src);
-}catch(e){
-console.warn("Photo non chargée");
-}
+}catch(e){}
 
 
-// ============================
-// HEADER
-// ============================
-
-// logo
-if(logo){
-doc.addImage(logo,"PNG",15,10,40,12);
-}
-
-
-// header background
-doc.setFillColor(230,220,210);
-doc.roundedRect(10,20,pageWidth-20,40,10,10,"F");
-
-
-// photo
-if(photo){
-doc.addImage(photo,"JPEG",15,24,30,30);
-}
-
-
-// name
-doc.setFont("helvetica","bold");
-doc.setFontSize(22);
-doc.setTextColor(40,40,40);
-
-doc.text(fullName,55,35);
-
-
-// username
-doc.setFont("helvetica","normal");
-doc.setFontSize(12);
-
-doc.text(username,55,43);
-
-
-// fonction
-doc.setFontSize(11);
-doc.setTextColor(80,80,80);
-
-doc.text(fonction,55,50);
-
-
-// decorative line
-doc.setFillColor(26,54,104);
-doc.rect(10,65,pageWidth-20,1,"F");
-
-
-y = 80;
-
-
-// =======================================
-// SECTION FUNCTION
-// =======================================
-
-function section(title){
-
-doc.setFillColor(245,245,245);
-doc.roundedRect(10,y-6,pageWidth-20,10,4,4,"F");
-
-doc.setFont("helvetica","bold");
-doc.setFontSize(14);
-doc.setTextColor(26,54,104);
-
-doc.text(title,15,y);
-
-y += 10;
-
-}
-
-
-
-function field(label,value){
-
-doc.setFont("helvetica","normal");
-doc.setFontSize(11);
-doc.setTextColor(40,40,40);
-
-doc.text(label + " :",15,y);
-
-doc.setFont("helvetica","bold");
-
-doc.text(value || "—",75,y);
-
-y += 7;
-
-}
-
-
-
-// =======================================
-// PERSONAL INFO
-// =======================================
-
-section("Informations personnelles");
-
-field("Genre",getField("genre"));
-field("Etat civil",getField("etatCivil"));
-field("Statut relationnel",getField("statutRelationnel"));
-field("Vie séculière",getField("vieSeculiere"));
-field("Commune",getField("commune"));
-field("Avenue",getField("avenue"));
-
-y += 3;
-
-
-// =======================================
-// ECCLESIASTIQUE
-// =======================================
-
-section("Informations ecclésiastiques");
-
-field("Eglise provenance",getField("egliseProvenance"));
-field("Année baptême",getField("anneeBapteme"));
-field("Type baptême",getField("typeBapteme"));
-field("Statut affermissement",getField("statutAffermissement"));
-field("Ancienne fonction",getField("ancienneFonction"));
-field("Responsable ministère",getField("responsableMinistere"));
-
-y += 3;
-
-
-// =======================================
-// MUSICAL
-// =======================================
-
-section("Compétences musicales");
-
-field("Registre voix",getField("registreVoix"));
-field("Groupe musique",getField("groupeMusique"));
-
-
-
-// =======================================
-// QR CODE
-// =======================================
 
 const qrUrl = generateQR(username);
-
 const qr = await loadImageBase64(qrUrl);
 
-if(qr){
-doc.addImage(qr,"PNG",15,270,18,18);
+
+
+// ==============================
+// HEADER BACKGROUND
+// ==============================
+
+doc.setFillColor(26,54,104);
+doc.rect(0,0,pageWidth,60,"F");
+
+
+
+// ==============================
+// HEADER CARD
+// ==============================
+
+doc.setFillColor(37,150,217);
+doc.roundedRect(40,20,pageWidth-50,25,12,12,"F");
+
+
+
+// ==============================
+// LOGO
+// ==============================
+
+if(logo){
+doc.addImage(logo,"PNG",15,15,40,12);
 }
 
 
 
-// =======================================
+// ==============================
+// PHOTO
+// ==============================
+
+if(photo){
+
+doc.setFillColor(255,255,255);
+doc.circle(30,32,18,"F");
+
+doc.addImage(photo,"JPEG",12,14,36,36);
+
+}
+
+
+
+// ==============================
+// NAME
+// ==============================
+
+doc.setFont("helvetica","bold");
+doc.setFontSize(24);
+doc.setTextColor(255,255,255);
+
+doc.text(fullName,55,33);
+
+
+
+doc.setFontSize(12);
+doc.text(username,55,41);
+
+
+
+doc.setFontSize(11);
+doc.text(fonction,55,48);
+
+
+
+// ==============================
+// SECTION LEFT
+// ==============================
+
+function sectionLeft(title){
+
+doc.setFillColor(37,150,217);
+doc.roundedRect(10,yLeft-6,leftCol-15,10,5,5,"F");
+
+doc.setTextColor(255,255,255);
+doc.setFontSize(12);
+
+doc.text(title,15,yLeft);
+
+yLeft += 10;
+
+}
+
+
+
+function fieldLeft(label,value){
+
+doc.setTextColor(50,50,50);
+doc.setFontSize(10);
+
+doc.text(label,15,yLeft);
+
+doc.setFont("helvetica","bold");
+doc.text(value || "—",55,yLeft);
+
+doc.setFont("helvetica","normal");
+
+yLeft += 7;
+
+}
+
+
+
+// ==============================
+// SECTION RIGHT
+// ==============================
+
+function sectionRight(title){
+
+doc.setFillColor(37,150,217);
+doc.roundedRect(leftCol,yRight-6,pageWidth-leftCol-10,10,5,5,"F");
+
+doc.setTextColor(255,255,255);
+doc.setFontSize(12);
+
+doc.text(title,leftCol+5,yRight);
+
+yRight += 10;
+
+}
+
+
+
+function fieldRight(label,value){
+
+doc.setTextColor(50,50,50);
+doc.setFontSize(10);
+
+doc.text(label,leftCol+5,yRight);
+
+doc.setFont("helvetica","bold");
+doc.text(value || "—",leftCol+55,yRight);
+
+doc.setFont("helvetica","normal");
+
+yRight += 7;
+
+}
+
+
+
+// ==============================
+// PERSONAL
+// ==============================
+
+sectionLeft("Informations personnelles");
+
+fieldLeft("Genre",getField("genre"));
+fieldLeft("Etat civil",getField("etatCivil"));
+fieldLeft("Relation",getField("statutRelationnel"));
+fieldLeft("Vie séculière",getField("vieSeculiere"));
+fieldLeft("Commune",getField("commune"));
+fieldLeft("Avenue",getField("avenue"));
+
+
+
+// ==============================
+// ECCLESIASTIQUE
+// ==============================
+
+sectionLeft("Informations ecclésiastiques");
+
+fieldLeft("Eglise",getField("egliseProvenance"));
+fieldLeft("Année baptême",getField("anneeBapteme"));
+fieldLeft("Type baptême",getField("typeBapteme"));
+fieldLeft("Affermissement",getField("statutAffermissement"));
+fieldLeft("Ancienne fonction",getField("ancienneFonction"));
+fieldLeft("Responsable",getField("responsableMinistere"));
+
+
+
+// ==============================
+// MUSICAL
+// ==============================
+
+sectionRight("Compétences musicales");
+
+fieldRight("Registre voix",getField("registreVoix"));
+fieldRight("Groupe musique",getField("groupeMusique"));
+
+
+
+// ==============================
+// QR CODE
+// ==============================
+
+if(qr){
+
+doc.addImage(qr,"PNG",pageWidth-35,265,18,18);
+
+}
+
+
+
+// ==============================
 // FOOTER
-// =======================================
+// ==============================
 
 doc.setDrawColor(200,200,200);
-doc.line(10,268,pageWidth-10,268);
+doc.line(10,260,pageWidth-10,260);
 
 doc.setFontSize(9);
 doc.setTextColor(120,120,120);
 
 doc.text(
-"Fiche membre officielle générée par MyUm",
+`Document officiel MyUm`,
 pageWidth/2,
-285,
+268,
+{align:"center"}
+);
+
+doc.text(
+`Créé par ${username} • ${createdAt}`,
+pageWidth/2,
+273,
+{align:"center"}
+);
+
+doc.text(
+`https://myum.app`,
+pageWidth/2,
+278,
 {align:"center"}
 );
 
 
-// save
-doc.save("fiche-membre-myum.pdf");
+
+// ==============================
+// SAVE
+// ==============================
+
+doc.save(`fiche-membre-${username}.pdf`);
 
 }
 
 
 
-// =======================================
-// GET FIELD VALUE
-// =======================================
+// ==============================
+// GET FIELD
+// ==============================
 
 function getField(name){
 
@@ -259,9 +335,9 @@ return value.innerText;
 
 
 
-// =======================================
+// ==============================
 // GENERATE QR
-// =======================================
+// ==============================
 
 function generateQR(username){
 
@@ -273,9 +349,9 @@ return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://my
 
 
 
-// =======================================
-// LOAD IMAGE BASE64 (CORS SAFE)
-// =======================================
+// ==============================
+// LOAD IMAGE BASE64
+// ==============================
 
 async function loadImageBase64(url){
 
@@ -296,8 +372,6 @@ reader.readAsDataURL(blob);
 });
 
 }catch(e){
-
-console.warn("Image non chargée :",url);
 
 return null;
 
