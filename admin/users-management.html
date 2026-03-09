@@ -24,19 +24,18 @@ body{
 background:linear-gradient(180deg,#0f2145,#1A3668);
 }
 
-.tab{
-flex:1;
-text-align:center;
-padding:12px;
+.tabBtn{
+padding:8px 14px;
+border-radius:8px;
 font-size:13px;
+font-weight:500;
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.08);
 cursor:pointer;
-opacity:.6;
-border-bottom:2px solid transparent;
 }
 
-.tab.active{
-opacity:1;
-border-bottom:2px solid #3FA9F5;
+.tabActive{
+background:#2596D9;
 }
 
 .userRow{
@@ -75,91 +74,89 @@ background:#16a34a;
 background:#dc2626;
 }
 
-.searchBox{
-background:rgba(255,255,255,.06);
-border:1px solid rgba(255,255,255,.08);
-border-radius:10px;
-padding:10px;
-color:white;
-width:100%;
+.btnRestore{
+background:#3FA9F5;
 }
 
 </style>
 
 </head>
 
+
 <body class="flex justify-center font-[Inter] text-white">
 
 <div class="w-full max-w-[420px] min-h-screen flex flex-col">
 
 
+<!-- HEADER -->
+
 <header class="flex items-center gap-3 p-5 border-b border-white/10">
 
-<button onclick="window.location.href='/myUm/public/dashboard.html'"
-class="text-white/60 text-lg">
+<button id="backBtn"
+class="text-white/70 text-lg">
 
 <i class="bi bi-arrow-left"></i>
 
 </button>
 
 <h1 class="text-lg font-semibold flex-1">
+
 Gestion des membres
+
 </h1>
 
 </header>
 
 
+
 <!-- TABS -->
 
-<div class="flex border-b border-white/10">
+<div class="flex gap-2 p-4">
 
-<div class="tab active" data-status="active">
+<button id="tabActive"
+class="tabBtn tabActive">
+
 Actifs
-</div>
 
-<div class="tab" data-status="pending">
-Non approuvés
-</div>
+</button>
 
-<div class="tab" data-status="rejected">
+<button id="tabPending"
+class="tabBtn">
+
+En attente
+
+</button>
+
+<button id="tabRejected"
+class="tabBtn">
+
 Refusés
-</div>
+
+</button>
 
 </div>
 
-
-<!-- SEARCH -->
-
-<div class="p-4 space-y-3">
-
-<input id="searchInput"
-placeholder="Recherche utilisateur..."
-class="searchBox">
-
-<select id="sortSelect"
-class="searchBox">
-
-<option value="date">Date inscription</option>
-<option value="age">Age</option>
-
-</select>
-
-</div>
 
 
 <!-- USERS LIST -->
 
-<div id="usersList"
-class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+<main id="usersList"
+class="flex-1 overflow-y-auto p-4 space-y-2">
+
+</main>
+
 
 
 <!-- USER DETAIL -->
 
-<div id="userDetailView"
-class="hidden flex-1 overflow-y-auto p-5 space-y-4"></div>
+<section id="userDetail"
+class="hidden flex-1 overflow-y-auto p-5 space-y-4">
+
+</section>
 
 
 </div>
+
 
 <script type="module"
 src="/myUm/admin/js/users-management.js"></script>
