@@ -8,14 +8,14 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase
 let userData = null;
 let currentUserId = null;
 
-document.addEventListener("DOMContentLoaded", initPDFExport);
+document.addEventListener("DOMContentLoaded", init);
 
 
 // =======================================
 // INIT
 // =======================================
 
-async function initPDFExport() {
+async function init() {
 
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) return;
@@ -30,28 +30,30 @@ async function initPDFExport() {
   userData = snap.data();
 
   injectPDFButton();
+
 }
 
 
 // =======================================
-// HEADER BUTTON
+// BUTTON HEADER
 // =======================================
 
 function injectPDFButton() {
 
-  const actions = document.getElementById("header-actions");
-  if (!actions) return;
+  const container = document.getElementById("header-actions");
+  if (!container) return;
 
   const btn = document.createElement("button");
 
   btn.className =
-    "w-10 h-10 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition";
+  "w-10 h-10 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition";
 
   btn.innerHTML = `<i class="bi bi-file-earmark-pdf text-lg"></i>`;
 
   btn.addEventListener("click", generatePDF);
 
-  actions.appendChild(btn);
+  container.appendChild(btn);
+
 }
 
 
@@ -71,9 +73,9 @@ async function generatePDF() {
 
   let y = 20;
 
-  // =============================
-  // LOGO MYUM
-  // =============================
+  // =========================
+  // LOGO
+  // =========================
 
   const logo = await loadImage("/myUm/assets/logo-myum.png");
 
@@ -87,26 +89,29 @@ async function generatePDF() {
   y += 15;
 
 
-  // =============================
+  // =========================
   // PHOTO
-  // =============================
+  // =========================
 
-  if (userData.photoURL) {
+  const imgEl = document.getElementById("profilePhoto");
 
-    const photo = await loadImage(userData.photoURL);
+  if (imgEl && imgEl.src) {
 
-    pdf.addImage(photo, "JPEG", 85, y, 40, 40);
+    const base64 = imageToBase64(imgEl);
+
+    pdf.addImage(base64, "JPEG", 85, y, 40, 40);
 
   }
 
   y += 50;
 
-  // =============================
+
+  // =========================
   // NOM
-  // =============================
+  // =========================
 
   const fullName =
-    `${userData.firstName || ""} ${userData.lastName || ""}`;
+  `${userData.firstName || ""} ${userData.lastName || ""}`;
 
   pdf.setFontSize(18);
   pdf.text(fullName, 105, y, { align: "center" });
@@ -129,9 +134,9 @@ async function generatePDF() {
   y += 10;
 
 
-  // =============================
-  // INFORMATIONS PERSONNELLES
-  // =============================
+  // =========================
+  // INFOS PERSONNELLES
+  // =========================
 
   addSection(pdf, "Informations personnelles", y);
 
@@ -145,21 +150,21 @@ async function generatePDF() {
 
   if (userData.vieSeculiere) {
 
-    const v =
-      Array.isArray(userData.vieSeculiere)
-        ? userData.vieSeculiere.join(", ")
-        : userData.vieSeculiere;
+    const value =
+    Array.isArray(userData.vieSeculiere)
+    ? userData.vieSeculiere.join(", ")
+    : userData.vieSeculiere;
 
-    y = addLine(pdf, "Vie séculière", v, y);
+    y = addLine(pdf, "Vie séculière", value, y);
 
   }
 
   y += 10;
 
 
-  // =============================
-  // INFOS ECCLESIASTIQUES
-  // =============================
+  // =========================
+  // INFOS EGLISE
+  // =========================
 
   addSection(pdf, "Informations ecclésiastiques", y);
 
@@ -172,9 +177,9 @@ async function generatePDF() {
   y += 10;
 
 
-  // =============================
+  // =========================
   // MUSIQUE
-  // =============================
+  // =========================
 
   addSection(pdf, "Compétences musicales", y);
 
@@ -186,33 +191,33 @@ async function generatePDF() {
   y += 20;
 
 
-  // =============================
+  // =========================
   // DATE
-  // =============================
+  // =========================
 
   const now = new Date();
 
   pdf.setFontSize(10);
 
   pdf.text(
-    `Créé le ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`,
-    105,
-    y,
-    { align: "center" }
+  `Document généré le ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`,
+  105,
+  y,
+  { align: "center" }
   );
 
   y += 15;
 
 
-  // =============================
+  // =========================
   // QR CODE
-  // =============================
+  // =========================
 
   const verifyURL =
-    `${window.location.origin}/verify.html?user=${userData.username}`;
+  `${window.location.origin}/verify.html?user=${userData.username}`;
 
   const qr = await loadImage(
-    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
+  `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
   );
 
   pdf.addImage(qr, "PNG", 90, y, 30, 30);
@@ -222,18 +227,19 @@ async function generatePDF() {
   pdf.setFontSize(9);
 
   pdf.text(
-    "Scanner pour vérifier l'authenticité",
-    105,
-    y,
-    { align: "center" }
+  "Scanner pour vérifier l'authenticité",
+  105,
+  y,
+  { align: "center" }
   );
 
 
-  // =============================
+  // =========================
   // SAVE
-  // =============================
+  // =========================
 
   pdf.save(`myum-${userData.username}.pdf`);
+
 }
 
 
@@ -244,11 +250,9 @@ async function generatePDF() {
 function addSection(pdf, title, y) {
 
   pdf.setFontSize(14);
-
   pdf.text(title, 20, y);
 
 }
-
 
 function addLine(pdf, label, value, y) {
 
@@ -264,16 +268,34 @@ function addLine(pdf, label, value, y) {
 
 
 // =======================================
-// IMAGE LOADER (CORS SAFE)
+// IMAGE CONVERSION
+// =======================================
+
+function imageToBase64(img) {
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+
+  ctx.drawImage(img, 0, 0);
+
+  return canvas.toDataURL("image/jpeg");
+
+}
+
+
+// =======================================
+// LOAD IMAGE
 // =======================================
 
 async function loadImage(url) {
 
   const res = await fetch(url);
-
   const blob = await res.blob();
 
-  return await new Promise((resolve) => {
+  return new Promise(resolve => {
 
     const reader = new FileReader();
 
