@@ -72,27 +72,35 @@ pdf.rect(0,0,210,15,"F");
 
 const logo = await loadImage("/myUm/assets/logo-myum.png");
 
+if(logo){
 pdf.addImage(logo,"PNG",85,18,40,15);
+}
 
 y = 40;
 
 
-// PHOTO
+// ===============================
+// PHOTO UTILISATEUR
+// ===============================
 
 const img = document.getElementById("profilePhoto");
 
-if(img && img.src){
+if(img && img.complete){
 
-const base64 = await imageToBase64(img);
+const base64 = imageToBase64(img);
 
+if(base64){
 pdf.addImage(base64,"JPEG",85,y,40,40);
+}
 
 }
 
 y += 50;
 
 
-// NAME
+// ===============================
+// NOM
+// ===============================
 
 const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
 
@@ -114,7 +122,9 @@ y += 8;
 }
 
 
+// ===============================
 // USER ID
+// ===============================
 
 pdf.setFontSize(10);
 pdf.text(`ID MyUm : ${userId}`,105,y,{align:"center"});
@@ -123,7 +133,7 @@ y += 12;
 
 
 // ===============================
-// INFORMATIONS PERSONNELLES
+// INFOS PERSONNELLES
 // ===============================
 
 section(pdf,"Informations personnelles",y);
@@ -139,7 +149,7 @@ y += 6;
 
 
 // ===============================
-// INFORMATIONS ECCLESIASTIQUES
+// INFOS ECCLESIASTIQUES
 // ===============================
 
 section(pdf,"Informations ecclésiastiques",y);
@@ -153,7 +163,7 @@ y += 6;
 
 
 // ===============================
-// COMPETENCES MUSICALES
+// MUSIQUE
 // ===============================
 
 section(pdf,"Compétences musicales",y);
@@ -166,7 +176,9 @@ y = line(pdf,"Groupe",userData.groupeMusique,y);
 y += 15;
 
 
+// ===============================
 // DATE CREATION
+// ===============================
 
 const now = new Date();
 
@@ -182,7 +194,9 @@ y,
 y += 10;
 
 
-// SIGNATURE
+// ===============================
+// SIGNATURE NUMERIQUE
+// ===============================
 
 const signature = await createSignature();
 
@@ -198,7 +212,9 @@ y,
 y += 10;
 
 
+// ===============================
 // QR CODE
+// ===============================
 
 const verifyURL =
 `${window.location.origin}/myUm/verify.html?uid=${userId}`;
@@ -207,12 +223,16 @@ const qr = await loadImage(
 `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
 );
 
+if(qr){
 pdf.addImage(qr,"PNG",90,y,30,30);
+}
 
 y += 35;
 
 
+// ===============================
 // FOOTER
+// ===============================
 
 pdf.setFontSize(8);
 
@@ -224,7 +244,9 @@ pdf.text(
 );
 
 
+// ===============================
 // SAVE
+// ===============================
 
 pdf.save(`myum-${userData.username}.pdf`);
 
@@ -261,44 +283,37 @@ return y+6;
 }
 
 
+
 // ===============================
-// IMAGE BASE64 SAFE
+// IMAGE → BASE64 (SANS CORS)
 // ===============================
 
 function imageToBase64(img){
 
-return new Promise((resolve)=>{
-
-const image = new Image();
-
-image.crossOrigin = "anonymous";
-
-image.onload = () => {
+try{
 
 const canvas = document.createElement("canvas");
-
-canvas.width = image.width;
-canvas.height = image.height;
-
 const ctx = canvas.getContext("2d");
 
-ctx.drawImage(image,0,0);
+canvas.width = img.naturalWidth;
+canvas.height = img.naturalHeight;
 
-resolve(canvas.toDataURL("image/jpeg"));
+ctx.drawImage(img,0,0);
 
-};
+return canvas.toDataURL("image/jpeg");
 
-image.onerror = () => resolve(null);
+}catch{
 
-image.src = img.src;
+return null;
 
-});
+}
 
 }
 
 
+
 // ===============================
-// LOAD IMAGE SAFE
+// LOAD IMAGE
 // ===============================
 
 async function loadImage(url){
@@ -328,8 +343,9 @@ return null;
 }
 
 
+
 // ===============================
-// SIGNATURE NUMERIQUE
+// SIGNATURE
 // ===============================
 
 async function createSignature(){
