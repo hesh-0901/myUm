@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+
 async function generatePDF() {
 
   const snap = await getDoc(doc(db, "users", currentUserId));
@@ -30,32 +31,37 @@ async function generatePDF() {
 
   const pageWidth = pdf.internal.pageSize.width;
 
+  let y = 30;
+
+
   /* ===============================
      COLORS
   =============================== */
 
-  const dark = [70,70,70];
-  const beige = [184,156,125];
+  const bg = [247,246,243];
+  const card = [231,223,213];
+  const accent = [140,122,107];
+  const text = [43,43,43];
 
 
   /* ===============================
      BACKGROUND
   =============================== */
 
-  pdf.setFillColor(...dark);
+  pdf.setFillColor(...bg);
   pdf.rect(0,0,pageWidth,297,"F");
 
 
   /* ===============================
-     HEADER BAR
+     HEADER CARD
   =============================== */
 
-  pdf.setFillColor(...beige);
-  pdf.roundedRect(50,20,140,30,15,15,"F");
+  pdf.setFillColor(...card);
+  pdf.roundedRect(15,15,pageWidth-30,40,8,8,"F");
 
 
   /* ===============================
-     PHOTO CIRCLE
+     PHOTO
   =============================== */
 
   const imgElement = document.getElementById("profilePhoto");
@@ -72,7 +78,7 @@ async function generatePDF() {
 
     const base64 = canvas.toDataURL("image/jpeg");
 
-    pdf.addImage(base64,"JPEG",15,15,45,45);
+    pdf.addImage(base64,"JPEG",20,20,30,30);
 
   }
 
@@ -81,169 +87,91 @@ async function generatePDF() {
      NAME
   =============================== */
 
-  pdf.setTextColor(255);
+  pdf.setTextColor(...text);
+
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(28);
+  pdf.setFontSize(20);
 
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
 
-  pdf.text(fullName,70,38);
+  pdf.text(fullName,60,32);
 
 
-  /* ===============================
-     LEFT COLUMN
-  =============================== */
-
-  let leftY = 80;
-
-  pdf.setFontSize(14);
-  pdf.setFont("helvetica","bold");
-  pdf.text("Expérience",15,leftY);
-
-  leftY += 8;
-
+  pdf.setFont("helvetica","normal");
   pdf.setFontSize(11);
-  pdf.setFont("helvetica","normal");
 
-  if(data.fonction){
-    pdf.text(data.fonction,15,leftY);
-    leftY += 6;
-  }
+  if(data.fonction)
+    pdf.text(data.fonction,60,40);
 
-  if(data.responsableMinistere){
-    pdf.text("Responsable : "+data.responsableMinistere,15,leftY);
-    leftY += 6;
-  }
+  if(data.username)
+    pdf.text("@"+data.username,60,46);
 
-  if(data.groupeMusique){
-    pdf.text("Groupe : "+data.groupeMusique,15,leftY);
-    leftY += 6;
-  }
 
-  leftY += 10;
+  y = 70;
 
 
   /* ===============================
-     CONTACT
+     BIO
   =============================== */
-
-  pdf.setFontSize(14);
-  pdf.setFont("helvetica","bold");
-  pdf.text("Contact",15,leftY);
-
-  leftY += 8;
-
-  pdf.setFontSize(11);
-  pdf.setFont("helvetica","normal");
-
-  if(data.phone){
-    pdf.text("Téléphone : "+data.phone,15,leftY);
-    leftY += 6;
-  }
-
-  if(data.commune){
-    pdf.text("Commune : "+data.commune,15,leftY);
-    leftY += 6;
-  }
-
-  if(data.avenue){
-    pdf.text("Avenue : "+data.avenue,15,leftY);
-    leftY += 6;
-  }
-
-
-  /* ===============================
-     RIGHT PANEL
-  =============================== */
-
-  pdf.setFillColor(...beige);
-  pdf.roundedRect(110,80,85,170,10,10,"F");
-
-  let rightY = 95;
-
-  pdf.setTextColor(255);
-  pdf.setFontSize(14);
-  pdf.setFont("helvetica","bold");
-
-  pdf.text("About Me",120,rightY);
-
-  rightY += 8;
-
-  pdf.setFontSize(10);
-  pdf.setFont("helvetica","normal");
 
   if(data.bio){
 
-    const lines = pdf.splitTextToSize(data.bio,70);
+    pdf.setFillColor(...card);
+    pdf.roundedRect(15,y,pageWidth-30,40,8,8,"F");
 
-    pdf.text(lines,120,rightY);
+    pdf.setTextColor(...text);
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica","bold");
 
-    rightY += lines.length * 5 + 8;
+    pdf.text("Présentation",20,y+8);
 
-  }
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica","normal");
 
+    const lines = pdf.splitTextToSize(data.bio,170);
 
-  /* ===============================
-     EDUCATION / EGLISE
-  =============================== */
+    pdf.text(lines,20,y+16);
 
-  pdf.setFontSize(14);
-  pdf.setFont("helvetica","bold");
-
-  pdf.text("Eglise",120,rightY);
-
-  rightY += 8;
-
-  pdf.setFontSize(10);
-  pdf.setFont("helvetica","normal");
-
-  if(data.egliseProvenance){
-
-    pdf.text(data.egliseProvenance,120,rightY);
-    rightY += 6;
-
-  }
-
-  if(data.anneeBapteme){
-
-    pdf.text("Baptême : "+data.anneeBapteme,120,rightY);
-    rightY += 6;
-
-  }
-
-  if(data.typeBapteme){
-
-    pdf.text(data.typeBapteme,120,rightY);
-    rightY += 6;
+    y += 50;
 
   }
 
 
   /* ===============================
-     SKILLS
+     INFORMATIONS
   =============================== */
 
-  rightY += 8;
+  y = renderSection(pdf,"Informations personnelles",y,[
+    ["Téléphone",data.phone],
+    ["Commune",data.commune],
+    ["Avenue",data.avenue],
+    ["État civil",data.etatCivil],
+    ["Statut relationnel",data.statutRelationnel],
+    ["Date naissance",data.birthday],
+    ["Âge",data.age]
+  ]);
 
-  pdf.setFontSize(14);
-  pdf.setFont("helvetica","bold");
 
-  pdf.text("Skills",120,rightY);
+  /* ===============================
+     EGLISE
+  =============================== */
 
-  rightY += 8;
+  y = renderSection(pdf,"Église & Baptême",y,[
+    ["Église",data.egliseProvenance],
+    ["Année baptême",data.anneeBapteme],
+    ["Type baptême",data.typeBapteme]
+  ]);
 
-  pdf.setFontSize(10);
-  pdf.setFont("helvetica","normal");
 
-  if(data.registreVoix){
-    pdf.text("Voix : "+data.registreVoix,120,rightY);
-    rightY += 6;
-  }
+  /* ===============================
+     MUSIQUE
+  =============================== */
 
-  if(data.groupeMusique){
-    pdf.text("Groupe : "+data.groupeMusique,120,rightY);
-    rightY += 6;
-  }
+  y = renderSection(pdf,"Ministère musical",y,[
+    ["Voix",data.registreVoix],
+    ["Groupe",data.groupeMusique],
+    ["Responsable",data.responsableMinistere]
+  ]);
 
 
   /* ===============================
@@ -251,7 +179,7 @@ async function generatePDF() {
   =============================== */
 
   pdf.setFontSize(9);
-  pdf.setTextColor(200);
+  pdf.setTextColor(...accent);
 
   pdf.text(
     "MyUM — Département musique",
@@ -269,5 +197,42 @@ async function generatePDF() {
     `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
 
   pdf.save(filename);
+
+}
+
+
+/* ===============================
+   SECTION
+=============================== */
+
+function renderSection(pdf,title,y,fields){
+
+  const pageWidth = pdf.internal.pageSize.width;
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(13);
+
+  pdf.text(title,15,y);
+
+  y += 8;
+
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(11);
+
+  fields.forEach(([label,value])=>{
+
+    if(!value) return;
+
+    pdf.setFont("helvetica","bold");
+    pdf.text(label,15,y);
+
+    pdf.setFont("helvetica","normal");
+    pdf.text(String(value),70,y);
+
+    y += 6;
+
+  });
+
+  return y + 10;
 
 }
