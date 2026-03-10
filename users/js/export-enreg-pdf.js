@@ -41,7 +41,8 @@ if (data.photoURL) {
 
     const imgBase64 = await loadImageBase64(data.photoURL);
 
-    pdf.addImage(imgBase64, "JPEG", 15, 15, 35, 35);
+    const format = imgBase64.startsWith("data:image/png") ? "PNG" : "JPEG";
+pdf.addImage(imgBase64, format, 15, 15, 35, 35);
 
   } catch (error) {
 
