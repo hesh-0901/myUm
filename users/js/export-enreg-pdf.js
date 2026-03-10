@@ -7,9 +7,9 @@ let userId = null;
 document.addEventListener("DOMContentLoaded", init);
 
 
-// ===============================
+// ======================================================
 // INIT
-// ===============================
+// ======================================================
 
 async function init(){
 
@@ -43,12 +43,13 @@ console.error("Erreur init PDF :",e);
 }
 
 
-// ==========================================================
+
+// ======================================================
 // ⚠️ SECTION CRITIQUE — GÉNÉRATION PDF
-// ⚠️ NE PAS MODIFIER LA LOGIQUE PRINCIPALE
-// Ce module génère le document officiel MyUm.
-// Toute modification peut casser le système PDF.
-// ==========================================================
+// ⚠️ NE PAS MODIFIER
+// Cette section génère le document officiel MyUm.
+// Toute modification peut casser l'export PDF.
+// ======================================================
 
 async function generatePDF(){
 
@@ -62,13 +63,6 @@ unit:"mm",
 format:"a4"
 });
 
-
-// ======================================================
-// ⚠️ SECTION CRITIQUE — NE PAS MODIFIER
-// Génération du document officiel MyUm
-// ======================================================
-
-
 const pageWidth = 210;
 const pageHeight = 297;
 
@@ -78,37 +72,17 @@ const mainStart = sidebarWidth + 10;
 let yMain = 40;
 
 
-// ===============================
-// HEADER NOM
-// ===============================
-
-const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
-
-pdf.setFontSize(26);
-pdf.setFont(undefined,"bold");
-pdf.text(fullName.toUpperCase(),mainStart,25);
-
-pdf.setFontSize(12);
-pdf.setFont(undefined,"normal");
-
-pdf.text(
-`${userData.username ? "@"+userData.username : ""}  ${userData.fonction || ""}`,
-mainStart,
-32
-);
-
-
-// ===============================
-// SIDEBAR BACKGROUND
-// ===============================
+// ======================================================
+// SIDEBAR BACKGROUND (style CV premium)
+// ======================================================
 
 pdf.setFillColor(245,245,245);
 pdf.rect(0,0,sidebarWidth,pageHeight,"F");
 
 
-// ===============================
-// PHOTO
-// ===============================
+// ======================================================
+// PHOTO UTILISATEUR
+// ======================================================
 
 const img = document.getElementById("profilePhoto");
 
@@ -125,23 +99,23 @@ pdf.addImage(base64,"JPEG",10,20,40,40);
 let ySide = 70;
 
 
-// ===============================
-// CONTACT
-// ===============================
+// ======================================================
+// CONTACT SIDEBAR
+// ======================================================
 
 sidebarTitle(pdf,"CONTACT",ySide);
 ySide += 10;
 
-sideText(pdf,`ID MyUm`,ySide);
+sideText(pdf,"ID MyUm",ySide);
 ySide += 5;
 
 sideValue(pdf,userId,ySide);
-ySide += 10;
+ySide += 15;
 
 
-// ===============================
+// ======================================================
 // QR CODE
-// ===============================
+// ======================================================
 
 const verifyURL =
 `${window.location.origin}/myUm/verify.html?uid=${userId}`;
@@ -159,34 +133,52 @@ pdf.addImage(qr,"PNG",10,ySide,40,40);
 ySide += 50;
 
 
-// ===============================
-// DATE CREATION
-// ===============================
+// ======================================================
+// DATE DOCUMENT
+// ======================================================
 
 const now = new Date();
 
 sideText(pdf,"DOCUMENT",ySide);
 ySide += 5;
 
-sideValue(
-pdf,
-`${now.toLocaleDateString()}`,
-ySide
+sideValue(pdf,now.toLocaleDateString(),ySide);
+
+
+
+// ======================================================
+// HEADER NOM UTILISATEUR
+// ======================================================
+
+const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
+
+pdf.setFontSize(26);
+pdf.setFont(undefined,"bold");
+
+pdf.text(fullName.toUpperCase(),mainStart,25);
+
+pdf.setFontSize(12);
+pdf.setFont(undefined,"normal");
+
+pdf.text(
+`${userData.username ? "@"+userData.username : ""}  ${userData.fonction || ""}`,
+mainStart,
+32
 );
 
 
-
-// ===============================
+// ======================================================
 // LIGNE SÉPARATION
-// ===============================
+// ======================================================
 
 pdf.setDrawColor(200,200,200);
 pdf.line(mainStart,36,200,36);
 
 
-// ===============================
-// SECTION PROFIL
-// ===============================
+
+// ======================================================
+// PROFIL
+// ======================================================
 
 sectionTitle(pdf,"PROFIL",yMain);
 yMain += 8;
@@ -199,12 +191,12 @@ yMain,
 130
 );
 
-yMain += 18;
+yMain += 20;
 
 
-// ===============================
+// ======================================================
 // INFORMATIONS PERSONNELLES
-// ===============================
+// ======================================================
 
 sectionTitle(pdf,"INFORMATIONS PERSONNELLES",yMain);
 yMain += 8;
@@ -214,12 +206,12 @@ yMain = infoLine(pdf,"Etat civil",userData.etatCivil,yMain);
 yMain = infoLine(pdf,"Commune",userData.commune,yMain);
 yMain = infoLine(pdf,"Avenue",userData.avenue,yMain);
 
-yMain += 8;
+yMain += 10;
 
 
-// ===============================
+// ======================================================
 // INFORMATIONS ECCLESIASTIQUES
-// ===============================
+// ======================================================
 
 sectionTitle(pdf,"INFORMATIONS ECCLÉSIASTIQUES",yMain);
 yMain += 8;
@@ -227,12 +219,12 @@ yMain += 8;
 yMain = infoLine(pdf,"Eglise",userData.egliseProvenance,yMain);
 yMain = infoLine(pdf,"Année baptême",userData.anneeBapteme,yMain);
 
-yMain += 8;
+yMain += 10;
 
 
-// ===============================
+// ======================================================
 // MUSIQUE
-// ===============================
+// ======================================================
 
 sectionTitle(pdf,"COMPÉTENCES MUSICALES",yMain);
 yMain += 8;
@@ -243,9 +235,9 @@ yMain = infoLine(pdf,"Groupe",userData.groupeMusique,yMain);
 yMain += 20;
 
 
-// ===============================
-// SIGNATURE
-// ===============================
+// ======================================================
+// SIGNATURE NUMERIQUE
+// ======================================================
 
 const signature = await createSignature();
 
@@ -258,9 +250,9 @@ yMain
 );
 
 
-// ===============================
+// ======================================================
 // FOOTER
-// ===============================
+// ======================================================
 
 pdf.setFontSize(8);
 
@@ -272,9 +264,9 @@ pdf.text(
 );
 
 
-// ===============================
+// ======================================================
 // SAVE
-// ===============================
+// ======================================================
 
 pdf.save(`myum-${userData.username}.pdf`);
 
@@ -286,16 +278,90 @@ console.error("Erreur génération PDF :",e);
 
 }
 
+
+
 // ======================================================
-// ZONE IMAGES — MODIFIABLE
-// Cette section gère la conversion et le chargement
-// des images dans le PDF.
+// HELPERS UI PDF
+// ======================================================
+
+function sidebarTitle(pdf,title,y){
+
+pdf.setFontSize(11);
+pdf.setFont(undefined,"bold");
+
+pdf.text(title,10,y);
+
+pdf.setDrawColor(180,180,180);
+pdf.line(10,y+2,50,y+2);
+
+}
+
+function sideText(pdf,text,y){
+
+pdf.setFontSize(9);
+pdf.setTextColor(120,120,120);
+
+pdf.text(text,10,y);
+
+pdf.setTextColor(0,0,0);
+
+}
+
+function sideValue(pdf,value,y){
+
+pdf.setFontSize(10);
+pdf.text(value || "-",10,y);
+
+}
+
+function sectionTitle(pdf,title,y){
+
+pdf.setFontSize(13);
+pdf.setFont(undefined,"bold");
+
+pdf.text(title,70,y);
+
+pdf.setDrawColor(200,200,200);
+pdf.line(70,y+2,200,y+2);
+
+pdf.setFont(undefined,"normal");
+
+}
+
+function infoLine(pdf,label,value,y){
+
+pdf.setFontSize(10);
+
+pdf.setTextColor(120,120,120);
+pdf.text(label,70,y);
+
+pdf.setTextColor(0,0,0);
+pdf.text(value || "-",120,y);
+
+return y + 6;
+
+}
+
+function paragraph(pdf,text,x,y,width){
+
+pdf.setFontSize(10);
+
+const lines = pdf.splitTextToSize(text,width);
+
+pdf.text(lines,x,y);
+
+}
+
+
+
+// ======================================================
+// ⚙️ ZONE IMAGES — MODIFIABLE
+// Cette section gère le chargement et la conversion
+// des images pour le PDF.
 // ======================================================
 
 
-// ===============================
-// IMAGE → BASE64 (SANS CORS)
-// ===============================
+// IMAGE → BASE64
 
 function imageToBase64(img){
 
@@ -321,9 +387,7 @@ return null;
 
 
 
-// ===============================
 // LOAD IMAGE
-// ===============================
 
 async function loadImage(url){
 
@@ -353,40 +417,9 @@ return null;
 
 
 
-// ===============================
-// HELPERS UI PDF
-// ===============================
-
-function section(pdf,title,y){
-
-pdf.setFontSize(13);
-pdf.setFont(undefined,"bold");
-
-pdf.text(title,20,y);
-
-pdf.setFont(undefined,"normal");
-
-}
-
-function line(pdf,label,value,y){
-
-pdf.setFontSize(11);
-
-pdf.setTextColor(120,120,120);
-pdf.text(`${label}`,20,y);
-
-pdf.setTextColor(0,0,0);
-pdf.text(value || "-",70,y);
-
-return y+6;
-
-}
-
-
-
-// ===============================
-// SIGNATURE
-// ===============================
+// ======================================================
+// SIGNATURE NUMERIQUE
+// ======================================================
 
 async function createSignature(){
 
