@@ -18,8 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
-async function generatePDF() {
+async function generatePDF(){
 
   const snap = await getDoc(doc(db,"users",currentUserId));
   if(!snap.exists()) return;
@@ -30,32 +29,33 @@ async function generatePDF() {
 
   const pageWidth = pdf.internal.pageSize.width;
 
-  let y = 35;
-
-  /* COLORS */
-
-  const bg = [247,246,243];
-  const accent = [120,98,80];
-  const text = [30,30,30];
-  const soft = [120,120,120];
-
+  const colors = {
+    bg:[248,247,244],
+    card:[255,255,255],
+    primary:[92,72,55],
+    text:[25,25,25],
+    muted:[120,120,120],
+    line:[230,228,224]
+  };
 
   /* BACKGROUND */
 
-  pdf.setFillColor(...bg);
+  pdf.setFillColor(...colors.bg);
   pdf.rect(0,0,pageWidth,297,"F");
 
 
-  /* HEADER */
+  /* HEADER CARD */
 
-  pdf.setDrawColor(...accent);
-  pdf.setLineWidth(1);
-  pdf.line(15,20,pageWidth-15,20);
+  pdf.setFillColor(...colors.card);
+  pdf.roundedRect(12,15,pageWidth-24,55,5,5,"F");
+
+  pdf.setDrawColor(...colors.line);
+  pdf.roundedRect(12,15,pageWidth-24,55,5,5);
 
 
   /* PHOTO */
 
-  try {
+  try{
 
     const imgElement = document.getElementById("profilePhoto");
 
@@ -65,172 +65,217 @@ async function generatePDF() {
       img.crossOrigin="anonymous";
       img.src = imgElement.src;
 
-      await new Promise((resolve,reject)=>{
-        img.onload = resolve;
-        img.onerror = reject;
+      await new Promise((res,rej)=>{
+        img.onload=res;
+        img.onerror=rej;
       });
 
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas=document.createElement("canvas");
+      const ctx=canvas.getContext("2d");
 
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width=img.width;
+      canvas.height=img.height;
 
       ctx.drawImage(img,0,0);
 
-      const base64 = canvas.toDataURL("image/jpeg");
+      const base64=canvas.toDataURL("image/jpeg");
 
-      pdf.addImage(base64,"JPEG",15,25,28,28);
+      pdf.addImage(base64,"JPEG",18,24,32,32);
 
     }
 
-  } catch(e){}
+  }catch(e){}
 
 
   /* NAME */
 
-  pdf.setTextColor(...text);
+  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
+  pdf.setTextColor(...colors.text);
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(22);
 
-  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
+  pdf.text(fullName || "Membre MyUM",60,35);
 
-  pdf.text(fullName || "Membre MyUM",50,35);
 
+  /* ROLE */
 
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(12);
 
   if(data.fonction)
-    pdf.text(data.fonction,50,43);
+  pdf.text(data.fonction,60,43);
+
+
+  /* USERNAME */
+
+  pdf.setTextColor(...colors.muted);
 
   if(data.username)
-    pdf.setTextColor(...soft),
-    pdf.text("@"+data.username,50,49);
+  pdf.text("@"+data.username,60,49);
 
 
-  y = 65;
+  let y = 80;
 
 
   /* BIO */
 
   if(data.bio){
 
-    sectionTitle(pdf,"Présentation",y);
-
-    y+=6;
-
-    pdf.setFont("helvetica","normal");
-    pdf.setFontSize(11);
-    pdf.setTextColor(...text);
-
-    const lines = pdf.splitTextToSize(data.bio,pageWidth-40);
-
-    pdf.text(lines,20,y);
-
-    y += lines.length * 6 + 6;
+    y = drawCard(
+      pdf,
+      "Présentation",
+      data.bio,
+      12,
+      y,
+      pageWidth-24,
+      colors
+    );
 
   }
 
 
-  y = renderSection(pdf,"Informations personnelles",y,[
-    ["Téléphone",data.phone],
-    ["Commune",data.commune],
-    ["Avenue",data.avenue],
-    ["État civil",data.etatCivil],
-    ["Statut relationnel",data.statutRelationnel],
-    ["Date naissance",data.birthday],
-    ["Âge",data.age]
-  ]);
+  /* INFORMATIONS PERSONNELLES */
+
+  y = drawFieldsCard(
+    pdf,
+    "Informations personnelles",
+    [
+      ["Téléphone",data.phone],
+      ["Commune",data.commune],
+      ["Avenue",data.avenue],
+      ["État civil",data.etatCivil],
+      ["Statut relationnel",data.statutRelationnel],
+      ["Date naissance",data.birthday],
+      ["Âge",data.age]
+    ],
+    12,
+    y+6,
+    pageWidth-24,
+    colors
+  );
 
 
-  y = renderSection(pdf,"Église & Baptême",y,[
-    ["Église",data.egliseProvenance],
-    ["Année baptême",data.anneeBapteme],
-    ["Type baptême",data.typeBapteme]
-  ]);
+  /* EGLISE */
+
+  y = drawFieldsCard(
+    pdf,
+    "Église & Baptême",
+    [
+      ["Église",data.egliseProvenance],
+      ["Année baptême",data.anneeBapteme],
+      ["Type baptême",data.typeBapteme]
+    ],
+    12,
+    y+6,
+    pageWidth-24,
+    colors
+  );
 
 
-  y = renderSection(pdf,"Ministère musical",y,[
-    ["Voix",data.registreVoix],
-    ["Groupe",data.groupeMusique],
-    ["Responsable",data.responsableMinistere]
-  ]);
+  /* MINISTERE */
+
+  y = drawFieldsCard(
+    pdf,
+    "Ministère musical",
+    [
+      ["Voix",data.registreVoix],
+      ["Groupe",data.groupeMusique],
+      ["Responsable",data.responsableMinistere]
+    ],
+    12,
+    y+6,
+    pageWidth-24,
+    colors
+  );
 
 
   /* FOOTER */
 
   pdf.setFontSize(9);
-  pdf.setTextColor(...soft);
+  pdf.setTextColor(...colors.muted);
 
   pdf.text(
-    "MyUM — Département musique",
+    "MyUM • Département musique",
     pageWidth/2,
     285,
     {align:"center"}
   );
 
 
-  /* SAVE */
-
-  const filename =
-  `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
-
-  pdf.save(filename);
+  pdf.save(`${data.firstName || "profil"}-${data.lastName || ""}.pdf`);
 
 }
 
 
+/* CARD TEXT */
 
-/* SECTION TITLE */
+function drawCard(pdf,title,text,x,y,width,colors){
 
-function sectionTitle(pdf,title,y){
+  pdf.setFillColor(...colors.card);
+  pdf.roundedRect(x,y,width,34,5,5,"F");
+
+  pdf.setDrawColor(...colors.line);
+  pdf.roundedRect(x,y,width,34,5,5);
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(14);
+  pdf.setFontSize(13);
+  pdf.setTextColor(...colors.primary);
 
-  pdf.setTextColor(0,0,0);
+  pdf.text(title,x+8,y+9);
 
-  pdf.text(title,15,y);
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(11);
+  pdf.setTextColor(...colors.text);
 
-  pdf.setDrawColor(120,98,80);
-  pdf.setLineWidth(0.6);
+  const lines = pdf.splitTextToSize(text,width-16);
 
-  pdf.line(15,y+2,60,y+2);
+  pdf.text(lines,x+8,y+18);
+
+  return y + lines.length*6 + 24;
 
 }
 
 
+/* CARD FIELDS */
 
-/* SECTION */
+function drawFieldsCard(pdf,title,fields,x,y,width,colors){
 
-function renderSection(pdf,title,y,fields){
+  const validFields = fields.filter(f=>f[1]);
 
-  sectionTitle(pdf,title,y);
+  const height = validFields.length*8 + 20;
 
-  y += 8;
+  pdf.setFillColor(...colors.card);
+  pdf.roundedRect(x,y,width,height,5,5,"F");
+
+  pdf.setDrawColor(...colors.line);
+  pdf.roundedRect(x,y,width,height,5,5);
+
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(13);
+  pdf.setTextColor(...colors.primary);
+
+  pdf.text(title,x+8,y+9);
+
 
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(11);
 
-  fields.forEach(([label,value])=>{
+  let yy = y+18;
 
-    if(!value) return;
+  validFields.forEach(([label,value])=>{
 
-    pdf.setTextColor(120,120,120);
-    pdf.text(label,20,y);
+    pdf.setTextColor(...colors.muted);
+    pdf.text(label,x+8,yy);
 
-    pdf.setTextColor(30,30,30);
+    pdf.setTextColor(...colors.text);
+    pdf.text(String(value),x+70,yy);
 
-    const text = pdf.splitTextToSize(String(value),110);
-
-    pdf.text(text,70,y);
-
-    y += text.length * 6;
+    yy+=8;
 
   });
 
-  return y + 6;
+  return y + height;
 
 }
