@@ -50,7 +50,6 @@ console.error("Erreur init PDF :",e);
 // Cette section génère le document officiel MyUm.
 // Toute modification peut casser l'export PDF.
 // ======================================================
-
 async function generatePDF(){
 
 try{
@@ -63,26 +62,24 @@ unit:"mm",
 format:"a4"
 });
 
-const pageWidth = 210;
-const pageHeight = 297;
-
-const sidebarWidth = 60;
+const sidebarWidth = 70;
 const mainStart = sidebarWidth + 10;
 
-let yMain = 40;
+let yMain = 45;
+let ySide = 110;
 
 
-// ======================================================
-// SIDEBAR BACKGROUND (style CV premium)
-// ======================================================
+// ===============================
+// SIDEBAR BACKGROUND
+// ===============================
 
-pdf.setFillColor(245,245,245);
-pdf.rect(0,0,sidebarWidth,pageHeight,"F");
+pdf.setFillColor(248,248,248);
+pdf.rect(0,0,sidebarWidth,297,"F");
 
 
-// ======================================================
-// PHOTO UTILISATEUR
-// ======================================================
+// ===============================
+// PHOTO PROFIL (GRANDE)
+// ===============================
 
 const img = document.getElementById("profilePhoto");
 
@@ -91,64 +88,17 @@ if(img && img.complete){
 const base64 = imageToBase64(img);
 
 if(base64){
-pdf.addImage(base64,"JPEG",10,20,40,40);
-}
+
+pdf.addImage(base64,"JPEG",15,20,40,40);
 
 }
 
-let ySide = 70;
-
-
-// ======================================================
-// CONTACT SIDEBAR
-// ======================================================
-
-sidebarTitle(pdf,"CONTACT",ySide);
-ySide += 10;
-
-sideText(pdf,"ID MyUm",ySide);
-ySide += 5;
-
-sideValue(pdf,userId,ySide);
-ySide += 15;
-
-
-// ======================================================
-// QR CODE
-// ======================================================
-
-const verifyURL =
-`${window.location.origin}/myUm/verify.html?uid=${userId}`;
-
-const qr = await loadImage(
-`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
-);
-
-if(qr){
-
-pdf.addImage(qr,"PNG",10,ySide,40,40);
-
 }
 
-ySide += 50;
 
-
-// ======================================================
-// DATE DOCUMENT
-// ======================================================
-
-const now = new Date();
-
-sideText(pdf,"DOCUMENT",ySide);
-ySide += 5;
-
-sideValue(pdf,now.toLocaleDateString(),ySide);
-
-
-
-// ======================================================
-// HEADER NOM UTILISATEUR
-// ======================================================
+// ===============================
+// NOM + USERNAME
+// ===============================
 
 const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
 
@@ -161,44 +111,41 @@ pdf.setFontSize(12);
 pdf.setFont(undefined,"normal");
 
 pdf.text(
-`${userData.username ? "@"+userData.username : ""}  ${userData.fonction || ""}`,
+`${userData.fonction || ""}  |  @${userData.username || ""}`,
 mainStart,
 32
 );
 
 
-// ======================================================
-// LIGNE SÉPARATION
-// ======================================================
+// ===============================
+// BIO
+// ===============================
 
-pdf.setDrawColor(200,200,200);
-pdf.line(mainStart,36,200,36);
-
-
-
-// ======================================================
-// PROFIL
-// ======================================================
+if(userData.bio){
 
 sectionTitle(pdf,"PROFIL",yMain);
+
 yMain += 8;
 
 paragraph(
 pdf,
-"Profil membre MyUm enregistré dans la base officielle. Document généré automatiquement contenant les informations personnelles, ecclésiastiques et musicales.",
+userData.bio,
 mainStart,
 yMain,
-130
+120
 );
 
-yMain += 20;
+yMain += 18;
+
+}
 
 
-// ======================================================
-// INFORMATIONS PERSONNELLES
-// ======================================================
+// ===============================
+// INFOS PERSONNELLES
+// ===============================
 
 sectionTitle(pdf,"INFORMATIONS PERSONNELLES",yMain);
+
 yMain += 8;
 
 yMain = infoLine(pdf,"Genre",userData.genre,yMain);
@@ -209,11 +156,12 @@ yMain = infoLine(pdf,"Avenue",userData.avenue,yMain);
 yMain += 10;
 
 
-// ======================================================
-// INFORMATIONS ECCLESIASTIQUES
-// ======================================================
+// ===============================
+// ECCLESIASTIQUE
+// ===============================
 
 sectionTitle(pdf,"INFORMATIONS ECCLÉSIASTIQUES",yMain);
+
 yMain += 8;
 
 yMain = infoLine(pdf,"Eglise",userData.egliseProvenance,yMain);
@@ -222,51 +170,101 @@ yMain = infoLine(pdf,"Année baptême",userData.anneeBapteme,yMain);
 yMain += 10;
 
 
-// ======================================================
+// ===============================
 // MUSIQUE
-// ======================================================
+// ===============================
 
 sectionTitle(pdf,"COMPÉTENCES MUSICALES",yMain);
+
 yMain += 8;
 
 yMain = infoLine(pdf,"Registre vocal",userData.registreVoix,yMain);
 yMain = infoLine(pdf,"Groupe",userData.groupeMusique,yMain);
 
-yMain += 20;
 
 
-// ======================================================
-// SIGNATURE NUMERIQUE
-// ======================================================
+// ===============================
+// SIDEBAR CONTACT
+// ===============================
 
-const signature = await createSignature();
+sidebarTitle(pdf,"CONTACT",ySide);
+
+ySide += 10;
+
+sideIconLine(pdf,"📞 Téléphone",userData.phone,ySide);
+
+ySide += 8;
+
+sideIconLine(pdf,"🎂 Anniversaire",userData.birthday,ySide);
+
+ySide += 8;
+
+sideIconLine(pdf,"🎯 Age",userData.age,ySide);
+
+ySide += 20;
+
+
+// ===============================
+// QR CODE VERIFICATION
+// ===============================
+
+const verifyURL =
+`${window.location.origin}/myUm/verify.html?uid=${userId}`;
+
+const qr = await loadImage(
+`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyURL)}`
+);
+
+if(qr){
+
+pdf.addImage(qr,"PNG",15,ySide,40,40);
+
+}
+
+ySide += 45;
 
 pdf.setFontSize(9);
 
 pdf.text(
-`Signature numérique : ${signature}`,
-mainStart,
-yMain
+"Scan pour vérifier ce profil",
+35,
+ySide,
+{align:"center"}
 );
 
 
-// ======================================================
-// FOOTER
-// ======================================================
+// ===============================
+// SIGNATURE NUMERIQUE
+// ===============================
+
+const signature = await createSignature();
 
 pdf.setFontSize(8);
 
 pdf.text(
-"Document officiel généré par MyUm",
+`Signature sécurisée : ${signature}`,
+mainStart,
+280
+);
+
+
+// ===============================
+// FOOTER
+// ===============================
+
+pdf.setFontSize(8);
+
+pdf.text(
+"Document officiel MyUm",
 105,
 290,
 {align:"center"}
 );
 
 
-// ======================================================
+// ===============================
 // SAVE
-// ======================================================
+// ===============================
 
 pdf.save(`myum-${userData.username}.pdf`);
 
