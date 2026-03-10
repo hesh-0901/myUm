@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+
 async function generatePDF() {
 
   const snap = await getDoc(doc(db, "users", currentUserId));
@@ -35,39 +36,43 @@ async function generatePDF() {
      PHOTO
   =============================== */
 
-if (data.photoURL) {
+  if (data.photoURL) {
 
-  try {
+    try {
 
-    const imgBase64 = await loadImageBase64(data.photoURL);
+      const base64 = await loadImageBase64(data.photoURL);
+      const format = base64.startsWith("data:image/png") ? "PNG" : "JPEG";
 
-    const format = imgBase64.startsWith("data:image/png") ? "PNG" : "JPEG";
-pdf.addImage(imgBase64, format, 15, 15, 35, 35);
+      pdf.addImage(base64, format, 15, 15, 35, 35);
 
-  } catch (error) {
+    } catch (error) {
 
-    console.error("Erreur chargement photo :", error);
+      console.error("Erreur chargement photo :", error);
+
+    }
 
   }
 
-}
-
 
   /* ===============================
-     IDENTITE
+     HEADER IDENTITE
   =============================== */
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(20);
 
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
-  pdf.text(fullName.trim(), 60, 25);
+  pdf.text(fullName.toUpperCase(), 60, 25);
 
   pdf.setFontSize(11);
   pdf.setFont("helvetica", "normal");
 
   if (data.username) pdf.text("@" + data.username, 60, 32);
   if (data.fonction) pdf.text(data.fonction, 60, 38);
+
+  pdf.setDrawColor(0,116,166);
+  pdf.setLineWidth(1);
+  pdf.line(15, 50, pageWidth - 15, 50);
 
   y = 60;
 
@@ -78,112 +83,64 @@ pdf.addImage(imgBase64, format, 15, 15, 35, 35);
 
   if (data.bio) {
 
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(13);
-    pdf.text("Présentation", 15, y);
+    sectionTitle(pdf, "Présentation", y);
+    y += 8;
 
-    y += 6;
-
+    const bioLines = pdf.splitTextToSize(data.bio, 180);
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(11);
 
-    const lines = pdf.splitTextToSize(data.bio, 180);
-    pdf.text(lines, 15, y);
-
-    y += lines.length * 6 + 4;
+    pdf.text(bioLines, 15, y);
+    y += bioLines.length * 6 + 5;
 
   }
 
 
   /* ===============================
-     INFOS PERSONNELLES
+     INFORMATIONS PERSONNELLES
   =============================== */
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(13);
-  pdf.text("Informations personnelles", 15, y);
-
+  sectionTitle(pdf, "Informations personnelles", y);
   y += 8;
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(11);
-
-  const personal = [
+  y = renderTable(pdf, y, [
     ["Genre", data.genre],
+    ["Téléphone", data.phone],
     ["État civil", data.etatCivil],
     ["Statut relationnel", data.statutRelationnel],
-    ["Téléphone", data.phone],
     ["Commune", data.commune],
     ["Avenue", data.avenue],
     ["Date de naissance", data.birthday],
     ["Âge", data.age]
-  ];
-
-  personal.forEach(([label, value]) => {
-
-    if (!value) return;
-
-    pdf.text(`${label} : ${value}`, 15, y);
-    y += 6;
-
-  });
-
-  y += 6;
+  ]);
 
 
   /* ===============================
-     INFOS ECCLESIASTIQUES
+     INFORMATIONS ECCLESIASTIQUES
   =============================== */
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(13);
-  pdf.text("Informations ecclésiastiques", 15, y);
-
+  sectionTitle(pdf, "Église & ministère", y);
   y += 8;
 
-  pdf.setFont("helvetica", "normal");
-
-  const church = [
+  y = renderTable(pdf, y, [
     ["Église de provenance", data.egliseProvenance],
     ["Année de baptême", data.anneeBapteme],
+    ["Type de baptême", data.typeBapteme],
     ["Responsable ministère", data.responsableMinistere]
-  ];
-
-  church.forEach(([label, value]) => {
-
-    if (!value) return;
-
-    pdf.text(`${label} : ${value}`, 15, y);
-    y += 6;
-
-  });
-
-  y += 6;
+  ]);
 
 
   /* ===============================
      COMPETENCES MUSICALES
   =============================== */
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(13);
-  pdf.text("Compétences musicales", 15, y);
-
+  sectionTitle(pdf, "Compétences musicales", y);
   y += 8;
 
-  pdf.setFont("helvetica", "normal");
-
-  if (data.registreVoix) {
-    pdf.text(`Registre de voix : ${data.registreVoix}`, 15, y);
-    y += 6;
-  }
-
-  if (data.groupeMusique) {
-    pdf.text(`Évolue dans un groupe : ${data.groupeMusique}`, 15, y);
-    y += 6;
-  }
-
-  y += 8;
+  y = renderTable(pdf, y, [
+    ["Registre de voix", data.registreVoix],
+    ["Évolue dans un groupe", data.groupeMusique]
+  ]);
 
 
   /* ===============================
@@ -192,20 +149,16 @@ pdf.addImage(imgBase64, format, 15, 15, 35, 35);
 
   if (data.vieSeculiere && data.vieSeculiere.length) {
 
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(13);
-    pdf.text("Vie séculière", 15, y);
-
+    sectionTitle(pdf, "Vie séculière", y);
     y += 8;
 
     pdf.setFont("helvetica", "normal");
 
-    const list = Array.isArray(data.vieSeculiere)
+    const text = Array.isArray(data.vieSeculiere)
       ? data.vieSeculiere.join(", ")
       : data.vieSeculiere;
 
-    pdf.text(list, 15, y);
-
+    pdf.text(text, 15, y);
     y += 8;
 
   }
@@ -219,9 +172,18 @@ pdf.addImage(imgBase64, format, 15, 15, 35, 35);
   pdf.setTextColor(120);
 
   pdf.text(
-    "Fiche générée via MyUm",
+    `Généré le ${new Date().toLocaleDateString("fr-FR")}`,
     pageWidth / 2,
     285,
+    { align: "center" }
+  );
+
+  pdf.setTextColor(0,116,166);
+
+  pdf.text(
+    "MyUm — Département de musique",
+    pageWidth / 2,
+    290,
     { align: "center" }
   );
 
@@ -238,27 +200,72 @@ pdf.addImage(imgBase64, format, 15, 15, 35, 35);
 }
 
 
+/* ===============================
+   SECTION TITLE
+=============================== */
+
+function sectionTitle(pdf, title, y) {
+
+  pdf.setFillColor(0,116,166);
+  pdf.rect(15, y - 4, 180, 7, "F");
+
+  pdf.setTextColor(255);
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+
+  pdf.text(title, 18, y);
+
+  pdf.setTextColor(0);
+
+}
+
 
 /* ===============================
-   IMAGE HELPERS
+   TABLE RENDER
+=============================== */
+
+function renderTable(pdf, y, fields) {
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(11);
+
+  fields.forEach(([label, value]) => {
+
+    if (!value) return;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text(label, 15, y);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.text(String(value), 80, y);
+
+    y += 6;
+
+  });
+
+  return y + 4;
+
+}
+
+
+/* ===============================
+   IMAGE LOADER
 =============================== */
 
 async function loadImageBase64(url) {
 
-const response = await fetch(url);
+  const response = await fetch(url);
 
-if (!response.ok) {
-  throw new Error("Impossible de charger l'image");
-}
+  if (!response.ok) {
+    throw new Error("Impossible de charger l'image");
+  }
 
-const blob = await response.blob();
+  const blob = await response.blob();
 
   return new Promise((resolve) => {
 
     const reader = new FileReader();
-
     reader.onloadend = () => resolve(reader.result);
-
     reader.readAsDataURL(blob);
 
   });
