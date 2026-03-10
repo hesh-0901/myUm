@@ -35,7 +35,7 @@ async function generatePDF(){
     card:[255,255,255],
     primary:[92,72,55],
     text:[25,25,25],
-    muted:[120,120,120],
+    muted:[110,110,110],
     line:[230,228,224]
   };
 
@@ -45,13 +45,13 @@ async function generatePDF(){
   pdf.rect(0,0,pageWidth,297,"F");
 
 
-  /* HEADER CARD */
+  /* HEADER */
 
   pdf.setFillColor(...colors.card);
-  pdf.roundedRect(12,15,pageWidth-24,55,5,5,"F");
+  pdf.roundedRect(12,15,pageWidth-24,46,4,4,"F");
 
   pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(12,15,pageWidth-24,55,5,5);
+  pdf.roundedRect(12,15,pageWidth-24,46,4,4);
 
 
   /* PHOTO */
@@ -81,7 +81,7 @@ async function generatePDF(){
 
       const base64=canvas.toDataURL("image/jpeg");
 
-      pdf.addImage(base64,"JPEG",18,24,32,32);
+      pdf.addImage(base64,"JPEG",18,22,28,28);
 
     }
 
@@ -92,20 +92,20 @@ async function generatePDF(){
 
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
-  pdf.setTextColor(...colors.text);
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(22);
+  pdf.setFontSize(20);
+  pdf.setTextColor(...colors.text);
 
-  pdf.text(fullName || "Membre MyUM",60,35);
+  pdf.text(fullName || "Membre MyUM",55,32);
 
 
   /* ROLE */
 
   pdf.setFont("helvetica","normal");
-  pdf.setFontSize(12);
+  pdf.setFontSize(11);
 
   if(data.fonction)
-    pdf.text(data.fonction,60,43);
+  pdf.text(data.fonction,55,39);
 
 
   /* USERNAME */
@@ -113,30 +113,20 @@ async function generatePDF(){
   pdf.setTextColor(...colors.muted);
 
   if(data.username)
-    pdf.text("@"+data.username,60,49);
+  pdf.text("@"+data.username,55,45);
 
 
-  let y = 80;
+  let y = 70;
 
 
   /* BIO */
 
   if(data.bio){
-
-    y = drawCard(
-      pdf,
-      "Présentation",
-      data.bio,
-      12,
-      y,
-      pageWidth-24,
-      colors
-    );
-
+    y = drawCard(pdf,"Présentation",data.bio,12,y,pageWidth-24,colors);
   }
 
 
-  /* INFORMATIONS PERSONNELLES */
+  /* INFOS */
 
   y = drawFieldsCard(
     pdf,
@@ -146,12 +136,12 @@ async function generatePDF(){
       ["Commune",data.commune],
       ["Avenue",data.avenue],
       ["État civil",data.etatCivil],
-      ["Statut relationnel",data.statutRelationnel],
-      ["Date naissance",data.birthday],
+      ["Relation",data.statutRelationnel],
+      ["Naissance",data.birthday],
       ["Âge",data.age]
     ],
     12,
-    y+6,
+    y,
     pageWidth-24,
     colors
   );
@@ -168,7 +158,7 @@ async function generatePDF(){
       ["Type baptême",data.typeBapteme]
     ],
     12,
-    y+6,
+    y,
     pageWidth-24,
     colors
   );
@@ -185,7 +175,7 @@ async function generatePDF(){
       ["Responsable",data.responsableMinistere]
     ],
     12,
-    y+6,
+    y,
     pageWidth-24,
     colors
   );
@@ -193,14 +183,41 @@ async function generatePDF(){
 
   /* FOOTER */
 
+  const now = new Date();
+
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  const qrText = `MyUM | ${fullName} | @${data.username}`;
+
+  const qrCanvas = document.createElement("canvas");
+
+  await QRCode.toCanvas(qrCanvas, qrText, { width:80 });
+
+  const qrBase64 = qrCanvas.toDataURL("image/png");
+
+  pdf.addImage(qrBase64,"PNG",14,262,22,22);
+
+
   pdf.setFontSize(9);
   pdf.setTextColor(...colors.muted);
 
+  pdf.text("Département de musique",40,268);
+  pdf.text("UM Compassion",40,273);
+  pdf.text("La Compassion Lubumbashi",40,278);
+
   pdf.text(
-    "MyUM • Département musique",
-    pageWidth/2,
-    285,
-    {align:"center"}
+    `Téléchargé par : @${data.username}`,
+    pageWidth-14,
+    268,
+    {align:"right"}
+  );
+
+  pdf.text(
+    `Date : ${dateStr} • ${timeStr}`,
+    pageWidth-14,
+    274,
+    {align:"right"}
   );
 
 
@@ -214,80 +231,73 @@ async function generatePDF(){
 
 function drawCard(pdf,title,text,x,y,width,colors){
 
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(11);
-
   const lines = pdf.splitTextToSize(text,width-16);
 
-  const height = lines.length * 6 + 22;
+  const height = lines.length*5 + 18;
 
   pdf.setFillColor(...colors.card);
-  pdf.roundedRect(x,y,width,height,5,5,"F");
+  pdf.roundedRect(x,y,width,height,4,4,"F");
 
   pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(x,y,width,height,5,5);
+  pdf.roundedRect(x,y,width,height,4,4);
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(13);
+  pdf.setFontSize(12);
   pdf.setTextColor(...colors.primary);
 
-  pdf.text(title,x+8,y+9);
+  pdf.text(title,x+7,y+8);
 
   pdf.setFont("helvetica","normal");
-  pdf.setFontSize(11);
+  pdf.setFontSize(10);
   pdf.setTextColor(...colors.text);
 
-  pdf.text(lines,x+8,y+18);
+  pdf.text(lines,x+7,y+15);
 
-  return y + height + 6;
+  return y + height + 4;
 
 }
 
 
 
-/* CARD CHAMPS DYNAMIQUES */
+/* CARD FIELDS */
 
 function drawFieldsCard(pdf,title,fields,x,y,width,colors){
 
-  const validFields = fields.filter(([label,value])=>{
-    return value !== undefined && value !== null && value !== "";
-  });
+  const validFields = fields.filter(([label,value])=>value);
 
-  if(validFields.length === 0){
-    return y;
-  }
+  if(validFields.length===0) return y;
 
-  const height = validFields.length * 8 + 20;
+  const height = validFields.length*7 + 18;
 
   pdf.setFillColor(...colors.card);
-  pdf.roundedRect(x,y,width,height,5,5,"F");
+  pdf.roundedRect(x,y,width,height,4,4,"F");
 
   pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(x,y,width,height,5,5);
+  pdf.roundedRect(x,y,width,height,4,4);
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(13);
+  pdf.setFontSize(12);
   pdf.setTextColor(...colors.primary);
 
-  pdf.text(title,x+8,y+9);
+  pdf.text(title,x+7,y+8);
 
   pdf.setFont("helvetica","normal");
-  pdf.setFontSize(11);
+  pdf.setFontSize(10);
 
-  let yy = y + 18;
+  let yy = y+16;
 
   validFields.forEach(([label,value])=>{
 
     pdf.setTextColor(...colors.muted);
-    pdf.text(label,x+8,yy);
+    pdf.text(label,x+7,yy);
 
     pdf.setTextColor(...colors.text);
-    pdf.text(String(value),x+70,yy);
+    pdf.text(String(value),x+60,yy);
 
-    yy += 8;
+    yy += 7;
 
   });
 
-  return y + height + 6;
+  return y + height + 4;
 
 }
