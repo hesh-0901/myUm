@@ -5,10 +5,6 @@ const { jsPDF } = window.jspdf;
 
 let currentUserId = null;
 
-/* ===============================
-   INIT PAGE
-=============================== */
-
 document.addEventListener("DOMContentLoaded", () => {
 
   const storedUser = localStorage.getItem("myum_user");
@@ -19,16 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btn = document.getElementById("exportPdfBtn");
 
-  if (btn) {
-    btn.addEventListener("click", generatePDF);
-  }
+  if (btn) btn.addEventListener("click", generatePDF);
 
 });
-
-
-/* ===============================
-   GENERATE PDF
-=============================== */
 
 async function generatePDF() {
 
@@ -41,25 +30,32 @@ async function generatePDF() {
 
   const pageWidth = pdf.internal.pageSize.width;
 
-  let y = 20;
-
-
   /* ===============================
-     HEADER
+     COLORS
   =============================== */
 
-  pdf.setFillColor(0,116,166);
-  pdf.rect(0,0,pageWidth,40,"F");
-
-  pdf.setTextColor(255);
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(20);
-
-  pdf.text("MyUM — Profil membre", pageWidth/2, 20, {align:"center"});
+  const dark = [70,70,70];
+  const beige = [184,156,125];
 
 
   /* ===============================
-     PHOTO (sans CORS)
+     BACKGROUND
+  =============================== */
+
+  pdf.setFillColor(...dark);
+  pdf.rect(0,0,pageWidth,297,"F");
+
+
+  /* ===============================
+     HEADER BAR
+  =============================== */
+
+  pdf.setFillColor(...beige);
+  pdf.roundedRect(50,20,140,30,15,15,"F");
+
+
+  /* ===============================
+     PHOTO CIRCLE
   =============================== */
 
   const imgElement = document.getElementById("profilePhoto");
@@ -76,140 +72,177 @@ async function generatePDF() {
 
     const base64 = canvas.toDataURL("image/jpeg");
 
-    pdf.addImage(base64,"JPEG",15,50,40,40);
+    pdf.addImage(base64,"JPEG",15,15,45,45);
 
   }
 
 
   /* ===============================
-     IDENTITE
+     NAME
   =============================== */
 
-  pdf.setTextColor(0);
+  pdf.setTextColor(255);
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(18);
+  pdf.setFontSize(28);
 
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
 
-  pdf.text(fullName,65,60);
+  pdf.text(fullName,70,38);
 
+
+  /* ===============================
+     LEFT COLUMN
+  =============================== */
+
+  let leftY = 80;
+
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica","bold");
+  pdf.text("Expérience",15,leftY);
+
+  leftY += 8;
+
+  pdf.setFontSize(11);
   pdf.setFont("helvetica","normal");
-  pdf.setFontSize(12);
 
-  if(data.username)
-    pdf.text("@"+data.username,65,68);
+  if(data.fonction){
+    pdf.text(data.fonction,15,leftY);
+    leftY += 6;
+  }
 
-  if(data.fonction)
-    pdf.text(data.fonction,65,75);
+  if(data.responsableMinistere){
+    pdf.text("Responsable : "+data.responsableMinistere,15,leftY);
+    leftY += 6;
+  }
 
+  if(data.groupeMusique){
+    pdf.text("Groupe : "+data.groupeMusique,15,leftY);
+    leftY += 6;
+  }
 
-  pdf.setDrawColor(0,116,166);
-  pdf.setLineWidth(1);
-  pdf.line(15,95,pageWidth-15,95);
-
-  y = 105;
+  leftY += 10;
 
 
   /* ===============================
-     BIO
+     CONTACT
   =============================== */
 
-  if (data.bio) {
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica","bold");
+  pdf.text("Contact",15,leftY);
 
-    y = renderBlock(pdf,"Présentation",y,[["Bio",data.bio]]);
+  leftY += 8;
+
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica","normal");
+
+  if(data.phone){
+    pdf.text("Téléphone : "+data.phone,15,leftY);
+    leftY += 6;
+  }
+
+  if(data.commune){
+    pdf.text("Commune : "+data.commune,15,leftY);
+    leftY += 6;
+  }
+
+  if(data.avenue){
+    pdf.text("Avenue : "+data.avenue,15,leftY);
+    leftY += 6;
+  }
+
+
+  /* ===============================
+     RIGHT PANEL
+  =============================== */
+
+  pdf.setFillColor(...beige);
+  pdf.roundedRect(110,80,85,170,10,10,"F");
+
+  let rightY = 95;
+
+  pdf.setTextColor(255);
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica","bold");
+
+  pdf.text("About Me",120,rightY);
+
+  rightY += 8;
+
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica","normal");
+
+  if(data.bio){
+
+    const lines = pdf.splitTextToSize(data.bio,70);
+
+    pdf.text(lines,120,rightY);
+
+    rightY += lines.length * 5 + 8;
 
   }
 
 
   /* ===============================
-     INFORMATIONS PERSONNELLES
+     EDUCATION / EGLISE
   =============================== */
 
-  y = renderBlock(pdf,"Informations personnelles",y,[
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica","bold");
 
-    ["Genre",data.genre],
-    ["Téléphone",data.phone],
-    ["État civil",data.etatCivil],
-    ["Statut relationnel",data.statutRelationnel],
-    ["Commune",data.commune],
-    ["Avenue",data.avenue],
-    ["Date de naissance",data.birthday],
-    ["Âge",data.age]
+  pdf.text("Eglise",120,rightY);
 
-  ]);
+  rightY += 8;
 
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica","normal");
 
-  /* ===============================
-     INFORMATIONS ECCLESIASTIQUES
-  =============================== */
+  if(data.egliseProvenance){
 
-  y = renderBlock(pdf,"Église & ministère",y,[
+    pdf.text(data.egliseProvenance,120,rightY);
+    rightY += 6;
 
-    ["Église de provenance",data.egliseProvenance],
-    ["Année de baptême",data.anneeBapteme],
-    ["Type de baptême",data.typeBapteme],
-    ["Responsable ministère",data.responsableMinistere]
+  }
 
-  ]);
+  if(data.anneeBapteme){
 
+    pdf.text("Baptême : "+data.anneeBapteme,120,rightY);
+    rightY += 6;
 
-  /* ===============================
-     COMPETENCES MUSICALES
-  =============================== */
+  }
 
-  y = renderBlock(pdf,"Compétences musicales",y,[
+  if(data.typeBapteme){
 
-    ["Registre de voix",data.registreVoix],
-    ["Évolue dans un groupe",data.groupeMusique]
-
-  ]);
-
-
-  /* ===============================
-     VIE SECULIERE
-  =============================== */
-
-  if (data.vieSeculiere && data.vieSeculiere.length) {
-
-    const text = Array.isArray(data.vieSeculiere)
-      ? data.vieSeculiere.join(", ")
-      : data.vieSeculiere;
-
-    y = renderBlock(pdf,"Vie séculière",y,[["Activités",text]]);
+    pdf.text(data.typeBapteme,120,rightY);
+    rightY += 6;
 
   }
 
 
   /* ===============================
-     QR CODE PROFIL
+     SKILLS
   =============================== */
 
-  try {
+  rightY += 8;
 
-    const profileURL =
-      "https://hesh-0901.github.io/myUm/profile.html?user="+currentUserId;
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica","bold");
 
-    const qrCanvas = document.createElement("canvas");
+  pdf.text("Skills",120,rightY);
 
-    await QRCode.toCanvas(qrCanvas, profileURL);
+  rightY += 8;
 
-    const qrBase64 = qrCanvas.toDataURL("image/png");
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica","normal");
 
-    pdf.addImage(qrBase64,"PNG",160,50,30,30);
+  if(data.registreVoix){
+    pdf.text("Voix : "+data.registreVoix,120,rightY);
+    rightY += 6;
+  }
 
-    pdf.setFontSize(8);
-
-    pdf.text(
-      "Scanner pour voir le profil",
-      175,
-      85,
-      {align:"center"}
-    );
-
-  } catch (error) {
-
-    console.warn("QR Code error",error);
-
+  if(data.groupeMusique){
+    pdf.text("Groupe : "+data.groupeMusique,120,rightY);
+    rightY += 6;
   }
 
 
@@ -218,74 +251,23 @@ async function generatePDF() {
   =============================== */
 
   pdf.setFontSize(9);
-  pdf.setTextColor(120);
+  pdf.setTextColor(200);
 
   pdf.text(
-    `Généré le ${new Date().toLocaleDateString("fr-FR")}`,
+    "MyUM — Département musique",
     pageWidth/2,
     285,
     {align:"center"}
   );
 
-  pdf.setTextColor(0,116,166);
-
-  pdf.text(
-    "MyUM — Département de musique",
-    pageWidth/2,
-    290,
-    {align:"center"}
-  );
-
 
   /* ===============================
-     SAVE PDF
+     SAVE
   =============================== */
 
   const filename =
     `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
 
   pdf.save(filename);
-
-}
-
-
-/* ===============================
-   RENDER BLOCK
-=============================== */
-
-function renderBlock(pdf,title,y,fields){
-
-  const pageWidth = pdf.internal.pageSize.width;
-
-  pdf.setFillColor(0,116,166);
-  pdf.rect(15,y-5,pageWidth-30,8,"F");
-
-  pdf.setTextColor(255);
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(12);
-
-  pdf.text(title,18,y);
-
-  y+=10;
-
-  pdf.setTextColor(0);
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(11);
-
-  fields.forEach(([label,value])=>{
-
-    if(!value) return;
-
-    pdf.setFont("helvetica","bold");
-    pdf.text(label,15,y);
-
-    pdf.setFont("helvetica","normal");
-    pdf.text(String(value),80,y);
-
-    y+=6;
-
-  });
-
-  return y+8;
 
 }
