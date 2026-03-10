@@ -274,36 +274,81 @@ function renderMainContent(pdf,layout){
 let y = layout.yMain;
 
 
+// ===============================
+// BIO / PROFIL (centre visuel)
+// ===============================
+
 if(userData.bio){
 
-y = renderSection(pdf,"PROFIL",userData.bio,y);
+pdf.setFontSize(14);
+pdf.setFont(undefined,"bold");
+
+pdf.text("PROFIL",layout.mainX,y);
+
+y += 8;
+
+pdf.setFontSize(10);
+pdf.setFont(undefined,"normal");
+
+const bioLines = pdf.splitTextToSize(userData.bio,110);
+
+pdf.text(bioLines,layout.mainX,y);
+
+y += bioLines.length * 6 + 10;
 
 }
 
 
-y = renderListSection(pdf,"INFORMATIONS PERSONNELLES",[
-["Genre",userData.genre],
-["Etat civil",userData.etatCivil],
-["Commune",userData.commune],
-["Avenue",userData.avenue]
-],y);
+// ===============================
+// GRILLE 2 COLONNES
+// ===============================
+
+let yLeft = y;
+let yRight = y;
 
 
-y = renderListSection(pdf,"INFORMATIONS ECCLÉSIASTIQUES",[
-["Eglise",userData.egliseProvenance],
-["Année baptême",userData.anneeBapteme]
-],y);
+// -------- COLONNE GAUCHE --------
+
+pdf.setFontSize(13);
+pdf.setFont(undefined,"bold");
+
+pdf.text("INFORMATIONS",layout.mainX,yLeft);
+
+yLeft += 10;
+
+yLeft = renderInfoLine(pdf,"Genre",userData.genre,layout.mainX,yLeft);
+yLeft = renderInfoLine(pdf,"Etat civil",userData.etatCivil,layout.mainX,yLeft);
+yLeft = renderInfoLine(pdf,"Commune",userData.commune,layout.mainX,yLeft);
+yLeft = renderInfoLine(pdf,"Avenue",userData.avenue,layout.mainX,yLeft);
 
 
-y = renderListSection(pdf,"COMPÉTENCES MUSICALES",[
-["Registre vocal",userData.registreVoix],
-["Groupe",userData.groupeMusique]
-],y);
+// -------- COLONNE DROITE --------
+
+const column2 = layout.mainX + 65;
+
+pdf.setFontSize(13);
+pdf.setFont(undefined,"bold");
+
+pdf.text("ÉGLISE",column2,yRight);
+
+yRight += 10;
+
+yRight = renderInfoLine(pdf,"Eglise",userData.egliseProvenance,column2,yRight);
+yRight = renderInfoLine(pdf,"Baptême",userData.anneeBapteme,column2,yRight);
+
+yRight += 8;
+
+pdf.setFontSize(13);
+pdf.setFont(undefined,"bold");
+
+pdf.text("MUSIQUE",column2,yRight);
+
+yRight += 10;
+
+yRight = renderInfoLine(pdf,"Registre",userData.registreVoix,column2,yRight);
+yRight = renderInfoLine(pdf,"Groupe",userData.groupeMusique,column2,yRight);
 
 }
-
-
-
 // ======================================================
 // SECTION TEXTE
 // ======================================================
@@ -475,5 +520,24 @@ reader.readAsDataURL(blob);
 return null;
 
 }
+
+}
+
+function renderInfoLine(pdf,label,value,x,y){
+
+if(!value) return y;
+
+pdf.setFontSize(10);
+
+pdf.setTextColor(120,120,120);
+pdf.text(label,x,y);
+
+pdf.setTextColor(0,0,0);
+
+const lines = pdf.splitTextToSize(String(value),50);
+
+pdf.text(lines,x,y+4);
+
+return y + (lines.length * 6);
 
 }
