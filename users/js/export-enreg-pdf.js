@@ -324,13 +324,17 @@ pdf.line(10,y+2,50,y+2);
 
 function sideIconLine(pdf,label,value,y){
 
+const safeValue = value !== undefined && value !== null
+? String(value)
+: "-";
+
 pdf.setFontSize(10);
 
 pdf.setTextColor(120,120,120);
-pdf.text(label,10,y);
+pdf.text(String(label),10,y);
 
 pdf.setTextColor(0,0,0);
-pdf.text(value || "-",10,y+4);
+pdf.text(safeValue,10,y+4);
 
 }
 
