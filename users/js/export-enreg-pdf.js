@@ -42,18 +42,25 @@ if (photoEl && photoEl.src) {
 
   try {
 
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = photoEl.src;
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    const width = photoEl.naturalWidth || 300;
-    const height = photoEl.naturalHeight || 300;
+    const size = 300;
+    canvas.width = size;
+    canvas.height = size;
 
-    canvas.width = width;
-    canvas.height = height;
+    ctx.drawImage(img, 0, 0, size, size);
 
-    ctx.drawImage(photoEl, 0, 0, width, height);
-
-    const base64 = canvas.toDataURL("image/jpeg");
+    const base64 = canvas.toDataURL("image/jpeg", 0.9);
 
     pdf.addImage(base64, "JPEG", 15, 15, 35, 35);
 
@@ -64,7 +71,6 @@ if (photoEl && photoEl.src) {
   }
 
 }
-
 
   /* ===============================
      HEADER IDENTITE
