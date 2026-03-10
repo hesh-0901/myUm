@@ -32,26 +32,38 @@ async function generatePDF() {
   let y = 20;
 
 
-  /* ===============================
-     PHOTO
-  =============================== */
+/* ===============================
+   PHOTO (depuis l'image affichée)
+=============================== */
 
-  if (data.photoURL) {
+const photoEl = document.getElementById("profilePhoto");
 
-    try {
+if (photoEl && photoEl.src) {
 
-      const base64 = await loadImageBase64(data.photoURL);
-      const format = base64.startsWith("data:image/png") ? "PNG" : "JPEG";
+  try {
 
-      pdf.addImage(base64, format, 15, 15, 35, 35);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-    } catch (error) {
+    const width = photoEl.naturalWidth || 300;
+    const height = photoEl.naturalHeight || 300;
 
-      console.error("Erreur chargement photo :", error);
+    canvas.width = width;
+    canvas.height = height;
 
-    }
+    ctx.drawImage(photoEl, 0, 0, width, height);
+
+    const base64 = canvas.toDataURL("image/jpeg");
+
+    pdf.addImage(base64, "JPEG", 15, 15, 35, 35);
+
+  } catch (error) {
+
+    console.error("Erreur conversion photo :", error);
 
   }
+
+}
 
 
   /* ===============================
@@ -252,22 +264,3 @@ function renderTable(pdf, y, fields) {
    IMAGE LOADER
 =============================== */
 
-async function loadImageBase64(url) {
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("Impossible de charger l'image");
-  }
-
-  const blob = await response.blob();
-
-  return new Promise((resolve) => {
-
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-
-  });
-
-}
