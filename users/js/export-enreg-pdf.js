@@ -51,33 +51,41 @@ async function generatePDF(){
   pdf.setFillColor(...card);
   pdf.roundedRect(15,15,pageWidth-30,45,10,10,"F");
 
+/* PHOTO CIRCLE */
 
-  /* PHOTO CIRCLE */
+const imgEl = document.getElementById("profilePhoto");
 
-  const img = document.getElementById("profilePhoto");
+if (imgEl && imgEl.src) {
 
-  if(img && img.complete){
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.src = imgEl.src;
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+  });
 
-    const size = Math.min(img.naturalWidth,img.naturalHeight);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
-    canvas.width = size;
-    canvas.height = size;
+  const size = Math.min(img.width, img.height);
 
-    ctx.beginPath();
-    ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
-    ctx.closePath();
-    ctx.clip();
+  canvas.width = size;
+  canvas.height = size;
 
-    ctx.drawImage(img,0,0,size,size);
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
 
-    const base64 = canvas.toDataURL("image/jpeg");
+  ctx.drawImage(img, 0, 0, size, size);
 
-    pdf.addImage(base64,"JPEG",20,20,30,30);
+  const base64 = canvas.toDataURL("image/jpeg");
 
-  }
+  pdf.addImage(base64, "JPEG", 20, 20, 30, 30);
+
+}
 
 
   /* NAME */
