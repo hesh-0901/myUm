@@ -3,15 +3,9 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase
 
 const { jsPDF } = window.jspdf;
 
-document.addEventListener("DOMContentLoaded", initExport);
-
 let currentUserId = null;
 
-
-// ===============================
-// INIT
-// ===============================
-function initExport() {
+document.addEventListener("DOMContentLoaded", () => {
 
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) return;
@@ -20,97 +14,86 @@ function initExport() {
   currentUserId = sessionUser.id;
 
   const btn = document.getElementById("exportPdfBtn");
-  if (btn) {
-    btn.addEventListener("click", generatePDF);
-  }
+  if (btn) btn.addEventListener("click", generatePDF);
 
-}
+});
 
-
-// ===============================
-// GENERATE PDF
-// ===============================
 async function generatePDF() {
 
   const snap = await getDoc(doc(db, "users", currentUserId));
-
   if (!snap.exists()) return;
 
   const data = snap.data();
 
   const pdf = new jsPDF();
-
   const pageWidth = pdf.internal.pageSize.width;
 
   let y = 20;
 
 
-  // ===============================
-  // HEADER
-  // ===============================
+  /* ===============================
+     PHOTO
+  =============================== */
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(20);
+  if (data.photoURL) {
 
-  const fullName = (data.firstName || "") + " " + (data.lastName || "");
+    const img = await loadImage(data.photoURL);
+    const imgData = imageToBase64(img);
 
-  pdf.text(fullName.trim(), pageWidth / 2, y, { align: "center" });
-
-  y += 8;
-
-  pdf.setFontSize(11);
-  pdf.setFont("helvetica", "normal");
-
-  const username = data.username ? "@" + data.username : "";
-  pdf.text(username, pageWidth / 2, y, { align: "center" });
-
-  y += 12;
-
-
-  // ===============================
-  // FONCTION
-  // ===============================
-
-  if (data.fonction) {
-
-    pdf.setFont("helvetica", "italic");
-    pdf.text(data.fonction, pageWidth / 2, y, { align: "center" });
-
-    y += 12;
+    pdf.addImage(imgData, "JPEG", 15, 15, 35, 35);
 
   }
 
 
-  // ===============================
-  // BIO
-  // ===============================
+  /* ===============================
+     IDENTITE
+  =============================== */
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(20);
+
+  const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
+  pdf.text(fullName.trim(), 60, 25);
+
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "normal");
+
+  if (data.username) pdf.text("@" + data.username, 60, 32);
+  if (data.fonction) pdf.text(data.fonction, 60, 38);
+
+  y = 60;
+
+
+  /* ===============================
+     BIO
+  =============================== */
 
   if (data.bio) {
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(13);
-    pdf.text("Présentation", 20, y);
+    pdf.text("Présentation", 15, y);
 
     y += 6;
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(11);
 
-    const bioLines = pdf.splitTextToSize(data.bio, 170);
-    pdf.text(bioLines, 20, y);
+    const lines = pdf.splitTextToSize(data.bio, 180);
+    pdf.text(lines, 15, y);
 
-    y += bioLines.length * 6 + 6;
+    y += lines.length * 6 + 4;
 
   }
 
 
-  // ===============================
-  // INFORMATIONS PERSONNELLES
-  // ===============================
+  /* ===============================
+     INFOS PERSONNELLES
+  =============================== */
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(13);
-  pdf.text("Informations personnelles", 20, y);
+  pdf.text("Informations personnelles", 15, y);
 
   y += 8;
 
@@ -121,9 +104,9 @@ async function generatePDF() {
     ["Genre", data.genre],
     ["État civil", data.etatCivil],
     ["Statut relationnel", data.statutRelationnel],
+    ["Téléphone", data.phone],
     ["Commune", data.commune],
     ["Avenue", data.avenue],
-    ["Téléphone", data.phone],
     ["Date de naissance", data.birthday],
     ["Âge", data.age]
   ];
@@ -132,7 +115,7 @@ async function generatePDF() {
 
     if (!value) return;
 
-    pdf.text(label + " : " + value, 20, y);
+    pdf.text(`${label} : ${value}`, 15, y);
     y += 6;
 
   });
@@ -140,18 +123,17 @@ async function generatePDF() {
   y += 6;
 
 
-  // ===============================
-  // INFORMATIONS ECCLESIASTIQUES
-  // ===============================
+  /* ===============================
+     INFOS ECCLESIASTIQUES
+  =============================== */
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(13);
-  pdf.text("Informations ecclésiastiques", 20, y);
+  pdf.text("Informations ecclésiastiques", 15, y);
 
   y += 8;
 
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(11);
 
   const church = [
     ["Église de provenance", data.egliseProvenance],
@@ -163,7 +145,7 @@ async function generatePDF() {
 
     if (!value) return;
 
-    pdf.text(label + " : " + value, 20, y);
+    pdf.text(`${label} : ${value}`, 15, y);
     y += 6;
 
   });
@@ -171,87 +153,112 @@ async function generatePDF() {
   y += 6;
 
 
-  // ===============================
-  // COMPÉTENCES MUSICALES
-  // ===============================
+  /* ===============================
+     COMPETENCES MUSICALES
+  =============================== */
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(13);
-  pdf.text("Compétences musicales", 20, y);
+  pdf.text("Compétences musicales", 15, y);
 
   y += 8;
 
   pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(11);
 
   if (data.registreVoix) {
-
-    pdf.text("Registre de voix : " + data.registreVoix, 20, y);
+    pdf.text(`Registre de voix : ${data.registreVoix}`, 15, y);
     y += 6;
-
   }
 
   if (data.groupeMusique) {
-
-    pdf.text("Évolue dans un groupe : " + data.groupeMusique, 20, y);
+    pdf.text(`Évolue dans un groupe : ${data.groupeMusique}`, 15, y);
     y += 6;
-
   }
 
-  y += 6;
+  y += 8;
 
 
-  // ===============================
-  // VIE SÉCULIÈRE
-  // ===============================
+  /* ===============================
+     VIE SECULIERE
+  =============================== */
 
   if (data.vieSeculiere && data.vieSeculiere.length) {
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(13);
-    pdf.text("Vie séculière", 20, y);
+    pdf.text("Vie séculière", 15, y);
 
     y += 8;
 
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(11);
 
     const list = Array.isArray(data.vieSeculiere)
       ? data.vieSeculiere.join(", ")
       : data.vieSeculiere;
 
-    pdf.text(list, 20, y);
+    pdf.text(list, 15, y);
 
-    y += 10;
+    y += 8;
 
   }
 
 
-  // ===============================
-  // FOOTER
-  // ===============================
+  /* ===============================
+     FOOTER
+  =============================== */
 
   pdf.setFontSize(9);
   pdf.setTextColor(120);
 
   pdf.text(
-    "Fiche générée depuis MyUm",
+    "Fiche générée via MyUm",
     pageWidth / 2,
     285,
     { align: "center" }
   );
 
 
-  // ===============================
-  // SAVE
-  // ===============================
+  /* ===============================
+     SAVE
+  =============================== */
 
   const filename =
-    (data.firstName || "membre") +
-    "-" +
-    (data.lastName || "") +
-    ".pdf";
+    `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
 
   pdf.save(filename);
+
+}
+
+
+
+/* ===============================
+   IMAGE HELPERS
+=============================== */
+
+function loadImage(url) {
+
+  return new Promise((resolve) => {
+
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+
+    img.onload = () => resolve(img);
+    img.src = url;
+
+  });
+
+}
+
+function imageToBase64(img) {
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = img.width;
+  canvas.height = img.height;
+
+  ctx.drawImage(img, 0, 0);
+
+  return canvas.toDataURL("image/jpeg");
 
 }
