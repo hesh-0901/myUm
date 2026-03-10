@@ -20,61 +20,58 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function generatePDF() {
+async function generatePDF(){
 
-  const snap = await getDoc(doc(db, "users", currentUserId));
-  if (!snap.exists()) return;
+  const snap = await getDoc(doc(db,"users",currentUserId));
+  if(!snap.exists()) return;
 
   const data = snap.data();
 
   const pdf = new jsPDF();
-
   const pageWidth = pdf.internal.pageSize.width;
 
-  let y = 30;
+  let y = 25;
+
+  /* COLORS */
+
+  const bg = [246,245,242];
+  const card = [232,226,218];
+  const accent = [139,111,90];
+  const text = [46,46,46];
 
 
-  /* ===============================
-     COLORS
-  =============================== */
-
-  const bg = [247,246,243];
-  const card = [231,223,213];
-  const accent = [140,122,107];
-  const text = [43,43,43];
-
-
-  /* ===============================
-     BACKGROUND
-  =============================== */
+  /* BACKGROUND */
 
   pdf.setFillColor(...bg);
   pdf.rect(0,0,pageWidth,297,"F");
 
 
-  /* ===============================
-     HEADER CARD
-  =============================== */
+  /* HEADER CARD */
 
   pdf.setFillColor(...card);
-  pdf.roundedRect(15,15,pageWidth-30,40,8,8,"F");
+  pdf.roundedRect(15,15,pageWidth-30,45,10,10,"F");
 
 
-  /* ===============================
-     PHOTO
-  =============================== */
+  /* PHOTO CIRCLE */
 
-  const imgElement = document.getElementById("profilePhoto");
+  const img = document.getElementById("profilePhoto");
 
-  if (imgElement && imgElement.complete) {
+  if(img && img.complete){
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    canvas.width = imgElement.naturalWidth;
-    canvas.height = imgElement.naturalHeight;
+    const size = Math.min(img.naturalWidth,img.naturalHeight);
 
-    ctx.drawImage(imgElement,0,0);
+    canvas.width = size;
+    canvas.height = size;
+
+    ctx.beginPath();
+    ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+
+    ctx.drawImage(img,0,0,size,size);
 
     const base64 = canvas.toDataURL("image/jpeg");
 
@@ -83,9 +80,7 @@ async function generatePDF() {
   }
 
 
-  /* ===============================
-     NAME
-  =============================== */
+  /* NAME */
 
   pdf.setTextColor(...text);
 
@@ -94,54 +89,83 @@ async function generatePDF() {
 
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
 
-  pdf.text(fullName,60,32);
+  pdf.text(fullName,60,35);
 
 
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(11);
 
   if(data.fonction)
-    pdf.text(data.fonction,60,40);
+    pdf.text(data.fonction,60,42);
 
   if(data.username)
-    pdf.text("@"+data.username,60,46);
+    pdf.text("@"+data.username,60,48);
 
 
   y = 70;
 
 
-  /* ===============================
-     BIO
-  =============================== */
+  /* BIO CARD */
 
   if(data.bio){
 
     pdf.setFillColor(...card);
     pdf.roundedRect(15,y,pageWidth-30,40,8,8,"F");
 
-    pdf.setTextColor(...text);
-    pdf.setFontSize(12);
     pdf.setFont("helvetica","bold");
+    pdf.setFontSize(13);
 
-    pdf.text("Présentation",20,y+8);
+    pdf.text("Présentation",20,y+10);
 
-    pdf.setFontSize(10);
     pdf.setFont("helvetica","normal");
+    pdf.setFontSize(10);
 
-    const lines = pdf.splitTextToSize(data.bio,170);
+    const bio = pdf.splitTextToSize(data.bio,170);
 
-    pdf.text(lines,20,y+16);
+    pdf.text(bio,20,y+18);
 
-    y += 50;
+    y += 55;
 
   }
 
 
-  /* ===============================
-     INFORMATIONS
-  =============================== */
+  /* SECTION FUNCTION */
 
-  y = renderSection(pdf,"Informations personnelles",y,[
+  const section = (title,fields)=>{
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(13);
+
+    pdf.text(title,15,y);
+
+    y+=8;
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(11);
+
+    fields.forEach(([label,value])=>{
+
+      if(!value) return;
+
+      pdf.setFont("helvetica","bold");
+      pdf.text(label,15,y);
+
+      pdf.setFont("helvetica","normal");
+      pdf.text(String(value),70,y);
+
+      y+=6;
+
+    });
+
+    y+=10;
+
+  };
+
+
+  /* INFORMATIONS */
+
+  section("Informations personnelles",[
+
     ["Téléphone",data.phone],
     ["Commune",data.commune],
     ["Avenue",data.avenue],
@@ -149,37 +173,54 @@ async function generatePDF() {
     ["Statut relationnel",data.statutRelationnel],
     ["Date naissance",data.birthday],
     ["Âge",data.age]
+
   ]);
 
 
-  /* ===============================
-     EGLISE
-  =============================== */
+  /* EGLISE */
 
-  y = renderSection(pdf,"Église & Baptême",y,[
+  section("Église & Baptême",[
+
     ["Église",data.egliseProvenance],
     ["Année baptême",data.anneeBapteme],
     ["Type baptême",data.typeBapteme]
+
   ]);
 
 
-  /* ===============================
-     MUSIQUE
-  =============================== */
+  /* MINISTERE */
 
-  y = renderSection(pdf,"Ministère musical",y,[
+  section("Ministère musical",[
+
     ["Voix",data.registreVoix],
     ["Groupe",data.groupeMusique],
     ["Responsable",data.responsableMinistere]
+
   ]);
 
 
-  /* ===============================
-     FOOTER
-  =============================== */
+  /* QR CODE */
 
-  pdf.setFontSize(9);
+  try{
+
+    const url =
+      "https://hesh-0901.github.io/myUm/profile.html?user="+currentUserId;
+
+    const qrCanvas = document.createElement("canvas");
+
+    await QRCode.toCanvas(qrCanvas,url);
+
+    const qr = qrCanvas.toDataURL("image/png");
+
+    pdf.addImage(qr,"PNG",pageWidth/2-15,240,30,30);
+
+  }catch(e){}
+
+
+  /* FOOTER */
+
   pdf.setTextColor(...accent);
+  pdf.setFontSize(9);
 
   pdf.text(
     "MyUM — Département musique",
@@ -189,50 +230,11 @@ async function generatePDF() {
   );
 
 
-  /* ===============================
-     SAVE
-  =============================== */
+  /* SAVE */
 
   const filename =
-    `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
+  `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
 
   pdf.save(filename);
-
-}
-
-
-/* ===============================
-   SECTION
-=============================== */
-
-function renderSection(pdf,title,y,fields){
-
-  const pageWidth = pdf.internal.pageSize.width;
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(13);
-
-  pdf.text(title,15,y);
-
-  y += 8;
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(11);
-
-  fields.forEach(([label,value])=>{
-
-    if(!value) return;
-
-    pdf.setFont("helvetica","bold");
-    pdf.text(label,15,y);
-
-    pdf.setFont("helvetica","normal");
-    pdf.text(String(value),70,y);
-
-    y += 6;
-
-  });
-
-  return y + 10;
 
 }
