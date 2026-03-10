@@ -33,32 +33,24 @@ async function generatePDF() {
 
 
 /* ===============================
-   PHOTO (depuis l'image affichée)
-=============================== */
-
-/* ===============================
    PHOTO
 =============================== */
 
-if (data.photoURL) {
+const imgElement = document.getElementById("profilePhoto");
 
-  try {
+if (imgElement && imgElement.complete) {
 
-    const img = new Image();
-    img.src = data.photoURL;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-    });
+  canvas.width = imgElement.naturalWidth;
+  canvas.height = imgElement.naturalHeight;
 
-    pdf.addImage(img, "JPEG", 15, 15, 35, 35);
+  ctx.drawImage(imgElement, 0, 0);
 
-  } catch (error) {
+  const base64 = canvas.toDataURL("image/jpeg");
 
-    console.warn("Photo non chargée :", error);
-
-  }
+  pdf.addImage(base64, "JPEG", 15, 15, 35, 35);
 
 }
   /* ===============================
