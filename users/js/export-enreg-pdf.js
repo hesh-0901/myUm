@@ -246,3 +246,32 @@ if (imgEl && imgEl.src) {
   pdf.save(filename);
 
 }
+/* ===============================
+   LOAD PHOTO SAFE
+=============================== */
+
+if (data.photoURL) {
+
+  try {
+
+    const response = await fetch(data.photoURL);
+    const blob = await response.blob();
+
+    const reader = new FileReader();
+
+    const base64 = await new Promise((resolve) => {
+
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+
+    });
+
+    pdf.addImage(base64, "JPEG", 20, 20, 30, 30);
+
+  } catch (error) {
+
+    console.warn("Impossible de charger la photo :", error);
+
+  }
+
+}
