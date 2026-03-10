@@ -36,42 +36,31 @@ async function generatePDF() {
    PHOTO (depuis l'image affichée)
 =============================== */
 
-const photoEl = document.getElementById("profilePhoto");
+/* ===============================
+   PHOTO
+=============================== */
 
-if (photoEl && photoEl.src) {
+if (data.photoURL) {
 
   try {
 
     const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = photoEl.src;
+    img.src = data.photoURL;
 
     await new Promise((resolve, reject) => {
       img.onload = resolve;
       img.onerror = reject;
     });
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    const size = 300;
-    canvas.width = size;
-    canvas.height = size;
-
-    ctx.drawImage(img, 0, 0, size, size);
-
-    const base64 = canvas.toDataURL("image/jpeg", 0.9);
-
-    pdf.addImage(base64, "JPEG", 15, 15, 35, 35);
+    pdf.addImage(img, "JPEG", 15, 15, 35, 35);
 
   } catch (error) {
 
-    console.error("Erreur conversion photo :", error);
+    console.warn("Photo non chargée :", error);
 
   }
 
 }
-
   /* ===============================
      HEADER IDENTITE
   =============================== */
