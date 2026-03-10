@@ -5,6 +5,10 @@ const { jsPDF } = window.jspdf;
 
 let currentUserId = null;
 
+/* ===============================
+   INIT PAGE
+=============================== */
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const storedUser = localStorage.getItem("myum_user");
@@ -14,10 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
   currentUserId = sessionUser.id;
 
   const btn = document.getElementById("exportPdfBtn");
-  if (btn) btn.addEventListener("click", generatePDF);
+
+  if (btn) {
+    btn.addEventListener("click", generatePDF);
+  }
 
 });
 
+
+/* ===============================
+   GENERATE PDF
+=============================== */
 
 async function generatePDF() {
 
@@ -27,53 +38,76 @@ async function generatePDF() {
   const data = snap.data();
 
   const pdf = new jsPDF();
+
   const pageWidth = pdf.internal.pageSize.width;
 
   let y = 20;
 
 
-/* ===============================
-   PHOTO
-=============================== */
-
-const imgElement = document.getElementById("profilePhoto");
-
-if (imgElement && imgElement.complete) {
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = imgElement.naturalWidth;
-  canvas.height = imgElement.naturalHeight;
-
-  ctx.drawImage(imgElement, 0, 0);
-
-  const base64 = canvas.toDataURL("image/jpeg");
-
-  pdf.addImage(base64, "JPEG", 15, 15, 35, 35);
-
-}
   /* ===============================
-     HEADER IDENTITE
+     HEADER
   =============================== */
 
-  pdf.setFont("helvetica", "bold");
+  pdf.setFillColor(0,116,166);
+  pdf.rect(0,0,pageWidth,40,"F");
+
+  pdf.setTextColor(255);
+  pdf.setFont("helvetica","bold");
   pdf.setFontSize(20);
 
+  pdf.text("MyUM — Profil membre", pageWidth/2, 20, {align:"center"});
+
+
+  /* ===============================
+     PHOTO (sans CORS)
+  =============================== */
+
+  const imgElement = document.getElementById("profilePhoto");
+
+  if (imgElement && imgElement.complete) {
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = imgElement.naturalWidth;
+    canvas.height = imgElement.naturalHeight;
+
+    ctx.drawImage(imgElement,0,0);
+
+    const base64 = canvas.toDataURL("image/jpeg");
+
+    pdf.addImage(base64,"JPEG",15,50,40,40);
+
+  }
+
+
+  /* ===============================
+     IDENTITE
+  =============================== */
+
+  pdf.setTextColor(0);
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(18);
+
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
-  pdf.text(fullName.toUpperCase(), 60, 25);
 
-  pdf.setFontSize(11);
-  pdf.setFont("helvetica", "normal");
+  pdf.text(fullName,65,60);
 
-  if (data.username) pdf.text("@" + data.username, 60, 32);
-  if (data.fonction) pdf.text(data.fonction, 60, 38);
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(12);
+
+  if(data.username)
+    pdf.text("@"+data.username,65,68);
+
+  if(data.fonction)
+    pdf.text(data.fonction,65,75);
+
 
   pdf.setDrawColor(0,116,166);
   pdf.setLineWidth(1);
-  pdf.line(15, 50, pageWidth - 15, 50);
+  pdf.line(15,95,pageWidth-15,95);
 
-  y = 60;
+  y = 105;
 
 
   /* ===============================
@@ -82,15 +116,7 @@ if (imgElement && imgElement.complete) {
 
   if (data.bio) {
 
-    sectionTitle(pdf, "Présentation", y);
-    y += 8;
-
-    const bioLines = pdf.splitTextToSize(data.bio, 180);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(11);
-
-    pdf.text(bioLines, 15, y);
-    y += bioLines.length * 6 + 5;
+    y = renderBlock(pdf,"Présentation",y,[["Bio",data.bio]]);
 
   }
 
@@ -99,18 +125,17 @@ if (imgElement && imgElement.complete) {
      INFORMATIONS PERSONNELLES
   =============================== */
 
-  sectionTitle(pdf, "Informations personnelles", y);
-  y += 8;
+  y = renderBlock(pdf,"Informations personnelles",y,[
 
-  y = renderTable(pdf, y, [
-    ["Genre", data.genre],
-    ["Téléphone", data.phone],
-    ["État civil", data.etatCivil],
-    ["Statut relationnel", data.statutRelationnel],
-    ["Commune", data.commune],
-    ["Avenue", data.avenue],
-    ["Date de naissance", data.birthday],
-    ["Âge", data.age]
+    ["Genre",data.genre],
+    ["Téléphone",data.phone],
+    ["État civil",data.etatCivil],
+    ["Statut relationnel",data.statutRelationnel],
+    ["Commune",data.commune],
+    ["Avenue",data.avenue],
+    ["Date de naissance",data.birthday],
+    ["Âge",data.age]
+
   ]);
 
 
@@ -118,14 +143,13 @@ if (imgElement && imgElement.complete) {
      INFORMATIONS ECCLESIASTIQUES
   =============================== */
 
-  sectionTitle(pdf, "Église & ministère", y);
-  y += 8;
+  y = renderBlock(pdf,"Église & ministère",y,[
 
-  y = renderTable(pdf, y, [
-    ["Église de provenance", data.egliseProvenance],
-    ["Année de baptême", data.anneeBapteme],
-    ["Type de baptême", data.typeBapteme],
-    ["Responsable ministère", data.responsableMinistere]
+    ["Église de provenance",data.egliseProvenance],
+    ["Année de baptême",data.anneeBapteme],
+    ["Type de baptême",data.typeBapteme],
+    ["Responsable ministère",data.responsableMinistere]
+
   ]);
 
 
@@ -133,12 +157,11 @@ if (imgElement && imgElement.complete) {
      COMPETENCES MUSICALES
   =============================== */
 
-  sectionTitle(pdf, "Compétences musicales", y);
-  y += 8;
+  y = renderBlock(pdf,"Compétences musicales",y,[
 
-  y = renderTable(pdf, y, [
-    ["Registre de voix", data.registreVoix],
-    ["Évolue dans un groupe", data.groupeMusique]
+    ["Registre de voix",data.registreVoix],
+    ["Évolue dans un groupe",data.groupeMusique]
+
   ]);
 
 
@@ -148,17 +171,44 @@ if (imgElement && imgElement.complete) {
 
   if (data.vieSeculiere && data.vieSeculiere.length) {
 
-    sectionTitle(pdf, "Vie séculière", y);
-    y += 8;
-
-    pdf.setFont("helvetica", "normal");
-
     const text = Array.isArray(data.vieSeculiere)
       ? data.vieSeculiere.join(", ")
       : data.vieSeculiere;
 
-    pdf.text(text, 15, y);
-    y += 8;
+    y = renderBlock(pdf,"Vie séculière",y,[["Activités",text]]);
+
+  }
+
+
+  /* ===============================
+     QR CODE PROFIL
+  =============================== */
+
+  try {
+
+    const profileURL =
+      "https://hesh-0901.github.io/myUm/profile.html?user="+currentUserId;
+
+    const qrCanvas = document.createElement("canvas");
+
+    await QRCode.toCanvas(qrCanvas, profileURL);
+
+    const qrBase64 = qrCanvas.toDataURL("image/png");
+
+    pdf.addImage(qrBase64,"PNG",160,50,30,30);
+
+    pdf.setFontSize(8);
+
+    pdf.text(
+      "Scanner pour voir le profil",
+      175,
+      85,
+      {align:"center"}
+    );
+
+  } catch (error) {
+
+    console.warn("QR Code error",error);
 
   }
 
@@ -172,23 +222,23 @@ if (imgElement && imgElement.complete) {
 
   pdf.text(
     `Généré le ${new Date().toLocaleDateString("fr-FR")}`,
-    pageWidth / 2,
+    pageWidth/2,
     285,
-    { align: "center" }
+    {align:"center"}
   );
 
   pdf.setTextColor(0,116,166);
 
   pdf.text(
-    "MyUm — Département de musique",
-    pageWidth / 2,
+    "MyUM — Département de musique",
+    pageWidth/2,
     290,
-    { align: "center" }
+    {align:"center"}
   );
 
 
   /* ===============================
-     SAVE
+     SAVE PDF
   =============================== */
 
   const filename =
@@ -200,54 +250,42 @@ if (imgElement && imgElement.complete) {
 
 
 /* ===============================
-   SECTION TITLE
+   RENDER BLOCK
 =============================== */
 
-function sectionTitle(pdf, title, y) {
+function renderBlock(pdf,title,y,fields){
+
+  const pageWidth = pdf.internal.pageSize.width;
 
   pdf.setFillColor(0,116,166);
-  pdf.rect(15, y - 4, 180, 7, "F");
+  pdf.rect(15,y-5,pageWidth-30,8,"F");
 
   pdf.setTextColor(255);
+  pdf.setFont("helvetica","bold");
   pdf.setFontSize(12);
-  pdf.setFont("helvetica", "bold");
 
-  pdf.text(title, 18, y);
+  pdf.text(title,18,y);
+
+  y+=10;
 
   pdf.setTextColor(0);
-
-}
-
-
-/* ===============================
-   TABLE RENDER
-=============================== */
-
-function renderTable(pdf, y, fields) {
-
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("helvetica","normal");
   pdf.setFontSize(11);
 
-  fields.forEach(([label, value]) => {
+  fields.forEach(([label,value])=>{
 
-    if (!value) return;
+    if(!value) return;
 
-    pdf.setFont("helvetica", "bold");
-    pdf.text(label, 15, y);
+    pdf.setFont("helvetica","bold");
+    pdf.text(label,15,y);
 
-    pdf.setFont("helvetica", "normal");
-    pdf.text(String(value), 80, y);
+    pdf.setFont("helvetica","normal");
+    pdf.text(String(value),80,y);
 
-    y += 6;
+    y+=6;
 
   });
 
-  return y + 4;
+  return y+8;
 
 }
-
-
-/* ===============================
-   IMAGE LOADER
-=============================== */
-
