@@ -245,9 +245,13 @@ pdf.addImage(imgBase64, format, 15, 15, 35, 35);
 
 async function loadImageBase64(url) {
 
-  const response = await fetch(url);
+const response = await fetch(url);
 
-  const blob = await response.blob();
+if (!response.ok) {
+  throw new Error("Impossible de charger l'image");
+}
+
+const blob = await response.blob();
 
   return new Promise((resolve) => {
 
