@@ -62,36 +62,52 @@ unit:"mm",
 format:"a4"
 });
 
-let y = 20;
+
+// ======================================================
+// ⚠️ SECTION CRITIQUE — NE PAS MODIFIER
+// Génération du document officiel MyUm
+// ======================================================
+
+
+const pageWidth = 210;
+const pageHeight = 297;
+
+const sidebarWidth = 60;
+const mainStart = sidebarWidth + 10;
+
+let yMain = 40;
 
 
 // ===============================
-// HEADER BAR (STYLE CV)
+// HEADER NOM
 // ===============================
 
-pdf.setFillColor(26,54,104);
-pdf.rect(0,0,210,22,"F");
+const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
 
-pdf.setFontSize(16);
-pdf.setTextColor(255,255,255);
-pdf.text("MYUM PROFILE",105,13,{align:"center"});
+pdf.setFontSize(26);
+pdf.setFont(undefined,"bold");
+pdf.text(fullName.toUpperCase(),mainStart,25);
 
-pdf.setTextColor(0,0,0);
+pdf.setFontSize(12);
+pdf.setFont(undefined,"normal");
 
-
-// ===============================
-// LOGO
-// ===============================
-
-const logo = await loadImage("/myUm/assets/logo-myum.png");
-
-if(logo){
-pdf.addImage(logo,"PNG",160,25,30,12);
-}
+pdf.text(
+`${userData.username ? "@"+userData.username : ""}  ${userData.fonction || ""}`,
+mainStart,
+32
+);
 
 
 // ===============================
-// PHOTO UTILISATEUR
+// SIDEBAR BACKGROUND
+// ===============================
+
+pdf.setFillColor(245,245,245);
+pdf.rect(0,0,sidebarWidth,pageHeight,"F");
+
+
+// ===============================
+// PHOTO
 // ===============================
 
 const img = document.getElementById("profilePhoto");
@@ -101,122 +117,26 @@ if(img && img.complete){
 const base64 = imageToBase64(img);
 
 if(base64){
-pdf.addImage(base64,"JPEG",20,30,35,35);
+pdf.addImage(base64,"JPEG",10,20,40,40);
 }
 
 }
 
-
-// ===============================
-// NOM UTILISATEUR (STYLE CV)
-// ===============================
-
-const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
-
-pdf.setFontSize(20);
-pdf.setFont(undefined,"bold");
-
-pdf.text(fullName,70,35);
-
-pdf.setFontSize(12);
-pdf.setFont(undefined,"normal");
-
-pdf.text(`@${userData.username || ""}`,70,42);
-
-if(userData.fonction){
-
-pdf.text(userData.fonction,70,48);
-
-}
-
-pdf.setFontSize(10);
-pdf.text(`ID MyUm : ${userId}`,70,54);
+let ySide = 70;
 
 
 // ===============================
-// LIGNE SÉPARATION
+// CONTACT
 // ===============================
 
-pdf.setDrawColor(220,220,220);
-pdf.line(20,60,190,60);
+sidebarTitle(pdf,"CONTACT",ySide);
+ySide += 10;
 
-y = 70;
+sideText(pdf,`ID MyUm`,ySide);
+ySide += 5;
 
-
-// ===============================
-// INFOS PERSONNELLES
-// ===============================
-
-section(pdf,"Informations personnelles",y);
-
-y += 8;
-
-y = line(pdf,"Genre",userData.genre,y);
-y = line(pdf,"Etat civil",userData.etatCivil,y);
-y = line(pdf,"Commune",userData.commune,y);
-y = line(pdf,"Avenue",userData.avenue,y);
-
-y += 6;
-
-
-// ===============================
-// INFOS ECCLESIASTIQUES
-// ===============================
-
-section(pdf,"Informations ecclésiastiques",y);
-
-y += 8;
-
-y = line(pdf,"Eglise",userData.egliseProvenance,y);
-y = line(pdf,"Année baptême",userData.anneeBapteme,y);
-
-y += 6;
-
-
-// ===============================
-// MUSIQUE
-// ===============================
-
-section(pdf,"Compétences musicales",y);
-
-y += 8;
-
-y = line(pdf,"Registre",userData.registreVoix,y);
-y = line(pdf,"Groupe",userData.groupeMusique,y);
-
-y += 12;
-
-
-// ===============================
-// DATE CREATION
-// ===============================
-
-const now = new Date();
-
-pdf.setFontSize(9);
-
-pdf.text(
-`Créé le ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`,
-20,
-y
-);
-
-y += 6;
-
-
-// ===============================
-// SIGNATURE NUMERIQUE
-// ===============================
-
-const signature = await createSignature();
-
-pdf.text(
-`Signature numérique : ${signature}`,
-20,
-y
-);
-
-y += 10;
+sideValue(pdf,userId,ySide);
+ySide += 10;
 
 
 // ===============================
@@ -231,25 +151,123 @@ const qr = await loadImage(
 );
 
 if(qr){
-pdf.addImage(qr,"PNG",150,y-5,35,35);
+
+pdf.addImage(qr,"PNG",10,ySide,40,40);
+
 }
 
-y += 30;
+ySide += 50;
+
+
+// ===============================
+// DATE CREATION
+// ===============================
+
+const now = new Date();
+
+sideText(pdf,"DOCUMENT",ySide);
+ySide += 5;
+
+sideValue(
+pdf,
+`${now.toLocaleDateString()}`,
+ySide
+);
+
+
+
+// ===============================
+// LIGNE SÉPARATION
+// ===============================
+
+pdf.setDrawColor(200,200,200);
+pdf.line(mainStart,36,200,36);
+
+
+// ===============================
+// SECTION PROFIL
+// ===============================
+
+sectionTitle(pdf,"PROFIL",yMain);
+yMain += 8;
+
+paragraph(
+pdf,
+"Profil membre MyUm enregistré dans la base officielle. Document généré automatiquement contenant les informations personnelles, ecclésiastiques et musicales.",
+mainStart,
+yMain,
+130
+);
+
+yMain += 18;
+
+
+// ===============================
+// INFORMATIONS PERSONNELLES
+// ===============================
+
+sectionTitle(pdf,"INFORMATIONS PERSONNELLES",yMain);
+yMain += 8;
+
+yMain = infoLine(pdf,"Genre",userData.genre,yMain);
+yMain = infoLine(pdf,"Etat civil",userData.etatCivil,yMain);
+yMain = infoLine(pdf,"Commune",userData.commune,yMain);
+yMain = infoLine(pdf,"Avenue",userData.avenue,yMain);
+
+yMain += 8;
+
+
+// ===============================
+// INFORMATIONS ECCLESIASTIQUES
+// ===============================
+
+sectionTitle(pdf,"INFORMATIONS ECCLÉSIASTIQUES",yMain);
+yMain += 8;
+
+yMain = infoLine(pdf,"Eglise",userData.egliseProvenance,yMain);
+yMain = infoLine(pdf,"Année baptême",userData.anneeBapteme,yMain);
+
+yMain += 8;
+
+
+// ===============================
+// MUSIQUE
+// ===============================
+
+sectionTitle(pdf,"COMPÉTENCES MUSICALES",yMain);
+yMain += 8;
+
+yMain = infoLine(pdf,"Registre vocal",userData.registreVoix,yMain);
+yMain = infoLine(pdf,"Groupe",userData.groupeMusique,yMain);
+
+yMain += 20;
+
+
+// ===============================
+// SIGNATURE
+// ===============================
+
+const signature = await createSignature();
+
+pdf.setFontSize(9);
+
+pdf.text(
+`Signature numérique : ${signature}`,
+mainStart,
+yMain
+);
 
 
 // ===============================
 // FOOTER
 // ===============================
 
-pdf.setDrawColor(220,220,220);
-pdf.line(20,270,190,270);
-
 pdf.setFontSize(8);
 
 pdf.text(
 "Document officiel généré par MyUm",
 105,
-280,
+290,
 {align:"center"}
 );
 
@@ -267,8 +285,6 @@ console.error("Erreur génération PDF :",e);
 }
 
 }
-
-
 
 // ======================================================
 // ZONE IMAGES — MODIFIABLE
