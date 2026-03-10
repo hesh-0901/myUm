@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+
 async function generatePDF(){
 
   const snap = await getDoc(doc(db,"users",currentUserId));
@@ -104,7 +105,7 @@ async function generatePDF(){
   pdf.setFontSize(12);
 
   if(data.fonction)
-  pdf.text(data.fonction,60,43);
+    pdf.text(data.fonction,60,43);
 
 
   /* USERNAME */
@@ -112,7 +113,7 @@ async function generatePDF(){
   pdf.setTextColor(...colors.muted);
 
   if(data.username)
-  pdf.text("@"+data.username,60,49);
+    pdf.text("@"+data.username,60,49);
 
 
   let y = 80;
@@ -208,15 +209,23 @@ async function generatePDF(){
 }
 
 
-/* CARD TEXT */
+
+/* CARD TEXTE */
 
 function drawCard(pdf,title,text,x,y,width,colors){
 
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(11);
+
+  const lines = pdf.splitTextToSize(text,width-16);
+
+  const height = lines.length * 6 + 22;
+
   pdf.setFillColor(...colors.card);
-  pdf.roundedRect(x,y,width,34,5,5,"F");
+  pdf.roundedRect(x,y,width,height,5,5,"F");
 
   pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(x,y,width,34,5,5);
+  pdf.roundedRect(x,y,width,height,5,5);
 
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(13);
@@ -228,22 +237,27 @@ function drawCard(pdf,title,text,x,y,width,colors){
   pdf.setFontSize(11);
   pdf.setTextColor(...colors.text);
 
-  const lines = pdf.splitTextToSize(text,width-16);
-
   pdf.text(lines,x+8,y+18);
 
-  return y + lines.length*6 + 24;
+  return y + height + 6;
 
 }
 
 
-/* CARD FIELDS */
+
+/* CARD CHAMPS DYNAMIQUES */
 
 function drawFieldsCard(pdf,title,fields,x,y,width,colors){
 
-  const validFields = fields.filter(f=>f[1]);
+  const validFields = fields.filter(([label,value])=>{
+    return value !== undefined && value !== null && value !== "";
+  });
 
-  const height = validFields.length*8 + 20;
+  if(validFields.length === 0){
+    return y;
+  }
+
+  const height = validFields.length * 8 + 20;
 
   pdf.setFillColor(...colors.card);
   pdf.roundedRect(x,y,width,height,5,5,"F");
@@ -251,18 +265,16 @@ function drawFieldsCard(pdf,title,fields,x,y,width,colors){
   pdf.setDrawColor(...colors.line);
   pdf.roundedRect(x,y,width,height,5,5);
 
-
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(13);
   pdf.setTextColor(...colors.primary);
 
   pdf.text(title,x+8,y+9);
 
-
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(11);
 
-  let yy = y+18;
+  let yy = y + 18;
 
   validFields.forEach(([label,value])=>{
 
@@ -272,10 +284,10 @@ function drawFieldsCard(pdf,title,fields,x,y,width,colors){
     pdf.setTextColor(...colors.text);
     pdf.text(String(value),x+70,yy);
 
-    yy+=8;
+    yy += 8;
 
   });
 
-  return y + height;
+  return y + height + 6;
 
 }
