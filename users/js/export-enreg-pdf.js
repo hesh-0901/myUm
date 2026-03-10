@@ -43,9 +43,12 @@ console.error("Erreur init PDF :",e);
 }
 
 
-// ===============================
-// GENERATE PDF
-// ===============================
+// ==========================================================
+// ⚠️ SECTION CRITIQUE — GÉNÉRATION PDF
+// ⚠️ NE PAS MODIFIER LA LOGIQUE PRINCIPALE
+// Ce module génère le document officiel MyUm.
+// Toute modification peut casser le système PDF.
+// ==========================================================
 
 async function generatePDF(){
 
@@ -59,24 +62,32 @@ unit:"mm",
 format:"a4"
 });
 
-let y = 25;
+let y = 20;
 
 
-// HEADER BAR
+// ===============================
+// HEADER BAR (STYLE CV)
+// ===============================
 
 pdf.setFillColor(26,54,104);
-pdf.rect(0,0,210,15,"F");
+pdf.rect(0,0,210,22,"F");
+
+pdf.setFontSize(16);
+pdf.setTextColor(255,255,255);
+pdf.text("MYUM PROFILE",105,13,{align:"center"});
+
+pdf.setTextColor(0,0,0);
 
 
+// ===============================
 // LOGO
+// ===============================
 
 const logo = await loadImage("/myUm/assets/logo-myum.png");
 
 if(logo){
-pdf.addImage(logo,"PNG",85,18,40,15);
+pdf.addImage(logo,"PNG",160,25,30,12);
 }
-
-y = 40;
 
 
 // ===============================
@@ -90,46 +101,46 @@ if(img && img.complete){
 const base64 = imageToBase64(img);
 
 if(base64){
-pdf.addImage(base64,"JPEG",85,y,40,40);
+pdf.addImage(base64,"JPEG",20,30,35,35);
 }
 
 }
-
-y += 50;
 
 
 // ===============================
-// NOM
+// NOM UTILISATEUR (STYLE CV)
 // ===============================
 
 const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
 
-pdf.setFontSize(18);
-pdf.text(fullName,105,y,{align:"center"});
+pdf.setFontSize(20);
+pdf.setFont(undefined,"bold");
 
-y += 7;
+pdf.text(fullName,70,35);
 
 pdf.setFontSize(12);
-pdf.text(`@${userData.username || ""}`,105,y,{align:"center"});
+pdf.setFont(undefined,"normal");
 
-y += 6;
+pdf.text(`@${userData.username || ""}`,70,42);
 
 if(userData.fonction){
 
-pdf.text(userData.fonction,105,y,{align:"center"});
-y += 8;
+pdf.text(userData.fonction,70,48);
 
 }
 
-
-// ===============================
-// USER ID
-// ===============================
-
 pdf.setFontSize(10);
-pdf.text(`ID MyUm : ${userId}`,105,y,{align:"center"});
+pdf.text(`ID MyUm : ${userId}`,70,54);
 
-y += 12;
+
+// ===============================
+// LIGNE SÉPARATION
+// ===============================
+
+pdf.setDrawColor(220,220,220);
+pdf.line(20,60,190,60);
+
+y = 70;
 
 
 // ===============================
@@ -138,7 +149,7 @@ y += 12;
 
 section(pdf,"Informations personnelles",y);
 
-y += 7;
+y += 8;
 
 y = line(pdf,"Genre",userData.genre,y);
 y = line(pdf,"Etat civil",userData.etatCivil,y);
@@ -154,7 +165,7 @@ y += 6;
 
 section(pdf,"Informations ecclésiastiques",y);
 
-y += 7;
+y += 8;
 
 y = line(pdf,"Eglise",userData.egliseProvenance,y);
 y = line(pdf,"Année baptême",userData.anneeBapteme,y);
@@ -168,12 +179,12 @@ y += 6;
 
 section(pdf,"Compétences musicales",y);
 
-y += 7;
+y += 8;
 
 y = line(pdf,"Registre",userData.registreVoix,y);
 y = line(pdf,"Groupe",userData.groupeMusique,y);
 
-y += 15;
+y += 12;
 
 
 // ===============================
@@ -182,16 +193,15 @@ y += 15;
 
 const now = new Date();
 
-pdf.setFontSize(10);
+pdf.setFontSize(9);
 
 pdf.text(
 `Créé le ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`,
-105,
-y,
-{align:"center"}
+20,
+y
 );
 
-y += 10;
+y += 6;
 
 
 // ===============================
@@ -200,13 +210,10 @@ y += 10;
 
 const signature = await createSignature();
 
-pdf.setFontSize(9);
-
 pdf.text(
 `Signature numérique : ${signature}`,
-105,
-y,
-{align:"center"}
+20,
+y
 );
 
 y += 10;
@@ -224,22 +231,25 @@ const qr = await loadImage(
 );
 
 if(qr){
-pdf.addImage(qr,"PNG",90,y,30,30);
+pdf.addImage(qr,"PNG",150,y-5,35,35);
 }
 
-y += 35;
+y += 30;
 
 
 // ===============================
 // FOOTER
 // ===============================
 
+pdf.setDrawColor(220,220,220);
+pdf.line(20,270,190,270);
+
 pdf.setFontSize(8);
 
 pdf.text(
 "Document officiel généré par MyUm",
 105,
-285,
+280,
 {align:"center"}
 );
 
@@ -260,28 +270,11 @@ console.error("Erreur génération PDF :",e);
 
 
 
-// ===============================
-// HELPERS
-// ===============================
-
-function section(pdf,title,y){
-
-pdf.setFontSize(14);
-pdf.text(title,20,y);
-
-}
-
-function line(pdf,label,value,y){
-
-pdf.setFontSize(11);
-
-pdf.text(`${label}:`,20,y);
-pdf.text(value || "-",70,y);
-
-return y+6;
-
-}
-
+// ======================================================
+// ZONE IMAGES — MODIFIABLE
+// Cette section gère la conversion et le chargement
+// des images dans le PDF.
+// ======================================================
 
 
 // ===============================
@@ -339,6 +332,37 @@ reader.readAsDataURL(blob);
 return null;
 
 }
+
+}
+
+
+
+// ===============================
+// HELPERS UI PDF
+// ===============================
+
+function section(pdf,title,y){
+
+pdf.setFontSize(13);
+pdf.setFont(undefined,"bold");
+
+pdf.text(title,20,y);
+
+pdf.setFont(undefined,"normal");
+
+}
+
+function line(pdf,label,value,y){
+
+pdf.setFontSize(11);
+
+pdf.setTextColor(120,120,120);
+pdf.text(`${label}`,20,y);
+
+pdf.setTextColor(0,0,0);
+pdf.text(value || "-",70,y);
+
+return y+6;
 
 }
 
