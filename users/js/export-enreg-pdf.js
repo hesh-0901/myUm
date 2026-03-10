@@ -35,14 +35,21 @@ async function generatePDF() {
      PHOTO
   =============================== */
 
-  if (data.photoURL) {
+if (data.photoURL) {
 
-    const img = await loadImage(data.photoURL);
-    const imgData = imageToBase64(img);
+  try {
 
-    pdf.addImage(imgData, "JPEG", 15, 15, 35, 35);
+    const imgBase64 = await loadImageBase64(data.photoURL);
+
+    pdf.addImage(imgBase64, "JPEG", 15, 15, 35, 35);
+
+  } catch (error) {
+
+    console.error("Erreur chargement photo :", error);
 
   }
+
+}
 
 
   /* ===============================
@@ -235,30 +242,20 @@ async function generatePDF() {
    IMAGE HELPERS
 =============================== */
 
-function loadImage(url) {
+async function loadImageBase64(url) {
+
+  const response = await fetch(url);
+
+  const blob = await response.blob();
 
   return new Promise((resolve) => {
 
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
+    const reader = new FileReader();
 
-    img.onload = () => resolve(img);
-    img.src = url;
+    reader.onloadend = () => resolve(reader.result);
+
+    reader.readAsDataURL(blob);
 
   });
-
-}
-
-function imageToBase64(img) {
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = img.width;
-  canvas.height = img.height;
-
-  ctx.drawImage(img, 0, 0);
-
-  return canvas.toDataURL("image/jpeg");
 
 }
