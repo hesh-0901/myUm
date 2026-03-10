@@ -20,258 +20,234 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function generatePDF(){
+async function generatePDF() {
 
-  const snap = await getDoc(doc(db,"users",currentUserId));
-  if(!snap.exists()) return;
+  const snap = await getDoc(doc(db, "users", currentUserId));
+  if (!snap.exists()) return;
 
   const data = snap.data();
 
   const pdf = new jsPDF();
   const pageWidth = pdf.internal.pageSize.width;
 
-  let y = 25;
+  let y = 30;
 
-  /* COLORS */
+  /* ===============================
+     COLORS
+  =============================== */
 
-  const bg = [246,245,242];
-  const card = [232,226,218];
-  const accent = [139,111,90];
-  const text = [46,46,46];
+  const bg = [247,246,243];
+  const card = [231,223,213];
+  const accent = [140,122,107];
+  const text = [43,43,43];
 
-
-  /* BACKGROUND */
+  /* ===============================
+     BACKGROUND
+  =============================== */
 
   pdf.setFillColor(...bg);
-  pdf.rect(0,0,pageWidth,297,"F");
+  pdf.rect(0, 0, pageWidth, 297, "F");
 
 
-  /* HEADER CARD */
+  /* ===============================
+     HEADER CARD
+  =============================== */
 
   pdf.setFillColor(...card);
-  pdf.roundedRect(15,15,pageWidth-30,45,10,10,"F");
-
-/* PHOTO CIRCLE */
-
-const imgEl = document.getElementById("profilePhoto");
-
-if (imgEl && imgEl.src) {
-
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  img.src = imgEl.src;
-
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-  });
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  const size = Math.min(img.width, img.height);
-
-  canvas.width = size;
-  canvas.height = size;
-
-  ctx.beginPath();
-  ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
-
-  ctx.drawImage(img, 0, 0, size, size);
-
-  const base64 = canvas.toDataURL("image/jpeg");
-
-  pdf.addImage(base64, "JPEG", 20, 20, 30, 30);
-
-}
+  pdf.roundedRect(15, 15, pageWidth - 30, 40, 8, 8, "F");
 
 
-  /* NAME */
+  /* ===============================
+     PHOTO (safe)
+  =============================== */
+
+  try {
+
+    const imgElement = document.getElementById("profilePhoto");
+
+    if (imgElement && imgElement.src) {
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imgElement.src;
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.drawImage(img, 0, 0);
+
+      const base64 = canvas.toDataURL("image/jpeg");
+
+      pdf.addImage(base64, "JPEG", 20, 20, 30, 30);
+
+    }
+
+  } catch (error) {
+
+    console.warn("Photo non chargée :", error);
+
+  }
+
+
+  /* ===============================
+     NAME
+  =============================== */
 
   pdf.setTextColor(...text);
 
-  pdf.setFont("helvetica","bold");
+  pdf.setFont("helvetica", "bold");
   pdf.setFontSize(20);
 
-  const fullName = `${data.firstName || ""} ${data.lastName || ""}`;
+  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
-  pdf.text(fullName,60,35);
+  pdf.text(fullName || "Membre MyUM", 60, 32);
 
-
-  pdf.setFont("helvetica","normal");
+  pdf.setFont("helvetica", "normal");
   pdf.setFontSize(11);
 
-  if(data.fonction)
-    pdf.text(data.fonction,60,42);
+  if (data.fonction)
+    pdf.text(data.fonction, 60, 40);
 
-  if(data.username)
-    pdf.text("@"+data.username,60,48);
+  if (data.username)
+    pdf.text("@" + data.username, 60, 46);
 
 
   y = 70;
 
 
-  /* BIO CARD */
+  /* ===============================
+     BIO
+  =============================== */
 
-  if(data.bio){
+  if (data.bio) {
 
     pdf.setFillColor(...card);
-    pdf.roundedRect(15,y,pageWidth-30,40,8,8,"F");
+    pdf.roundedRect(15, y, pageWidth - 30, 40, 8, 8, "F");
 
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(13);
+    pdf.setTextColor(...text);
 
-    pdf.text("Présentation",20,y+10);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
 
-    pdf.setFont("helvetica","normal");
+    pdf.text("Présentation", 20, y + 8);
+
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
 
-    const bio = pdf.splitTextToSize(data.bio,170);
+    const lines = pdf.splitTextToSize(data.bio, pageWidth - 50);
 
-    pdf.text(bio,20,y+18);
+    pdf.text(lines, 20, y + 16);
 
-    y += 55;
+    y += 16 + (lines.length * 5) + 10;
 
   }
 
 
-  /* SECTION FUNCTION */
+  /* ===============================
+     INFORMATIONS
+  =============================== */
 
-  const section = (title,fields)=>{
-
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(13);
-
-    pdf.text(title,15,y);
-
-    y+=8;
-
-    pdf.setFont("helvetica","normal");
-    pdf.setFontSize(11);
-
-    fields.forEach(([label,value])=>{
-
-      if(!value) return;
-
-      pdf.setFont("helvetica","bold");
-      pdf.text(label,15,y);
-
-      pdf.setFont("helvetica","normal");
-      pdf.text(String(value),70,y);
-
-      y+=6;
-
-    });
-
-    y+=10;
-
-  };
-
-
-  /* INFORMATIONS */
-
-  section("Informations personnelles",[
-
-    ["Téléphone",data.phone],
-    ["Commune",data.commune],
-    ["Avenue",data.avenue],
-    ["État civil",data.etatCivil],
-    ["Statut relationnel",data.statutRelationnel],
-    ["Date naissance",data.birthday],
-    ["Âge",data.age]
-
+  y = renderSection(pdf, "Informations personnelles", y, [
+    ["Téléphone", data.phone],
+    ["Commune", data.commune],
+    ["Avenue", data.avenue],
+    ["État civil", data.etatCivil],
+    ["Statut relationnel", data.statutRelationnel],
+    ["Date naissance", data.birthday],
+    ["Âge", data.age]
   ]);
 
 
-  /* EGLISE */
+  /* ===============================
+     EGLISE
+  =============================== */
 
-  section("Église & Baptême",[
-
-    ["Église",data.egliseProvenance],
-    ["Année baptême",data.anneeBapteme],
-    ["Type baptême",data.typeBapteme]
-
+  y = renderSection(pdf, "Église & Baptême", y, [
+    ["Église", data.egliseProvenance],
+    ["Année baptême", data.anneeBapteme],
+    ["Type baptême", data.typeBapteme]
   ]);
 
 
-  /* MINISTERE */
+  /* ===============================
+     MUSIQUE
+  =============================== */
 
-  section("Ministère musical",[
-
-    ["Voix",data.registreVoix],
-    ["Groupe",data.groupeMusique],
-    ["Responsable",data.responsableMinistere]
-
+  y = renderSection(pdf, "Ministère musical", y, [
+    ["Voix", data.registreVoix],
+    ["Groupe", data.groupeMusique],
+    ["Responsable", data.responsableMinistere]
   ]);
 
 
-  /* QR CODE */
+  /* ===============================
+     FOOTER
+  =============================== */
 
-  try{
-
-    const url =
-      "https://hesh-0901.github.io/myUm/profile.html?user="+currentUserId;
-
-    const qrCanvas = document.createElement("canvas");
-
-    await QRCode.toCanvas(qrCanvas,url);
-
-    const qr = qrCanvas.toDataURL("image/png");
-
-    pdf.addImage(qr,"PNG",pageWidth/2-15,240,30,30);
-
-  }catch(e){}
-
-
-  /* FOOTER */
-
-  pdf.setTextColor(...accent);
   pdf.setFontSize(9);
+  pdf.setTextColor(...accent);
 
   pdf.text(
     "MyUM — Département musique",
-    pageWidth/2,
+    pageWidth / 2,
     285,
-    {align:"center"}
+    { align: "center" }
   );
 
 
-  /* SAVE */
+  /* ===============================
+     SAVE
+  =============================== */
 
   const filename =
-  `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
+    `${data.firstName || "membre"}-${data.lastName || ""}.pdf`;
 
   pdf.save(filename);
 
 }
+
+
 /* ===============================
-   LOAD PHOTO SAFE
+   SECTION
 =============================== */
 
-if (data.photoURL) {
+function renderSection(pdf, title, y, fields) {
 
-  try {
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(13);
 
-    const response = await fetch(data.photoURL);
-    const blob = await response.blob();
+  pdf.text(title, 15, y);
 
-    const reader = new FileReader();
+  y += 8;
 
-    const base64 = await new Promise((resolve) => {
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(11);
 
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
+  fields.forEach(([label, value]) => {
 
-    });
+    if (!value) return;
 
-    pdf.addImage(base64, "JPEG", 20, 20, 30, 30);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(label, 15, y);
 
-  } catch (error) {
+    pdf.setFont("helvetica", "normal");
 
-    console.warn("Impossible de charger la photo :", error);
+    const text = pdf.splitTextToSize(String(value), 120);
 
-  }
+    pdf.text(text, 70, y);
+
+    y += text.length * 6;
+
+  });
+
+  return y + 8;
 
 }
