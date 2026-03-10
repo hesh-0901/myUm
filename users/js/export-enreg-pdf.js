@@ -31,7 +31,17 @@ userData = snap.data();
 const btn = document.getElementById("exportPdfBtn");
 
 if(btn){
-btn.addEventListener("click",generatePDF);
+
+btn.addEventListener("click", async () => {
+
+btn.disabled = true;
+
+await generatePDF();
+
+btn.disabled = false;
+
+});
+
 }
 
 }catch(e){
@@ -46,10 +56,9 @@ console.error("Erreur init PDF :",e);
 
 // ======================================================
 // ⚠️ SECTION CRITIQUE — GÉNÉRATION PDF
-// ⚠️ NE PAS MODIFIER
-// Cette section génère le document officiel MyUm.
-// Toute modification peut casser l'export PDF.
+// NE PAS MODIFIER LA LOGIQUE
 // ======================================================
+
 async function generatePDF(){
 
 try{
@@ -69,17 +78,38 @@ let yMain = 45;
 let ySide = 110;
 
 
-// ===============================
-// SIDEBAR BACKGROUND
-// ===============================
+// ======================================================
+// 🎨 STYLE PDF — ZONE MODIFIABLE
+// ======================================================
 
-pdf.setFillColor(248,248,248);
+const COLORS = {
+primary:"#1A3668",
+accent:"#2596D9",
+text:"#111111",
+soft:"#666666",
+border:"#DDDDDD",
+sidebar:"#F6F6F6"
+};
+
+const FONT = {
+title:26,
+section:14,
+text:10,
+small:8
+};
+
+
+// ======================================================
+// SIDEBAR BACKGROUND
+// ======================================================
+
+pdf.setFillColor(246,246,246);
 pdf.rect(0,0,sidebarWidth,297,"F");
 
 
-// ===============================
-// PHOTO PROFIL (GRANDE)
-// ===============================
+// ======================================================
+// PHOTO PROFIL
+// ======================================================
 
 const img = document.getElementById("profilePhoto");
 
@@ -89,6 +119,9 @@ const base64 = imageToBase64(img);
 
 if(base64){
 
+pdf.setDrawColor(220,220,220);
+pdf.roundedRect(12,17,46,46,4,4);
+
 pdf.addImage(base64,"JPEG",15,20,40,40);
 
 }
@@ -96,13 +129,13 @@ pdf.addImage(base64,"JPEG",15,20,40,40);
 }
 
 
-// ===============================
-// NOM + USERNAME
-// ===============================
+// ======================================================
+// NOM UTILISATEUR
+// ======================================================
 
 const fullName = `${userData.firstName || ""} ${userData.lastName || ""}`;
 
-pdf.setFontSize(26);
+pdf.setFontSize(FONT.title);
 pdf.setFont(undefined,"bold");
 
 pdf.text(fullName.toUpperCase(),mainStart,25);
@@ -117,9 +150,9 @@ mainStart,
 );
 
 
-// ===============================
+// ======================================================
 // BIO
-// ===============================
+// ======================================================
 
 if(userData.bio){
 
@@ -127,22 +160,18 @@ sectionTitle(pdf,"PROFIL",yMain);
 
 yMain += 8;
 
-paragraph(
-pdf,
-userData.bio,
-mainStart,
-yMain,
-120
-);
+const lines = pdf.splitTextToSize(userData.bio,120);
 
-yMain += 18;
+pdf.text(lines,mainStart,yMain);
+
+yMain += lines.length * 5 + 5;
 
 }
 
 
-// ===============================
+// ======================================================
 // INFOS PERSONNELLES
-// ===============================
+// ======================================================
 
 sectionTitle(pdf,"INFORMATIONS PERSONNELLES",yMain);
 
@@ -156,9 +185,9 @@ yMain = infoLine(pdf,"Avenue",userData.avenue,yMain);
 yMain += 10;
 
 
-// ===============================
+// ======================================================
 // ECCLESIASTIQUE
-// ===============================
+// ======================================================
 
 sectionTitle(pdf,"INFORMATIONS ECCLÉSIASTIQUES",yMain);
 
@@ -170,9 +199,9 @@ yMain = infoLine(pdf,"Année baptême",userData.anneeBapteme,yMain);
 yMain += 10;
 
 
-// ===============================
+// ======================================================
 // MUSIQUE
-// ===============================
+// ======================================================
 
 sectionTitle(pdf,"COMPÉTENCES MUSICALES",yMain);
 
@@ -182,10 +211,9 @@ yMain = infoLine(pdf,"Registre vocal",userData.registreVoix,yMain);
 yMain = infoLine(pdf,"Groupe",userData.groupeMusique,yMain);
 
 
-
-// ===============================
+// ======================================================
 // SIDEBAR CONTACT
-// ===============================
+// ======================================================
 
 sidebarTitle(pdf,"CONTACT",ySide);
 
@@ -204,9 +232,9 @@ sideIconLine(pdf,"🎯 Age",userData.age,ySide);
 ySide += 20;
 
 
-// ===============================
-// QR CODE VERIFICATION
-// ===============================
+// ======================================================
+// QR CODE
+// ======================================================
 
 const verifyURL =
 `${window.location.origin}/myUm/verify.html?uid=${userId}`;
@@ -226,16 +254,16 @@ ySide += 45;
 pdf.setFontSize(9);
 
 pdf.text(
-"Scan pour vérifier ce profil",
+"Scanner pour vérifier ce profil",
 35,
 ySide,
 {align:"center"}
 );
 
 
-// ===============================
-// SIGNATURE NUMERIQUE
-// ===============================
+// ======================================================
+// SIGNATURE
+// ======================================================
 
 const signature = await createSignature();
 
@@ -248,23 +276,23 @@ mainStart,
 );
 
 
-// ===============================
+// ======================================================
 // FOOTER
-// ===============================
+// ======================================================
 
 pdf.setFontSize(8);
 
 pdf.text(
 "Document officiel MyUm",
 105,
-290,
+285,
 {align:"center"}
 );
 
 
-// ===============================
+// ======================================================
 // SAVE
-// ===============================
+// ======================================================
 
 pdf.save(`myum-${userData.username}.pdf`);
 
@@ -294,27 +322,21 @@ pdf.line(10,y+2,50,y+2);
 
 }
 
-function sideText(pdf,text,y){
-
-pdf.setFontSize(9);
-pdf.setTextColor(120,120,120);
-
-pdf.text(text,10,y);
-
-pdf.setTextColor(0,0,0);
-
-}
-
-function sideValue(pdf,value,y){
+function sideIconLine(pdf,label,value,y){
 
 pdf.setFontSize(10);
-pdf.text(value || "-",10,y);
+
+pdf.setTextColor(120,120,120);
+pdf.text(label,10,y);
+
+pdf.setTextColor(0,0,0);
+pdf.text(value || "-",10,y+4);
 
 }
 
 function sectionTitle(pdf,title,y){
 
-pdf.setFontSize(13);
+pdf.setFontSize(14);
 pdf.setFont(undefined,"bold");
 
 pdf.text(title,70,y);
@@ -334,32 +356,20 @@ pdf.setTextColor(120,120,120);
 pdf.text(label,70,y);
 
 pdf.setTextColor(0,0,0);
-pdf.text(value || "-",120,y);
 
-return y + 6;
+const lines = pdf.splitTextToSize(value || "-",70);
 
-}
+pdf.text(lines,120,y);
 
-function paragraph(pdf,text,x,y,width){
-
-pdf.setFontSize(10);
-
-const lines = pdf.splitTextToSize(text,width);
-
-pdf.text(lines,x,y);
+return y + (lines.length * 5);
 
 }
 
 
 
 // ======================================================
-// ⚙️ ZONE IMAGES — MODIFIABLE
-// Cette section gère le chargement et la conversion
-// des images pour le PDF.
+// ZONE IMAGES — MODIFIABLE
 // ======================================================
-
-
-// IMAGE → BASE64
 
 function imageToBase64(img){
 
@@ -382,10 +392,6 @@ return null;
 }
 
 }
-
-
-
-// LOAD IMAGE
 
 async function loadImage(url){
 
@@ -416,12 +422,12 @@ return null;
 
 
 // ======================================================
-// SIGNATURE NUMERIQUE
+// SIGNATURE
 // ======================================================
 
 async function createSignature(){
 
-const data = `${userData.username}-${userId}-${Date.now()}`;
+const data = `${userData.username}-${Date.now()}`;
 
 const enc = new TextEncoder();
 
