@@ -30,16 +30,14 @@ async function generatePDF(){
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-  let y = 70;
-
   const colors = {
     primary:[26,54,104],
     secondary:[37,150,217],
-    text:[40,40,40],
+    text:[30,30,30],
     muted:[120,120,120],
     card:[255,255,255],
     border:[230,232,236],
-    bg:[245,247,250]
+    bg:[247,249,252]
   };
 
   /* BACKGROUND */
@@ -52,18 +50,13 @@ async function generatePDF(){
   pdf.setFillColor(...colors.primary);
   pdf.rect(0,0,65,pageHeight,"F");
 
-  pdf.setFillColor(...colors.secondary);
-  pdf.rect(0,0,65,12,"F");
-
-
   /* LOGO */
 
   try{
     pdf.addImage("/myUm/assets/logo-myum.png","PNG",12,18,42,14);
   }catch(e){}
 
-
-  /* PHOTO */
+  /* PROFILE PHOTO */
 
   try{
 
@@ -90,47 +83,30 @@ async function generatePDF(){
 
   }catch(e){}
 
-
-  /* NOM */
-
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
+  /* SIDEBAR NAME */
+
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(14);
+  pdf.setFontSize(12);
   pdf.setTextColor(255,255,255);
 
-  pdf.text(fullName || "MEMBRE MYUM",32.5,100,{align:"center"});
+  pdf.text(fullName,32.5,100,{align:"center"});
 
+  pdf.setFontSize(9);
+  pdf.setTextColor(200,210,240);
 
-  /* ROLE */
+  if(data.fonction)
+  pdf.text(data.fonction,32.5,107,{align:"center"});
 
-  if(data.fonction){
+  if(data.username)
+  pdf.text("@"+data.username,32.5,113,{align:"center"});
 
-    pdf.setFontSize(9);
-    pdf.setTextColor(220,230,255);
-
-    pdf.text(data.fonction,32.5,108,{align:"center"});
-
-  }
-
-
-  /* USERNAME */
-
-  if(data.username){
-
-    pdf.setFontSize(8);
-    pdf.setTextColor(200,210,230);
-
-    pdf.text("@"+data.username,32.5,114,{align:"center"});
-
-  }
-
-
-  /* SIDEBAR COORDONNÉES */
+  /* SIDEBAR INFOS */
 
   let sideY = 130;
 
-  const drawSideItem = (label,value)=>{
+  const sideItem = (label,value)=>{
 
     if(!value) return;
 
@@ -151,28 +127,19 @@ async function generatePDF(){
 
   };
 
-  drawSideItem("Téléphone",data.phone);
-  drawSideItem("Commune",data.commune);
-  drawSideItem("Avenue",data.avenue);
-  drawSideItem("État civil",data.etatCivil);
-  drawSideItem("Relation",data.statutRelationnel);
+  sideItem("Téléphone",data.phone);
+  sideItem("Commune",data.commune);
+  sideItem("Avenue",data.avenue);
+  sideItem("État civil",data.etatCivil);
+  sideItem("Relation",data.statutRelationnel);
 
-
-  /* HEADER CARD */
-
-  pdf.setFillColor(...colors.card);
-  pdf.roundedRect(70,15,pageWidth-80,40,4,4,"F");
-
-  pdf.setDrawColor(...colors.border);
-  pdf.roundedRect(70,15,pageWidth-80,40,4,4,"S");
-
+  /* MAIN HEADER */
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(20);
+  pdf.setFontSize(22);
   pdf.setTextColor(...colors.primary);
 
-  pdf.text(fullName || "MEMBRE MYUM",75,30);
-
+  pdf.text(fullName,75,30);
 
   if(data.fonction){
 
@@ -186,7 +153,6 @@ async function generatePDF(){
 
   }
 
-
   if(data.username){
 
     pdf.setFont("helvetica","normal");
@@ -197,51 +163,17 @@ async function generatePDF(){
 
   }
 
+  let y = 60;
 
-  /* BIO */
+  /* SECTION FUNCTION */
 
-  if(data.bio){
-
-    const bioLines = pdf.splitTextToSize(data.bio,pageWidth-90);
-    const bioHeight = bioLines.length*5 + 16;
+  const drawCard = (title,contentHeight)=>{
 
     pdf.setFillColor(...colors.card);
-    pdf.roundedRect(70,60,pageWidth-80,bioHeight,4,4,"F");
+    pdf.roundedRect(70,y,pageWidth-80,contentHeight,4,4,"F");
 
     pdf.setDrawColor(...colors.border);
-    pdf.roundedRect(70,60,pageWidth-80,bioHeight,4,4,"S");
-
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(11);
-    pdf.setTextColor(...colors.primary);
-
-    pdf.text("PRÉSENTATION",75,68);
-
-    pdf.setFont("helvetica","normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(...colors.text);
-
-    pdf.text(bioLines,75,76);
-
-    y = 60 + bioHeight + 10;
-
-  }
-
-
-  /* SECTION BUILDER */
-
-  const drawSection = (title,fields)=>{
-
-    const validFields = fields.filter(f=>f[1]);
-    if(validFields.length===0) return;
-
-    const sectionHeight = validFields.length*8 + 18;
-
-    pdf.setFillColor(...colors.card);
-    pdf.roundedRect(70,y,pageWidth-80,sectionHeight,4,4,"F");
-
-    pdf.setDrawColor(...colors.border);
-    pdf.roundedRect(70,y,pageWidth-80,sectionHeight,4,4,"S");
+    pdf.roundedRect(70,y,pageWidth-80,contentHeight,4,4,"S");
 
     pdf.setFont("helvetica","bold");
     pdf.setFontSize(11);
@@ -249,9 +181,41 @@ async function generatePDF(){
 
     pdf.text(title,75,y+8);
 
+  };
+
+  /* BIO */
+
+  if(data.bio){
+
+    const lines = pdf.splitTextToSize(data.bio,pageWidth-90);
+    const h = lines.length*5 + 16;
+
+    drawCard("PRÉSENTATION",h);
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(...colors.text);
+
+    pdf.text(lines,75,y+16);
+
+    y += h + 10;
+
+  }
+
+  /* DATA SECTIONS */
+
+  const drawSection = (title,fields)=>{
+
+    const valid = fields.filter(f=>f[1]);
+    if(valid.length===0) return;
+
+    const h = valid.length*8 + 18;
+
+    drawCard(title,h);
+
     let lineY = y+16;
 
-    validFields.forEach(([label,value])=>{
+    valid.forEach(([label,value])=>{
 
       pdf.setFont("helvetica","bold");
       pdf.setFontSize(9);
@@ -268,12 +232,9 @@ async function generatePDF(){
 
     });
 
-    y += sectionHeight + 8;
+    y += h + 10;
 
   };
-
-
-  /* DATA */
 
   drawSection("PARCOURS SPIRITUEL",[
     ["Église",data.egliseProvenance],
@@ -287,21 +248,14 @@ async function generatePDF(){
     ["Responsable",data.responsableMinistere]
   ]);
 
-
   /* FOOTER */
+
+  pdf.setFontSize(8);
+  pdf.setTextColor(...colors.muted);
 
   const dateStr = new Date().toLocaleDateString();
 
-  pdf.setFontSize(8);
-  pdf.setTextColor(255,255,255);
-
-  pdf.text("Département de Musique",10,pageHeight-20);
-  pdf.text("UM Compassion",10,pageHeight-15);
-
-  pdf.setTextColor(...colors.muted);
-
   pdf.text(`Généré le ${dateStr}`,pageWidth-15,pageHeight-10,{align:"right"});
-
 
   pdf.save(`${data.firstName || "profil"}-${data.lastName || ""}.pdf`);
 
