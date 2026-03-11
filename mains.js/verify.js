@@ -1,88 +1,50 @@
-import { db } from "/myUm/mains.js/firebase-config.js";
+import { db } from "./firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-init();
-
-async function init(){
 
 const params = new URLSearchParams(window.location.search);
 
-const uid = params.get("uid");
+const userId = params.get("id");
 
-if(!uid){
+const profileDiv = document.getElementById("profile");
 
-showError("Document invalide");
+async function loadProfile(){
 
+if(!userId){
+
+profileDiv.innerHTML = "<p>Profil invalide</p>";
 return;
 
 }
 
-const snap = await getDoc(doc(db,"users",uid));
+const snap = await getDoc(doc(db,"users",userId));
 
 if(!snap.exists()){
 
-showError("Document non reconnu");
-
+profileDiv.innerHTML = "<p>Profil non trouvé</p>";
 return;
 
 }
 
-showValid(snap.data());
+const data = snap.data();
 
-}
+profileDiv.innerHTML = `
 
-function showValid(data){
-
-document.getElementById("verifyStatus").innerHTML=`
-<div class="flex flex-col items-center gap-2">
-
-<i class="bi bi-patch-check-fill text-green-500 text-5xl"></i>
-
-<span class="text-green-600 font-semibold">
-Document vérifié
-</span>
-
-<p class="text-sm text-gray-500">
-Ce document appartient à un utilisateur MyUm.
-</p>
-
+<div class="name">
+${data.firstName} ${data.lastName}
 </div>
-`;
 
-const card = document.getElementById("profileCard");
-
-card.classList.remove("hidden");
-
-document.getElementById("photo").src =
-data.photoURL || "https://via.placeholder.com/150";
-
-document.getElementById("name").innerText =
-`${data.firstName} ${data.lastName}`;
-
-document.getElementById("username").innerText =
-`@${data.username}`;
-
-document.getElementById("fonction").innerText =
-data.fonction || "";
-
-}
-
-function showError(msg){
-
-document.getElementById("verifyStatus").innerHTML=`
-<div class="flex flex-col items-center gap-2">
-
-<i class="bi bi-x-circle-fill text-red-500 text-5xl"></i>
-
-<span class="text-red-600 font-semibold">
-Document invalide
-</span>
-
-<p class="text-sm text-gray-500">
-${msg}
-</p>
-
+<div class="role">
+${data.fonction || ""}
 </div>
+
+<div class="verified">
+Profil vérifié par MyUM
+</div>
+
+<p>@${data.username || ""}</p>
+
 `;
 
 }
+
+loadProfile();
