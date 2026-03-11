@@ -5,9 +5,9 @@ const { jsPDF } = window.jspdf;
 
 let currentUserId = null;
 
-/* ======================================================
-   INITIALISATION
-====================================================== */
+/* ======================================
+INITIALISATION
+====================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -25,14 +25,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-/* ======================================================
-   GENERATION DU PDF
-====================================================== */
+/* ======================================
+GENERATION PDF PREMIUM
+====================================== */
 
 async function generatePDF(){
 
   const snap = await getDoc(doc(db,"users",currentUserId));
-
   if(!snap.exists()) return;
 
   const data = snap.data();
@@ -42,41 +41,32 @@ async function generatePDF(){
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-  /* ======================================================
-     COULEURS DU DESIGN
-  ====================================================== */
-
   const colors = {
-
     primary:[20,33,61],
-    secondary:[0,119,182],
-    text:[40,40,40],
+    text:[30,30,30],
     muted:[120,120,120],
-    border:[220,220,220],
-    bg:[245,247,250],
-    white:[255,255,255]
-
+    sidebar:[18,25,48]
   };
 
-  /* ======================================================
-     BACKGROUND GLOBAL
-  ====================================================== */
+  /* ======================================
+  BACKGROUND
+  ====================================== */
 
-  pdf.setFillColor(...colors.bg);
+  pdf.setFillColor(248,249,252);
   pdf.rect(0,0,pageWidth,pageHeight,"F");
 
-  /* ======================================================
-     SIDEBAR
-  ====================================================== */
+  /* ======================================
+  SIDEBAR
+  ====================================== */
 
   const sidebarWidth = 60;
 
-  pdf.setFillColor(...colors.primary);
+  pdf.setFillColor(...colors.sidebar);
   pdf.rect(0,0,sidebarWidth,pageHeight,"F");
 
-  /* ======================================================
-     LOGO (position propre)
-  ====================================================== */
+  /* ======================================
+  LOGO
+  ====================================== */
 
   try{
 
@@ -84,16 +74,16 @@ async function generatePDF(){
       "/myUm/assets/logo-myum.png",
       "PNG",
       12,
-      15,
+      16,
       36,
       12
     );
 
   }catch(e){}
 
-  /* ======================================================
-     PHOTO UTILISATEUR (RECTANGLE PRO)
-  ====================================================== */
+  /* ======================================
+  PHOTO
+  ====================================== */
 
   try{
 
@@ -111,26 +101,19 @@ async function generatePDF(){
         reader.readAsDataURL(blob);
       });
 
-      pdf.addImage(
-        base64,
-        "JPEG",
-        12,
-        40,
-        36,
-        36
-      );
+      pdf.addImage(base64,"JPEG",12,40,36,36);
 
     }
 
   }catch(e){}
 
-  /* ======================================================
-     SIDEBAR CONTACT INFOS
-  ====================================================== */
+  /* ======================================
+  SIDEBAR CONTACT
+  ====================================== */
 
   let sideY = 95;
 
-  const sidebarItem = (label,value)=>{
+  const sideItem = (label,value)=>{
 
     if(!value) return;
 
@@ -151,15 +134,32 @@ async function generatePDF(){
 
   };
 
-  sidebarItem("Téléphone",data.phone);
-  sidebarItem("Commune",data.commune);
-  sidebarItem("Avenue",data.avenue);
-  sidebarItem("État civil",data.etatCivil);
-  sidebarItem("Relation",data.statutRelationnel);
+  sideItem("Téléphone",data.phone);
+  sideItem("Commune",data.commune);
+  sideItem("Avenue",data.avenue);
+  sideItem("État civil",data.etatCivil);
+  sideItem("Relation",data.statutRelationnel);
 
-  /* ======================================================
-     HEADER PRINCIPAL
-  ====================================================== */
+  /* ======================================
+  QR CODE DE VERIFICATION
+  ====================================== */
+
+  const verifyURL = `https://myum.app/verify?id=${currentUserId}`;
+
+  const qrCode = await QRCode.toDataURL(verifyURL);
+
+  pdf.addImage(
+    qrCode,
+    "PNG",
+    pageWidth-35,
+    20,
+    20,
+    20
+  );
+
+  /* ======================================
+  HEADER
+  ====================================== */
 
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
@@ -171,22 +171,10 @@ async function generatePDF(){
 
   if(data.fonction){
 
-    pdf.setFillColor(...colors.secondary);
+    pdf.setFontSize(12);
+    pdf.setTextColor(...colors.text);
 
-    pdf.roundedRect(
-      75,
-      35,
-      55,
-      8,
-      2,
-      2,
-      "F"
-    );
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(255,255,255);
-
-    pdf.text(data.fonction.toUpperCase(),78,40);
+    pdf.text(data.fonction.toUpperCase(),75,40);
 
   }
 
@@ -196,107 +184,41 @@ async function generatePDF(){
     pdf.setFontSize(10);
     pdf.setTextColor(...colors.muted);
 
-    pdf.text("@"+data.username,75,50);
+    pdf.text("@"+data.username,75,48);
 
   }
 
-  /* ======================================================
-     ZONE QR CODE (PREVU)
-  ====================================================== */
-
-  /*
-  ============================
-  QR CODE FUTUR
-  ============================
-
-  Exemple futur:
-
-  const qr = await QRCode.toDataURL(profileUrl)
-
-  pdf.addImage(
-      qr,
-      "PNG",
-      pageWidth - 40,
-      20,
-      20,
-      20
-  )
-
-  ============================
-  */
-
-  /* ======================================================
-     POSITION DES SECTIONS
-  ====================================================== */
-
   let y = 65;
 
-  /* ======================================================
-     CREATION CARD DESIGN
-  ====================================================== */
-
-  const drawCard = (title,height)=>{
-
-    pdf.setFillColor(...colors.white);
-
-    pdf.roundedRect(
-      70,
-      y,
-      pageWidth-80,
-      height,
-      3,
-      3,
-      "F"
-    );
-
-    pdf.setDrawColor(...colors.border);
-
-    pdf.roundedRect(
-      70,
-      y,
-      pageWidth-80,
-      height,
-      3,
-      3,
-      "S"
-    );
-
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(11);
-    pdf.setTextColor(...colors.primary);
-
-    pdf.text(title,75,y+8);
-
-  };
-
-  /* ======================================================
-     BIOGRAPHIE
-  ====================================================== */
+  /* ======================================
+  BIO
+  ====================================== */
 
   if(data.bio){
 
-    const lines = pdf.splitTextToSize(
-      data.bio,
-      pageWidth-95
-    );
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(...colors.primary);
 
-    const h = lines.length*5 + 16;
+    pdf.text("PRÉSENTATION",75,y);
 
-    drawCard("PRÉSENTATION",h);
+    y+=8;
+
+    const lines = pdf.splitTextToSize(data.bio,pageWidth-95);
 
     pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
     pdf.setTextColor(...colors.text);
 
-    pdf.text(lines,75,y+16);
+    pdf.text(lines,75,y);
 
-    y += h + 10;
+    y += lines.length*5 + 10;
 
   }
 
-  /* ======================================================
-     SECTIONS GENERIQUES
-  ====================================================== */
+  /* ======================================
+  SECTION GENERIQUE
+  ====================================== */
 
   const drawSection = (title,fields)=>{
 
@@ -304,30 +226,32 @@ async function generatePDF(){
 
     if(valid.length===0) return;
 
-    const h = valid.length*8 + 18;
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(...colors.primary);
 
-    drawCard(title,h);
+    pdf.text(title,75,y);
 
-    let lineY = y+16;
+    y+=8;
 
     valid.forEach(([label,value])=>{
 
       pdf.setFont("helvetica","bold");
-      pdf.setFontSize(9);
+      pdf.setFontSize(10);
       pdf.setTextColor(...colors.muted);
 
-      pdf.text(label,75,lineY);
+      pdf.text(label,75,y);
 
       pdf.setFont("helvetica","normal");
       pdf.setTextColor(...colors.text);
 
-      pdf.text(String(value),120,lineY);
+      pdf.text(String(value),120,y);
 
-      lineY += 8;
+      y+=7;
 
     });
 
-    y += h + 10;
+    y+=5;
 
   };
 
@@ -347,35 +271,29 @@ async function generatePDF(){
 
   ]);
 
-  /* ======================================================
-     SIGNATURE NUMERIQUE
-  ====================================================== */
+  /* ======================================
+  SIGNATURE NUMERIQUE
+  ====================================== */
 
   const now = new Date();
 
   const date = now.toLocaleDateString();
   const time = now.toLocaleTimeString();
 
-  const signature = `Document généré par MyUM
+  const signature = `Document vérifiable MyUM
 Utilisateur : ${fullName}
-Date : ${date} ${time}`;
+Date : ${date} ${time}
+ID : ${currentUserId}`;
 
   pdf.setFontSize(8);
   pdf.setTextColor(...colors.muted);
 
-  pdf.text(
-    signature,
-    pageWidth-15,
-    pageHeight-15,
-    {align:"right"}
-  );
+  pdf.text(signature,pageWidth-15,pageHeight-15,{align:"right"});
 
-  /* ======================================================
-     EXPORT
-  ====================================================== */
+  /* ======================================
+  EXPORT
+  ====================================== */
 
-  pdf.save(
-    `${data.firstName || "profil"}-${data.lastName || ""}.pdf`
-  );
+  pdf.save(`${data.firstName}-${data.lastName}.pdf`);
 
 }
