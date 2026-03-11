@@ -33,12 +33,16 @@
   <!-- ============================================================
        APP SHELL APPEL VOCAL
        Rôle :
-       - Interface dédiée à l’appel
+       - Interface dédiée à l’appel audio
+       - Mise en page stable et claire
   ============================================================ -->
   <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col items-center justify-between px-6 py-8">
 
     <!-- ============================================================
-         HEADER APPEL
+         HEADER
+         Rôle :
+         - Retour vers la room
+         - Titre de l’écran
     ============================================================ -->
     <div class="w-full flex items-center justify-between">
       <button id="backRoomBtn"
@@ -52,9 +56,11 @@
     </div>
 
     <!-- ============================================================
-         ZONE PROFIL
+         PROFIL CORRESPONDANT
+         Rôle :
+         - Avatar / nom / état d’appel
     ============================================================ -->
-    <div class="flex flex-col items-center text-center">
+    <div class="flex flex-col items-center text-center w-full">
       <div id="callAvatar"
         class="w-28 h-28 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-700">
         —
@@ -62,6 +68,23 @@
 
       <div id="callName" class="mt-5 text-xl font-semibold">—</div>
       <div id="callStatus" class="mt-2 text-sm text-gray-500">Initialisation...</div>
+
+      <!-- ============================================================
+           DEBUG PANEL
+           Rôle :
+           - Afficher les états WebRTC directement à l’écran
+           - Très utile pour diagnostiquer les blocages sur mobile
+      ============================================================ -->
+      <div id="debugPanel"
+        class="mt-4 w-full max-w-xs rounded-2xl bg-gray-100 border border-gray-200 p-3 text-left text-[11px] text-gray-600 space-y-1">
+        <div><strong>Signal:</strong> <span id="dbgSignaling">—</span></div>
+        <div><strong>ICE:</strong> <span id="dbgIce">—</span></div>
+        <div><strong>Conn:</strong> <span id="dbgConn">—</span></div>
+        <div><strong>Offer:</strong> <span id="dbgOffer">0</span></div>
+        <div><strong>Answer:</strong> <span id="dbgAnswer">0</span></div>
+        <div><strong>ICE caller:</strong> <span id="dbgIceCaller">0</span></div>
+        <div><strong>ICE callee:</strong> <span id="dbgIceCallee">0</span></div>
+      </div>
     </div>
 
     <!-- ============================================================
@@ -72,7 +95,11 @@
     <audio id="remoteAudio" autoplay playsinline></audio>
 
     <!-- ============================================================
-         ACTIONS APPEL
+         ACTIONS D’APPEL
+         Rôle :
+         - Mute
+         - Accepter (si nécessaire)
+         - Terminer l’appel
     ============================================================ -->
     <div class="w-full grid grid-cols-3 gap-4">
       <button id="muteBtn"
@@ -92,7 +119,19 @@
     </div>
   </div>
 
+  <!-- ============================================================
+       APP INIT GLOBAL
+       Rôle :
+       - Session
+       - Présence
+       - Notifications
+       - Incoming calls
+  ============================================================ -->
   <script type="module" src="../mains.js/app-init.js"></script>
+
+  <!-- ============================================================
+       LOGIQUE APPEL VOCAL
+  ============================================================ -->
   <script type="module" src="./js/call-voice.js"></script>
 </body>
 </html>
