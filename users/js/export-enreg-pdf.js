@@ -160,7 +160,7 @@ const colors = {
   QR CODE DE VERIFICATION
   ====================================== */
 
-  const verifyURL = `https://myum.app/verify?id=${currentUserId}`;
+  const verifyURL = `${window.location.origin}/verify.html?id=${currentUserId}`;
 
   const qrCode = await QRCode.toDataURL(verifyURL);
 
@@ -172,6 +172,15 @@ const colors = {
     20,
     20
   );
+  pdf.setFontSize(7);
+pdf.setTextColor(...colors.muted);
+
+pdf.text(
+  "Scan pour vérifier",
+  pageWidth-25,
+  45,
+  {align:"center"}
+);
 
   /* ======================================
   HEADER
@@ -220,7 +229,10 @@ const colors = {
 
     y+=8;
 
-    const lines = pdf.splitTextToSize(data.bio,pageWidth-95);
+    const lines = pdf.splitTextToSize(
+  data.bio,
+  pageWidth-100
+);
 
     pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
