@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
 async function generatePDF(){
 
   const snap = await getDoc(doc(db,"users",currentUserId));
@@ -30,12 +29,13 @@ async function generatePDF(){
 
   const pageWidth = pdf.internal.pageSize.width;
 
+  let y = 30;
+
   const colors = {
-    bg:[248,247,244],
-    card:[255,255,255],
-    primary:[92,72,55],
-    text:[25,25,25],
-    muted:[110,110,110],
+    bg:[247,246,243],
+    accent:[139,111,78],
+    text:[30,30,30],
+    muted:[120,120,120],
     line:[230,228,224]
   };
 
@@ -45,16 +45,7 @@ async function generatePDF(){
   pdf.rect(0,0,pageWidth,297,"F");
 
 
-  /* HEADER */
-
-  pdf.setFillColor(...colors.card);
-  pdf.roundedRect(12,15,pageWidth-24,46,4,4,"F");
-
-  pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(12,15,pageWidth-24,46,4,4);
-
-
-  /* PHOTO */
+  /* PHOTO CIRCULAIRE */
 
   try{
 
@@ -62,26 +53,17 @@ async function generatePDF(){
 
     if(imgElement && imgElement.src){
 
-      const img = new Image();
-      img.crossOrigin="anonymous";
-      img.src = imgElement.src;
+      const response = await fetch(imgElement.src);
+      const blob = await response.blob();
 
-      await new Promise((res,rej)=>{
-        img.onload=res;
-        img.onerror=rej;
+      const reader = new FileReader();
+
+      const base64 = await new Promise(resolve=>{
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
       });
 
-      const canvas=document.createElement("canvas");
-      const ctx=canvas.getContext("2d");
-
-      canvas.width=img.width;
-      canvas.height=img.height;
-
-      ctx.drawImage(img,0,0);
-
-      const base64=canvas.toDataURL("image/jpeg");
-
-      pdf.addImage(base64,"JPEG",18,22,28,28);
+      pdf.addImage(base64,"JPEG",15,20,32,32);
 
     }
 
@@ -93,92 +75,88 @@ async function generatePDF(){
   const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(20);
+  pdf.setFontSize(24);
   pdf.setTextColor(...colors.text);
 
-  pdf.text(fullName || "Membre MyUM",55,32);
+  pdf.text(fullName || "Membre MyUM",55,30);
 
 
-  /* ROLE */
+  /* BADGE ROLE */
 
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(11);
+  if(data.fonction){
 
-  if(data.fonction)
-  pdf.text(data.fonction,55,39);
+    pdf.setFillColor(...colors.accent);
+    pdf.roundedRect(55,34,40,8,2,2,"F");
+
+    pdf.setTextColor(255,255,255);
+    pdf.setFontSize(10);
+
+    pdf.text(data.fonction,58,39);
+
+  }
 
 
   /* USERNAME */
 
-  pdf.setTextColor(...colors.muted);
+  if(data.username){
 
-  if(data.username)
-  pdf.text("@"+data.username,55,45);
+    pdf.setTextColor(...colors.muted);
+    pdf.setFontSize(11);
 
+    pdf.text("@"+data.username,55,48);
 
-  let y = 70;
+  }
+
+  y = 65;
 
 
   /* BIO */
 
   if(data.bio){
-    y = drawCard(pdf,"Présentation",data.bio,12,y,pageWidth-24,colors);
+
+    y = drawSectionTitle(pdf,"Présentation",y,colors);
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(11);
+
+    const lines = pdf.splitTextToSize(data.bio,pageWidth-30);
+
+    pdf.text(lines,15,y);
+
+    y += lines.length * 6 + 10;
+
   }
 
 
-  /* INFOS */
+  /* INFORMATIONS PERSONNELLES */
 
-  y = drawFieldsCard(
-    pdf,
-    "Informations personnelles",
-    [
-      ["Téléphone",data.phone],
-      ["Commune",data.commune],
-      ["Avenue",data.avenue],
-      ["État civil",data.etatCivil],
-      ["Relation",data.statutRelationnel],
-      ["Naissance",data.birthday],
-      ["Âge",data.age]
-    ],
-    12,
-    y,
-    pageWidth-24,
-    colors
-  );
+  y = drawFields(pdf,"Informations personnelles",[
+    ["📞 Téléphone",data.phone],
+    ["📍 Commune",data.commune],
+    ["🏠 Avenue",data.avenue],
+    ["💍 État civil",data.etatCivil],
+    ["❤️ Relation",data.statutRelationnel],
+    ["🎂 Naissance",data.birthday],
+    ["⏳ Âge",data.age]
+  ],y,pdf,colors,pageWidth);
 
 
   /* EGLISE */
 
-  y = drawFieldsCard(
-    pdf,
-    "Église & Baptême",
-    [
-      ["Église",data.egliseProvenance],
-      ["Année baptême",data.anneeBapteme],
-      ["Type baptême",data.typeBapteme]
-    ],
-    12,
-    y,
-    pageWidth-24,
-    colors
-  );
+  y = drawFields(pdf,"Église & Baptême",[
+    ["⛪ Église",data.egliseProvenance],
+    ["📅 Année baptême",data.anneeBapteme],
+    ["💧 Type",data.typeBapteme]
+  ],y,pdf,colors,pageWidth);
 
 
   /* MINISTERE */
 
-  y = drawFieldsCard(
-    pdf,
-    "Ministère musical",
-    [
-      ["Voix",data.registreVoix],
-      ["Groupe",data.groupeMusique],
-      ["Responsable",data.responsableMinistere]
-    ],
-    12,
-    y,
-    pageWidth-24,
-    colors
-  );
+  y = drawFields(pdf,"Ministère musical",[
+    ["🎤 Voix",data.registreVoix],
+    ["🎶 Groupe",data.groupeMusique],
+    ["👤 Responsable",data.responsableMinistere]
+  ],y,pdf,colors,pageWidth);
 
 
   /* FOOTER */
@@ -188,6 +166,9 @@ async function generatePDF(){
   const dateStr = now.toLocaleDateString();
   const timeStr = now.toLocaleTimeString();
 
+  /* QR BLOCK (désactivé pour maintenant) */
+
+  /*
   const qrText = `MyUM | ${fullName} | @${data.username}`;
 
   const qrCanvas = document.createElement("canvas");
@@ -196,30 +177,29 @@ async function generatePDF(){
 
   const qrBase64 = qrCanvas.toDataURL("image/png");
 
-  pdf.addImage(qrBase64,"PNG",14,262,22,22);
-
+  pdf.addImage(qrBase64,"PNG",15,260,25,25);
+  */
 
   pdf.setFontSize(9);
   pdf.setTextColor(...colors.muted);
 
-  pdf.text("Département de musique",40,268);
-  pdf.text("UM Compassion",40,273);
-  pdf.text("La Compassion Lubumbashi",40,278);
+  pdf.text("Département de musique",45,268);
+  pdf.text("UM Compassion",45,273);
+  pdf.text("La Compassion Lubumbashi",45,278);
 
   pdf.text(
     `Téléchargé par : @${data.username}`,
-    pageWidth-14,
+    pageWidth-15,
     268,
     {align:"right"}
   );
 
   pdf.text(
     `Date : ${dateStr} • ${timeStr}`,
-    pageWidth-14,
+    pageWidth-15,
     274,
     {align:"right"}
   );
-
 
   pdf.save(`${data.firstName || "profil"}-${data.lastName || ""}.pdf`);
 
@@ -227,77 +207,58 @@ async function generatePDF(){
 
 
 
-/* CARD TEXTE */
+/* SECTION TITLE */
 
-function drawCard(pdf,title,text,x,y,width,colors){
+function drawSectionTitle(pdf,title,y,colors){
 
-  const lines = pdf.splitTextToSize(text,width-16);
+  pdf.setDrawColor(...colors.accent);
+  pdf.setLineWidth(2);
 
-  const height = lines.length*5 + 18;
-
-  pdf.setFillColor(...colors.card);
-  pdf.roundedRect(x,y,width,height,4,4,"F");
-
-  pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(x,y,width,height,4,4);
+  pdf.line(15,y-3,15,y+3);
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(...colors.primary);
-
-  pdf.text(title,x+7,y+8);
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(10);
+  pdf.setFontSize(13);
   pdf.setTextColor(...colors.text);
 
-  pdf.text(lines,x+7,y+15);
+  pdf.text(title,18,y);
 
-  return y + height + 4;
+  return y + 8;
 
 }
 
 
 
-/* CARD FIELDS */
+/* FIELDS */
 
-function drawFieldsCard(pdf,title,fields,x,y,width,colors){
+function drawFields(pdf,title,fields,y,pdfObj,colors,pageWidth){
 
-  const validFields = fields.filter(([label,value])=>value);
-
-  if(validFields.length===0) return y;
-
-  const height = validFields.length*7 + 18;
-
-  pdf.setFillColor(...colors.card);
-  pdf.roundedRect(x,y,width,height,4,4,"F");
-
-  pdf.setDrawColor(...colors.line);
-  pdf.roundedRect(x,y,width,height,4,4);
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(...colors.primary);
-
-  pdf.text(title,x+7,y+8);
+  y = drawSectionTitle(pdf,title,y,colors);
 
   pdf.setFont("helvetica","normal");
-  pdf.setFontSize(10);
+  pdf.setFontSize(11);
 
-  let yy = y+16;
+  fields.forEach(([label,value])=>{
 
-  validFields.forEach(([label,value])=>{
+    if(!value) return;
+
+    if(y > 260){
+
+      pdf.addPage();
+
+      y = 20;
+
+    }
 
     pdf.setTextColor(...colors.muted);
-    pdf.text(label,x+7,yy);
+    pdf.text(label,18,y);
 
     pdf.setTextColor(...colors.text);
-    pdf.text(String(value),x+60,yy);
+    pdf.text(String(value),70,y);
 
-    yy += 7;
+    y += 7;
 
   });
 
-  return y + height + 4;
+  return y + 6;
 
 }
