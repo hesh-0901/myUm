@@ -33,30 +33,23 @@
   <!-- ============================================================
        APP SHELL
        Rôle :
-       - Conteneur mobile-first
-       - Scroll global bloqué
-       - Scroll autorisé seulement dans les messages
+       - Conteneur principal
+       - Le scroll global est bloqué
+       - Seule la zone messages scrolle
   ============================================================ -->
   <div class="relative w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- ============================================================
          HEADER ROOM
-         Rôle :
-         - Retour vers index
-         - Avatar + nom + présence + typing
-         - Bouton appel vocal
-         - Bouton retour messagerie
     ============================================================ -->
     <header class="shrink-0 bg-white border-b border-gray-100 z-20">
       <div class="px-4 py-3 flex items-center justify-between gap-3">
 
-        <!-- Retour -->
         <button id="backBtn"
           class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
           <i class="bi bi-arrow-left"></i>
         </button>
 
-        <!-- Contact -->
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <div id="roomAvatar"
             class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">
@@ -70,27 +63,15 @@
           </div>
         </div>
 
-        <!-- Actions -->
-        <div class="flex items-center gap-2">
-          <button id="voiceCallBtn"
-            class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-            <i class="bi bi-telephone-fill"></i>
-          </button>
-
-          <button id="chatHomeBtn"
-            class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-            <i class="bi bi-chat-dots"></i>
-          </button>
-        </div>
+        <button id="chatHomeBtn"
+          class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+          <i class="bi bi-chat-dots"></i>
+        </button>
       </div>
     </header>
 
     <!-- ============================================================
          ZONE MESSAGES
-         Rôle :
-         - Seule zone scrollable
-         - Messages realtime
-         - Séparateurs de date
     ============================================================ -->
     <main id="messagesWrapper" class="flex-1 min-h-0 overflow-y-auto bg-gray-100 px-3 py-4">
       <div id="messages" class="space-y-2"></div>
@@ -102,14 +83,10 @@
 
     <!-- ============================================================
          BOUTON NOUVEAUX MESSAGES
-         Rôle :
-         - Revenir en bas
-         - Montrer le nombre de nouveaux messages
     ============================================================ -->
-    <div id="scrollToBottomBtn" class="hidden absolute bottom-24 right-4 z-30">
+    <div id="scrollToBottomBtn" class="hidden absolute bottom-28 right-4 z-30">
       <button
         class="relative px-4 py-3 rounded-2xl bg-primary text-white shadow-xl flex items-center gap-2 active:scale-95 transition overflow-hidden">
-
         <span class="absolute inset-0 rounded-2xl bg-lightblue opacity-30 blur-md animate-pulse pointer-events-none"></span>
 
         <span class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/15">
@@ -130,34 +107,51 @@
     <!-- ============================================================
          FOOTER FIXE
          Rôle :
-         - Champ d’écriture
-         - Bouton envoyer
-         - Ne dépend pas du scroll
+         - Envoi texte
+         - Pièces jointes
+         - Note vocale
     ============================================================ -->
     <footer class="shrink-0 bg-white border-t border-gray-100">
       <div class="px-3 py-3 flex items-center gap-2">
+
+        <!-- Pièce jointe -->
+        <button id="attachBtn"
+          class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
+          <i class="bi bi-paperclip text-lg"></i>
+        </button>
+
+        <!-- Note vocale -->
+        <button id="recordBtn"
+          class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
+          <i class="bi bi-mic-fill text-lg"></i>
+        </button>
+
+        <!-- Champ texte -->
         <input id="messageInput"
           type="text"
           placeholder="Écrire un message..."
           class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue text-sm" />
 
+        <!-- Envoyer -->
         <button id="sendBtn"
           class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center active:scale-95 transition shadow-sm">
           <i class="bi bi-send-fill"></i>
         </button>
       </div>
-    </footer>
 
+      <!-- Statut enregistrement -->
+      <div id="recordingStatus"
+        class="hidden px-4 pb-3 text-xs text-danger font-medium">
+        Enregistrement en cours...
+      </div>
+
+      <!-- Input fichier caché -->
+      <input id="fileInput" type="file" class="hidden"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" />
+    </footer>
   </div>
 
-  <!-- ============================================================
-       APP INIT GLOBAL
-  ============================================================ -->
   <script type="module" src="../mains.js/app-init.js"></script>
-
-  <!-- ============================================================
-       LOGIQUE ROOM
-  ============================================================ -->
   <script type="module" src="./js/chat-room.js"></script>
 </body>
 </html>
