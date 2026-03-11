@@ -6,6 +6,7 @@ const { jsPDF } = window.jspdf;
 let currentUserId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) return;
 
@@ -14,9 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btn = document.getElementById("exportPdfBtn");
   if (btn) btn.addEventListener("click", generatePDF);
+
 });
 
-async function generatePDF() {
+async function generatePDF(){
 
   const snap = await getDoc(doc(db,"users",currentUserId));
   if(!snap.exists()) return;
@@ -51,13 +53,15 @@ async function generatePDF() {
   pdf.rect(0,0,65,pageHeight,"F");
 
   pdf.setFillColor(...colors.secondary);
-  pdf.rect(0,0,65,10,"F");
+  pdf.rect(0,0,65,12,"F");
+
 
   /* LOGO */
 
   try{
     pdf.addImage("/myUm/assets/logo-myum.png","PNG",12,18,42,14);
   }catch(e){}
+
 
   /* PHOTO */
 
@@ -78,15 +82,83 @@ async function generatePDF() {
       });
 
       pdf.setFillColor(255,255,255);
-      pdf.circle(32.5,70,22,"F");
+      pdf.circle(32.5,65,22,"F");
 
-      pdf.addImage(base64,"JPEG",15,53,35,35);
+      pdf.addImage(base64,"JPEG",15,48,35,35);
 
     }
 
   }catch(e){}
 
-  /* HEADER */
+
+  /* NOM */
+
+  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(14);
+  pdf.setTextColor(255,255,255);
+
+  pdf.text(fullName || "MEMBRE MYUM",32.5,100,{align:"center"});
+
+
+  /* ROLE */
+
+  if(data.fonction){
+
+    pdf.setFontSize(9);
+    pdf.setTextColor(220,230,255);
+
+    pdf.text(data.fonction,32.5,108,{align:"center"});
+
+  }
+
+
+  /* USERNAME */
+
+  if(data.username){
+
+    pdf.setFontSize(8);
+    pdf.setTextColor(200,210,230);
+
+    pdf.text("@"+data.username,32.5,114,{align:"center"});
+
+  }
+
+
+  /* SIDEBAR COORDONNÉES */
+
+  let sideY = 130;
+
+  const drawSideItem = (label,value)=>{
+
+    if(!value) return;
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(7);
+    pdf.setTextColor(180,200,255);
+
+    pdf.text(label.toUpperCase(),10,sideY);
+
+    sideY += 4;
+
+    pdf.setFont("helvetica","normal");
+    pdf.setTextColor(255,255,255);
+
+    pdf.text(String(value),10,sideY,{maxWidth:45});
+
+    sideY += 10;
+
+  };
+
+  drawSideItem("Téléphone",data.phone);
+  drawSideItem("Commune",data.commune);
+  drawSideItem("Avenue",data.avenue);
+  drawSideItem("État civil",data.etatCivil);
+  drawSideItem("Relation",data.statutRelationnel);
+
+
+  /* HEADER CARD */
 
   pdf.setFillColor(...colors.card);
   pdf.roundedRect(70,15,pageWidth-80,40,4,4,"F");
@@ -94,13 +166,13 @@ async function generatePDF() {
   pdf.setDrawColor(...colors.border);
   pdf.roundedRect(70,15,pageWidth-80,40,4,4,"S");
 
-  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
 
   pdf.setFont("helvetica","bold");
-  pdf.setFontSize(22);
+  pdf.setFontSize(20);
   pdf.setTextColor(...colors.primary);
 
   pdf.text(fullName || "MEMBRE MYUM",75,30);
+
 
   if(data.fonction){
 
@@ -114,6 +186,7 @@ async function generatePDF() {
 
   }
 
+
   if(data.username){
 
     pdf.setFont("helvetica","normal");
@@ -124,12 +197,13 @@ async function generatePDF() {
 
   }
 
+
   /* BIO */
 
   if(data.bio){
 
     const bioLines = pdf.splitTextToSize(data.bio,pageWidth-90);
-    const bioHeight = bioLines.length * 5 + 16;
+    const bioHeight = bioLines.length*5 + 16;
 
     pdf.setFillColor(...colors.card);
     pdf.roundedRect(70,60,pageWidth-80,bioHeight,4,4,"F");
@@ -153,20 +227,15 @@ async function generatePDF() {
 
   }
 
+
   /* SECTION BUILDER */
 
   const drawSection = (title,fields)=>{
 
     const validFields = fields.filter(f=>f[1]);
-
     if(validFields.length===0) return;
 
-    const sectionHeight = validFields.length * 8 + 18;
-
-    if(y + sectionHeight > pageHeight - 30){
-      pdf.addPage();
-      y = 20;
-    }
+    const sectionHeight = validFields.length*8 + 18;
 
     pdf.setFillColor(...colors.card);
     pdf.roundedRect(70,y,pageWidth-80,sectionHeight,4,4,"F");
@@ -180,7 +249,7 @@ async function generatePDF() {
 
     pdf.text(title,75,y+8);
 
-    let lineY = y + 16;
+    let lineY = y+16;
 
     validFields.forEach(([label,value])=>{
 
@@ -195,7 +264,7 @@ async function generatePDF() {
 
       pdf.text(String(value),120,lineY);
 
-      lineY += 8;
+      lineY+=8;
 
     });
 
@@ -203,15 +272,8 @@ async function generatePDF() {
 
   };
 
-  /* DATA */
 
-  drawSection("COORDONNÉES",[
-    ["Téléphone",data.phone],
-    ["Commune",data.commune],
-    ["Avenue",data.avenue],
-    ["État civil",data.etatCivil],
-    ["Relation",data.statutRelationnel]
-  ]);
+  /* DATA */
 
   drawSection("PARCOURS SPIRITUEL",[
     ["Église",data.egliseProvenance],
@@ -225,6 +287,7 @@ async function generatePDF() {
     ["Responsable",data.responsableMinistere]
   ]);
 
+
   /* FOOTER */
 
   const dateStr = new Date().toLocaleDateString();
@@ -236,7 +299,9 @@ async function generatePDF() {
   pdf.text("UM Compassion",10,pageHeight-15);
 
   pdf.setTextColor(...colors.muted);
+
   pdf.text(`Généré le ${dateStr}`,pageWidth-15,pageHeight-10,{align:"right"});
+
 
   pdf.save(`${data.firstName || "profil"}-${data.lastName || ""}.pdf`);
 
