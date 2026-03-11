@@ -5,7 +5,12 @@ const { jsPDF } = window.jspdf;
 
 let currentUserId = null;
 
+/* ======================================================
+   INITIALISATION
+====================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
+
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) return;
 
@@ -13,211 +18,364 @@ document.addEventListener("DOMContentLoaded", () => {
   currentUserId = sessionUser.id;
 
   const btn = document.getElementById("exportPdfBtn");
-  if (btn) btn.addEventListener("click", generatePDF);
+
+  if(btn){
+    btn.addEventListener("click", generatePDF);
+  }
+
 });
 
-async function generatePDF() {
-  const snap = await getDoc(doc(db, "users", currentUserId));
-  if (!snap.exists()) return;
+/* ======================================================
+   GENERATION DU PDF
+====================================================== */
+
+async function generatePDF(){
+
+  const snap = await getDoc(doc(db,"users",currentUserId));
+
+  if(!snap.exists()) return;
 
   const data = snap.data();
+
   const pdf = new jsPDF();
+
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-  // --- PALETTE DE COULEURS PROFESSIONNELLE ---
+  /* ======================================================
+     COULEURS DU DESIGN
+  ====================================================== */
+
   const colors = {
-    primary: [26, 54, 104],    // Bleu Marine (Identité)
-    secondary: [37, 150, 217], // Bleu Clair
-    text: [33, 37, 41],        // Anthracite
-    muted: [108, 117, 125],    // Gris texte secondaire
-    border: [222, 226, 230],   // Bordures de cartes
-    white: [255, 255, 255],
-    sidebarText: [230, 235, 245]
+
+    primary:[20,33,61],
+    secondary:[0,119,182],
+    text:[40,40,40],
+    muted:[120,120,120],
+    border:[220,220,220],
+    bg:[245,247,250],
+    white:[255,255,255]
+
   };
 
-  // --- FOND & SIDEBAR ---
-  pdf.setFillColor(250, 251, 253); // Fond de page très léger
-  pdf.rect(0, 0, pageWidth, pageHeight, "F");
+  /* ======================================================
+     BACKGROUND GLOBAL
+  ====================================================== */
+
+  pdf.setFillColor(...colors.bg);
+  pdf.rect(0,0,pageWidth,pageHeight,"F");
+
+  /* ======================================================
+     SIDEBAR
+  ====================================================== */
+
+  const sidebarWidth = 60;
 
   pdf.setFillColor(...colors.primary);
-  pdf.rect(0, 0, 68, pageHeight, "F"); // Sidebar légèrement plus large
+  pdf.rect(0,0,sidebarWidth,pageHeight,"F");
 
-  // --- LOGO (PLACEMENT OPTIMISÉ) ---
-  try {
-    // Placé en haut à gauche pour l'équilibre visuel
-    pdf.addImage("/myUm/assets/logo-myum.png", "PNG", 10, 15, 48, 16);
-  } catch (e) {
-    console.warn("Logo non chargé");
-  }
+  /* ======================================================
+     LOGO (position propre)
+  ====================================================== */
 
-  // --- PHOTO DE PROFIL (STYLE RECTANGULAIRE) ---
-  let sideY = 45;
-  try {
+  try{
+
+    pdf.addImage(
+      "/myUm/assets/logo-myum.png",
+      "PNG",
+      12,
+      15,
+      36,
+      12
+    );
+
+  }catch(e){}
+
+  /* ======================================================
+     PHOTO UTILISATEUR (RECTANGLE PRO)
+  ====================================================== */
+
+  try{
+
     const imgElement = document.getElementById("profilePhoto");
-    if (imgElement && imgElement.src) {
+
+    if(imgElement && imgElement.src){
+
       const response = await fetch(imgElement.src);
       const blob = await response.blob();
-      const base64 = await new Promise(resolve => {
-        const reader = new FileReader();
+
+      const reader = new FileReader();
+
+      const base64 = await new Promise(resolve=>{
         reader.onloadend = () => resolve(reader.result);
         reader.readAsDataURL(blob);
       });
 
-      // Cadre photo premium
-      pdf.setDrawColor(255, 255, 255);
-      pdf.setLineWidth(0.8);
-      pdf.addImage(base64, "JPEG", 14, sideY, 40, 45, "", "FAST");
-      pdf.rect(14, sideY, 40, 45, "D");
-      sideY += 55;
-    }
-  } catch (e) {
-    sideY += 10;
-  }
+      pdf.addImage(
+        base64,
+        "JPEG",
+        12,
+        40,
+        36,
+        36
+      );
 
-  // --- INFOS DE CONTACT (SIDEBAR) ---
-  const drawSidebarContact = (label, value) => {
-    if (!value) return;
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(8);
-    pdf.setTextColor(...colors.secondary);
-    pdf.text(label.toUpperCase(), 14, sideY);
-    sideY += 5;
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9);
-    pdf.setTextColor(...colors.sidebarText);
-    pdf.text(String(value), 14, sideY, { maxWidth: 42 });
-    sideY += 12;
+    }
+
+  }catch(e){}
+
+  /* ======================================================
+     SIDEBAR CONTACT INFOS
+  ====================================================== */
+
+  let sideY = 95;
+
+  const sidebarItem = (label,value)=>{
+
+    if(!value) return;
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(7);
+    pdf.setTextColor(180,200,255);
+
+    pdf.text(label.toUpperCase(),10,sideY);
+
+    sideY+=4;
+
+    pdf.setFont("helvetica","normal");
+    pdf.setTextColor(255,255,255);
+
+    pdf.text(String(value),10,sideY,{maxWidth:40});
+
+    sideY+=10;
+
   };
 
-  drawSidebarContact("Téléphone", data.phone);
-  drawSidebarContact("Localisation", `${data.commune || ""}, ${data.avenue || ""}`);
-  drawSidebarContact("État Civil", data.etatCivil);
-  drawSidebarContact("Relation", data.statutRelationnel);
+  sidebarItem("Téléphone",data.phone);
+  sidebarItem("Commune",data.commune);
+  sidebarItem("Avenue",data.avenue);
+  sidebarItem("État civil",data.etatCivil);
+  sidebarItem("Relation",data.statutRelationnel);
 
-  /* --- EMPLACEMENT RÉSERVÉ POUR QR CODE ---
-     Ici, vous pourrez insérer le QR Code généré.
-     Exemple : pdf.addImage(qrCodeBase64, "PNG", 19, pageHeight - 60, 30, 30);
+  /* ======================================================
+     HEADER PRINCIPAL
+  ====================================================== */
+
+  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(22);
+  pdf.setTextColor(...colors.primary);
+
+  pdf.text(fullName,75,30);
+
+  if(data.fonction){
+
+    pdf.setFillColor(...colors.secondary);
+
+    pdf.roundedRect(
+      75,
+      35,
+      55,
+      8,
+      2,
+      2,
+      "F"
+    );
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(255,255,255);
+
+    pdf.text(data.fonction.toUpperCase(),78,40);
+
+  }
+
+  if(data.username){
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(...colors.muted);
+
+    pdf.text("@"+data.username,75,50);
+
+  }
+
+  /* ======================================================
+     ZONE QR CODE (PREVU)
+  ====================================================== */
+
+  /*
+  ============================
+  QR CODE FUTUR
+  ============================
+
+  Exemple futur:
+
+  const qr = await QRCode.toDataURL(profileUrl)
+
+  pdf.addImage(
+      qr,
+      "PNG",
+      pageWidth - 40,
+      20,
+      20,
+      20
+  )
+
+  ============================
   */
 
-  // --- HEADER PRINCIPAL (CORPS) ---
-  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim().toUpperCase();
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(24);
-  pdf.setTextColor(...colors.primary);
-  pdf.text(fullName, 78, 30);
+  /* ======================================================
+     POSITION DES SECTIONS
+  ====================================================== */
 
-  // Badge Fonction
-  if (data.fonction) {
-    pdf.setFillColor(...colors.secondary);
-    const roleWidth = pdf.getTextWidth(data.fonction.toUpperCase()) + 10;
-    pdf.roundedRect(78, 35, roleWidth, 7, 1.5, 1.5, "F");
-    pdf.setFontSize(9);
-    pdf.setTextColor(255, 255, 255);
-    pdf.text(data.fonction.toUpperCase(), 83, 40);
-  }
+  let y = 65;
 
-  pdf.setFont("helvetica", "italic");
-  pdf.setFontSize(11);
-  pdf.setTextColor(...colors.muted);
-  pdf.text("@" + (data.username || "username"), 78, 48);
+  /* ======================================================
+     CREATION CARD DESIGN
+  ====================================================== */
 
-  let currentY = 65;
+  const drawCard = (title,height)=>{
 
-  // --- COMPOSANT CARD ---
-  const drawCard = (title, contentLines) => {
-    const cardWidth = pageWidth - 93;
-    const cardX = 78;
-    const padding = 10;
-    const lineHeight = 7;
-    const titleSpace = 12;
-    
-    const cardHeight = titleSpace + (contentLines.length * lineHeight) + padding;
+    pdf.setFillColor(...colors.white);
 
-    // Ombre simulée et fond
-    pdf.setFillColor(240, 240, 240);
-    pdf.rect(cardX + 0.5, currentY + 0.5, cardWidth, cardHeight, "F"); // Ombre
-    pdf.setFillColor(255, 255, 255);
-    pdf.rect(cardX, currentY, cardWidth, cardHeight, "F"); // Carte
+    pdf.roundedRect(
+      70,
+      y,
+      pageWidth-80,
+      height,
+      3,
+      3,
+      "F"
+    );
+
     pdf.setDrawColor(...colors.border);
-    pdf.setLineWidth(0.2);
-    pdf.rect(cardX, currentY, cardWidth, cardHeight, "S"); // Bordure
 
-    // Titre
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(10);
+    pdf.roundedRect(
+      70,
+      y,
+      pageWidth-80,
+      height,
+      3,
+      3,
+      "S"
+    );
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(11);
     pdf.setTextColor(...colors.primary);
-    pdf.text(title.toUpperCase(), cardX + padding, currentY + 8);
-    
-    // Contenu
-    let textY = currentY + 18;
-    contentLines.forEach(line => {
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(8.5);
-      pdf.setTextColor(...colors.muted);
-      pdf.text(line.label, cardX + padding, textY);
-      
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(9.5);
-      pdf.setTextColor(...colors.text);
-      pdf.text(String(line.value), cardX + padding + 40, textY);
-      textY += lineHeight;
-    });
 
-    currentY += cardHeight + 10;
+    pdf.text(title,75,y+8);
+
   };
 
-  // --- SECTIONS DE DONNÉES ---
-  
-  // Présentation
-  if (data.bio) {
-    const bioLines = pdf.splitTextToSize(data.bio, pageWidth - 113);
-    const h = (bioLines.length * 5) + 20;
-    pdf.setFillColor(255, 255, 255);
-    pdf.rect(78, currentY, pageWidth - 93, h, "F");
-    pdf.setDrawColor(...colors.border);
-    pdf.rect(78, currentY, pageWidth - 93, h, "S");
-    
-    pdf.setFont("helvetica", "bold");
+  /* ======================================================
+     BIOGRAPHIE
+  ====================================================== */
+
+  if(data.bio){
+
+    const lines = pdf.splitTextToSize(
+      data.bio,
+      pageWidth-95
+    );
+
+    const h = lines.length*5 + 16;
+
+    drawCard("PRÉSENTATION",h);
+
+    pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
-    pdf.setTextColor(...colors.primary);
-    pdf.text("PRÉSENTATION", 88, currentY + 8);
-    
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9.5);
     pdf.setTextColor(...colors.text);
-    pdf.text(bioLines, 88, currentY + 16);
-    currentY += h + 10;
+
+    pdf.text(lines,75,y+16);
+
+    y += h + 10;
+
   }
 
-  // Parcours
-  drawCard("Parcours Spirituel", [
-    { label: "Église", value: data.egliseProvenance || "-" },
-    { label: "Baptême", value: data.anneeBapteme || "-" },
-    { label: "Type", value: data.typeBapteme || "-" }
+  /* ======================================================
+     SECTIONS GENERIQUES
+  ====================================================== */
+
+  const drawSection = (title,fields)=>{
+
+    const valid = fields.filter(f=>f[1]);
+
+    if(valid.length===0) return;
+
+    const h = valid.length*8 + 18;
+
+    drawCard(title,h);
+
+    let lineY = y+16;
+
+    valid.forEach(([label,value])=>{
+
+      pdf.setFont("helvetica","bold");
+      pdf.setFontSize(9);
+      pdf.setTextColor(...colors.muted);
+
+      pdf.text(label,75,lineY);
+
+      pdf.setFont("helvetica","normal");
+      pdf.setTextColor(...colors.text);
+
+      pdf.text(String(value),120,lineY);
+
+      lineY += 8;
+
+    });
+
+    y += h + 10;
+
+  };
+
+  drawSection("PARCOURS SPIRITUEL",[
+
+    ["Église",data.egliseProvenance],
+    ["Année Baptême",data.anneeBapteme],
+    ["Type",data.typeBapteme]
+
   ]);
 
-  // Ministère
-  drawCard("Ministère Musical", [
-    { label: "Registre", value: data.registreVoix || "-" },
-    { label: "Groupe", value: data.groupeMusique || "-" },
-    { label: "Responsable", value: data.responsableMinistere || "-" }
+  drawSection("MINISTÈRE MUSICAL",[
+
+    ["Registre",data.registreVoix],
+    ["Groupe",data.groupeMusique],
+    ["Responsable",data.responsableMinistere]
+
   ]);
 
-  // --- SIGNATURE NUMÉRIQUE & FOOTER ---
+  /* ======================================================
+     SIGNATURE NUMERIQUE
+  ====================================================== */
+
   const now = new Date();
-  const fullDate = now.toLocaleDateString("fr-FR", { 
-    day: '2-digit', month: 'long', year: 'numeric' 
-  });
-  const fullTime = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+
+  const date = now.toLocaleDateString();
+  const time = now.toLocaleTimeString();
+
+  const signature = `Document généré par MyUM
+Utilisateur : ${fullName}
+Date : ${date} ${time}`;
 
   pdf.setFontSize(8);
   pdf.setTextColor(...colors.muted);
-  
-  // Footer à droite
-  pdf.text(`Fiche membre officielle - MyUM Compassion`, pageWidth - 15, pageHeight - 15, { align: "right" });
-  pdf.text(`Généré par @${data.username || 'système'} le ${fullDate} à ${fullTime}`, pageWidth - 15, pageHeight - 10, { align: "right" });
 
-  // Sauvegarde
-  pdf.save(`MYUM_${data.lastName || "Profil"}.pdf`);
+  pdf.text(
+    signature,
+    pageWidth-15,
+    pageHeight-15,
+    {align:"right"}
+  );
+
+  /* ======================================================
+     EXPORT
+  ====================================================== */
+
+  pdf.save(
+    `${data.firstName || "profil"}-${data.lastName || ""}.pdf`
+  );
+
 }
