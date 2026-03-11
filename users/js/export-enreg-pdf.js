@@ -265,7 +265,11 @@ valid.forEach(([label,value])=>{
       pdf.setFont("helvetica","normal");
       pdf.setTextColor(...colors.text);
 
-      pdf.text(String(value),120,y);
+      pdf.text(
+  pdf.splitTextToSize(String(value),60),
+  120,
+  y
+);
 
       y+=7;
 
