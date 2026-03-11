@@ -160,7 +160,7 @@ const colors = {
   QR CODE DE VERIFICATION
   ====================================== */
 
-  const verifyURL = `${window.location.origin}/verify.html?id=${currentUserId}`;
+  const verifyURL = `${window.location.origin}myUm/verify.html?id=${currentUserId}`;
 
   const qrCode = await QRCode.toDataURL(verifyURL);
 
