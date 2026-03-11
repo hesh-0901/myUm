@@ -26,6 +26,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ======================================
+SEPARATEUR VISUEL ENTRE SECTIONS
+====================================== */
+
+function drawSeparator(pdf,y,pageWidth){
+
+  pdf.setDrawColor(220,224,230);
+
+  pdf.line(
+    75,
+    y,
+    pageWidth-15,
+    y
+  );
+
+}
+
+/* ======================================
 GENERATION PDF PREMIUM
 ====================================== */
 
@@ -41,13 +58,12 @@ async function generatePDF(){
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-  const colors = {
-    primary:[20,33,61],
-    text:[30,30,30],
-    muted:[120,120,120],
-    sidebar:[18,25,48]
-  };
-
+const colors = {
+  primary:[41,128,185],   // bleu moderne
+  text:[40,40,40],
+  muted:[130,130,130],
+  sidebar:[52,73,94]      // gris bleu plus doux
+};
   /* ======================================
   BACKGROUND
   ====================================== */
@@ -230,11 +246,15 @@ async function generatePDF(){
     pdf.setFontSize(12);
     pdf.setTextColor(...colors.primary);
 
-    pdf.text(title,75,y);
+pdf.text(title,75,y);
 
-    y+=8;
+y+=6;
 
-    valid.forEach(([label,value])=>{
+drawSeparator(pdf,y,pageWidth);
+
+y+=8;
+
+valid.forEach(([label,value])=>{
 
       pdf.setFont("helvetica","bold");
       pdf.setFontSize(10);
@@ -289,6 +309,8 @@ ID : ${currentUserId}`;
   pdf.setTextColor(...colors.muted);
 
   pdf.text(signature,pageWidth-15,pageHeight-15,{align:"right"});
+
+  
 
   /* ======================================
   EXPORT
