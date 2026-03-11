@@ -2,7 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============================================================
+       VIEWPORT MOBILE FIXE
+       Rôle :
+       - Empêcher le zoom sur mobile
+       - Stabiliser l'UI iPhone / Android
+       Note :
+       - n'empêche pas le zoom manuel du navigateur desktop
+  ============================================================ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
   <title>Discussion - MyUm</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +27,8 @@
             primary: '#1A3668',
             medium: '#2596D9',
             lightblue: '#3FA9F5',
-            danger: '#DC2626'
+            danger: '#DC2626',
+            success: '#16A34A'
           },
           fontFamily: {
             display: ['Inter', 'sans-serif']
@@ -30,13 +41,6 @@
 
 <body class="bg-gray-100 font-display text-gray-800 h-screen overflow-hidden flex justify-center">
 
-  <!-- ============================================================
-       APP SHELL
-       Rôle :
-       - Conteneur principal
-       - Le scroll global est bloqué
-       - Seule la zone messages scrolle
-  ============================================================ -->
   <div class="relative w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- ============================================================
@@ -63,10 +67,23 @@
           </div>
         </div>
 
-        <button id="chatHomeBtn"
-          class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-          <i class="bi bi-chat-dots"></i>
-        </button>
+        <!-- ============================================================
+             ACTIONS HEADER
+             Rôle :
+             - Appel vocal visible
+             - Retour messagerie
+        ============================================================ -->
+        <div class="flex items-center gap-2">
+          <button id="voiceCallBtn"
+            class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+            <i class="bi bi-telephone-fill"></i>
+          </button>
+
+          <button id="chatHomeBtn"
+            class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+            <i class="bi bi-chat-dots"></i>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -84,19 +101,16 @@
     <!-- ============================================================
          BOUTON NOUVEAUX MESSAGES
     ============================================================ -->
-    <div id="scrollToBottomBtn" class="hidden absolute bottom-28 right-4 z-30">
+    <div id="scrollToBottomBtn" class="hidden absolute bottom-32 right-4 z-30">
       <button
         class="relative px-4 py-3 rounded-2xl bg-primary text-white shadow-xl flex items-center gap-2 active:scale-95 transition overflow-hidden">
         <span class="absolute inset-0 rounded-2xl bg-lightblue opacity-30 blur-md animate-pulse pointer-events-none"></span>
-
         <span class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/15">
           <i class="bi bi-arrow-down"></i>
         </span>
-
         <span class="relative text-xs font-semibold whitespace-nowrap">
           Nouveaux messages
         </span>
-
         <span id="scrollUnreadBadge"
           class="relative min-w-[22px] h-[22px] px-2 rounded-full bg-white text-primary text-[11px] font-bold flex items-center justify-center">
           0
@@ -105,50 +119,95 @@
     </div>
 
     <!-- ============================================================
-         FOOTER FIXE
+         APERÇU RÉPONSE
          Rôle :
-         - Envoi texte
-         - Pièces jointes
-         - Note vocale
+         - Montrer le message ciblé avant envoi
+    ============================================================ -->
+    <div id="replyPreview"
+      class="hidden shrink-0 bg-blue-50 border-t border-b border-blue-100 px-4 py-2">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="text-[11px] font-semibold text-primary">Réponse</div>
+          <div id="replyPreviewText" class="text-xs text-gray-600 truncate">—</div>
+        </div>
+
+        <button id="cancelReplyBtn"
+          class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-gray-500 flex items-center justify-center">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         FOOTER FIXE
     ============================================================ -->
     <footer class="shrink-0 bg-white border-t border-gray-100">
       <div class="px-3 py-3 flex items-center gap-2">
 
-        <!-- Pièce jointe -->
         <button id="attachBtn"
           class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
           <i class="bi bi-paperclip text-lg"></i>
         </button>
 
-        <!-- Note vocale -->
         <button id="recordBtn"
           class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
           <i class="bi bi-mic-fill text-lg"></i>
         </button>
 
-        <!-- Champ texte -->
         <input id="messageInput"
           type="text"
           placeholder="Écrire un message..."
           class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue text-sm" />
 
-        <!-- Envoyer -->
         <button id="sendBtn"
           class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center active:scale-95 transition shadow-sm">
           <i class="bi bi-send-fill"></i>
         </button>
       </div>
 
-      <!-- Statut enregistrement -->
       <div id="recordingStatus"
         class="hidden px-4 pb-3 text-xs text-danger font-medium">
         Enregistrement en cours...
       </div>
 
-      <!-- Input fichier caché -->
       <input id="fileInput" type="file" class="hidden"
-        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" />
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,.js,.php,.html,.css,.json,.sql,.py,.java,.cpp,.c,.ts,.tsx,.jsx,.xml,.yml,.yaml" />
     </footer>
+
+    <!-- ============================================================
+         MENU MESSAGE MOBILE
+         Rôle :
+         - Popup actions sur téléphone
+         - Répondre / transférer / télécharger
+    ============================================================ -->
+    <div id="messageMenuOverlay"
+      class="hidden absolute inset-0 z-40 bg-black/20 backdrop-blur-[1px]">
+      <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl p-4 space-y-2">
+        <button id="replyActionBtn"
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          <i class="bi bi-reply-fill text-primary"></i>
+          Répondre
+        </button>
+
+        <button id="forwardActionBtn"
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          <i class="bi bi-forward-fill text-primary"></i>
+          Transférer
+        </button>
+
+        <button id="downloadActionBtn"
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          <i class="bi bi-download text-primary"></i>
+          Télécharger
+        </button>
+
+        <button id="closeMessageMenuBtn"
+          class="w-full flex items-center justify-center gap-2 p-3 rounded-2xl bg-danger text-white text-sm font-semibold">
+          Fermer
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <script type="module" src="../mains.js/app-init.js"></script>
