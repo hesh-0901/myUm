@@ -6,7 +6,6 @@ const { jsPDF } = window.jspdf;
 let currentUserId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-
   const storedUser = localStorage.getItem("myum_user");
   if (!storedUser) return;
 
@@ -15,248 +14,210 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btn = document.getElementById("exportPdfBtn");
   if (btn) btn.addEventListener("click", generatePDF);
-
 });
 
-async function generatePDF(){
-
-  const snap = await getDoc(doc(db,"users",currentUserId));
-  if(!snap.exists()) return;
+async function generatePDF() {
+  const snap = await getDoc(doc(db, "users", currentUserId));
+  if (!snap.exists()) return;
 
   const data = snap.data();
-
   const pdf = new jsPDF();
-
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
+  // --- PALETTE DE COULEURS PROFESSIONNELLE ---
   const colors = {
-    primary:[26,54,104],
-    secondary:[37,150,217],
-    text:[30,30,30],
-    muted:[120,120,120],
-    card:[255,255,255],
-    border:[230,232,236],
-    bg:[247,249,252]
+    primary: [26, 54, 104],    // Bleu Marine (Identité)
+    secondary: [37, 150, 217], // Bleu Clair
+    text: [33, 37, 41],        // Anthracite
+    muted: [108, 117, 125],    // Gris texte secondaire
+    border: [222, 226, 230],   // Bordures de cartes
+    white: [255, 255, 255],
+    sidebarText: [230, 235, 245]
   };
 
-  /* BACKGROUND */
-
-  pdf.setFillColor(...colors.bg);
-  pdf.rect(0,0,pageWidth,pageHeight,"F");
-
-  /* SIDEBAR */
+  // --- FOND & SIDEBAR ---
+  pdf.setFillColor(250, 251, 253); // Fond de page très léger
+  pdf.rect(0, 0, pageWidth, pageHeight, "F");
 
   pdf.setFillColor(...colors.primary);
-  pdf.rect(0,0,65,pageHeight,"F");
+  pdf.rect(0, 0, 68, pageHeight, "F"); // Sidebar légèrement plus large
 
-  /* LOGO */
+  // --- LOGO (PLACEMENT OPTIMISÉ) ---
+  try {
+    // Placé en haut à gauche pour l'équilibre visuel
+    pdf.addImage("/myUm/assets/logo-myum.png", "PNG", 10, 15, 48, 16);
+  } catch (e) {
+    console.warn("Logo non chargé");
+  }
 
-  try{
-    pdf.addImage("/myUm/assets/logo-myum.png","PNG",12,18,42,14);
-  }catch(e){}
-
-  /* PROFILE PHOTO */
-
-  try{
-
+  // --- PHOTO DE PROFIL (STYLE RECTANGULAIRE) ---
+  let sideY = 45;
+  try {
     const imgElement = document.getElementById("profilePhoto");
-
-    if(imgElement && imgElement.src){
-
+    if (imgElement && imgElement.src) {
       const response = await fetch(imgElement.src);
       const blob = await response.blob();
-
-      const reader = new FileReader();
-
-      const base64 = await new Promise(resolve=>{
+      const base64 = await new Promise(resolve => {
+        const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
         reader.readAsDataURL(blob);
       });
 
-      pdf.setFillColor(255,255,255);
-      pdf.circle(32.5,65,22,"F");
-
-      pdf.addImage(base64,"JPEG",15,48,35,35);
-
+      // Cadre photo premium
+      pdf.setDrawColor(255, 255, 255);
+      pdf.setLineWidth(0.8);
+      pdf.addImage(base64, "JPEG", 14, sideY, 40, 45, "", "FAST");
+      pdf.rect(14, sideY, 40, 45, "D");
+      sideY += 55;
     }
-
-  }catch(e){}
-
-  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
-
-  /* SIDEBAR NAME */
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(255,255,255);
-
-  pdf.text(fullName,32.5,100,{align:"center"});
-
-  pdf.setFontSize(9);
-  pdf.setTextColor(200,210,240);
-
-  if(data.fonction)
-  pdf.text(data.fonction,32.5,107,{align:"center"});
-
-  if(data.username)
-  pdf.text("@"+data.username,32.5,113,{align:"center"});
-
-  /* SIDEBAR INFOS */
-
-  let sideY = 130;
-
-  const sideItem = (label,value)=>{
-
-    if(!value) return;
-
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(7);
-    pdf.setTextColor(180,200,255);
-
-    pdf.text(label.toUpperCase(),10,sideY);
-
-    sideY += 4;
-
-    pdf.setFont("helvetica","normal");
-    pdf.setTextColor(255,255,255);
-
-    pdf.text(String(value),10,sideY,{maxWidth:45});
-
+  } catch (e) {
     sideY += 10;
+  }
 
+  // --- INFOS DE CONTACT (SIDEBAR) ---
+  const drawSidebarContact = (label, value) => {
+    if (!value) return;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(8);
+    pdf.setTextColor(...colors.secondary);
+    pdf.text(label.toUpperCase(), 14, sideY);
+    sideY += 5;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.setTextColor(...colors.sidebarText);
+    pdf.text(String(value), 14, sideY, { maxWidth: 42 });
+    sideY += 12;
   };
 
-  sideItem("Téléphone",data.phone);
-  sideItem("Commune",data.commune);
-  sideItem("Avenue",data.avenue);
-  sideItem("État civil",data.etatCivil);
-  sideItem("Relation",data.statutRelationnel);
+  drawSidebarContact("Téléphone", data.phone);
+  drawSidebarContact("Localisation", `${data.commune || ""}, ${data.avenue || ""}`);
+  drawSidebarContact("État Civil", data.etatCivil);
+  drawSidebarContact("Relation", data.statutRelationnel);
 
-  /* MAIN HEADER */
+  /* --- EMPLACEMENT RÉSERVÉ POUR QR CODE ---
+     Ici, vous pourrez insérer le QR Code généré.
+     Exemple : pdf.addImage(qrCodeBase64, "PNG", 19, pageHeight - 60, 30, 30);
+  */
 
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(22);
+  // --- HEADER PRINCIPAL (CORPS) ---
+  const fullName = `${data.firstName || ""} ${data.lastName || ""}`.trim().toUpperCase();
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(24);
   pdf.setTextColor(...colors.primary);
+  pdf.text(fullName, 78, 30);
 
-  pdf.text(fullName,75,30);
-
-  if(data.fonction){
-
+  // Badge Fonction
+  if (data.fonction) {
     pdf.setFillColor(...colors.secondary);
-    pdf.roundedRect(75,34,45,8,3,3,"F");
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(255,255,255);
-
-    pdf.text(data.fonction.toUpperCase(),78,39);
-
+    const roleWidth = pdf.getTextWidth(data.fonction.toUpperCase()) + 10;
+    pdf.roundedRect(78, 35, roleWidth, 7, 1.5, 1.5, "F");
+    pdf.setFontSize(9);
+    pdf.setTextColor(255, 255, 255);
+    pdf.text(data.fonction.toUpperCase(), 83, 40);
   }
 
-  if(data.username){
+  pdf.setFont("helvetica", "italic");
+  pdf.setFontSize(11);
+  pdf.setTextColor(...colors.muted);
+  pdf.text("@" + (data.username || "username"), 78, 48);
 
-    pdf.setFont("helvetica","normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(...colors.muted);
+  let currentY = 65;
 
-    pdf.text("@"+data.username,75,48);
+  // --- COMPOSANT CARD ---
+  const drawCard = (title, contentLines) => {
+    const cardWidth = pageWidth - 93;
+    const cardX = 78;
+    const padding = 10;
+    const lineHeight = 7;
+    const titleSpace = 12;
+    
+    const cardHeight = titleSpace + (contentLines.length * lineHeight) + padding;
 
-  }
-
-  let y = 60;
-
-  /* SECTION FUNCTION */
-
-  const drawCard = (title,contentHeight)=>{
-
-    pdf.setFillColor(...colors.card);
-    pdf.roundedRect(70,y,pageWidth-80,contentHeight,4,4,"F");
-
+    // Ombre simulée et fond
+    pdf.setFillColor(240, 240, 240);
+    pdf.rect(cardX + 0.5, currentY + 0.5, cardWidth, cardHeight, "F"); // Ombre
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(cardX, currentY, cardWidth, cardHeight, "F"); // Carte
     pdf.setDrawColor(...colors.border);
-    pdf.roundedRect(70,y,pageWidth-80,contentHeight,4,4,"S");
+    pdf.setLineWidth(0.2);
+    pdf.rect(cardX, currentY, cardWidth, cardHeight, "S"); // Bordure
 
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(11);
-    pdf.setTextColor(...colors.primary);
-
-    pdf.text(title,75,y+8);
-
-  };
-
-  /* BIO */
-
-  if(data.bio){
-
-    const lines = pdf.splitTextToSize(data.bio,pageWidth-90);
-    const h = lines.length*5 + 16;
-
-    drawCard("PRÉSENTATION",h);
-
-    pdf.setFont("helvetica","normal");
+    // Titre
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
-    pdf.setTextColor(...colors.text);
-
-    pdf.text(lines,75,y+16);
-
-    y += h + 10;
-
-  }
-
-  /* DATA SECTIONS */
-
-  const drawSection = (title,fields)=>{
-
-    const valid = fields.filter(f=>f[1]);
-    if(valid.length===0) return;
-
-    const h = valid.length*8 + 18;
-
-    drawCard(title,h);
-
-    let lineY = y+16;
-
-    valid.forEach(([label,value])=>{
-
-      pdf.setFont("helvetica","bold");
-      pdf.setFontSize(9);
+    pdf.setTextColor(...colors.primary);
+    pdf.text(title.toUpperCase(), cardX + padding, currentY + 8);
+    
+    // Contenu
+    let textY = currentY + 18;
+    contentLines.forEach(line => {
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(8.5);
       pdf.setTextColor(...colors.muted);
-
-      pdf.text(label,75,lineY);
-
-      pdf.setFont("helvetica","normal");
+      pdf.text(line.label, cardX + padding, textY);
+      
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9.5);
       pdf.setTextColor(...colors.text);
-
-      pdf.text(String(value),120,lineY);
-
-      lineY+=8;
-
+      pdf.text(String(line.value), cardX + padding + 40, textY);
+      textY += lineHeight;
     });
 
-    y += h + 10;
-
+    currentY += cardHeight + 10;
   };
 
-  drawSection("PARCOURS SPIRITUEL",[
-    ["Église",data.egliseProvenance],
-    ["Année Baptême",data.anneeBapteme],
-    ["Type",data.typeBapteme]
+  // --- SECTIONS DE DONNÉES ---
+  
+  // Présentation
+  if (data.bio) {
+    const bioLines = pdf.splitTextToSize(data.bio, pageWidth - 113);
+    const h = (bioLines.length * 5) + 20;
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(78, currentY, pageWidth - 93, h, "F");
+    pdf.setDrawColor(...colors.border);
+    pdf.rect(78, currentY, pageWidth - 93, h, "S");
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(10);
+    pdf.setTextColor(...colors.primary);
+    pdf.text("PRÉSENTATION", 88, currentY + 8);
+    
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9.5);
+    pdf.setTextColor(...colors.text);
+    pdf.text(bioLines, 88, currentY + 16);
+    currentY += h + 10;
+  }
+
+  // Parcours
+  drawCard("Parcours Spirituel", [
+    { label: "Église", value: data.egliseProvenance || "-" },
+    { label: "Baptême", value: data.anneeBapteme || "-" },
+    { label: "Type", value: data.typeBapteme || "-" }
   ]);
 
-  drawSection("MINISTÈRE MUSICAL",[
-    ["Registre",data.registreVoix],
-    ["Groupe",data.groupeMusique],
-    ["Responsable",data.responsableMinistere]
+  // Ministère
+  drawCard("Ministère Musical", [
+    { label: "Registre", value: data.registreVoix || "-" },
+    { label: "Groupe", value: data.groupeMusique || "-" },
+    { label: "Responsable", value: data.responsableMinistere || "-" }
   ]);
 
-  /* FOOTER */
+  // --- SIGNATURE NUMÉRIQUE & FOOTER ---
+  const now = new Date();
+  const fullDate = now.toLocaleDateString("fr-FR", { 
+    day: '2-digit', month: 'long', year: 'numeric' 
+  });
+  const fullTime = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
 
   pdf.setFontSize(8);
   pdf.setTextColor(...colors.muted);
+  
+  // Footer à droite
+  pdf.text(`Fiche membre officielle - MyUM Compassion`, pageWidth - 15, pageHeight - 15, { align: "right" });
+  pdf.text(`Généré par @${data.username || 'système'} le ${fullDate} à ${fullTime}`, pageWidth - 15, pageHeight - 10, { align: "right" });
 
-  const dateStr = new Date().toLocaleDateString();
-
-  pdf.text(`Généré le ${dateStr}`,pageWidth-15,pageHeight-10,{align:"right"});
-
-  pdf.save(`${data.firstName || "profil"}-${data.lastName || ""}.pdf`);
-
+  // Sauvegarde
+  pdf.save(`MYUM_${data.lastName || "Profil"}.pdf`);
 }
