@@ -8,15 +8,19 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
+  addDoc,
   query,
   where,
   orderBy,
   limit,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ============================================================
    BLOC 1 : SESSION
+   Rôle :
+   - Identifier l'utilisateur connecté
 ============================================================ */
 function getCurrentUser() {
   try {
@@ -46,8 +50,12 @@ const friendsList = document.getElementById("friendsList");
 
 /* ============================================================
    BLOC 3 : ÉTAT LOCAL
+   Rôle :
+   - Cache profils
+   - Payload éventuel du transfert
 ============================================================ */
 const profileCache = new Map();
+const forwardPayload = getForwardPayload();
 
 /* ============================================================
    BLOC 4 : NAVIGATION
@@ -65,10 +73,33 @@ async function init() {
   bindSearch();
   await renderIncoming();
   await renderFriends();
+
+  if (forwardPayload) {
+    showToast("Sélectionnez un ami pour transférer le message");
+  }
 }
 
 /* ============================================================
-   BLOC 6 : RECHERCHE LIVE
+   BLOC 6 : FORWARD PAYLOAD
+   Rôle :
+   - Lire le message à transférer depuis localStorage
+============================================================ */
+function getForwardPayload() {
+  try {
+    const raw = localStorage.getItem("myum_forward_payload");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function clearForwardPayload() {
+  localStorage.removeItem("myum_forward_payload");
+}
+
+/* ============================================================
+   BLOC 7 : RECHERCHE LIVE
 ============================================================ */
 function bindSearch() {
   searchInput?.addEventListener("input", debounce(() => {
@@ -190,7 +221,7 @@ async function onSearch(silent = false) {
 }
 
 /* ============================================================
-   BLOC 7 : DEMANDE D’AMI ANTI-SPAM
+   BLOC 8 : DEMANDE D’AMI ANTI-SPAM
 ============================================================ */
 async function sendFriendRequest(toUserId, btn = null) {
   try {
@@ -251,7 +282,7 @@ async function sendFriendRequest(toUserId, btn = null) {
 }
 
 /* ============================================================
-   BLOC 8 : DEMANDES REÇUES
+   BLOC 9 : DEMANDES REÇUES
 ============================================================ */
 async function renderIncoming() {
   incomingList.innerHTML = "";
@@ -334,7 +365,10 @@ async function acceptRequest(requestId, fromUserId) {
 }
 
 /* ============================================================
-   BLOC 9 : LISTE D’AMIS
+   BLOC 10 : LISTE D’AMIS
+   Rôle :
+   - Si un payload de forward existe :
+   - envoyer le message transféré puis ouvrir la room
 ============================================================ */
 async function renderFriends() {
   friendsList.innerHTML = "";
@@ -371,17 +405,17 @@ async function renderFriends() {
         </div>
 
         <button class="chatBtn px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold active:scale-95 transition">
-          Chat
+          ${forwardPayload ? "Transférer" : "Chat"}
         </button>
       `;
 
-      row.addEventListener("click", () => {
-        window.location.href = `room.html?uid=${encodeURIComponent(friendId)}`;
+      row.addEventListener("click", async () => {
+        await openFriendConversation(friendId);
       });
 
-      row.querySelector(".chatBtn")?.addEventListener("click", (e) => {
+      row.querySelector(".chatBtn")?.addEventListener("click", async (e) => {
         e.stopPropagation();
-        window.location.href = `room.html?uid=${encodeURIComponent(friendId)}`;
+        await openFriendConversation(friendId);
       });
 
       friendsList.appendChild(row);
@@ -393,7 +427,97 @@ async function renderFriends() {
 }
 
 /* ============================================================
-   BLOC 10 : PROFILE CACHE
+   BLOC 11 : OUVERTURE CONVERSATION / FORWARD
+============================================================ */
+async function openFriendConversation(targetUserId) {
+  try {
+    if (forwardPayload?.message) {
+      await forwardMessageToFriend(targetUserId, forwardPayload.message);
+      clearForwardPayload();
+      showToast("Message transféré ✅");
+    }
+
+    window.location.href = `room.html?uid=${encodeURIComponent(targetUserId)}`;
+  } catch (error) {
+    console.error("openFriendConversation:", error);
+    showToast("Erreur lors du transfert ❌");
+  }
+}
+
+async function forwardMessageToFriend(targetUserId, message) {
+  const chatId = buildChatId(myId, targetUserId);
+  const chatRef = doc(db, "chats", chatId);
+  const messagesRef = collection(db, "chats", chatId, "messages");
+
+  // assurer le doc chat
+  const snap = await getDoc(chatRef);
+  if (!snap.exists()) {
+    await setDoc(chatRef, {
+      participants: [myId, targetUserId],
+      lastMessage: "",
+      lastSenderId: "",
+      lastMessageAt: serverTimestamp(),
+      lastReadBy: {},
+      unreadCount: {
+        [myId]: 0,
+        [targetUserId]: 0
+      },
+      typing: {},
+      updatedAt: serverTimestamp(),
+      createdAt: serverTimestamp()
+    });
+  }
+
+  const payload = {
+    senderId: myId,
+    type: message.type || "text",
+    text: message.text || "",
+    fileUrl: message.fileUrl || null,
+    filePath: null,
+    fileName: message.fileName || null,
+    mimeType: message.mimeType || null,
+    size: null,
+    duration: null,
+    replyTo: null,
+    forwardedFrom: {
+      userId: myId,
+      at: new Date().toISOString()
+    },
+    createdAt: serverTimestamp(),
+    deliveredTo: { [myId]: true },
+    readBy: { [myId]: true }
+  };
+
+  await addDoc(messagesRef, payload);
+
+  const preview =
+    payload.type === "text" ? payload.text :
+    payload.type === "image" ? "📷 Image transférée" :
+    payload.type === "video" ? "🎬 Vidéo transférée" :
+    payload.type === "audio" ? "🎤 Audio transféré" :
+    "📎 Fichier transféré";
+
+  const currentChatSnap = await getDoc(chatRef);
+  const chatData = currentChatSnap.exists() ? currentChatSnap.data() : {};
+  const unreadMap = chatData.unreadCount || {};
+  const nextUnread = (unreadMap[targetUserId] || 0) + 1;
+
+  await updateDoc(chatRef, {
+    lastMessage: preview,
+    lastSenderId: myId,
+    lastMessageAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    [`unreadCount.${targetUserId}`]: nextUnread
+  });
+}
+
+function buildChatId(a, b) {
+  const [x, y] = [a, b].sort();
+  return `chat_${x}_${y}`;
+}
+
+/* ============================================================
+   BLOC 12 : PROFILE CACHE
 ============================================================ */
 async function getProfile(uid) {
   if (profileCache.has(uid)) return profileCache.get(uid);
@@ -435,7 +559,7 @@ async function getProfile(uid) {
 }
 
 /* ============================================================
-   BLOC 11 : HELPERS
+   BLOC 13 : HELPERS
 ============================================================ */
 async function isFriend(a, b) {
   return (await getDoc(doc(db, "users", a, "friends", b))).exists();
