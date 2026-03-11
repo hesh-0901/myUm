@@ -30,7 +30,10 @@ import {
 } from "../../calls/webrtc-core.js";
 
 /* ============================================================
-   BLOC 1 : SESSION
+   BLOC 1 : SESSION UTILISATEUR
+   Rôle :
+   - Récupérer l’utilisateur connecté
+   - Bloquer si aucune session valide
 ============================================================ */
 function getCurrentUser() {
   try {
@@ -49,7 +52,10 @@ if (!myId) {
 }
 
 /* ============================================================
-   BLOC 2 : PARAMS
+   BLOC 2 : PARAMÈTRES URL
+   Rôle :
+   - uid : correspondant
+   - mode : caller ou callee
 ============================================================ */
 const params = new URLSearchParams(window.location.search);
 const friendId = params.get("uid");
@@ -62,6 +68,8 @@ if (!friendId) {
 
 /* ============================================================
    BLOC 3 : DOM
+   Rôle :
+   - Centraliser tous les éléments HTML
 ============================================================ */
 const backRoomBtn = document.getElementById("backRoomBtn");
 const callAvatar = document.getElementById("callAvatar");
@@ -74,8 +82,21 @@ const endBtn = document.getElementById("endBtn");
 
 const remoteAudio = document.getElementById("remoteAudio");
 
+/* ----------------------------
+   DEBUG DOM
+----------------------------- */
+const dbgSignaling = document.getElementById("dbgSignaling");
+const dbgIce = document.getElementById("dbgIce");
+const dbgConn = document.getElementById("dbgConn");
+const dbgOffer = document.getElementById("dbgOffer");
+const dbgAnswer = document.getElementById("dbgAnswer");
+const dbgIceCaller = document.getElementById("dbgIceCaller");
+const dbgIceCallee = document.getElementById("dbgIceCallee");
+
 /* ============================================================
    BLOC 4 : NAVIGATION
+   Rôle :
+   - Retour vers la room liée au correspondant
 ============================================================ */
 backRoomBtn?.addEventListener("click", () => {
   window.location.href = `room.html?uid=${encodeURIComponent(friendId)}`;
@@ -83,6 +104,8 @@ backRoomBtn?.addEventListener("click", () => {
 
 /* ============================================================
    BLOC 5 : ÉTAT LOCAL
+   Rôle :
+   - Variables runtime de l’appel
 ============================================================ */
 const callId = buildCallId(myId, friendId);
 
@@ -98,11 +121,44 @@ let unlistenCalleeIce = null;
 let isMuted = false;
 let hasCreatedAnswer = false;
 
-// ✅ NEW : file d’attente ICE
+// Queue ICE : évite de perdre les candidats reçus trop tôt
 const pendingIceQueue = createIceQueue();
 
+/* ----------------------------
+   DEBUG COUNTERS
+----------------------------- */
+let offerSeen = 0;
+let answerSeen = 0;
+let iceCallerCount = 0;
+let iceCalleeCount = 0;
+
 /* ============================================================
-   BLOC 6 : INIT
+   BLOC DEBUG : HELPERS
+   Rôle :
+   - Mettre à jour le panneau de debug visible
+============================================================ */
+function setDebugValue(el, value) {
+  if (!el) return;
+  el.textContent = String(value);
+}
+
+function refreshDebugPanel() {
+  setDebugValue(dbgOffer, offerSeen);
+  setDebugValue(dbgAnswer, answerSeen);
+  setDebugValue(dbgIceCaller, iceCallerCount);
+  setDebugValue(dbgIceCallee, iceCalleeCount);
+
+  if (pc) {
+    setDebugValue(dbgSignaling, pc.signalingState);
+    setDebugValue(dbgIce, pc.iceConnectionState);
+    setDebugValue(dbgConn, pc.connectionState);
+  }
+}
+
+/* ============================================================
+   BLOC 6 : INITIALISATION
+   Rôle :
+   - Orchestrer le démarrage de l’appel
 ============================================================ */
 init().catch((error) => {
   console.error("Erreur init appel vocal :", error);
@@ -124,7 +180,9 @@ async function init() {
 }
 
 /* ============================================================
-   BLOC 7 : PROFIL CORRESPONDANT
+   BLOC 7 : CHARGER LE PROFIL DU CORRESPONDANT
+   Rôle :
+   - Afficher avatar + nom
 ============================================================ */
 async function loadFriendProfile() {
   const snap = await getDoc(doc(db, "users", friendId)).catch(() => null);
@@ -172,7 +230,11 @@ function renderAvatar(photoURL, initials) {
 }
 
 /* ============================================================
-   BLOC 8 : WEBRTC SETUP
+   BLOC 8 : SETUP WEBRTC + MICRO
+   Rôle :
+   - Initialiser le micro local
+   - Créer le peer connection
+   - Brancher le flux audio distant
 ============================================================ */
 async function setupMediaAndPeer() {
   localStream = await getLocalAudioStream();
@@ -197,7 +259,7 @@ async function setupMediaAndPeer() {
   };
 
   /* ------------------------------------------------------------
-     ÉTATS DEBUG PLUS CLAIRS
+     États WebRTC détaillés
   ------------------------------------------------------------ */
   pc.onconnectionstatechange = () => {
     const state = pc.connectionState;
@@ -209,19 +271,27 @@ async function setupMediaAndPeer() {
     else if (state === "disconnected") callStatus.textContent = "Déconnecté";
     else if (state === "failed") callStatus.textContent = "Échec connexion";
     else if (state === "closed") callStatus.textContent = "Appel terminé";
+
+    refreshDebugPanel();
   };
 
   pc.oniceconnectionstatechange = () => {
     console.log("iceConnectionState =", pc.iceConnectionState);
+    refreshDebugPanel();
   };
 
   pc.onsignalingstatechange = () => {
     console.log("signalingState =", pc.signalingState);
+    refreshDebugPanel();
   };
+
+  refreshDebugPanel();
 }
 
 /* ============================================================
-   BLOC 9 : BOUTONS
+   BLOC 9 : ACTIONS UI
+   Rôle :
+   - mute / accepter / terminer
 ============================================================ */
 function bindButtons() {
   muteBtn?.addEventListener("click", toggleMute);
@@ -240,6 +310,7 @@ function toggleMute() {
   if (!localStream) return;
 
   isMuted = !isMuted;
+
   localStream.getAudioTracks().forEach((track) => {
     track.enabled = !isMuted;
   });
@@ -251,6 +322,9 @@ function toggleMute() {
 
 /* ============================================================
    BLOC 10 : APPEL SORTANT
+   Rôle :
+   - Créer le doc d’appel
+   - Générer et sauver l’offre
 ============================================================ */
 async function startOutgoingCall() {
   callStatus.textContent = "Appel en cours...";
@@ -260,11 +334,16 @@ async function startOutgoingCall() {
   const offer = await createOffer(pc);
   await saveOffer(callId, offer);
 
+  offerSeen = 1;
+  refreshDebugPanel();
+
   callStatus.textContent = "Sonnerie...";
 }
 
 /* ============================================================
-   BLOC 11 : APPEL ENTRANT
+   BLOC 11 : APPEL ENTRANT / CALLEE
+   Rôle :
+   - Préparer la réponse côté receveur
 ============================================================ */
 async function prepareIncomingCall() {
   callStatus.textContent = "Connexion...";
@@ -286,21 +365,32 @@ async function acceptIncomingCall() {
     return;
   }
 
-  // ✅ Poser l’offre distante
+  offerSeen = sdpData?.offer ? 1 : 0;
+  refreshDebugPanel();
+
+  // Poser l’offre distante
   await setRemoteDescriptionSafe(pc, sdpData.offer);
 
-  // ✅ Ensuite flush des ICE qui seraient arrivées avant
+  // Flush des ICE qui auraient été reçues avant
   await flushIceQueue(pc, pendingIceQueue);
 
   const answer = await createAnswer(pc);
   await saveAnswer(callId, answer);
+
+  answerSeen = 1;
+  refreshDebugPanel();
+
   await updateCallStatus(callId, "accepted");
 
   hasCreatedAnswer = true;
 }
 
 /* ============================================================
-   BLOC 12 : SUBSCRIPTIONS REALTIME
+   BLOC 12 : LISTENERS REALTIME
+   Rôle :
+   - Écouter état appel
+   - Écouter SDP
+   - Écouter ICE caller/callee
 ============================================================ */
 function subscribeRealtime() {
   unlistenCall = listenCall(callId, async (callData) => {
@@ -323,7 +413,17 @@ function subscribeRealtime() {
   unlistenSDP = listenSDP(callId, async (sdpData) => {
     if (!sdpData) return;
 
-    // ✅ caller reçoit la réponse
+    if (sdpData.offer) {
+      offerSeen = 1;
+    }
+
+    if (sdpData.answer) {
+      answerSeen = 1;
+    }
+
+    refreshDebugPanel();
+
+    // caller reçoit la réponse
     if (mode === "caller" && sdpData.answer) {
       const applied = await setRemoteDescriptionSafe(pc, sdpData.answer);
       if (applied) {
@@ -332,19 +432,26 @@ function subscribeRealtime() {
     }
   }, console.error);
 
-  // caller écoute les candidats du callee
+  // caller écoute les ICE du callee
   unlistenCalleeIce = listenIceCandidates(callId, "callee", async (candidate) => {
+    iceCalleeCount += 1;
+    refreshDebugPanel();
     await addRemoteIceCandidateBuffered(pc, pendingIceQueue, candidate);
   }, console.error);
 
-  // callee écoute les candidats du caller
+  // callee écoute les ICE du caller
   unlistenCallerIce = listenIceCandidates(callId, "caller", async (candidate) => {
+    iceCallerCount += 1;
+    refreshDebugPanel();
     await addRemoteIceCandidateBuffered(pc, pendingIceQueue, candidate);
   }, console.error);
 }
 
 /* ============================================================
-   BLOC 13 : FIN D’APPEL
+   BLOC 13 : TERMINER L’APPEL
+   Rôle :
+   - Marquer ended
+   - Revenir vers la room
 ============================================================ */
 async function terminateCallAndExit() {
   try {
@@ -359,6 +466,9 @@ async function terminateCallAndExit() {
 
 /* ============================================================
    BLOC 14 : CLEANUP
+   Rôle :
+   - Couper listeners
+   - Fermer micro et peer connection
 ============================================================ */
 function cleanupResources() {
   try { unlistenCall?.(); } catch {}
