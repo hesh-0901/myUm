@@ -1,6 +1,6 @@
 // chat/js/chat-room.js
 
-import { db } from "../../mains.js/firebase-config.js";
+import { db, storage } from "../../mains.js/firebase-config.js";
 import {
   doc,
   getDoc,
@@ -16,10 +16,14 @@ import {
   writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
 /* ============================================================
    BLOC 1 : SESSION
-   Rôle :
-   - Identifier l'utilisateur connecté
 ============================================================ */
 function getCurrentUser() {
   try {
@@ -39,8 +43,6 @@ if (!myId) {
 
 /* ============================================================
    BLOC 2 : PARAMÈTRES URL
-   Rôle :
-   - Lire le correspondant depuis room.html?uid=...
 ============================================================ */
 const params = new URLSearchParams(window.location.search);
 const friendId = params.get("uid");
@@ -52,11 +54,8 @@ if (!friendId) {
 
 /* ============================================================
    BLOC 3 : DOM
-   Rôle :
-   - Récupérer tous les éléments HTML utilisés
 ============================================================ */
 const backBtn = document.getElementById("backBtn");
-const voiceCallBtn = document.getElementById("voiceCallBtn");
 const chatHomeBtn = document.getElementById("chatHomeBtn");
 
 const roomAvatar = document.getElementById("roomAvatar");
@@ -71,14 +70,17 @@ const emptyState = document.getElementById("emptyState");
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 
+const attachBtn = document.getElementById("attachBtn");
+const fileInput = document.getElementById("fileInput");
+
+const recordBtn = document.getElementById("recordBtn");
+const recordingStatus = document.getElementById("recordingStatus");
+
 const scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
 const scrollUnreadBadge = document.getElementById("scrollUnreadBadge");
 
 /* ============================================================
-   BLOC 4 : NAVIGATION / ACTIONS HEADER
-   Rôle :
-   - Retour index
-   - Ouvrir appel vocal
+   BLOC 4 : NAVIGATION
 ============================================================ */
 backBtn?.addEventListener("click", () => {
   window.location.href = "index.html";
@@ -88,14 +90,8 @@ chatHomeBtn?.addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
-voiceCallBtn?.addEventListener("click", () => {
-  window.location.href = `call-voice.html?uid=${encodeURIComponent(friendId)}&mode=caller`;
-});
-
 /* ============================================================
    BLOC 5 : CHAT ID STABLE
-   Rôle :
-   - Éviter les doublons de conversation
 ============================================================ */
 function buildChatId(a, b) {
   const [x, y] = [a, b].sort();
@@ -116,6 +112,10 @@ let isNearBottom = true;
 let unreadVisualCount = 0;
 let lastRenderedMessageCount = 0;
 
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
 /* ============================================================
    BLOC 7 : INIT
 ============================================================ */
@@ -132,6 +132,8 @@ async function initRoom() {
   bindComposerEvents();
   bindScrollTracking();
   bindScrollButton();
+  bindAttachments();
+  bindVoiceRecorder();
 
   listenFriendProfileAndPresence();
   listenTypingState();
@@ -242,7 +244,7 @@ function renderRoomAvatar(photoURL, initials) {
 }
 
 /* ============================================================
-   BLOC 11 : TYPING LISTENER
+   BLOC 11 : TYPING
 ============================================================ */
 function listenTypingState() {
   onSnapshot(chatRef, (snap) => {
@@ -252,17 +254,11 @@ function listenTypingState() {
     const typingMap = chat.typing || {};
     const friendTyping = typingMap[friendId] === true;
 
-    if (friendTyping) {
-      typingIndicator.classList.remove("hidden");
-    } else {
-      typingIndicator.classList.add("hidden");
-    }
+    if (friendTyping) typingIndicator.classList.remove("hidden");
+    else typingIndicator.classList.add("hidden");
   });
 }
 
-/* ============================================================
-   BLOC 12 : TYPING EMITTER
-============================================================ */
 function bindTypingEmitter() {
   if (!messageInput) return;
 
@@ -288,17 +284,14 @@ async function setTyping(value) {
     await updateDoc(chatRef, {
       [`typing.${myId}`]: value
     });
-  } catch {
-    // best effort
-  }
+  } catch {}
 }
 
 /* ============================================================
-   BLOC 13 : LISTEN MESSAGES
+   BLOC 12 : LISTEN MESSAGES
    Rôle :
-   - Rendu temps réel
-   - Date separators
-   - Scroll intelligent
+   - Date separators visibles
+   - Messages texte / image / audio / vidéo / fichier
 ============================================================ */
 function listenMessages() {
   const q = query(messagesRef, orderBy("createdAt", "asc"), limit(300));
@@ -329,7 +322,7 @@ function listenMessages() {
         previousDateKey = currentDateKey;
       }
 
-      messagesEl.appendChild(renderBubble(message, isMine));
+      messagesEl.appendChild(renderMessage(message, isMine));
 
       if (!isMine && index >= previousCount) {
         incomingAdded += 1;
@@ -340,12 +333,10 @@ function listenMessages() {
       scrollToBottom();
       unreadVisualCount = 0;
       hideScrollButton();
-    } else {
-      if (incomingAdded > 0) {
-        unreadVisualCount += incomingAdded;
-        updateUnreadBadge();
-        showScrollButton();
-      }
+    } else if (incomingAdded > 0) {
+      unreadVisualCount += incomingAdded;
+      updateUnreadBadge();
+      showScrollButton();
     }
 
     await markDeliveredReadAndResetUnread();
@@ -356,7 +347,316 @@ function listenMessages() {
 }
 
 /* ============================================================
-   BLOC 14 : TRACKING SCROLL
+   BLOC 13 : COMPOSER TEXTE
+============================================================ */
+function bindComposerEvents() {
+  bindTypingEmitter();
+
+  sendBtn?.addEventListener("click", sendTextMessage);
+
+  messageInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendTextMessage();
+    }
+  });
+}
+
+async function sendTextMessage() {
+  if (sending) return;
+
+  const text = (messageInput?.value || "").trim();
+  if (!text) return;
+
+  sending = true;
+  sendBtn?.setAttribute("disabled", "true");
+  sendBtn?.classList.add("opacity-60");
+
+  try {
+    await setTyping(false);
+
+    await createMessageDoc({
+      type: "text",
+      text
+    });
+
+    messageInput.value = "";
+    messageInput.focus();
+    scrollToBottom();
+  } catch (error) {
+    console.error("Erreur sendTextMessage :", error);
+    alert("Envoi impossible : " + (error?.message || error));
+  } finally {
+    sending = false;
+    sendBtn?.removeAttribute("disabled");
+    sendBtn?.classList.remove("opacity-60");
+  }
+}
+
+/* ============================================================
+   BLOC 14 : PIÈCES JOINTES
+   Rôle :
+   - Images / audio / vidéo / fichiers
+============================================================ */
+function bindAttachments() {
+  attachBtn?.addEventListener("click", () => {
+    fileInput?.click();
+  });
+
+  fileInput?.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await sendFileMessage(file);
+      fileInput.value = "";
+    } catch (error) {
+      console.error("Erreur sendFileMessage:", error);
+      alert("Impossible d'envoyer ce fichier.");
+    }
+  });
+}
+
+async function sendFileMessage(file) {
+  const uploaded = await uploadChatFile(file);
+
+  const kind = getFileKind(file);
+
+  await createMessageDoc({
+    type: kind,
+    text: "",
+    fileUrl: uploaded.url,
+    filePath: uploaded.path,
+    fileName: file.name,
+    mimeType: file.type || "",
+    size: file.size || 0,
+    duration: null
+  });
+}
+
+function getFileKind(file) {
+  const type = file.type || "";
+
+  if (type.startsWith("image/")) return "image";
+  if (type.startsWith("video/")) return "video";
+  if (type.startsWith("audio/")) return "audio";
+  return "file";
+}
+
+async function uploadChatFile(file) {
+  if (!storage) {
+    throw new Error("storage non disponible dans firebase-config.js");
+  }
+
+  const safeName = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+  const path = `chat_uploads/${chatId}/${myId}/${safeName}`;
+  const storageRef = ref(storage, path);
+
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+
+  return { url, path };
+}
+
+/* ============================================================
+   BLOC 15 : NOTES VOCALES
+   Rôle :
+   - Enregistrer et envoyer un message audio
+============================================================ */
+function bindVoiceRecorder() {
+  recordBtn?.addEventListener("click", async () => {
+    if (!isRecording) {
+      await startVoiceRecording();
+    } else {
+      await stopVoiceRecording();
+    }
+  });
+}
+
+async function startVoiceRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) audioChunks.push(event.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(audioChunks, { type: "audio/webm" });
+      const file = new File([blob], `voice_${Date.now()}.webm`, { type: "audio/webm" });
+
+      try {
+        const uploaded = await uploadChatFile(file);
+
+        await createMessageDoc({
+          type: "audio",
+          text: "",
+          fileUrl: uploaded.url,
+          filePath: uploaded.path,
+          fileName: file.name,
+          mimeType: file.type || "audio/webm",
+          size: file.size || 0,
+          duration: null
+        });
+
+        scrollToBottom();
+      } catch (error) {
+        console.error("Erreur voice note:", error);
+        alert("Impossible d'envoyer la note vocale.");
+      }
+
+      stream.getTracks().forEach(track => track.stop());
+    };
+
+    mediaRecorder.start();
+    isRecording = true;
+    recordingStatus?.classList.remove("hidden");
+    recordBtn.innerHTML = `<i class="bi bi-stop-fill text-lg"></i>`;
+    recordBtn.classList.remove("bg-gray-100", "text-gray-700");
+    recordBtn.classList.add("bg-danger", "text-white");
+  } catch (error) {
+    console.error("Erreur startVoiceRecording:", error);
+    alert("Impossible d'accéder au micro.");
+  }
+}
+
+async function stopVoiceRecording() {
+  if (!mediaRecorder || !isRecording) return;
+
+  mediaRecorder.stop();
+  isRecording = false;
+  recordingStatus?.classList.add("hidden");
+  recordBtn.innerHTML = `<i class="bi bi-mic-fill text-lg"></i>`;
+  recordBtn.classList.remove("bg-danger", "text-white");
+  recordBtn.classList.add("bg-gray-100", "text-gray-700");
+}
+
+/* ============================================================
+   BLOC 16 : CRÉATION DOC MESSAGE
+   Rôle :
+   - Schéma unifié text / image / audio / video / file
+============================================================ */
+async function createMessageDoc(payload) {
+  const base = {
+    senderId: myId,
+    type: payload.type || "text",
+    text: payload.text || "",
+    fileUrl: payload.fileUrl || null,
+    filePath: payload.filePath || null,
+    fileName: payload.fileName || null,
+    mimeType: payload.mimeType || null,
+    size: payload.size || null,
+    duration: payload.duration || null,
+    createdAt: serverTimestamp(),
+    deliveredTo: { [myId]: true },
+    readBy: { [myId]: true }
+  };
+
+  await addDoc(messagesRef, base);
+
+  const preview =
+    payload.type === "text" ? payload.text :
+    payload.type === "image" ? "📷 Image" :
+    payload.type === "video" ? "🎬 Vidéo" :
+    payload.type === "audio" ? "🎤 Note vocale" :
+    "📎 Fichier";
+
+  const chatSnap = await getDoc(chatRef);
+  const chatData = chatSnap.exists() ? chatSnap.data() : {};
+  const unreadMap = chatData.unreadCount || {};
+  const nextFriendUnread = (unreadMap[friendId] || 0) + 1;
+
+  await updateDoc(chatRef, {
+    lastMessage: preview,
+    lastSenderId: myId,
+    lastMessageAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    [`unreadCount.${friendId}`]: nextFriendUnread
+  });
+}
+
+/* ============================================================
+   BLOC 17 : RENDER MESSAGE
+============================================================ */
+function renderMessage(message, isMine) {
+  const wrap = document.createElement("div");
+  wrap.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
+
+  const bubble = document.createElement("div");
+  bubble.className =
+    `max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
+      isMine ? "bg-primary text-white rounded-br-md" : "bg-white text-gray-800 rounded-bl-md"
+    }`;
+
+  const type = message.type || "text";
+
+  if (type === "text") {
+    const textEl = document.createElement("div");
+    textEl.textContent = message.text || "";
+    bubble.appendChild(textEl);
+  }
+
+  if (type === "image" && message.fileUrl) {
+    const img = document.createElement("img");
+    img.src = message.fileUrl;
+    img.className = "rounded-xl max-h-64 w-full object-cover";
+    bubble.appendChild(img);
+  }
+
+  if (type === "video" && message.fileUrl) {
+    const video = document.createElement("video");
+    video.src = message.fileUrl;
+    video.controls = true;
+    video.className = "rounded-xl max-h-64 w-full";
+    bubble.appendChild(video);
+  }
+
+  if (type === "audio" && message.fileUrl) {
+    const audio = document.createElement("audio");
+    audio.src = message.fileUrl;
+    audio.controls = true;
+    audio.className = "w-full";
+    bubble.appendChild(audio);
+  }
+
+  if (type === "file" && message.fileUrl) {
+    const fileLink = document.createElement("a");
+    fileLink.href = message.fileUrl;
+    fileLink.target = "_blank";
+    fileLink.rel = "noopener noreferrer";
+    fileLink.className = isMine ? "underline text-white font-medium" : "underline text-primary font-medium";
+    fileLink.textContent = message.fileName || "Ouvrir le fichier";
+    bubble.appendChild(fileLink);
+  }
+
+  const metaRow = document.createElement("div");
+  metaRow.className = "mt-1 text-[11px] opacity-90 flex items-center justify-end gap-1";
+
+  const timeEl = document.createElement("span");
+  timeEl.textContent = formatMessageTime(message.createdAt);
+  timeEl.className = isMine ? "text-white/80" : "text-gray-400";
+  metaRow.appendChild(timeEl);
+
+  if (isMine) {
+    const delivered = (message.deliveredTo && message.deliveredTo[friendId]) === true;
+    const read = (message.readBy && message.readBy[friendId]) === true;
+
+    const tick = document.createElement("span");
+    tick.textContent = read ? "✓✓" : delivered ? "✓✓" : "✓";
+    tick.className = read ? "text-sky-200 font-bold" : "text-white/80";
+    metaRow.appendChild(tick);
+  }
+
+  bubble.appendChild(metaRow);
+  wrap.appendChild(bubble);
+  return wrap;
+}
+
+/* ============================================================
+   BLOC 18 : TRACKING SCROLL
 ============================================================ */
 function bindScrollTracking() {
   messagesWrapper?.addEventListener("scroll", () => {
@@ -377,7 +677,7 @@ function bindScrollTracking() {
 }
 
 /* ============================================================
-   BLOC 15 : BOUTON NOUVEAUX MESSAGES
+   BLOC 19 : BOUTON NOUVEAUX MESSAGES
 ============================================================ */
 function bindScrollButton() {
   scrollToBottomBtn?.addEventListener("click", () => {
@@ -409,73 +709,7 @@ function scrollToBottom() {
 }
 
 /* ============================================================
-   BLOC 16 : COMPOSER EVENTS
-============================================================ */
-function bindComposerEvents() {
-  bindTypingEmitter();
-
-  sendBtn?.addEventListener("click", sendMessage);
-
-  messageInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-}
-
-/* ============================================================
-   BLOC 17 : ENVOI MESSAGE
-============================================================ */
-async function sendMessage() {
-  if (sending) return;
-
-  const text = (messageInput?.value || "").trim();
-  if (!text) return;
-
-  sending = true;
-  sendBtn?.setAttribute("disabled", "true");
-  sendBtn?.classList.add("opacity-60");
-
-  try {
-    await setTyping(false);
-
-    await addDoc(messagesRef, {
-      senderId: myId,
-      text,
-      createdAt: serverTimestamp(),
-      deliveredTo: { [myId]: true },
-      readBy: { [myId]: true }
-    });
-
-    const chatSnap = await getDoc(chatRef);
-    const chatData = chatSnap.exists() ? chatSnap.data() : {};
-    const unreadMap = chatData.unreadCount || {};
-    const nextFriendUnread = (unreadMap[friendId] || 0) + 1;
-
-    await updateDoc(chatRef, {
-      lastMessage: text.slice(0, 250),
-      lastSenderId: myId,
-      lastMessageAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      [`unreadCount.${friendId}`]: nextFriendUnread
-    });
-
-    messageInput.value = "";
-    messageInput.focus();
-    scrollToBottom();
-  } catch (error) {
-    console.error("Erreur sendMessage :", error);
-    alert("Envoi impossible : " + (error?.message || error));
-  } finally {
-    sending = false;
-    sendBtn?.removeAttribute("disabled");
-    sendBtn?.classList.remove("opacity-60");
-  }
-}
-
-/* ============================================================
-   BLOC 18 : DELIVERED / READ / RESET UNREAD
+   BLOC 20 : DELIVERED / READ / RESET UNREAD
 ============================================================ */
 async function markDeliveredReadAndResetUnread() {
   await updateDoc(chatRef, {
@@ -512,9 +746,7 @@ async function markDeliveredReadAndResetUnread() {
     }
   });
 
-  if (changed > 0) {
-    await batch.commit();
-  }
+  if (changed > 0) await batch.commit();
 }
 
 async function updateChatReadMeta() {
@@ -524,51 +756,7 @@ async function updateChatReadMeta() {
 }
 
 /* ============================================================
-   BLOC 19 : RENDER BULLE
-============================================================ */
-function renderBubble(message, isMine) {
-  const wrap = document.createElement("div");
-  wrap.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
-
-  const bubble = document.createElement("div");
-  bubble.className =
-    `max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-sm ${
-      isMine
-        ? "bg-primary text-white rounded-br-md"
-        : "bg-white text-gray-800 rounded-bl-md"
-    }`;
-
-  const textEl = document.createElement("div");
-  textEl.textContent = message.text || "";
-  bubble.appendChild(textEl);
-
-  const metaRow = document.createElement("div");
-  metaRow.className = "mt-1 text-[11px] opacity-90 flex items-center justify-end gap-1";
-
-  const timeEl = document.createElement("span");
-  timeEl.textContent = formatMessageTime(message.createdAt);
-  timeEl.className = isMine ? "text-white/80" : "text-gray-400";
-
-  metaRow.appendChild(timeEl);
-
-  if (isMine) {
-    const delivered = (message.deliveredTo && message.deliveredTo[friendId]) === true;
-    const read = (message.readBy && message.readBy[friendId]) === true;
-
-    const tick = document.createElement("span");
-    tick.textContent = read ? "✓✓" : delivered ? "✓✓" : "✓";
-    tick.className = read ? "text-sky-200 font-bold" : "text-white/80";
-
-    metaRow.appendChild(tick);
-  }
-
-  bubble.appendChild(metaRow);
-  wrap.appendChild(bubble);
-  return wrap;
-}
-
-/* ============================================================
-   BLOC 20 : FORMAT HEURE MESSAGE
+   BLOC 21 : FORMAT HEURE
 ============================================================ */
 function formatMessageTime(ts) {
   if (!ts) return "";
@@ -583,7 +771,7 @@ function formatMessageTime(ts) {
 }
 
 /* ============================================================
-   BLOC 21 : DATE SEPARATORS
+   BLOC 22 : DATE SEPARATORS
 ============================================================ */
 function getMessageDateKey(ts) {
   if (!ts || !ts.toDate) return "unknown";
