@@ -28,29 +28,24 @@
   </script>
 </head>
 
-<!-- ============================================================
-     BODY FIXÉ
-     Rôle :
-     - Empêcher le scroll global
-     - Laisser uniquement la zone des messages scroller
-============================================================ -->
 <body class="bg-gray-100 font-display text-gray-800 h-screen overflow-hidden flex justify-center">
 
   <!-- ============================================================
        APP SHELL
        Rôle :
-       - Conteneur principal mobile-first
-       - Compatible avec l’architecture officielle
+       - Conteneur mobile-first
+       - Scroll global bloqué
+       - Scroll autorisé seulement dans les messages
   ============================================================ -->
   <div class="relative w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- ============================================================
          HEADER ROOM
          Rôle :
-         - Retour vers la page principale de messagerie
-         - Avatar du correspondant
-         - Nom / présence / typing
+         - Retour vers index
+         - Avatar + nom + présence + typing
          - Bouton appel vocal
+         - Bouton retour messagerie
     ============================================================ -->
     <header class="shrink-0 bg-white border-b border-gray-100 z-20">
       <div class="px-4 py-3 flex items-center justify-between gap-3">
@@ -61,7 +56,7 @@
           <i class="bi bi-arrow-left"></i>
         </button>
 
-        <!-- Profil contact -->
+        <!-- Contact -->
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <div id="roomAvatar"
             class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">
@@ -71,9 +66,7 @@
           <div class="min-w-0">
             <div id="roomTitle" class="font-semibold text-sm truncate">—</div>
             <div id="roomSub" class="text-xs text-gray-400 truncate">—</div>
-            <div id="typingIndicator" class="text-xs text-lightblue hidden truncate">
-              … écrit
-            </div>
+            <div id="typingIndicator" class="text-xs text-lightblue hidden truncate">… écrit</div>
           </div>
         </div>
 
@@ -89,7 +82,6 @@
             <i class="bi bi-chat-dots"></i>
           </button>
         </div>
-
       </div>
     </header>
 
@@ -97,11 +89,10 @@
          ZONE MESSAGES
          Rôle :
          - Seule zone scrollable
-         - Affiche les bulles en temps réel
-         - Affiche les séparateurs de date
+         - Messages realtime
+         - Séparateurs de date
     ============================================================ -->
-    <main id="messagesWrapper"
-      class="flex-1 min-h-0 overflow-y-auto bg-gray-100 px-3 py-4">
+    <main id="messagesWrapper" class="flex-1 min-h-0 overflow-y-auto bg-gray-100 px-3 py-4">
       <div id="messages" class="space-y-2"></div>
 
       <div id="emptyState" class="hidden text-center text-sm text-gray-500 pt-10">
@@ -112,29 +103,23 @@
     <!-- ============================================================
          BOUTON NOUVEAUX MESSAGES
          Rôle :
-         - Revenir en bas rapidement
-         - Afficher le nombre de nouveaux messages
-         - Effet glow / halo
+         - Revenir en bas
+         - Montrer le nombre de nouveaux messages
     ============================================================ -->
-    <div id="scrollToBottomBtn"
-      class="hidden absolute bottom-24 right-4 z-30">
+    <div id="scrollToBottomBtn" class="hidden absolute bottom-24 right-4 z-30">
       <button
         class="relative px-4 py-3 rounded-2xl bg-primary text-white shadow-xl flex items-center gap-2 active:scale-95 transition overflow-hidden">
 
-        <!-- Halo glow -->
         <span class="absolute inset-0 rounded-2xl bg-lightblue opacity-30 blur-md animate-pulse pointer-events-none"></span>
 
-        <!-- Icône -->
         <span class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/15">
           <i class="bi bi-arrow-down"></i>
         </span>
 
-        <!-- Texte -->
         <span class="relative text-xs font-semibold whitespace-nowrap">
           Nouveaux messages
         </span>
 
-        <!-- Badge compteur -->
         <span id="scrollUnreadBadge"
           class="relative min-w-[22px] h-[22px] px-2 rounded-full bg-white text-primary text-[11px] font-bold flex items-center justify-center">
           0
@@ -145,9 +130,9 @@
     <!-- ============================================================
          FOOTER FIXE
          Rôle :
-         - Toujours visible
-         - Champ message + bouton envoyer
-         - Ne dépend jamais du scroll des messages
+         - Champ d’écriture
+         - Bouton envoyer
+         - Ne dépend pas du scroll
     ============================================================ -->
     <footer class="shrink-0 bg-white border-t border-gray-100">
       <div class="px-3 py-3 flex items-center gap-2">
@@ -167,21 +152,11 @@
 
   <!-- ============================================================
        APP INIT GLOBAL
-       Rôle :
-       - Auth
-       - Presence
-       - Notifications
   ============================================================ -->
   <script type="module" src="../mains.js/app-init.js"></script>
 
   <!-- ============================================================
-       ROOM LOGIC
-       Rôle :
-       - Messages realtime
-       - Typing
-       - Présence
-       - Appel vocal
-       - Scroll intelligent
+       LOGIQUE ROOM
   ============================================================ -->
   <script type="module" src="./js/chat-room.js"></script>
 </body>
