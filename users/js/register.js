@@ -303,7 +303,8 @@ const chorale = document.getElementById("chorale").value;
 const phone = document.getElementById("phone").value;
 const password = document.getElementById("password").value;
 const confirm = document.getElementById("confirmPassword").value;
-const hashedPassword = sha256(password);
+
+const passwordHash = await hashPassword(password);
 
 
 // ================================
@@ -432,7 +433,7 @@ fonction,
 chorale,
 phone,
 username,
-password: hashedPassword,   // <-- AJOUTER CETTE LIGNE
+passwordHash,
 photoURL,
 
 role:"choriste",
@@ -441,6 +442,26 @@ isActive:"pending",
 createdAt:new Date()
 
 });
+
+// ======================================================
+// HASH PASSWORD (même logique que login)
+// ======================================================
+
+async function hashPassword(password){
+
+const encoder = new TextEncoder();
+
+const data = encoder.encode(password);
+
+const hashBuffer = await crypto.subtle.digest("SHA-256",data);
+
+const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+return hashArray
+.map(b => b.toString(16).padStart(2,"0"))
+.join("");
+
+}
 
 // ======================================================
 // SHOW CREDENTIALS MODAL
