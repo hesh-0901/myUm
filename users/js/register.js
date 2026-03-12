@@ -19,6 +19,8 @@ uploadBytes,
 getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+import { sha256 } from "https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js";
+
 
 // ======================================================
 // INIT STORAGE
@@ -301,6 +303,7 @@ const chorale = document.getElementById("chorale").value;
 const phone = document.getElementById("phone").value;
 const password = document.getElementById("password").value;
 const confirm = document.getElementById("confirmPassword").value;
+const hashedPassword = sha256(password);
 
 
 // ================================
@@ -429,7 +432,7 @@ fonction,
 chorale,
 phone,
 username,
-password,   // <-- AJOUTER CETTE LIGNE
+password: hashedPassword,   // <-- AJOUTER CETTE LIGNE
 photoURL,
 
 role:"choriste",
