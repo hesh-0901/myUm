@@ -276,8 +276,6 @@ Avenue / Référence
 
 </div>
 
-
-
 <!-- =============================== -->
 <!-- INFORMATIONS ECCLESIASTIQUES -->
 <!-- =============================== -->
@@ -289,6 +287,30 @@ Informations ecclésiastiques
 </h2>
 
 
+<!-- TYPE MEMBRE -->
+
+<div class="field border-b border-gray-100 pb-4"
+data-field="typeMembre" data-type="radio" data-required="true">
+
+<div class="flex justify-between items-start">
+
+<div>
+<p class="text-xs text-gray-500">
+Type de membre <span class="text-danger">*</span>
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+<i class="bi bi-pencil text-sm"></i>
+</button>
+
+</div>
+</div>
+
+
+<!-- EGLISE PROVENANCE -->
 
 <div class="field border-b border-gray-100 pb-4"
 data-field="egliseProvenance" data-type="text">
@@ -296,26 +318,22 @@ data-field="egliseProvenance" data-type="text">
 <div class="flex justify-between items-start">
 
 <div>
-
 <p class="text-xs text-gray-500">
 Église de provenance
 </p>
 
 <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-
 </div>
 
 <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-
 <i class="bi bi-pencil text-sm"></i>
-
 </button>
 
 </div>
-
 </div>
 
 
+<!-- ANNEE BAPTEME -->
 
 <div class="field border-b border-gray-100 pb-4"
 data-field="anneeBapteme" data-type="year">
@@ -323,24 +341,22 @@ data-field="anneeBapteme" data-type="year">
 <div class="flex justify-between items-start">
 
 <div>
-
 <p class="text-xs text-gray-500">
 Année de baptême
 </p>
 
 <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-
 </div>
 
 <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-
 <i class="bi bi-pencil text-sm"></i>
-
 </button>
 
 </div>
-
 </div>
+
+
+<!-- TYPE BAPTEME -->
 
 <div class="field border-b border-gray-100 pb-4"
 data-field="typeBapteme" data-type="radio">
@@ -348,24 +364,22 @@ data-field="typeBapteme" data-type="radio">
 <div class="flex justify-between items-start">
 
 <div>
-
 <p class="text-xs text-gray-500">
 Type de baptême
 </p>
 
 <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-
 </div>
 
 <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-
 <i class="bi bi-pencil text-sm"></i>
-
 </button>
 
 </div>
-
 </div>
+
+
+<!-- STATUT AFFERMISSEMENT -->
 
 <div class="field border-b border-gray-100 pb-4"
 data-field="statutAffermissement" data-type="select">
@@ -373,48 +387,160 @@ data-field="statutAffermissement" data-type="select">
 <div class="flex justify-between items-start">
 
 <div>
-
 <p class="text-xs text-gray-500">
 Statut d'affermissement
 </p>
 
 <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-
 </div>
 
 <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-
 <i class="bi bi-pencil text-sm"></i>
-
 </button>
 
 </div>
-
 </div>
 
 
+<!-- RESPONSABLE MINISTERE -->
 
-<div class="field"
+<div class="field border-b border-gray-100 pb-4"
 data-field="responsableMinistere" data-type="radio">
 
 <div class="flex justify-between items-start">
 
 <div>
-
 <p class="text-xs text-gray-500">
 Responsable d’un ministère ?
 </p>
 
 <p class="value text-sm mt-2 font-medium text-gray-800">—</p>
-
 </div>
 
 <button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
-
 <i class="bi bi-pencil text-sm"></i>
-
 </button>
 
+</div>
+</div>
+
+
+<!-- =============================== -->
+<!-- SECTION ANCIEN MEMBRE -->
+<!-- =============================== -->
+
+<div id="ancienMembreSection" class="space-y-6 hidden">
+
+<div class="field border-b border-gray-100 pb-4"
+data-field="anneeAdhesionEglise" data-type="year">
+
+<div class="flex justify-between items-start">
+
+<div>
+<p class="text-xs text-gray-500">
+Année d’adhésion à l’église
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+<i class="bi bi-pencil text-sm"></i>
+</button>
+
+</div>
+</div>
+
+
+<div class="field"
+data-field="anneeAdhesionDepartement" data-type="year">
+
+<div class="flex justify-between items-start">
+
+<div>
+<p class="text-xs text-gray-500">
+Année d’adhésion au département
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+<i class="bi bi-pencil text-sm"></i>
+</button>
+
+</div>
+</div>
+
+</div>
+
+
+<!-- =============================== -->
+<!-- SECTION NOUVEAU MEMBRE -->
+<!-- =============================== -->
+
+<div id="nouveauMembreSection" class="space-y-6 hidden">
+
+<div class="field border-b border-gray-100 pb-4"
+data-field="dateAdhesionEglise" data-type="text">
+
+<div class="flex justify-between items-start">
+
+<div>
+<p class="text-xs text-gray-500">
+Date d’adhésion à l’église
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+<i class="bi bi-pencil text-sm"></i>
+</button>
+
+</div>
+</div>
+
+
+<div class="field border-b border-gray-100 pb-4"
+data-field="dateAdhesionDepartement" data-type="text">
+
+<div class="flex justify-between items-start">
+
+<div>
+<p class="text-xs text-gray-500">
+Date d’adhésion au département
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+<i class="bi bi-pencil text-sm"></i>
+</button>
+
+</div>
+</div>
+
+
+<div class="field"
+data-field="raisonAdhesion" data-type="text">
+
+<div class="flex justify-between items-start">
+
+<div>
+<p class="text-xs text-gray-500">
+Raison de votre adhésion
+</p>
+
+<p class="value text-sm mt-2 font-medium text-gray-800">—</p>
+</div>
+
+<button class="edit-btn w-9 h-9 flex items-center justify-center rounded-full bg-lightblue/10 text-medium hover:bg-lightblue/20 transition">
+<i class="bi bi-pencil text-sm"></i>
+</button>
+
+</div>
 </div>
 
 </div>
