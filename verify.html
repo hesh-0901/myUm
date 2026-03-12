@@ -1,41 +1,114 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 
 <meta charset="UTF-8">
-<title>Vérification Profil</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vérification Profil | MyUM</title>
 
 <style>
 
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
 body{
-font-family:Arial;
-background:#f5f7fa;
-padding:40px;
-text-align:center;
+font-family:Arial, Helvetica, sans-serif;
+background:#f4f6f9;
+color:#333;
+padding:40px 20px;
+display:flex;
+justify-content:center;
+}
+
+main{
+width:100%;
+max-width:520px;
 }
 
 .card{
 background:white;
-padding:30px;
-max-width:500px;
-margin:auto;
-border-radius:8px;
-box-shadow:0 5px 20px rgba(0,0,0,0.05);
+padding:35px;
+border-radius:10px;
+box-shadow:0 8px 25px rgba(0,0,0,0.06);
+}
+
+header{
+margin-bottom:25px;
+text-align:center;
+}
+
+header h1{
+font-size:22px;
+margin-bottom:6px;
+}
+
+.subtitle{
+color:#777;
+font-size:14px;
+}
+
+.status{
+margin-bottom:20px;
+font-size:14px;
+}
+
+.status.loading{
+color:#999;
+}
+
+.status.error{
+color:#e74c3c;
+font-weight:bold;
+}
+
+.status.success{
+color:#27ae60;
+font-weight:bold;
+}
+
+.profile{
+margin-top:10px;
+text-align:center;
 }
 
 .name{
 font-size:24px;
 font-weight:bold;
+margin-bottom:4px;
 }
 
 .role{
+font-size:15px;
 color:#555;
-margin-bottom:20px;
+margin-bottom:12px;
 }
 
-.verified{
-color:#2ecc71;
+.username{
+color:#888;
+font-size:14px;
+margin-bottom:15px;
+}
+
+.badge{
+display:inline-block;
+background:#eafaf1;
+color:#27ae60;
+padding:6px 12px;
+border-radius:6px;
+font-size:13px;
 font-weight:bold;
+}
+
+.footer{
+margin-top:25px;
+font-size:12px;
+color:#999;
+text-align:center;
 }
 
 </style>
@@ -44,15 +117,33 @@ font-weight:bold;
 
 <body>
 
+<main>
+
 <div class="card">
 
-<h2>Vérification MyUM</h2>
+<header>
+<h1>Vérification MyUM</h1>
+<p class="subtitle">Authenticité du profil</p>
+</header>
 
-<div id="profile"></div>
+<!-- Etat du chargement -->
+<div id="status" class="status loading">
+Vérification du profil...
+</div>
+
+<!-- Profil vérifié -->
+<section id="profile" class="profile"></section>
+
+<div class="footer">
+Document généré et vérifié par MyUM
+</div>
 
 </div>
+
+</main>
 
 <script type="module" src="/mains.js/verify.js"></script>
 
 </body>
+
 </html>
