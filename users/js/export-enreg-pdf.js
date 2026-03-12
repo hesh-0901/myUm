@@ -77,10 +77,16 @@ async function generatePDF(){
   const pageHeight = pdf.internal.pageSize.height;
 
 const colors = {
-  primary:[41,128,185],   // bleu moderne
-  text:[40,40,40],
-  muted:[130,130,130],
-  sidebar:[52,73,94]      // gris bleu plus doux
+
+  primary:[26,54,104],     // bleu officiel app
+  accent:[37,150,217],     // bleu clair UI
+  text:[35,35,35],
+  muted:[120,120,120],
+
+  sidebar:[34,40,49],      // gris premium
+  sidebarSoft:[70,78,90],  // gris clair
+  sidebarText:[230,235,240]
+
 };
   /* ======================================
   BACKGROUND
@@ -135,7 +141,10 @@ const colors = {
         reader.readAsDataURL(blob);
       });
 
-      pdf.addImage(base64,"JPEG",12,40,36,36);
+      pdf.setFillColor(255,255,255);
+pdf.roundedRect(10,38,40,40,3,3,"F");
+
+pdf.addImage(base64,"JPEG",12,40,36,36);
 
     }
 
@@ -168,11 +177,28 @@ const colors = {
 
   };
 
-  sideItem("Téléphone",data.phone);
-  sideItem("Commune",data.commune);
-  sideItem("Avenue",data.avenue);
-  sideItem("État civil",data.etatCivil);
-  sideItem("Relation",data.statutRelationnel);
+const sidebarInfo = [
+
+  ["📞",data.phone],
+  ["📍",data.commune],
+  ["🏠",data.avenue],
+  ["💍",data.etatCivil],
+  ["❤️",data.statutRelationnel]
+
+];
+
+sidebarInfo.forEach(([icon,value])=>{
+
+  if(!value) return;
+
+  pdf.setFontSize(9);
+  pdf.setTextColor(...colors.sidebarText);
+
+  pdf.text(`${icon} ${value}`,10,sideY,{maxWidth:45});
+
+  sideY+=8;
+
+});
 
   /* ======================================
   QR CODE DE VERIFICATION
@@ -211,6 +237,25 @@ pdf.text(
   pdf.setTextColor(...colors.primary);
 
   pdf.text(fullName,75,30);
+
+  if(data.typeMembre){
+
+pdf.setFillColor(...colors.accent);
+
+pdf.roundedRect(75,35,35,7,2,2,"F");
+
+pdf.setFontSize(9);
+pdf.setTextColor(255,255,255);
+
+pdf.text(
+  data.typeMembre === "Ancien membre"
+    ? "MEMBRE HISTORIQUE"
+    : "NOUVEAU MEMBRE",
+  77,
+  40
+);
+
+}
 
   if(data.fonction){
 
@@ -334,6 +379,19 @@ drawSection("MINISTÈRE MUSICAL",[
 ["Responsable ministère",data.responsableMinistere]
 
 ]);
+  drawSection("ADHÉSION À L'ÉGLISE",[
+
+["Type de membre",data.typeMembre],
+
+["Année adhésion église",data.anneeAdhesionEglise],
+["Année adhésion département",data.anneeAdhesionDepartement],
+
+["Date adhésion église",data.dateAdhesionEglise],
+["Date adhésion département",data.dateAdhesionDepartement],
+
+["Raison",data.raisonAdhesion]
+
+]);
 
   /* ======================================
   SIGNATURE NUMERIQUE
@@ -344,10 +402,10 @@ drawSection("MINISTÈRE MUSICAL",[
   const date = now.toLocaleDateString();
   const time = now.toLocaleTimeString();
 
-  const signature = `Document vérifiable MyUM
+const signature = `DOCUMENT AUTHENTIFIÉ MYUM
 Utilisateur : ${fullName}
-Date : ${date} ${time}
-ID : ${currentUserId}`;
+Horodatage : ${date} ${time}
+Identifiant : ${currentUserId}`;
 
   pdf.setFontSize(8);
   pdf.setTextColor(...colors.muted);
