@@ -429,6 +429,7 @@ fonction,
 chorale,
 phone,
 username,
+password,   // <-- AJOUTER CETTE LIGNE
 photoURL,
 
 role:"choriste",
@@ -437,7 +438,6 @@ isActive:"pending",
 createdAt:new Date()
 
 });
-
 
 // ======================================================
 // SHOW CREDENTIALS MODAL
