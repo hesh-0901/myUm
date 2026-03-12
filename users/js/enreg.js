@@ -248,21 +248,24 @@ function createInput(type, key, currentValue) {
       
         break;
       
-        case "date":
-      
-        input = document.createElement("input");
-      
-        input.type = "date";
-      
-        input.value = currentValue;
-      
-        break;
+     case "date":
+    
+      input = document.createElement("input");
+    
+      input.type = "date";
+    
+      input.max = new Date().toISOString().split("T")[0];
+    
+      input.value = currentValue;
 
-        case "textarea":
+  break;
+
+case "textarea":
 
   input = document.createElement("textarea");
 
   input.rows = 3;
+  input.placeholder = "Expliquez brièvement votre adhésion à l'église et au département ...";
   input.value = currentValue;
 
   break;
