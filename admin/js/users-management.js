@@ -9,7 +9,8 @@ limit,
 getDocs,
 doc,
 updateDoc,
-startAfter
+startAfter,
+onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -45,10 +46,10 @@ let loadingMore = false;
 init();
 
 
-async function init(){
+function init(){
 
-await loadStats();
-await loadUsers();
+loadStats();
+loadUsers();
 initEvents();
 
 }
@@ -113,22 +114,25 @@ await loadUsers();
 
 
 
-async function loadStats(){
+function loadStats(){
 
 try{
 
 const ref = collection(db,"users");
 
-const activeSnap = await getDocs(query(ref,where("isActive","==","active")));
-const pendingSnap = await getDocs(query(ref,where("isActive","==","pending")));
-const rejectedSnap = await getDocs(query(ref,where("isActive","==","rejected")));
+onSnapshot(query(ref,where("isActive","==","active")), snap=>{
+countActive.textContent = snap.size;
+});
 
-countActive.textContent = activeSnap.size;
-countPending.textContent = pendingSnap.size;
-countRejected.textContent = rejectedSnap.size;
+onSnapshot(query(ref,where("isActive","==","pending")), snap=>{
+countPending.textContent = snap.size;
+});
+
+onSnapshot(query(ref,where("isActive","==","rejected")), snap=>{
+countRejected.textContent = snap.size;
+});
 
 }
-
 catch(err){
 
 console.error("stats error",err);
