@@ -4,7 +4,8 @@
 // ================= SESSION =================
 
 const user = JSON.parse(localStorage.getItem("myum_user"));
-
+import { db } from "../mains.js/firebase-config.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 if (!user) {
   window.location.href = "../users/login.html";
 }
@@ -198,3 +199,58 @@ window.addEventListener("myum:chat-unread-update", (event) => {
     dashboardChatBadge.classList.add("hidden");
   }
 });
+
+async function loadProfileCompletion(){
+
+  const user = JSON.parse(localStorage.getItem("myum_user"));
+  if(!user) return;
+
+  const snap = await getDoc(doc(db,"users",user.id));
+  if(!snap.exists()) return;
+
+  const data = snap.data();
+
+  const fields = [
+
+    "genre",
+    "etatCivil",
+    "commune",
+    "vieSeculiere",
+
+    "typeMembre",
+    "egliseProvenance",
+    "anneeBapteme",
+    "typeBapteme",
+
+    "statutAffermissement",
+    "responsableMinistere",
+
+    "registreVoix",
+    "groupeMusique"
+
+  ];
+
+  let filled = 0;
+
+  fields.forEach(field => {
+
+    const value = data[field];
+
+    if(Array.isArray(value)){
+      if(value.length > 0) filled++;
+    }
+    else if(value && value !== "" && value !== "—"){
+      filled++;
+    }
+
+  });
+
+  const percent = Math.round((filled / fields.length) * 100);
+
+  const bar = document.getElementById("profileProgress");
+  const label = document.getElementById("profilePercent");
+
+  if(bar) bar.style.width = percent + "%";
+  if(label) label.innerText = percent + "%";
+
+}
