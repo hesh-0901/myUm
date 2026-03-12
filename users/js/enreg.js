@@ -227,19 +227,45 @@ function createInput(type, key, currentValue) {
 
       break;
 
-    case "year":
+      case "year":
+      
+        input = document.createElement("input");
+      
+        input.type = "number";
+        input.min = 1900;
+        input.max = new Date().getFullYear();
+      
+        input.placeholder = "AAAA";
+        input.value = currentValue;
+      
+        input.addEventListener("input", () => {
+      
+          if (input.value.length > 4) {
+            input.value = input.value.slice(0, 4);
+          }
+      
+        });
+      
+        break;
+      
+        case "date":
+      
+        input = document.createElement("input");
+      
+        input.type = "date";
+      
+        input.value = currentValue;
+      
+        break;
 
-      input = document.createElement("input");
+        case "textarea":
 
-      input.type = "number";
+  input = document.createElement("textarea");
 
-      input.min = 1960;
+  input.rows = 3;
+  input.value = currentValue;
 
-      input.max = new Date().getFullYear();
-
-      input.value = currentValue;
-
-      break;
+  break;
 
     case "radio":
 
@@ -445,7 +471,13 @@ function getInputValue(type, input) {
 
   }
 
-  return input.value.trim();
+  if (type === "date") {
+
+  return input.value;
+
+}
+
+return input.value.trim();
 }
 
 // ===============================
