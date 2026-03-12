@@ -1,50 +1,107 @@
 import { db } from "./firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const params = new URLSearchParams(window.location.search);
+/* ======================================
+ELEMENTS DOM
+====================================== */
 
+const statusEl = document.getElementById("status");
+const profileEl = document.getElementById("profile");
+
+/* ======================================
+RECUPERATION ID DANS URL
+====================================== */
+
+const params = new URLSearchParams(window.location.search);
 const userId = params.get("id");
 
-const profileDiv = document.getElementById("profile");
+/* ======================================
+AFFICHAGE ERREUR
+====================================== */
 
-async function loadProfile(){
+function showError(message){
 
-if(!userId){
+statusEl.className = "status error";
+statusEl.textContent = message;
 
-profileDiv.innerHTML = "<p>Profil invalide</p>";
-return;
-
-}
-
-const snap = await getDoc(doc(db,"users",userId));
-
-if(!snap.exists()){
-
-profileDiv.innerHTML = "<p>Profil non trouvé</p>";
-return;
+profileEl.innerHTML = "";
 
 }
 
-const data = snap.data();
+/* ======================================
+AFFICHAGE PROFIL
+====================================== */
 
-profileDiv.innerHTML = `
+function renderProfile(data){
 
+statusEl.className = "status success";
+statusEl.textContent = "Profil vérifié ✔";
+
+profileEl.innerHTML = `
 <div class="name">
-${data.firstName} ${data.lastName}
+${data.firstName || ""} ${data.lastName || ""}
 </div>
 
 <div class="role">
 ${data.fonction || ""}
 </div>
 
-<div class="verified">
-Profil vérifié par MyUM
+<div class="username">
+@${data.username || ""}
 </div>
 
-<p>@${data.username || ""}</p>
-
+<div class="badge">
+✓ Profil authentifié MyUM
+</div>
 `;
 
 }
 
-loadProfile();
+/* ======================================
+CHARGEMENT PROFIL
+====================================== */
+
+async function loadProfile(){
+
+try{
+
+if(!userId){
+
+showError("Lien de vérification invalide");
+return;
+
+}
+
+/* récupération firestore */
+
+const snap = await getDoc(doc(db,"users",userId));
+
+if(!snap.exists()){
+
+showError("Profil introuvable");
+return;
+
+}
+
+const data = snap.data();
+
+/* affichage profil */
+
+renderProfile(data);
+
+}
+catch(error){
+
+console.error(error);
+
+showError("Erreur de vérification");
+
+}
+
+}
+
+/* ======================================
+INITIALISATION
+====================================== */
+
+document.addEventListener("DOMContentLoaded",loadProfile);
