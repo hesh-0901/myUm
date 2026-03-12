@@ -268,16 +268,16 @@ try{
 
 const lines = pdf.splitTextToSize(
   data.bio,
-  pageWidth-85
+  pageWidth - 95
 );
 
     pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
     pdf.setTextColor(...colors.text);
 
-    pdf.text(lines,75,y,{maxWidth:pageWidth-90});
+    pdf.text(lines,75,y,{maxWidth:pageWidth-95});
 
-    y += lines.length*5 + 10;
+    y += lines.length*6 + 12;
 
   }
 
