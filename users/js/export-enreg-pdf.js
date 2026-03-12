@@ -319,7 +319,7 @@ valid.forEach(([label,value])=>{
 
   drawSection("PARCOURS SPIRITUEL",[
 
-    ["Église",data.egliseProvenance],
+    ["Église d'origine",data.egliseProvenance],
     ["Année Baptême",data.anneeBapteme],
     ["Type",data.typeBapteme]
 
