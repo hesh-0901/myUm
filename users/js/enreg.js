@@ -73,6 +73,7 @@ async function loadUserData() {
   });
 
   handleEtatCivilVisibility();
+  handleTypeMembreVisibility();
 }
 
 // ===============================
@@ -199,7 +200,8 @@ function initEditableSystem() {
         highlightRequiredFields();
 
         handleEtatCivilVisibility();
-
+        handleTypeMembreVisibility();
+        
         initEditableSystem();
       };
     });
@@ -293,6 +295,7 @@ function createRadioGroup(key, currentValue) {
   if (key === "typeBapteme") options = ["Immersion", "Aspersion"];
   if (key === "responsableMinistere") options = ["Oui", "Non"];
   if (key === "groupeMusique") options = ["Oui", "Non"];
+  if (key === "typeMembre") options = ["Ancien membre", "Nouveau membre"];
 
   options.forEach(opt => {
 
@@ -463,6 +466,39 @@ function handleEtatCivilVisibility() {
     wrapper.classList.add("hidden");
 
   }
+}
+
+// ===============================
+// TYPE MEMBRE VISIBILITY
+// ===============================
+function handleTypeMembreVisibility(){
+
+  const ancien = document.getElementById("ancienMembreSection");
+  const nouveau = document.getElementById("nouveauMembreSection");
+
+  if(!ancien || !nouveau || !currentUserData) return;
+
+  if(currentUserData.typeMembre === "Ancien membre"){
+
+    ancien.classList.remove("hidden");
+    nouveau.classList.add("hidden");
+
+  }
+
+  else if(currentUserData.typeMembre === "Nouveau membre"){
+
+    nouveau.classList.remove("hidden");
+    ancien.classList.add("hidden");
+
+  }
+
+  else{
+
+    ancien.classList.add("hidden");
+    nouveau.classList.add("hidden");
+
+  }
+
 }
 
 // ===============================
