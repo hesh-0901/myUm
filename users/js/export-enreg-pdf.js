@@ -193,28 +193,34 @@ async function generatePDF(){
   pdf.setFontSize(22);
   pdf.setTextColor(...colors.primary);
 
-  pdf.text(fullName,75,28);
+let y = 30;
 
-  if(data.fonction){
+pdf.text(fullName,75,y);
 
-    pdf.setFontSize(12);
-    pdf.setTextColor(...colors.text);
+y += 10;
 
-    pdf.text(data.fonction.toUpperCase(),75,44);
+if(data.fonction){
 
-  }
+  pdf.setFontSize(12);
+  pdf.setTextColor(...colors.text);
 
-  if(data.username){
+  pdf.text(data.fonction.toUpperCase(),75,y);
 
-    pdf.setFont("helvetica","normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(...colors.muted);
+  y += 6;
 
-    pdf.text("@"+data.username,75,52);
+}
 
-  }
+if(data.username){
 
-  let y = 65;
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(10);
+  pdf.setTextColor(...colors.muted);
+
+  pdf.text("@"+data.username,75,y);
+
+  y += 10;
+
+}
 
   /* ======================================
   BIO
