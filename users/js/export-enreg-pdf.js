@@ -228,26 +228,8 @@ try{
 
   pdf.text(fullName,75,28);
 
-  /* Badge membre */
+  /* Badge membre vidé*/
 
-  if(data.typeMembre){
-
-    pdf.setFillColor(...colors.accent);
-
-    pdf.roundedRect(75,32,40,7,2,2,"F");
-
-    pdf.setFontSize(9);
-    pdf.setTextColor(255,255,255);
-
-    pdf.text(
-      data.typeMembre === "Ancien membre"
-      ? "MEMBRE HISTORIQUE"
-      : "NOUVEAU MEMBRE",
-      77,
-      37
-    );
-
-  }
 
   if(data.fonction){
 
@@ -284,16 +266,16 @@ try{
 
     y+=8;
 
-    const lines = pdf.splitTextToSize(
-      data.bio,
-      pageWidth-100
-    );
+const lines = pdf.splitTextToSize(
+  data.bio,
+  pageWidth-85
+);
 
     pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
     pdf.setTextColor(...colors.text);
 
-    pdf.text(lines,75,y);
+    pdf.text(lines,75,y,{maxWidth:pageWidth-90});
 
     y += lines.length*5 + 10;
 
@@ -332,7 +314,7 @@ try{
       pdf.setTextColor(...colors.text);
 
       pdf.text(
-        pdf.splitTextToSize(String(value),60),
+        pdf.splitTextToSize(String(value),70),
         120,
         y
       );
