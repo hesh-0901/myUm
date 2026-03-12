@@ -291,6 +291,14 @@ valid.forEach(([label,value])=>{
 
   };
 
+  drawSection("IDENTITÉ",[
+
+["Date de naissance",data.birthday],
+["Âge",data.age ? data.age + " ans" : ""],
+["Genre",data.genre]
+
+]);
+
   drawSection("PARCOURS SPIRITUEL",[
 
     ["Église",data.egliseProvenance],
@@ -299,13 +307,15 @@ valid.forEach(([label,value])=>{
 
   ]);
 
-  drawSection("MINISTÈRE MUSICAL",[
+drawSection("MINISTÈRE MUSICAL",[
 
-    ["Registre",data.registreVoix],
-    ["Groupe",data.groupeMusique],
-    ["Responsable",data.responsableMinistere]
+["Chorale",data.chorale],
+["Statut d'affermissement",data.statutAffermissement],
+["Registre",data.registreVoix],
+["Groupe musical",data.groupeMusique],
+["Responsable ministère",data.responsableMinistere]
 
-  ]);
+]);
 
   /* ======================================
   SIGNATURE NUMERIQUE
