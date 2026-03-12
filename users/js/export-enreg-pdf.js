@@ -241,7 +241,7 @@ async function generatePDF(){
 
     pdf.text(lines,75,y);
 
-    y += lines.length*6 + 12;
+    y += lines.length*5 + 6;
 
   }
 
