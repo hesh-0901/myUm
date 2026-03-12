@@ -19,8 +19,6 @@ uploadBytes,
 getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-import { sha256 } from "https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js";
-
 
 // ======================================================
 // INIT STORAGE
@@ -188,11 +186,6 @@ document.getElementById("downloadCredentials").addEventListener("click",()=>{
 const username = document.getElementById("credUsername").textContent;
 const password = document.getElementById("credPassword").textContent;
 
-
-// ================================
-// CREATE CANVAS
-// ================================
-
 const canvas = document.createElement("canvas");
 
 canvas.width = 800;
@@ -200,28 +193,13 @@ canvas.height = 450;
 
 const ctx = canvas.getContext("2d");
 
-
-// ================================
-// BACKGROUND
-// ================================
-
 ctx.fillStyle = "#1A3668";
 ctx.fillRect(0,0,canvas.width,canvas.height);
-
-
-// ================================
-// TITLE
-// ================================
 
 ctx.fillStyle = "#ffffff";
 ctx.font = "bold 40px Inter";
 
 ctx.fillText("MyUm",50,80);
-
-
-// ================================
-// TEXT
-// ================================
 
 ctx.font = "24px Inter";
 
@@ -231,11 +209,6 @@ ctx.fillText(`Mot de passe : ${password}`,50,260);
 ctx.font = "18px Inter";
 
 ctx.fillText("Compte en attente de validation admin",50,340);
-
-
-// ================================
-// EXPORT JPG
-// ================================
 
 const image = canvas.toDataURL("image/jpeg",0.9);
 
@@ -275,11 +248,6 @@ registerForm.addEventListener("submit", async (e) => {
 
 e.preventDefault();
 
-
-// ================================
-// LOADING BUTTON
-// ================================
-
 registerBtn.disabled = true;
 
 registerBtn.innerHTML = `
@@ -304,8 +272,6 @@ const phone = document.getElementById("phone").value;
 const password = document.getElementById("password").value;
 const confirm = document.getElementById("confirmPassword").value;
 
-const passwordHash = await hashPassword(password);
-
 
 // ================================
 // PASSWORD CHECK
@@ -320,6 +286,13 @@ resetRegisterButton();
 return;
 
 }
+
+
+// ================================
+// HASH PASSWORD (même logique login)
+// ================================
+
+const passwordHash = await hashPassword(password);
 
 
 // ================================
@@ -443,8 +416,20 @@ createdAt:new Date()
 
 });
 
+
 // ======================================================
-// HASH PASSWORD (même logique que login)
+// SHOW CREDENTIALS MODAL
+// ======================================================
+
+showCredentialsModal(username,password);
+
+resetRegisterButton();
+
+});
+
+
+// ======================================================
+// HASH PASSWORD (identique login.js)
 // ======================================================
 
 async function hashPassword(password){
@@ -462,13 +447,3 @@ return hashArray
 .join("");
 
 }
-
-// ======================================================
-// SHOW CREDENTIALS MODAL
-// ======================================================
-
-showCredentialsModal(username,password);
-
-resetRegisterButton();
-
-});
