@@ -32,7 +32,7 @@ profileEl.innerHTML = "";
 AFFICHAGE PROFIL
 ====================================== */
 
-function renderProfile(data){function renderProfile(data){
+function renderProfile(data){
 
 statusEl.className = "status success";
 statusEl.textContent = "Profil vérifié ✔";
