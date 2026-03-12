@@ -46,47 +46,30 @@ body{
 background:#011C40;
 }
 
-/* container app */
-
 .app-container{
 max-width:420px;
 margin:auto;
 }
 
-/* actions rapides */
-
 .action-pill{
-
 display:flex;
 align-items:center;
 gap:6px;
-
 padding:6px 12px;
-
 background:#023859;
 color:#A7EBF2;
-
 border-radius:999px;
-
 font-size:12px;
-
 white-space:nowrap;
-
 border:1px solid rgba(255,255,255,0.08);
-
 transition:all .2s ease;
-
 flex-shrink:0;
 }
 
 .action-pill:hover{
-
 background:#26658C;
 color:white;
-
 }
-
-/* scroll horizontal propre */
 
 #quickActions{
 scrollbar-width:none;
@@ -109,11 +92,9 @@ display:none;
 <!-- SIDEBAR -->
 <div id="sidebar-container"></div>
 
-
 <div class="app-container px-4 space-y-6">
 
 <!-- ACTIONS RAPIDES -->
-
 <div class="relative">
 
 <div id="quickActions"
@@ -148,10 +129,7 @@ Justifier
 
 </div>
 
-
-
 <!-- CARD PARTICIPATION -->
-
 <div class="bg-card rounded-3xl p-6 shadow-lg">
 
 <div class="flex items-center gap-2 mb-4 text-soft">
@@ -164,25 +142,18 @@ Taux de participation
 
 </div>
 
-
-<!-- CONTENEUR GAUGE -->
-
 <div class="relative h-[200px] w-full flex items-end justify-center">
 
 <canvas id="participationChart"></canvas>
 
-<!-- POURCENTAGE -->
-
 <div id="percentageLabel"
 class="absolute bottom-6 text-3xl font-semibold text-soft">
-75%
+0%
 </div>
 
 </div>
 
 </div>
-
-
 
 <!-- PROGRESSION PROFIL -->
 <div class="bg-card rounded-3xl p-5 shadow-lg">
@@ -203,7 +174,7 @@ Profil
 
 <div
 id="profileProgress"
-class="h-full bg-medium rounded-full transition-all duration-500"
+class="h-full bg-accent rounded-full transition-all duration-700"
 style="width:0%">
 </div>
 
@@ -211,169 +182,13 @@ style="width:0%">
 
 </div>
 
+</div>
 
 <!-- NAVBAR -->
 <div id="navbar-container"></div>
 
-
-
 <script type="module" src="../users/js/presence-client.js"></script>
-<script type="module" src="../public/dashboard.js"></script>
-
-<script type="module">
-
-import { checkAuth } from "../mains.js/auth-guard.js";
-import { initHeader } from "../partials/js/header.js";
-import { initSidebar } from "../partials/js/sidebar.js";
-
-checkAuth();
-
-async function initApp(){
-
-try{
-
-const header = await fetch("../partials/header.html");
-document.getElementById("header-container").innerHTML = await header.text();
-await initHeader();
-
-const sidebar = await fetch("../partials/sidebar.html");
-document.getElementById("sidebar-container").innerHTML = await sidebar.text();
-initSidebar();
-
-const nav = await fetch("../partials/nav.html");
-document.getElementById("navbar-container").innerHTML = await nav.text();
-
-await import("../partials/js/nav.js");
-
-initDashboard();
-
-}catch(error){
-
-console.error("Erreur chargement dashboard :",error);
-
-}
-
-}
-
-initApp();
-
-
-
-function initDashboard(){
-
-const participationCanvas=document.getElementById("participationChart");
-
-if(participationCanvas){
-
-const participation=75;
-
-const ctx=participationCanvas.getContext("2d");
-
-const percentageLabel=document.getElementById("percentageLabel");
-
-if(percentageLabel){
-percentageLabel.innerText=participation+"%";
-}
-
-new Chart(ctx,{
-
-type:"doughnut",
-
-data:{
-datasets:[{
-data:[participation,100-participation],
-backgroundColor:[
-"#54ACBF",
-"#023859"
-],
-borderWidth:0
-}]
-},
-
-options:{
-
-rotation:-90,
-circumference:180,
-cutout:"75%",
-
-plugins:{
-tooltip:{enabled:false},
-legend:{display:false}
-}
-
-}
-
-});
-
-}
-
-const routes={
-btnMessage:"../chat/index.html",
-btnAgenda:"../agenda/index.html",
-btnPublication:"../annonce/index.html",
-btnPresenceRoom:"../users/presence.html",
-btnJustification:"justification.html"
-};
-
-Object.keys(routes).forEach(id=>{
-
-const btn=document.getElementById(id);
-
-if(btn){
-
-btn.addEventListener("click",()=>{
-window.location.href=routes[id];
-});
-
-}
-
-});
-
-}
-
-</script>
-
-
-<script>
-
-const slider = document.getElementById("quickActions");
-
-if(slider){
-
-slider.addEventListener("wheel",function(e){
-
-e.preventDefault();
-slider.scrollLeft += e.deltaY;
-
-});
-
-}
-
-</script>
-
-<script>
-function getBasePath() {
-
-  const { pathname } = window.location;
-  const parts = pathname.split("/").filter(Boolean);
-  const isGitHubIO = window.location.hostname.includes("github.io");
-
-  if (isGitHubIO && parts.length > 0) {
-    return "/" + parts[0] + "/";
-  }
-
-  return "/";
-}
-
-window.goTo = function(path) {
-
-  const base = getBasePath();
-  window.location.href = base + path;
-
-};
-</script>
-
-
+<script type="module" src="./dashboard.js"></script>
 <script type="module" src="../mains.js/app-init.js"></script>
 
 </body>
