@@ -248,27 +248,53 @@ function createInput(type, key, currentValue) {
       
         break;
       
-     case "date":
+         case "date":
+        
+          input = document.createElement("input");
+        
+          input.type = "date";
+        
+          input.max = new Date().toISOString().split("T")[0];
+        
+          input.value = currentValue;
     
-      input = document.createElement("input");
-    
-      input.type = "date";
-    
-      input.max = new Date().toISOString().split("T")[0];
-    
-      input.value = currentValue;
+          break;
 
-  break;
-
-case "textarea":
-
-  input = document.createElement("textarea");
-
-  input.rows = 3;
-  input.placeholder = "Expliquez brièvement votre adhésion à l'église et au département ...";
-  input.value = currentValue;
-
-  break;
+          case "textarea":
+          
+            input = document.createElement("textarea");
+          
+            input.rows = 3;
+            input.value = currentValue;
+          
+            const maxWords = 30;
+          
+            // compteur
+            const counter = document.createElement("div");
+            counter.className = "text-xs text-gray-400 mt-1 text-right";
+            counter.innerText = "0 / 30 mots";
+          
+            input.addEventListener("input", () => {
+          
+              const words = input.value.trim().split(/\s+/).filter(w => w);
+          
+              // limite
+              if(words.length > maxWords){
+                input.value = words.slice(0,maxWords).join(" ");
+              }
+          
+              // mise à jour compteur
+              const count = input.value.trim().split(/\s+/).filter(w => w).length;
+              counter.innerText = `${count} / 30 mots`;
+          
+            });
+          
+            // ajouter le compteur sous le textarea
+            setTimeout(()=>{
+              input.parentNode.appendChild(counter);
+            });
+          
+          break;
 
     case "radio":
 
