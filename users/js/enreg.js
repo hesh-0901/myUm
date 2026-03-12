@@ -74,6 +74,7 @@ async function loadUserData() {
 
   handleEtatCivilVisibility();
   handleTypeMembreVisibility();
+  updateProfileCompletion(currentUserData);
 }
 
 // ===============================
@@ -559,6 +560,50 @@ function handleTypeMembreVisibility(){
     nouveau.classList.add("hidden");
 
   }
+
+}
+
+function updateProfileCompletion(data){
+
+  const fields = [
+
+    "genre",
+    "etatCivil",
+    "commune",
+    "vieSeculiere",
+
+    "typeMembre",
+    "egliseProvenance",
+    "anneeBapteme",
+    "typeBapteme",
+
+    "statutAffermissement",
+    "responsableMinistere",
+
+    "registreVoix",
+    "groupeMusique"
+
+  ];
+
+  let filled = 0;
+
+  fields.forEach(field => {
+
+    const value = data[field];
+
+    if(value && value !== "" && value !== "—"){
+      filled++;
+    }
+
+  });
+
+  const percent = Math.round((filled / fields.length) * 100);
+
+  const bar = document.getElementById("profileProgress");
+  const label = document.getElementById("profilePercent");
+
+  if(bar) bar.style.width = percent + "%";
+  if(label) label.innerText = percent + "%";
 
 }
 
