@@ -76,17 +76,17 @@ async function generatePDF(){
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-  const colors = {
+const colors = {
 
-    primary:[26,54,104],
-    accent:[37,150,217],
-    text:[35,35,35],
-    muted:[120,120,120],
+  primary:[26,54,104],     // bleu principal
+  accent:[37,150,217],     // bleu clair
+  text:[35,35,35],
+  muted:[120,120,120],
 
-    sidebar:[34,40,49],
-    sidebarText:[230,235,240]
+  sidebar:[72,88,112],     // gris bleu premium
+  sidebarText:[255,255,255]
 
-  };
+};
 
   /* ======================================
   BACKGROUND
@@ -121,40 +121,37 @@ async function generatePDF(){
 
   }catch(e){}
 
-  /* ======================================
-  PHOTO
-  ====================================== */
+/* ======================================
+PHOTO
+====================================== */
 
-  try{
+try{
 
-    const imgElement = document.getElementById("profilePhoto");
+  const imgElement = document.getElementById("profilePhoto");
 
-    if(imgElement && imgElement.src){
+  if(imgElement && imgElement.src){
 
-      const response = await fetch(imgElement.src);
-      const blob = await response.blob();
+    const response = await fetch(imgElement.src);
+    const blob = await response.blob();
 
-      const reader = new FileReader();
+    const reader = new FileReader();
 
-      const base64 = await new Promise(resolve=>{
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
+    const base64 = await new Promise(resolve=>{
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
 
-      pdf.setFillColor(255,255,255);
-      pdf.roundedRect(10,38,40,40,3,3,"F");
+    pdf.addImage(base64,"JPEG",12,40,36,36);
 
-      pdf.addImage(base64,"JPEG",12,40,36,36);
+  }
 
-    }
-
-  }catch(e){}
+}catch(e){}
 
   /* ======================================
   SIDEBAR INFOS
   ====================================== */
 
-  let sideY = 95;
+  let sideY = 92;
 
   const sidebarInfo = [
   
