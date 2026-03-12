@@ -9,7 +9,7 @@ const statusEl = document.getElementById("status");
 const profileEl = document.getElementById("profile");
 
 /* ======================================
-RECUPERATION ID DANS URL
+RECUPERATION ID URL
 ====================================== */
 
 const params = new URLSearchParams(window.location.search);
@@ -37,11 +37,21 @@ function renderProfile(data){
 statusEl.className = "status success";
 statusEl.textContent = "Profil vérifié ✔";
 
+/* gestion photo dynamique */
+
+const photo =
+data.photoURL ||
+data.photo ||
+"/myUm/assets/default-avatar.png";
+
 profileEl.innerHTML = `
 
-<img class="avatar"
-src="${data.photoURL || "/myUm/assets/default-avatar.png"}"
-alt="photo">
+<img
+class="avatar"
+src="${photo}"
+alt="photo"
+onerror="this.src='/myUm/assets/default-avatar.png'"
+>
 
 <div class="name">
 ${data.firstName || ""} ${data.lastName || ""}
@@ -78,8 +88,6 @@ return;
 
 }
 
-/* récupération firestore */
-
 const snap = await getDoc(doc(db,"users",userId));
 
 if(!snap.exists()){
@@ -90,8 +98,6 @@ return;
 }
 
 const data = snap.data();
-
-/* affichage profil */
 
 renderProfile(data);
 
