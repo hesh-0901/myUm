@@ -184,22 +184,30 @@ class="absolute bottom-6 text-3xl font-semibold text-soft">
 
 
 
-<!-- ALERTE -->
+<!-- PROGRESSION PROFIL -->
 <div class="bg-card rounded-3xl p-5 shadow-lg">
 
-<div class="flex items-center gap-2 mb-2 text-soft">
-
-<i class="bi bi-exclamation-triangle-fill"></i>
+<div class="flex justify-between items-center mb-2 text-soft">
 
 <h2 class="font-semibold text-sm">
-Alerte
+Profil
 </h2>
+
+<span id="profilePercent" class="text-xs text-gray-400">
+0%
+</span>
 
 </div>
 
-<p class="text-sm text-gray-300">
-Vous avez 3 absences consécutives.
-</p>
+<div class="w-full h-1 bg-gray-700/40 rounded-full overflow-hidden">
+
+<div
+id="profileProgress"
+class="h-full bg-medium rounded-full transition-all duration-500"
+style="width:0%">
+</div>
+
+</div>
 
 </div>
 
