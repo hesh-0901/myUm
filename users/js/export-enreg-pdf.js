@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ======================================
-SEPARATEUR VISUEL ENTRE SECTIONS
+SEPARATEUR VISUEL
 ====================================== */
 
 function drawSeparator(pdf,y,pageWidth){
@@ -43,7 +43,7 @@ function drawSeparator(pdf,y,pageWidth){
 }
 
 /* ======================================
-GENERATION PDF PREMIUM
+GENERATION PDF
 ====================================== */
 
 async function generatePDF(){
@@ -54,7 +54,7 @@ async function generatePDF(){
   const data = snap.data();
 
   /* ======================================
-  MAPPING CHORALES
+  CHORALE
   ====================================== */
 
   const choraleNames = {
@@ -76,23 +76,23 @@ async function generatePDF(){
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-const colors = {
+  const colors = {
 
-  primary:[26,54,104],     // bleu officiel app
-  accent:[37,150,217],     // bleu clair UI
-  text:[35,35,35],
-  muted:[120,120,120],
+    primary:[26,54,104],
+    accent:[37,150,217],
+    text:[35,35,35],
+    muted:[120,120,120],
 
-  sidebar:[34,40,49],      // gris premium
-  sidebarSoft:[70,78,90],  // gris clair
-  sidebarText:[230,235,240]
+    sidebar:[34,40,49],
+    sidebarText:[230,235,240]
 
-};
+  };
+
   /* ======================================
   BACKGROUND
   ====================================== */
 
-  pdf.setFillColor(248,249,252);
+  pdf.setFillColor(245,247,250);
   pdf.rect(0,0,pageWidth,pageHeight,"F");
 
   /* ======================================
@@ -142,26 +142,36 @@ const colors = {
       });
 
       pdf.setFillColor(255,255,255);
-pdf.roundedRect(10,38,40,40,3,3,"F");
+      pdf.roundedRect(10,38,40,40,3,3,"F");
 
-pdf.addImage(base64,"JPEG",12,40,36,36);
+      pdf.addImage(base64,"JPEG",12,40,36,36);
 
     }
 
   }catch(e){}
 
   /* ======================================
-  SIDEBAR CONTACT
+  SIDEBAR INFOS
   ====================================== */
 
   let sideY = 95;
 
-  const sideItem = (label,value)=>{
+  const sidebarInfo = [
+
+    ["Téléphone",data.phone],
+    ["Commune",data.commune],
+    ["Avenue",data.avenue],
+    ["État civil",data.etatCivil],
+    ["Relation",data.statutRelationnel]
+
+  ];
+
+  sidebarInfo.forEach(([label,value])=>{
 
     if(!value) return;
 
     pdf.setFont("helvetica","bold");
-    pdf.setFontSize(7);
+    pdf.setFontSize(8);
     pdf.setTextColor(180,200,255);
 
     pdf.text(label.toUpperCase(),10,sideY);
@@ -169,39 +179,16 @@ pdf.addImage(base64,"JPEG",12,40,36,36);
     sideY+=4;
 
     pdf.setFont("helvetica","normal");
-    pdf.setTextColor(255,255,255);
+    pdf.setTextColor(...colors.sidebarText);
 
     pdf.text(String(value),10,sideY,{maxWidth:40});
 
     sideY+=10;
 
-  };
-
-const sidebarInfo = [
-
-  ["📞",data.phone],
-  ["📍",data.commune],
-  ["🏠",data.avenue],
-  ["💍",data.etatCivil],
-  ["❤️",data.statutRelationnel]
-
-];
-
-sidebarInfo.forEach(([icon,value])=>{
-
-  if(!value) return;
-
-  pdf.setFontSize(9);
-  pdf.setTextColor(...colors.sidebarText);
-
-  pdf.text(`${icon} ${value}`,10,sideY,{maxWidth:45});
-
-  sideY+=8;
-
-});
+  });
 
   /* ======================================
-  QR CODE DE VERIFICATION
+  QR CODE
   ====================================== */
 
   const verifyURL = `${window.location.origin}/myUm/verify.html?id=${currentUserId}`;
@@ -216,15 +203,16 @@ sidebarInfo.forEach(([icon,value])=>{
     20,
     20
   );
-  pdf.setFontSize(7);
-pdf.setTextColor(...colors.muted);
 
-pdf.text(
-  "Scan pour vérifier",
-  pageWidth-25,
-  45,
-  {align:"center"}
-);
+  pdf.setFontSize(7);
+  pdf.setTextColor(...colors.muted);
+
+  pdf.text(
+    "Scan pour vérifier",
+    pageWidth-25,
+    45,
+    {align:"center"}
+  );
 
   /* ======================================
   HEADER
@@ -236,33 +224,35 @@ pdf.text(
   pdf.setFontSize(22);
   pdf.setTextColor(...colors.primary);
 
-  pdf.text(fullName,75,30);
+  pdf.text(fullName,75,28);
+
+  /* Badge membre */
 
   if(data.typeMembre){
 
-pdf.setFillColor(...colors.accent);
+    pdf.setFillColor(...colors.accent);
 
-pdf.roundedRect(75,35,35,7,2,2,"F");
+    pdf.roundedRect(75,32,40,7,2,2,"F");
 
-pdf.setFontSize(9);
-pdf.setTextColor(255,255,255);
+    pdf.setFontSize(9);
+    pdf.setTextColor(255,255,255);
 
-pdf.text(
-  data.typeMembre === "Ancien membre"
-    ? "MEMBRE HISTORIQUE"
-    : "NOUVEAU MEMBRE",
-  77,
-  40
-);
+    pdf.text(
+      data.typeMembre === "Ancien membre"
+      ? "MEMBRE HISTORIQUE"
+      : "NOUVEAU MEMBRE",
+      77,
+      37
+    );
 
-}
+  }
 
   if(data.fonction){
 
     pdf.setFontSize(12);
     pdf.setTextColor(...colors.text);
 
-    pdf.text(data.fonction.toUpperCase(),75,40);
+    pdf.text(data.fonction.toUpperCase(),75,44);
 
   }
 
@@ -272,7 +262,7 @@ pdf.text(
     pdf.setFontSize(10);
     pdf.setTextColor(...colors.muted);
 
-    pdf.text("@"+data.username,75,48);
+    pdf.text("@"+data.username,75,52);
 
   }
 
@@ -293,9 +283,9 @@ pdf.text(
     y+=8;
 
     const lines = pdf.splitTextToSize(
-  data.bio,
-  pageWidth-100
-);
+      data.bio,
+      pageWidth-100
+    );
 
     pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
@@ -308,28 +298,27 @@ pdf.text(
   }
 
   /* ======================================
-  SECTION GENERIQUE
+  SECTIONS
   ====================================== */
 
   const drawSection = (title,fields)=>{
 
     const valid = fields.filter(f=>f[1]);
-
     if(valid.length===0) return;
 
     pdf.setFont("helvetica","bold");
     pdf.setFontSize(12);
     pdf.setTextColor(...colors.primary);
 
-pdf.text(title,75,y);
+    pdf.text(title,75,y);
 
-y+=6;
+    y+=6;
 
-drawSeparator(pdf,y,pageWidth);
+    drawSeparator(pdf,y,pageWidth);
 
-y+=8;
+    y+=8;
 
-valid.forEach(([label,value])=>{
+    valid.forEach(([label,value])=>{
 
       pdf.setFont("helvetica","bold");
       pdf.setFontSize(10);
@@ -341,26 +330,30 @@ valid.forEach(([label,value])=>{
       pdf.setTextColor(...colors.text);
 
       pdf.text(
-  pdf.splitTextToSize(String(value),60),
-  120,
-  y
-);
+        pdf.splitTextToSize(String(value),60),
+        120,
+        y
+      );
 
-      y+=7;
+      y+=8;
 
     });
 
-    y+=5;
+    y+=7;
 
   };
 
+  /* IDENTITE */
+
   drawSection("IDENTITÉ",[
 
-["Date de naissance",data.birthday],
-["Âge",data.age ? data.age + " ans" : ""],
-["Genre",data.genre]
+    ["Date de naissance",data.birthday],
+    ["Âge",data.age ? data.age + " ans" : ""],
+    ["Genre",data.genre]
 
-]);
+  ]);
+
+  /* PARCOURS */
 
   drawSection("PARCOURS SPIRITUEL",[
 
@@ -370,31 +363,33 @@ valid.forEach(([label,value])=>{
 
   ]);
 
-drawSection("MINISTÈRE MUSICAL",[
+  /* MINISTERE */
 
-["Chorale",choraleFullName],
-["Statut d'affermissement",data.statutAffermissement],
-["Registre",data.registreVoix],
-["Groupe musical",data.groupeMusique],
-["Responsable ministère",data.responsableMinistere]
+  drawSection("MINISTÈRE MUSICAL",[
 
-]);
+    ["Chorale",choraleFullName],
+    ["Statut d'affermissement",data.statutAffermissement],
+    ["Registre",data.registreVoix],
+    ["Groupe musical",data.groupeMusique],
+    ["Responsable ministère",data.responsableMinistere]
+
+  ]);
+
+  /* ADHESION */
+
   drawSection("ADHÉSION À L'ÉGLISE",[
 
-["Type de membre",data.typeMembre],
+    ["Type de membre",data.typeMembre],
+    ["Année adhésion église",data.anneeAdhesionEglise],
+    ["Année adhésion département",data.anneeAdhesionDepartement],
+    ["Date adhésion église",data.dateAdhesionEglise],
+    ["Date adhésion département",data.dateAdhesionDepartement],
+    ["Raison",data.raisonAdhesion]
 
-["Année adhésion église",data.anneeAdhesionEglise],
-["Année adhésion département",data.anneeAdhesionDepartement],
-
-["Date adhésion église",data.dateAdhesionEglise],
-["Date adhésion département",data.dateAdhesionDepartement],
-
-["Raison",data.raisonAdhesion]
-
-]);
+  ]);
 
   /* ======================================
-  SIGNATURE NUMERIQUE
+  SIGNATURE
   ====================================== */
 
   const now = new Date();
@@ -402,7 +397,7 @@ drawSection("MINISTÈRE MUSICAL",[
   const date = now.toLocaleDateString();
   const time = now.toLocaleTimeString();
 
-const signature = `DOCUMENT AUTHENTIFIÉ MYUM
+  const signature = `DOCUMENT AUTHENTIFIÉ MYUM
 Utilisateur : ${fullName}
 Horodatage : ${date} ${time}
 Identifiant : ${currentUserId}`;
@@ -411,8 +406,6 @@ Identifiant : ${currentUserId}`;
   pdf.setTextColor(...colors.muted);
 
   pdf.text(signature,pageWidth-15,pageHeight-15,{align:"right"});
-
-  
 
   /* ======================================
   EXPORT
