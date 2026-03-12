@@ -157,13 +157,18 @@ async function generatePDF(){
   let sideY = 95;
 
   const sidebarInfo = [
-
-    ["Téléphone",data.phone],
-    ["Commune",data.commune],
-    ["Avenue",data.avenue],
-    ["État civil",data.etatCivil],
-    ["Relation",data.statutRelationnel]
-
+  
+  ["Téléphone",data.phone],
+  ["Commune",data.commune],
+  ["Avenue",data.avenue],
+  
+  ["Date naissance",data.birthday],
+  ["Âge",data.age ? data.age + " ans" : ""],
+  ["Genre",data.genre],
+  
+  ["État civil",data.etatCivil],
+  ["Relation",data.statutRelationnel]
+  
   ];
 
   sidebarInfo.forEach(([label,value])=>{
@@ -342,16 +347,6 @@ async function generatePDF(){
     y+=7;
 
   };
-
-  /* IDENTITE */
-
-  drawSection("IDENTITÉ",[
-
-    ["Date de naissance",data.birthday],
-    ["Âge",data.age ? data.age + " ans" : ""],
-    ["Genre",data.genre]
-
-  ]);
 
   /* PARCOURS */
 
