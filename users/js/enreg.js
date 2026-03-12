@@ -179,9 +179,11 @@ function initEditableSystem() {
 
         }
 
-        await updateDoc(doc(db, "users", currentUserId), { [key]: newValue });
-
-        currentUserData[key] = newValue;
+      await updateDoc(doc(db, "users", currentUserId), { [key]: newValue });
+      
+      currentUserData[key] = newValue;
+      
+      updateProfileCompletion(currentUserData);
 
         fieldWrapper.classList.remove("editing", "animate-pulse");
 
