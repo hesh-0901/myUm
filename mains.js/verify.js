@@ -32,12 +32,17 @@ profileEl.innerHTML = "";
 AFFICHAGE PROFIL
 ====================================== */
 
-function renderProfile(data){
+function renderProfile(data){function renderProfile(data){
 
 statusEl.className = "status success";
 statusEl.textContent = "Profil vérifié ✔";
 
 profileEl.innerHTML = `
+
+<img class="avatar"
+src="${data.photoURL || "/myUm/assets/default-avatar.png"}"
+alt="photo">
+
 <div class="name">
 ${data.firstName || ""} ${data.lastName || ""}
 </div>
@@ -51,8 +56,9 @@ ${data.fonction || ""}
 </div>
 
 <div class="badge">
-✓ Profil authentifié MyUM
+✓ Profil authentifié
 </div>
+
 `;
 
 }
