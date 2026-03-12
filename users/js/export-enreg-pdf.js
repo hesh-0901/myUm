@@ -32,13 +32,7 @@ SEPARATEUR VISUEL
 function drawSeparator(pdf,y,pageWidth){
 
   pdf.setDrawColor(220,224,230);
-
-  pdf.line(
-    75,
-    y,
-    pageWidth-15,
-    y
-  );
+  pdf.line(75,y,pageWidth-15,y);
 
 }
 
@@ -53,19 +47,13 @@ async function generatePDF(){
 
   const data = snap.data();
 
-  /* ======================================
-  CHORALE
-  ====================================== */
-
   const choraleNames = {
-
     PC: "Prophetic Choir",
     WS: "Wake up song",
     VN: "Vent Nouveau",
     IN: "Instrumentiste",
     AD: "Administration",
     GT: "Visiteur"
-
   };
 
   const choraleFullName =
@@ -76,17 +64,17 @@ async function generatePDF(){
   const pageWidth = pdf.internal.pageSize.width;
   const pageHeight = pdf.internal.pageSize.height;
 
-const colors = {
+  const colors = {
 
-  primary:[26,54,104],     // bleu principal
-  accent:[37,150,217],     // bleu clair
-  text:[35,35,35],
-  muted:[120,120,120],
+    primary:[26,54,104],
+    accent:[37,150,217],
+    text:[35,35,35],
+    muted:[120,120,120],
 
-  sidebar:[72,88,112],     // gris bleu premium
-  sidebarText:[255,255,255]
+    sidebar:[72,88,112],
+    sidebarText:[255,255,255]
 
-};
+  };
 
   /* ======================================
   BACKGROUND
@@ -109,43 +97,34 @@ const colors = {
   ====================================== */
 
   try{
-
-    pdf.addImage(
-      "/myUm/assets/logo-myum.png",
-      "PNG",
-      12,
-      16,
-      36,
-      12
-    );
-
+    pdf.addImage("/myUm/assets/logo-myum.png","PNG",12,16,36,12);
   }catch(e){}
 
-/* ======================================
-PHOTO
-====================================== */
+  /* ======================================
+  PHOTO
+  ====================================== */
 
-try{
+  try{
 
-  const imgElement = document.getElementById("profilePhoto");
+    const imgElement = document.getElementById("profilePhoto");
 
-  if(imgElement && imgElement.src){
+    if(imgElement && imgElement.src){
 
-    const response = await fetch(imgElement.src);
-    const blob = await response.blob();
+      const response = await fetch(imgElement.src);
+      const blob = await response.blob();
 
-    const reader = new FileReader();
+      const reader = new FileReader();
 
-    const base64 = await new Promise(resolve=>{
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
+      const base64 = await new Promise(resolve=>{
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
 
-    pdf.addImage(base64,"JPEG",12,40,36,36);
+      pdf.addImage(base64,"JPEG",12,40,36,36);
 
-  }
+    }
 
-}catch(e){}
+  }catch(e){}
 
   /* ======================================
   SIDEBAR INFOS
@@ -154,18 +133,18 @@ try{
   let sideY = 92;
 
   const sidebarInfo = [
-  
-  ["Téléphone",data.phone],
-  ["Commune",data.commune],
-  ["Avenue",data.avenue],
-  
-  ["Date naissance",data.birthday],
-  ["Âge",data.age ? data.age + " ans" : ""],
-  ["Genre",data.genre],
-  
-  ["État civil",data.etatCivil],
-  ["Relation",data.statutRelationnel]
-  
+
+    ["Téléphone",data.phone],
+    ["Commune",data.commune],
+    ["Avenue",data.avenue],
+
+    ["Date naissance",data.birthday],
+    ["Âge",data.age ? data.age + " ans" : ""],
+    ["Genre",data.genre],
+
+    ["État civil",data.etatCivil],
+    ["Relation",data.statutRelationnel]
+
   ];
 
   sidebarInfo.forEach(([label,value])=>{
@@ -197,24 +176,12 @@ try{
 
   const qrCode = await QRCode.toDataURL(verifyURL);
 
-  pdf.addImage(
-    qrCode,
-    "PNG",
-    pageWidth-35,
-    20,
-    20,
-    20
-  );
+  pdf.addImage(qrCode,"PNG",pageWidth-35,20,20,20);
 
   pdf.setFontSize(7);
   pdf.setTextColor(...colors.muted);
 
-  pdf.text(
-    "Scan pour vérifier",
-    pageWidth-25,
-    45,
-    {align:"center"}
-  );
+  pdf.text("Scan pour vérifier",pageWidth-25,45,{align:"center"});
 
   /* ======================================
   HEADER
@@ -227,9 +194,6 @@ try{
   pdf.setTextColor(...colors.primary);
 
   pdf.text(fullName,75,28);
-
-  /* Badge membre vidé*/
-
 
   if(data.fonction){
 
@@ -266,16 +230,16 @@ try{
 
     y+=8;
 
-const lines = pdf.splitTextToSize(
-  data.bio,
-  pageWidth - 95
-);
+    const lines = pdf.splitTextToSize(
+      data.bio,
+      pageWidth-90
+    );
 
     pdf.setFont("helvetica","normal");
-    pdf.setFontSize(10);
+    pdf.setFontSize(10.5);
     pdf.setTextColor(...colors.text);
 
-    pdf.text(lines,75,y,{maxWidth:pageWidth-95});
+    pdf.text(lines,75,y);
 
     y += lines.length*6 + 12;
 
@@ -284,6 +248,10 @@ const lines = pdf.splitTextToSize(
   /* ======================================
   SECTIONS
   ====================================== */
+
+  const labelX = 75;
+  const valueX = 125;
+  const valueWidth = pageWidth - 140;
 
   const drawSection = (title,fields)=>{
 
@@ -294,7 +262,7 @@ const lines = pdf.splitTextToSize(
     pdf.setFontSize(12);
     pdf.setTextColor(...colors.primary);
 
-    pdf.text(title,75,y);
+    pdf.text(title,labelX,y);
 
     y+=6;
 
@@ -308,18 +276,16 @@ const lines = pdf.splitTextToSize(
       pdf.setFontSize(10);
       pdf.setTextColor(...colors.muted);
 
-      pdf.text(label,75,y);
+      pdf.text(label,labelX,y);
 
       pdf.setFont("helvetica","normal");
       pdf.setTextColor(...colors.text);
 
-      pdf.text(
-        pdf.splitTextToSize(String(value),70),
-        120,
-        y
-      );
+      const lines = pdf.splitTextToSize(String(value),valueWidth);
 
-      y+=8;
+      pdf.text(lines,valueX,y);
+
+      y += lines.length * 6;
 
     });
 
