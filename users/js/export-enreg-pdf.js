@@ -53,6 +53,24 @@ async function generatePDF(){
 
   const data = snap.data();
 
+  /* ======================================
+  MAPPING CHORALES
+  ====================================== */
+
+  const choraleNames = {
+
+    PC: "Prophetic Choir",
+    WS: "Wake up song",
+    VN: "Vent Nouveau",
+    IN: "Instrumentiste",
+    AD: "Administration",
+    GT: "Visiteur"
+
+  };
+
+  const choraleFullName =
+  choraleNames[data.chorale] || data.chorale || "";
+
   const pdf = new jsPDF();
 
   const pageWidth = pdf.internal.pageSize.width;
@@ -309,7 +327,7 @@ valid.forEach(([label,value])=>{
 
 drawSection("MINISTÈRE MUSICAL",[
 
-["Chorale",data.chorale],
+["Chorale",choraleFullName],
 ["Statut d'affermissement",data.statutAffermissement],
 ["Registre",data.registreVoix],
 ["Groupe musical",data.groupeMusique],
