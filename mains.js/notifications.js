@@ -220,7 +220,7 @@ export function initNotifications() {
         lastSenderId &&
         lastSenderId !== myId
       ) {
-        showToast("Nouveau message 🔔");
+        showToast("Nouveau message", "bi-chat-dots-fill");
         playSound();
 
         // notification navigateur surtout utile si page masquée
