@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v30.0"; /*EnochMWALIMU==> amélioration du rendu audio et implementation des fonctionnalités audios premium,(listen speed, downloadanimation, audio visualiser */
+const VERSION = "v30.1"; /*EnochMWALIMU==> amélioration du rendu audio et implementation des fonctionnalités audios premium,(listen speed, downloadanimation, audio visualiser */
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
@@ -17,10 +17,28 @@ const STATIC_ASSETS = [
 "/myUm/",
 "/myUm/index.html",
 
+/* assets */
 "/myUm/assets/logo.png",
-
 "/myUm/assets/icons/icon-192.png",
-"/myUm/assets/icons/icon-512.png"
+"/myUm/assets/icons/icon-512.png",
+
+/* users */
+"/myUm/users/login.html",
+"/myUm/users/register.html",
+"/myUm/users/profile.html",
+"/myUm/users/presence.html",
+"/myUm/users/enreg.html",
+
+/* chat */
+"/myUm/chat/room.html",
+
+/* admin */
+"/myUm/admin/annonce-admin.html",
+"/myUm/admin/open-room.html",
+"/myUm/admin/presence-details.html",
+"/myUm/admin/presence-management.html",
+"/myUm/admin/user-details.html",
+"/myUm/admin/users-management.html"
 
 ];
 
