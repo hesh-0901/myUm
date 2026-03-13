@@ -87,26 +87,36 @@ function playSound() {
 /* ============================================================
    BLOC 4 : TOAST LOCAL
    Rôle :
-   - Affichage visuel si un nouveau message arrive
+   - Toast visuel avec icône Bootstrap-like
 ============================================================ */
-function showToast(message) {
+function showToast(message, iconClass = "bi-chat-dots-fill") {
   let t = document.getElementById("myum_global_toast");
 
   if (!t) {
     t = document.createElement("div");
     t.id = "myum_global_toast";
     t.className =
-      "fixed top-4 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-2 rounded-xl shadow-lg opacity-0 transition z-[9999]";
+      "fixed top-4 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-4 py-3 rounded-xl shadow-lg opacity-0 transition z-[9999] flex items-center gap-2";
     document.body.appendChild(t);
   }
 
-  t.textContent = message;
+  t.innerHTML = `<i class="bi ${iconClass}"></i><span>${escapeHtmlToast(message)}</span>`;
   t.style.opacity = "1";
 
   clearTimeout(window.__myumGlobalToastTimer);
   window.__myumGlobalToastTimer = setTimeout(() => {
     t.style.opacity = "0";
   }, 1800);
+}
+
+function escapeHtmlToast(str) {
+  return String(str).replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[m]));
 }
 
 /* ============================================================
