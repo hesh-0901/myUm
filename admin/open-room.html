@@ -15,19 +15,17 @@
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <script>
-
 tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1A3668',
-        medium: '#2596D9',
-        danger: '#DC2626'
-      }
-    }
-  }
+theme: {
+extend: {
+colors: {
+primary:'#1A3668',
+medium:'#2596D9',
+danger:'#DC2626'
 }
-
+}
+}
+}
 </script>
 
 </head>
@@ -36,38 +34,44 @@ tailwind.config = {
 
 <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
-<!-- HEADER PARTIAL -->
-
 <header id="headerContainer"></header>
 
-<!-- MAIN CONTENT -->
+<main class="flex-1 overflow-y-auto px-4 pt-20 pb-6 space-y-6">
 
-<main class="flex-1 overflow-y-auto px-4 py-6 pt-20 space-y-6">
+<!-- STATUS CARD -->
 
-<!-- HEADER CARD -->
-
-<div class="bg-white rounded-3xl shadow-sm p-5 space-y-2">
+<div class="bg-white rounded-3xl shadow-sm p-5 space-y-1">
 
 <h1 class="text-lg font-semibold">
 Ouvrir un salon de présence
 </h1>
 
-<p id="activeRoomStatus" class="text-xs text-gray-500">
+<p id="activeRoomStatus"
+class="text-xs text-gray-500">
+
 Vérification du salon actif...
+
 </p>
 
 </div>
 
-<!-- FORM CARD -->
+<!-- PARAMETRES SALON -->
 
 <div class="bg-white rounded-3xl shadow-sm p-5 space-y-4">
+
+<p class="text-sm font-semibold text-gray-700">
+Paramètres du salon
+</p>
 
 <!-- DATE -->
 
 <div>
 
-<label class="text-xs text-gray-500">
+<label class="text-xs text-gray-500 flex items-center gap-1">
+
+<i class="bi bi-calendar3"></i>
 Date
+
 </label>
 
 <input
@@ -81,8 +85,11 @@ class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focu
 
 <div>
 
-<label class="text-xs text-gray-500">
+<label class="text-xs text-gray-500 flex items-center gap-1">
+
+<i class="bi bi-people"></i>
 Chorale
+
 </label>
 
 <select
@@ -117,8 +124,11 @@ Chorale UM
 
 <div>
 
-<label class="text-xs text-gray-500">
+<label class="text-xs text-gray-500 flex items-center gap-1">
+
+<i class="bi bi-diagram-3"></i>
 Type de rencontre
+
 </label>
 
 <select
@@ -161,8 +171,11 @@ Culte des semaines
 
 <div>
 
-<label class="text-xs text-gray-500">
+<label class="text-xs text-gray-500 flex items-center gap-1">
+
+<i class="bi bi-card-text"></i>
 Description
+
 </label>
 
 <textarea
@@ -173,33 +186,44 @@ class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focu
 
 </div>
 
-<!-- MODE -->
+</div>
 
-<div>
+<!-- MODE DUREE -->
 
-<label class="text-xs text-gray-500">
-Mode de durée
-</label>
+<div class="bg-white rounded-3xl shadow-sm p-5 space-y-3">
 
-<div class="flex gap-4 mt-2 text-sm">
+<p class="text-sm font-semibold text-gray-700">
+Durée du salon
+</p>
 
-<label class="flex items-center gap-2">
-<input type="radio" name="mode" value="hours">
+<div class="grid grid-cols-2 gap-3">
+
+<button id="modeHours"
+
+class="flex items-center justify-center gap-2 p-3
+border rounded-xl text-sm
+border-gray-200 hover:border-primary">
+
+<i class="bi bi-clock"></i>
 Heures fixes
-</label>
 
-<label class="flex items-center gap-2">
-<input type="radio" name="mode" value="timer">
+</button>
+
+<button id="modeTimer"
+
+class="flex items-center justify-center gap-2 p-3
+border rounded-xl text-sm
+border-gray-200 hover:border-primary">
+
+<i class="bi bi-stopwatch"></i>
 Chronomètre
-</label>
+
+</button>
 
 </div>
 
-</div>
-
-<!-- HOURS -->
-
-<div id="hoursContainer" class="hidden grid grid-cols-2 gap-3">
+<div id="hoursContainer"
+class="hidden grid grid-cols-2 gap-3 pt-2">
 
 <input
 type="time"
@@ -213,9 +237,8 @@ class="p-2 rounded-xl border border-gray-200">
 
 </div>
 
-<!-- TIMER -->
-
-<div id="timerContainer" class="hidden space-y-2">
+<div id="timerContainer"
+class="hidden space-y-2 pt-2">
 
 <select
 id="timerDuration"
@@ -247,43 +270,51 @@ class="hidden w-full p-2 rounded-xl border border-gray-200">
 
 </div>
 
-<!-- ACTION BUTTONS -->
+</div>
 
-<div class="flex gap-3 pt-2">
+<!-- ACTIONS -->
 
-<!-- OPEN ROOM -->
+<div class="space-y-3">
 
 <button
 id="openRoomBtn"
-class="flex-1 flex items-center justify-center gap-2
-bg-primary text-white py-3 rounded-2xl shadow-md
+
+class="w-full flex items-center justify-center gap-3
+bg-gradient-to-r from-primary to-medium
+text-white py-4 rounded-2xl shadow-md
 active:scale-95 transition">
 
-<i class="bi bi-broadcast"></i>
+<i class="bi bi-broadcast text-lg"></i>
+
+<span class="font-semibold">
+Ouvrir le salon
+</span>
 
 </button>
 
-<!-- RADAR -->
+<div class="grid grid-cols-2 gap-3">
 
 <button
 id="launchRadarBtn"
-class="hidden flex-1 flex items-center justify-center gap-2
-bg-black text-white py-3 rounded-2xl shadow-md
-active:scale-95 transition">
+
+class="hidden flex items-center justify-center gap-2
+bg-black text-white py-3 rounded-xl
+shadow-sm active:scale-95 transition">
 
 <i class="bi bi-radar"></i>
+Radar
 
 </button>
 
-<!-- FORCE STOP -->
-
 <button
 id="forceStopBtn"
-class="hidden flex-1 flex items-center justify-center gap-2
-bg-danger text-white py-3 rounded-2xl shadow-md
-active:scale-95 transition">
+
+class="hidden flex items-center justify-center gap-2
+bg-danger text-white py-3 rounded-xl
+shadow-sm active:scale-95 transition">
 
 <i class="bi bi-stop-circle"></i>
+Stop
 
 </button>
 
@@ -295,19 +326,11 @@ active:scale-95 transition">
 
 </div>
 
-<!-- RADAR MODAL -->
-
 <div id="radarContainer"></div>
-
-<!-- GLOBAL APP INIT -->
 
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
 
-<!-- OPEN ROOM LOGIC -->
-
 <script type="module" src="/myUm/admin/js/open-room.js"></script>
-
-<!-- LOAD PARTIALS -->
 
 <script type="module">
 
@@ -321,7 +344,7 @@ document.getElementById("headerContainer").innerHTML = await header.text();
 const radar = await fetch("/myUm/partials/radar.html");
 document.getElementById("radarContainer").innerHTML = await radar.text();
 
-} catch (error) {
+} catch(error) {
 
 console.error("Erreur chargement partials :", error);
 
