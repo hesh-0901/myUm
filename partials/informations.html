@@ -12,30 +12,32 @@
 
 
   <!-- BIO -->
-  <div class="flex items-start justify-between group">
+<div class="flex items-start justify-between group">
 
-    <div class="flex-1">
+  <div class="flex-1">
 
-      <p class="text-xs text-gray-400">
-        Bio
-      </p>
+    <p class="text-xs text-gray-400">
+      Bio
+    </p>
 
-      <p id="info-bio"
-         class="text-sm text-white mt-1">
-        —
-      </p>
+    <p id="info-bio"
+       class="text-sm text-white mt-1 line-clamp-2">
+      —
+    </p>
 
-    </div>
-
-    <button class="edit-btn text-gray-400 hover:text-accent transition"
-            data-field="bio">
-
-      <i class="bi bi-pencil"></i>
-
+    <button id="bio-toggle"
+            class="text-xs text-accent mt-1 hidden">
+      Voir plus
     </button>
 
   </div>
 
+  <button class="edit-btn text-gray-400 hover:text-accent transition"
+          data-field="bio">
+    <i class="bi bi-pencil"></i>
+  </button>
+
+</div>
 
   <!-- TELEPHONE -->
   <div class="flex items-center justify-between group">
