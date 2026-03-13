@@ -280,6 +280,36 @@ function autoCloseRoom(roomId, endTime) {
 
 }
 
+// ===============================
+// BOUTONS CHRONO / HEURE
+// ===============================
+
+const modeHoursBtn = document.getElementById("modeHours");
+const modeTimerBtn = document.getElementById("modeTimer");
+
+const hoursContainer = document.getElementById("hoursContainer");
+const timerContainer = document.getElementById("timerContainer");
+
+modeHoursBtn.addEventListener("click", () => {
+
+  hoursContainer.classList.remove("hidden");
+  timerContainer.classList.add("hidden");
+
+  modeHoursBtn.classList.add("border-primary");
+  modeTimerBtn.classList.remove("border-primary");
+
+});
+
+modeTimerBtn.addEventListener("click", () => {
+
+  timerContainer.classList.remove("hidden");
+  hoursContainer.classList.add("hidden");
+
+  modeTimerBtn.classList.add("border-primary");
+  modeHoursBtn.classList.remove("border-primary");
+
+});
+
 
 
 // ===============================
