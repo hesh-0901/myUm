@@ -13,7 +13,8 @@ import {
   onSnapshot,
   serverTimestamp,
   updateDoc,
-  writeBatch
+  writeBatch,
+  deleteField
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {
@@ -64,6 +65,10 @@ const roomTitle = document.getElementById("roomTitle");
 const roomSub = document.getElementById("roomSub");
 const typingIndicator = document.getElementById("typingIndicator");
 
+const pinnedBanner = document.getElementById("pinnedBanner");
+const pinnedPreview = document.getElementById("pinnedPreview");
+const unpinBtn = document.getElementById("unpinBtn");
+
 const messagesWrapper = document.getElementById("messagesWrapper");
 const messagesEl = document.getElementById("messages");
 const emptyState = document.getElementById("emptyState");
@@ -85,9 +90,13 @@ const replyPreviewText = document.getElementById("replyPreviewText");
 const cancelReplyBtn = document.getElementById("cancelReplyBtn");
 
 const messageMenuOverlay = document.getElementById("messageMenuOverlay");
+const reactionBtns = Array.from(document.querySelectorAll(".reactionBtn"));
 const replyActionBtn = document.getElementById("replyActionBtn");
+const pinActionBtn = document.getElementById("pinActionBtn");
 const forwardActionBtn = document.getElementById("forwardActionBtn");
 const downloadActionBtn = document.getElementById("downloadActionBtn");
+const deleteMineActionBtn = document.getElementById("deleteMineActionBtn");
+const deleteAllActionBtn = document.getElementById("deleteAllActionBtn");
 const closeMessageMenuBtn = document.getElementById("closeMessageMenuBtn");
 
 /* ============================================================
@@ -155,6 +164,7 @@ async function initRoom() {
   bindMessageMenu();
   bindReplyUi();
 
+  listenChatMeta();
   listenFriendProfileAndPresence();
   listenTypingState();
   listenMessages();
@@ -192,13 +202,46 @@ async function ensureChatDocument() {
       [friendId]: 0
     },
     typing: {},
+    pinnedMessage: null,
     updatedAt: serverTimestamp(),
     createdAt: serverTimestamp()
   });
 }
 
 /* ============================================================
-   BLOC 10 : PROFIL / AVATAR / PRÉSENCE
+   BLOC 10 : META CHAT
+   Rôle :
+   - Message épinglé
+============================================================ */
+function listenChatMeta() {
+  onSnapshot(chatRef, (snap) => {
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    const pinned = data.pinnedMessage || null;
+
+    if (!pinned) {
+      pinnedBanner?.classList.add("hidden");
+      return;
+    }
+
+    pinnedPreview.textContent = pinned.preview || "Message épinglé";
+    pinnedBanner?.classList.remove("hidden");
+  });
+
+  unpinBtn?.addEventListener("click", async () => {
+    try {
+      await updateDoc(chatRef, {
+        pinnedMessage: null
+      });
+    } catch (error) {
+      console.error("unpin error:", error);
+    }
+  });
+}
+
+/* ============================================================
+   BLOC 11 : PROFIL / AVATAR / PRÉSENCE
 ============================================================ */
 function listenFriendProfileAndPresence() {
   onSnapshot(doc(db, "users", friendId), (snap) => {
@@ -264,7 +307,7 @@ function renderRoomAvatar(photoURL, initials) {
 }
 
 /* ============================================================
-   BLOC 11 : TYPING
+   BLOC 12 : TYPING
 ============================================================ */
 function listenTypingState() {
   onSnapshot(chatRef, (snap) => {
@@ -308,7 +351,7 @@ async function setTyping(value) {
 }
 
 /* ============================================================
-   BLOC 12 : LISTEN MESSAGES
+   BLOC 13 : LISTEN MESSAGES
 ============================================================ */
 function listenMessages() {
   const q = query(messagesRef, orderBy("createdAt", "asc"), limit(300));
@@ -331,9 +374,12 @@ function listenMessages() {
 
     snap.docs.forEach((docSnap, index) => {
       const message = { id: docSnap.id, ...docSnap.data() };
-      const isMine = message.senderId === myId;
 
+      if (isMessageHiddenForMe(message.id)) return;
+
+      const isMine = message.senderId === myId;
       const currentDateKey = getMessageDateKey(message.createdAt);
+
       if (currentDateKey !== previousDateKey) {
         messagesEl.appendChild(renderDateSeparator(message.createdAt));
         previousDateKey = currentDateKey;
@@ -364,7 +410,7 @@ function listenMessages() {
 }
 
 /* ============================================================
-   BLOC 13 : COMPOSER TEXTE
+   BLOC 14 : COMPOSER TEXTE
 ============================================================ */
 function bindComposerEvents() {
   bindTypingEmitter();
@@ -413,7 +459,7 @@ async function sendTextMessage() {
 }
 
 /* ============================================================
-   BLOC 14 : PIÈCES JOINTES
+   BLOC 15 : PIÈCES JOINTES
 ============================================================ */
 function bindAttachments() {
   attachBtn?.addEventListener("click", () => {
@@ -478,7 +524,7 @@ async function uploadChatFile(file) {
 }
 
 /* ============================================================
-   BLOC 15 : NOTES VOCALES
+   BLOC 16 : NOTES VOCALES
 ============================================================ */
 function bindVoiceRecorder() {
   recordBtn?.addEventListener("click", async () => {
@@ -554,7 +600,7 @@ async function stopVoiceRecording() {
 }
 
 /* ============================================================
-   BLOC 16 : CRÉATION DOC MESSAGE
+   BLOC 17 : CRÉATION DOC MESSAGE
 ============================================================ */
 async function createMessageDoc(payload) {
   const base = {
@@ -569,6 +615,9 @@ async function createMessageDoc(payload) {
     duration: payload.duration || null,
     replyTo: payload.replyTo || null,
     forwardedFrom: payload.forwardedFrom || null,
+    reactions: {},
+    isDeleted: false,
+    deletedForEveryone: false,
     createdAt: serverTimestamp(),
     deliveredTo: { [myId]: true },
     readBy: { [myId]: true }
@@ -598,12 +647,7 @@ async function createMessageDoc(payload) {
 }
 
 /* ============================================================
-   BLOC 17 : RENDER MESSAGE
-   Rôle :
-   - Texte
-   - Réponse
-   - Audio mobile friendly
-   - Menu popup mobile
+   BLOC 18 : RENDER MESSAGE
 ============================================================ */
 function renderMessage(message, isMine) {
   const wrap = document.createElement("div");
@@ -615,21 +659,31 @@ function renderMessage(message, isMine) {
       isMine ? "bg-primary text-white rounded-br-md" : "bg-white text-gray-800 rounded-bl-md"
     }`;
 
-  bubble.dataset.messageId = message.id;
-  bubble.dataset.fileUrl = message.fileUrl || "";
-  bubble.dataset.messageType = message.type || "text";
-  bubble.dataset.messageText = message.text || "";
-  bubble.dataset.forwardPayload = encodeURIComponent(JSON.stringify({
-    type: message.type || "text",
-    text: message.text || "",
-    fileUrl: message.fileUrl || null,
-    fileName: message.fileName || null,
-    mimeType: message.mimeType || null
-  }));
+  bubble.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    openMessageMenu(message);
+  });
 
-  /* ----------------------------
-     Bloc réponse affichée
-  ----------------------------- */
+  let longPressTimer = null;
+  bubble.addEventListener("touchstart", () => {
+    longPressTimer = setTimeout(() => openMessageMenu(message), 500);
+  }, { passive: true });
+
+  bubble.addEventListener("touchend", () => {
+    clearTimeout(longPressTimer);
+  });
+
+  bubble.addEventListener("touchmove", () => {
+    clearTimeout(longPressTimer);
+  });
+
+  if (message.forwardedFrom) {
+    const forwarded = document.createElement("div");
+    forwarded.className = `mb-2 text-[11px] font-semibold ${isMine ? "text-white/80" : "text-gray-500"}`;
+    forwarded.innerHTML = `<i class="bi bi-forward-fill mr-1"></i>Transféré`;
+    bubble.appendChild(forwarded);
+  }
+
   if (message.replyTo) {
     const replyBox = document.createElement("div");
     replyBox.className =
@@ -650,41 +704,53 @@ function renderMessage(message, isMine) {
     bubble.appendChild(replyBox);
   }
 
-  const type = message.type || "text";
+  if (message.deletedForEveryone) {
+    const deletedText = document.createElement("div");
+    deletedText.className = "italic opacity-80";
+    deletedText.textContent = "Ce message a été supprimé";
+    bubble.appendChild(deletedText);
+  } else {
+    const type = message.type || "text";
 
-  if (type === "text") {
-    const textEl = document.createElement("div");
-    textEl.textContent = message.text || "";
-    bubble.appendChild(textEl);
+    if (type === "text") {
+      const textEl = document.createElement("div");
+      textEl.textContent = message.text || "";
+      bubble.appendChild(textEl);
+    }
+
+    if (type === "image" && message.fileUrl) {
+      const img = document.createElement("img");
+      img.src = message.fileUrl;
+      img.className = "rounded-xl max-h-64 w-full object-cover";
+      bubble.appendChild(img);
+    }
+
+    if (type === "video" && message.fileUrl) {
+      const video = document.createElement("video");
+      video.src = message.fileUrl;
+      video.controls = true;
+      video.className = "rounded-xl max-h-64 w-full";
+      bubble.appendChild(video);
+    }
+
+    if (type === "audio" && message.fileUrl) {
+      bubble.appendChild(renderAudioCard(message.fileUrl, isMine, message));
+    }
+
+    if (type === "file" && message.fileUrl) {
+      const fileLink = document.createElement("a");
+      fileLink.href = message.fileUrl;
+      fileLink.target = "_blank";
+      fileLink.rel = "noopener noreferrer";
+      fileLink.className = isMine ? "underline text-white font-medium" : "underline text-primary font-medium";
+      fileLink.textContent = message.fileName || "Ouvrir le fichier";
+      bubble.appendChild(fileLink);
+    }
   }
 
-  if (type === "image" && message.fileUrl) {
-    const img = document.createElement("img");
-    img.src = message.fileUrl;
-    img.className = "rounded-xl max-h-64 w-full object-cover";
-    bubble.appendChild(img);
-  }
-
-  if (type === "video" && message.fileUrl) {
-    const video = document.createElement("video");
-    video.src = message.fileUrl;
-    video.controls = true;
-    video.className = "rounded-xl max-h-64 w-full";
-    bubble.appendChild(video);
-  }
-
-  if (type === "audio" && message.fileUrl) {
-    bubble.appendChild(renderAudioCard(message.fileUrl, isMine));
-  }
-
-  if (type === "file" && message.fileUrl) {
-    const fileLink = document.createElement("a");
-    fileLink.href = message.fileUrl;
-    fileLink.target = "_blank";
-    fileLink.rel = "noopener noreferrer";
-    fileLink.className = isMine ? "underline text-white font-medium" : "underline text-primary font-medium";
-    fileLink.textContent = message.fileName || "Ouvrir le fichier";
-    bubble.appendChild(fileLink);
+  const reactionsRow = renderReactions(message);
+  if (reactionsRow) {
+    bubble.appendChild(reactionsRow);
   }
 
   const metaRow = document.createElement("div");
@@ -701,35 +767,20 @@ function renderMessage(message, isMine) {
 
     const tick = document.createElement("span");
     tick.textContent = read ? "✓✓" : delivered ? "✓✓" : "✓";
-    tick.className = read ? "text-sky-200 font-bold" : "text-white/80";
+    tick.className = read ? "text-green-300 font-bold" : "text-white/80";
+
     metaRow.appendChild(tick);
   }
 
   bubble.appendChild(metaRow);
-
-  /* ----------------------------
-     Appui long / clic menu
-  ----------------------------- */
-  bubble.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    openMessageMenu(message);
-  });
-
-  bubble.addEventListener("click", () => {
-    selectedMessageForMenu = message;
-  });
-
   wrap.appendChild(bubble);
   return wrap;
 }
 
 /* ============================================================
-   BLOC 18 : AUDIO CARD MOBILE
-   Rôle :
-   - Play direct sur téléphone
-   - Plus besoin du menu natif caché
+   BLOC 19 : AUDIO PLAYER MOBILE
 ============================================================ */
-function renderAudioCard(url, isMine) {
+function renderAudioCard(url, isMine, message) {
   const box = document.createElement("div");
   box.className = "w-full";
 
@@ -740,9 +791,12 @@ function renderAudioCard(url, isMine) {
 
   const row = document.createElement("div");
   row.className =
-    `flex items-center gap-3 p-3 rounded-2xl ${
+    `p-3 rounded-2xl ${
       isMine ? "bg-white/10" : "bg-gray-50 border border-gray-100"
     }`;
+
+  const top = document.createElement("div");
+  top.className = "flex items-center gap-3";
 
   const playBtn = document.createElement("button");
   playBtn.className =
@@ -755,14 +809,32 @@ function renderAudioCard(url, isMine) {
   label.className = isMine ? "text-white/90 text-xs font-medium" : "text-gray-600 text-xs font-medium";
   label.textContent = "Note vocale";
 
-  const menuBtn = document.createElement("button");
-  menuBtn.className =
-    `ml-auto w-8 h-8 rounded-full flex items-center justify-center ${
+  const speedBtn = document.createElement("button");
+  speedBtn.className =
+    `ml-auto px-2 py-1 rounded-lg text-[11px] ${
       isMine ? "bg-white/10 text-white" : "bg-gray-200 text-gray-700"
     }`;
-  menuBtn.innerHTML = `<i class="bi bi-three-dots-vertical"></i>`;
+  speedBtn.textContent = "1x";
+
+  top.appendChild(playBtn);
+  top.appendChild(label);
+  top.appendChild(speedBtn);
+
+  const range = document.createElement("input");
+  range.type = "range";
+  range.min = "0";
+  range.max = "100";
+  range.value = "0";
+  range.className = "mt-3 w-full";
+
+  row.appendChild(top);
+  row.appendChild(range);
+  box.appendChild(row);
+  box.appendChild(audio);
 
   let isPlaying = false;
+  const speeds = [1, 1.5, 2];
+  let speedIndex = 0;
 
   playBtn.addEventListener("click", () => {
     if (!isPlaying) {
@@ -776,35 +848,84 @@ function renderAudioCard(url, isMine) {
     }
   });
 
+  speedBtn.addEventListener("click", () => {
+    speedIndex = (speedIndex + 1) % speeds.length;
+    audio.playbackRate = speeds[speedIndex];
+    speedBtn.textContent = `${speeds[speedIndex]}x`;
+  });
+
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+    range.value = String((audio.currentTime / audio.duration) * 100);
+  });
+
+  range.addEventListener("input", () => {
+    if (!audio.duration) return;
+    audio.currentTime = (Number(range.value) / 100) * audio.duration;
+  });
+
   audio.addEventListener("ended", () => {
     isPlaying = false;
     playBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
+    range.value = "0";
   });
 
-  menuBtn.addEventListener("click", () => {
-    openMessageMenu({
-      type: "audio",
-      fileUrl: url,
-      text: "",
-      fileName: "note-vocale.webm"
-    });
+  row.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    openMessageMenu(message);
   });
-
-  row.appendChild(playBtn);
-  row.appendChild(label);
-  row.appendChild(menuBtn);
-  box.appendChild(row);
-  box.appendChild(audio);
 
   return box;
 }
 
 /* ============================================================
-   BLOC 19 : MENU MESSAGE
-   Rôle :
-   - Répondre
-   - Transférer
-   - Télécharger
+   BLOC 20 : RÉACTIONS
+============================================================ */
+function renderReactions(message) {
+  const reactions = message.reactions || {};
+  const values = Object.values(reactions);
+
+  if (!values.length) return null;
+
+  const grouped = {};
+  values.forEach((emoji) => {
+    grouped[emoji] = (grouped[emoji] || 0) + 1;
+  });
+
+  const row = document.createElement("div");
+  row.className = "mt-2 flex flex-wrap gap-1";
+
+  Object.entries(grouped).forEach(([emoji, count]) => {
+    const chip = document.createElement("div");
+    chip.className = "px-2 py-1 rounded-full bg-black/5 text-[11px] flex items-center gap-1";
+    chip.textContent = `${emoji} ${count}`;
+    row.appendChild(chip);
+  });
+
+  return row;
+}
+
+async function toggleReaction(messageId, emoji) {
+  const refMessage = doc(db, "chats", chatId, "messages", messageId);
+  const snap = await getDoc(refMessage);
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const current = data.reactions?.[myId] || null;
+
+  if (current === emoji) {
+    await updateDoc(refMessage, {
+      [`reactions.${myId}`]: deleteField()
+    });
+  } else {
+    await updateDoc(refMessage, {
+      [`reactions.${myId}`]: emoji
+    });
+  }
+}
+
+/* ============================================================
+   BLOC 21 : MENU MESSAGE
 ============================================================ */
 function bindMessageMenu() {
   closeMessageMenuBtn?.addEventListener("click", closeMessageMenu);
@@ -812,11 +933,38 @@ function bindMessageMenu() {
     if (e.target === messageMenuOverlay) closeMessageMenu();
   });
 
+  reactionBtns.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!selectedMessageForMenu?.id) return;
+      await toggleReaction(selectedMessageForMenu.id, btn.dataset.reaction);
+      closeMessageMenu();
+    });
+  });
+
   replyActionBtn?.addEventListener("click", () => {
     if (!selectedMessageForMenu) return;
     setReplyTarget(selectedMessageForMenu);
     closeMessageMenu();
     messageInput?.focus();
+  });
+
+  pinActionBtn?.addEventListener("click", async () => {
+    if (!selectedMessageForMenu) return;
+
+    try {
+      await updateDoc(chatRef, {
+        pinnedMessage: {
+          messageId: selectedMessageForMenu.id,
+          preview: buildPreviewFromMessage(selectedMessageForMenu),
+          pinnedBy: myId,
+          pinnedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error("pin error:", error);
+    }
+
+    closeMessageMenu();
   });
 
   forwardActionBtn?.addEventListener("click", () => {
@@ -851,6 +999,35 @@ function bindMessageMenu() {
 
     closeMessageMenu();
   });
+
+  deleteMineActionBtn?.addEventListener("click", () => {
+    if (!selectedMessageForMenu?.id) return;
+    hideMessageForMe(selectedMessageForMenu.id);
+    closeMessageMenu();
+    listenMessages();
+  });
+
+  deleteAllActionBtn?.addEventListener("click", async () => {
+    if (!selectedMessageForMenu?.id) return;
+
+    try {
+      await updateDoc(doc(db, "chats", chatId, "messages", selectedMessageForMenu.id), {
+        deletedForEveryone: true,
+        text: "",
+        fileUrl: null,
+        filePath: null,
+        fileName: null,
+        mimeType: null,
+        size: null,
+        duration: null,
+        replyTo: null
+      });
+    } catch (error) {
+      console.error("delete all error:", error);
+    }
+
+    closeMessageMenu();
+  });
 }
 
 function openMessageMenu(message) {
@@ -861,6 +1038,11 @@ function openMessageMenu(message) {
     if (message?.fileUrl) downloadActionBtn.classList.remove("hidden");
     else downloadActionBtn.classList.add("hidden");
   }
+
+  if (deleteAllActionBtn) {
+    if (message?.senderId === myId) deleteAllActionBtn.classList.remove("hidden");
+    else deleteAllActionBtn.classList.add("hidden");
+  }
 }
 
 function closeMessageMenu() {
@@ -868,7 +1050,7 @@ function closeMessageMenu() {
 }
 
 /* ============================================================
-   BLOC 20 : RÉPONSE À UN MESSAGE
+   BLOC 22 : RÉPONSE
 ============================================================ */
 function bindReplyUi() {
   cancelReplyBtn?.addEventListener("click", clearReplyTarget);
@@ -903,7 +1085,34 @@ function buildReplyPreviewText(reply) {
 }
 
 /* ============================================================
-   BLOC 21 : TRACKING SCROLL
+   BLOC 23 : DELETE POUR MOI
+   Rôle :
+   - Suppression locale dans localStorage
+============================================================ */
+function getHiddenMessagesKey() {
+  return `myum_hidden_messages_${chatId}_${myId}`;
+}
+
+function getHiddenMessagesSet() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(getHiddenMessagesKey()) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function hideMessageForMe(messageId) {
+  const set = getHiddenMessagesSet();
+  set.add(messageId);
+  localStorage.setItem(getHiddenMessagesKey(), JSON.stringify(Array.from(set)));
+}
+
+function isMessageHiddenForMe(messageId) {
+  return getHiddenMessagesSet().has(messageId);
+}
+
+/* ============================================================
+   BLOC 24 : TRACKING SCROLL
 ============================================================ */
 function bindScrollTracking() {
   messagesWrapper?.addEventListener("scroll", () => {
@@ -924,7 +1133,7 @@ function bindScrollTracking() {
 }
 
 /* ============================================================
-   BLOC 22 : BOUTON NOUVEAUX MESSAGES
+   BLOC 25 : BOUTON NOUVEAUX MESSAGES
 ============================================================ */
 function bindScrollButton() {
   scrollToBottomBtn?.addEventListener("click", () => {
@@ -956,7 +1165,7 @@ function scrollToBottom() {
 }
 
 /* ============================================================
-   BLOC 23 : DELIVERED / READ / RESET UNREAD
+   BLOC 26 : DELIVERED / READ / RESET UNREAD
 ============================================================ */
 async function markDeliveredReadAndResetUnread() {
   await updateDoc(chatRef, {
@@ -1003,8 +1212,17 @@ async function updateChatReadMeta() {
 }
 
 /* ============================================================
-   BLOC 24 : FORMAT HEURE
+   BLOC 27 : HELPERS PREVIEW / DATES / TIME
 ============================================================ */
+function buildPreviewFromMessage(message) {
+  if (!message) return "Message";
+  if (message.type === "text") return message.text || "Message";
+  if (message.type === "image") return "📷 Image";
+  if (message.type === "video") return "🎬 Vidéo";
+  if (message.type === "audio") return "🎤 Note vocale";
+  return message.fileName || "📎 Fichier";
+}
+
 function formatMessageTime(ts) {
   if (!ts) return "";
   try {
@@ -1017,9 +1235,6 @@ function formatMessageTime(ts) {
   }
 }
 
-/* ============================================================
-   BLOC 25 : DATE SEPARATORS
-============================================================ */
 function getMessageDateKey(ts) {
   if (!ts || !ts.toDate) return "unknown";
   const d = ts.toDate();
