@@ -1,14 +1,21 @@
 <!DOCTYPE html>
+
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Ouvrir un Salon - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <script>
+
 tailwind.config = {
   theme: {
     extend: {
@@ -20,165 +27,305 @@ tailwind.config = {
     }
   }
 }
+
 </script>
+
 </head>
 
 <body class="bg-gray-100 flex justify-center overflow-x-hidden">
 
 <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
+<!-- HEADER PARTIAL -->
+
 <header id="headerContainer"></header>
+
+<!-- MAIN CONTENT -->
 
 <main class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
 
-  <!-- HEADER CARD -->
-  <div class="bg-white rounded-3xl shadow-sm p-5 space-y-2">
-    <h1 class="text-lg font-semibold">Ouvrir un salon de présence</h1>
-    <p id="activeRoomStatus" class="text-xs text-gray-500">
-      Vérification du salon actif...
-    </p>
-  </div>
+<!-- HEADER CARD -->
 
-  <!-- FORM -->
-  <div class="bg-white rounded-3xl shadow-sm p-5 space-y-4">
+<div class="bg-white rounded-3xl shadow-sm p-5 space-y-2">
 
-    <!-- DATE -->
-    <div>
-      <label class="text-xs text-gray-500">Date</label>
-      <input type="date" id="roomDate"
-        class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
-    </div>
+<h1 class="text-lg font-semibold">
+Ouvrir un salon de présence
+</h1>
 
-    <!-- CHORALE -->
-    <div>
-      <label class="text-xs text-gray-500">Chorale</label>
-      <select id="roomChorale"
-        class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
-        <option value="">Sélectionner</option>
-        <option value="PC">Chorale PC</option>
-        <option value="WS">Chorale WS</option>
-        <option value="VN">Chorale VN</option>
-        <option value="UM">Chorale UM</option>
-      </select>
-    </div>
+<p id="activeRoomStatus" class="text-xs text-gray-500">
+Vérification du salon actif...
+</p>
 
-    <!-- TYPE -->
-    <div>
-      <label class="text-xs text-gray-500">Type de rencontre</label>
-      <select id="roomType"
-        class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
-        <option value="">Sélectionner</option>
-        <option>Réunion de prière</option>
-        <option>Réunion</option>
-        <option>Répétition</option>
-        <option>Sortie</option>
-        <option>Culte des dimanches</option>
-        <option>Culte des semaines</option>
-      </select>
-    </div>
+</div>
 
-    <!-- DESCRIPTION -->
-    <div>
-      <label class="text-xs text-gray-500">Description</label>
-      <textarea id="roomDescription"
-        rows="3"
-        class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary"></textarea>
-    </div>
+<!-- FORM CARD -->
 
-    <!-- MODE -->
-    <div>
-      <label class="text-xs text-gray-500">Mode de durée</label>
-      <div class="flex gap-4 mt-2 text-sm">
-        <label class="flex items-center gap-2">
-          <input type="radio" name="mode" value="hours">
-          Heures fixes
-        </label>
-        <label class="flex items-center gap-2">
-          <input type="radio" name="mode" value="timer">
-          Chronomètre
-        </label>
-      </div>
-    </div>
+<div class="bg-white rounded-3xl shadow-sm p-5 space-y-4">
 
-    <!-- HOURS -->
-    <div id="hoursContainer" class="hidden grid grid-cols-2 gap-3">
-      <input type="time" id="startTime"
-        class="p-2 rounded-xl border border-gray-200">
-      <input type="time" id="endTime"
-        class="p-2 rounded-xl border border-gray-200">
-    </div>
+<!-- DATE -->
 
-    <!-- TIMER -->
-    <div id="timerContainer" class="hidden space-y-2">
-      <select id="timerDuration"
-        class="w-full p-2 rounded-xl border border-gray-200">
-        <option value="">Durée</option>
-        <option value="5">5 minutes</option>
-        <option value="10">10 minutes</option>
-        <option value="custom">Personnalisée</option>
-      </select>
+<div>
 
-      <input type="number" id="customTimer"
-        placeholder="Minutes personnalisées"
-        class="hidden w-full p-2 rounded-xl border border-gray-200">
-    </div>
+<label class="text-xs text-gray-500">
+Date
+</label>
 
-    <!-- ACTION BUTTONS -->
+<input
+type="date"
+id="roomDate"
+class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+
+</div>
+
+<!-- CHORALE -->
+
+<div>
+
+<label class="text-xs text-gray-500">
+Chorale
+</label>
+
+<select
+id="roomChorale"
+class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+
+<option value="">
+Sélectionner
+</option>
+
+<option value="PC">
+Chorale PC
+</option>
+
+<option value="WS">
+Chorale WS
+</option>
+
+<option value="VN">
+Chorale VN
+</option>
+
+<option value="UM">
+Chorale UM
+</option>
+
+</select>
+
+</div>
+
+<!-- TYPE -->
+
+<div>
+
+<label class="text-xs text-gray-500">
+Type de rencontre
+</label>
+
+<select
+id="roomType"
+class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+
+<option value="">
+Sélectionner
+</option>
+
+<option>
+Réunion de prière
+</option>
+
+<option>
+Réunion
+</option>
+
+<option>
+Répétition
+</option>
+
+<option>
+Sortie
+</option>
+
+<option>
+Culte des dimanches
+</option>
+
+<option>
+Culte des semaines
+</option>
+
+</select>
+
+</div>
+
+<!-- DESCRIPTION -->
+
+<div>
+
+<label class="text-xs text-gray-500">
+Description
+</label>
+
+<textarea
+id="roomDescription"
+rows="3"
+class="w-full mt-1 p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+</textarea>
+
+</div>
+
+<!-- MODE -->
+
+<div>
+
+<label class="text-xs text-gray-500">
+Mode de durée
+</label>
+
+<div class="flex gap-4 mt-2 text-sm">
+
+<label class="flex items-center gap-2">
+<input type="radio" name="mode" value="hours">
+Heures fixes
+</label>
+
+<label class="flex items-center gap-2">
+<input type="radio" name="mode" value="timer">
+Chronomètre
+</label>
+
+</div>
+
+</div>
+
+<!-- HOURS -->
+
+<div id="hoursContainer" class="hidden grid grid-cols-2 gap-3">
+
+<input
+type="time"
+id="startTime"
+class="p-2 rounded-xl border border-gray-200">
+
+<input
+type="time"
+id="endTime"
+class="p-2 rounded-xl border border-gray-200">
+
+</div>
+
+<!-- TIMER -->
+
+<div id="timerContainer" class="hidden space-y-2">
+
+<select
+id="timerDuration"
+class="w-full p-2 rounded-xl border border-gray-200">
+
+<option value="">
+Durée
+</option>
+
+<option value="5">
+5 minutes
+</option>
+
+<option value="10">
+10 minutes
+</option>
+
+<option value="custom">
+Personnalisée
+</option>
+
+</select>
+
+<input
+type="number"
+id="customTimer"
+placeholder="Minutes personnalisées"
+class="hidden w-full p-2 rounded-xl border border-gray-200">
+
+</div>
+
+<!-- ACTION BUTTONS -->
+
 <div class="flex gap-3 pt-2">
 
-  <!-- OUVRIR -->
-      <button id="openRoomBtn"
-        class="flex-1 flex items-center justify-center gap-2
-               bg-primary text-white py-3 rounded-2xl shadow-md
-               active:scale-95 transition">
-        <i class="bi bi-broadcast"></i>
-      </button>
-    
-      <!-- RADAR -->
-      <button id="launchRadarBtn"
-        class="hidden flex-1 flex items-center justify-center gap-2
-               bg-black text-white py-3 rounded-2xl shadow-md
-               active:scale-95 transition">
-        <i class="bi bi-radar"></i>
-      </button>
-    
-      <!-- STOP FORCÉ -->
-      <button id="forceStopBtn"
-        class="hidden flex-1 flex items-center justify-center gap-2
-               bg-danger text-white py-3 rounded-2xl shadow-md
-               active:scale-95 transition">
-        <i class="bi bi-stop-circle"></i>
-      </button>
-    
-    </div>
+<!-- OPEN ROOM -->
 
-  </div>
+<button
+id="openRoomBtn"
+class="flex-1 flex items-center justify-center gap-2
+bg-primary text-white py-3 rounded-2xl shadow-md
+active:scale-95 transition">
+
+<i class="bi bi-broadcast"></i>
+
+</button>
+
+<!-- RADAR -->
+
+<button
+id="launchRadarBtn"
+class="hidden flex-1 flex items-center justify-center gap-2
+bg-black text-white py-3 rounded-2xl shadow-md
+active:scale-95 transition">
+
+<i class="bi bi-radar"></i>
+
+</button>
+
+<!-- FORCE STOP -->
+
+<button
+id="forceStopBtn"
+class="hidden flex-1 flex items-center justify-center gap-2
+bg-danger text-white py-3 rounded-2xl shadow-md
+active:scale-95 transition">
+
+<i class="bi bi-stop-circle"></i>
+
+</button>
+
+</div>
 
 </div>
 
 </main>
 
-<footer id="navContainer"></footer>
-
 </div>
+
+<!-- RADAR MODAL -->
 
 <div id="radarContainer"></div>
 
+<!-- GLOBAL APP INIT -->
+
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
+
+<!-- OPEN ROOM LOGIC -->
+
 <script type="module" src="/myUm/admin/js/open-room.js"></script>
+
+<!-- LOAD PARTIALS -->
 
 <script type="module">
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const header = await fetch("/myUm/partials/header-back.html");
-  document.getElementById("headerContainer").innerHTML = await header.text();
+try {
 
-  const nav = await fetch("/myUm/partials/nav.html");
-  document.getElementById("navContainer").innerHTML = await nav.text();
+const header = await fetch("/myUm/partials/header-back.html");
+document.getElementById("headerContainer").innerHTML = await header.text();
 
-  const radar = await fetch("/myUm/partials/radar.html");
-  document.getElementById("radarContainer").innerHTML = await radar.text();
+const radar = await fetch("/myUm/partials/radar.html");
+document.getElementById("radarContainer").innerHTML = await radar.text();
+
+} catch (error) {
+
+console.error("Erreur chargement partials :", error);
+
+}
 
 });
 
