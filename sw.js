@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v30.1"; /*EnochMWALIMU==> amélioration du rendu audio et implementation des fonctionnalités audios premium,(listen speed, downloadanimation, audio visualiser */
+const VERSION = "v30.2"; /*henoch shungu */
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
