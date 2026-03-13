@@ -1,17 +1,7 @@
 // mains.js/notifications.js
 
-import { db } from "./firebase-config.js";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 /* ============================================================
-   BLOC 1 : SESSION
-   Rôle :
-   - Identifier l'utilisateur courant
+   BLOC 1 : HELPERS SESSION
 ============================================================ */
 function getCurrentUser() {
   try {
@@ -22,74 +12,22 @@ function getCurrentUser() {
 }
 
 /* ============================================================
-   BLOC 2 : BASE PATH
+   BLOC 2 : INIT
    Rôle :
-   - Gérer correctement GitHub Pages (/repo/) ou racine (/)
+   - Placeholder safe pour ton app-init
 ============================================================ */
-function getBasePath() {
-  const { pathname, hostname } = window.location;
-  const parts = pathname.split("/").filter(Boolean);
-
-  if (hostname.includes("github.io") && parts.length > 0) {
-    return `/${parts[0]}/`;
-  }
-
-  return "/";
+export function initNotifications() {
+  const me = getCurrentUser();
+  if (!me?.id) return;
 }
 
 /* ============================================================
-   BLOC 3 : AUDIO
+   BLOC 3 : TOAST GLOBAL
    Rôle :
-   - Préparer le son de notification
-   - Débloquer l'audio sur mobile après interaction user
+   - Toast local réutilisable
+   - Avec icône Bootstrap
 ============================================================ */
-let audioEl = null;
-let audioUnlocked = false;
-
-function getAudio() {
-  if (!audioEl) {
-    audioEl = new Audio(`${getBasePath()}assets/sounds/notify.mp3`);
-    audioEl.volume = 0.9;
-  }
-  return audioEl;
-}
-
-export function unlockAudioOnce() {
-  if (audioUnlocked) return;
-
-  const unlock = async () => {
-    try {
-      const a = getAudio();
-      await a.play();
-      a.pause();
-      a.currentTime = 0;
-      audioUnlocked = true;
-    } catch {
-      // best effort
-    } finally {
-      window.removeEventListener("click", unlock);
-      window.removeEventListener("touchstart", unlock);
-    }
-  };
-
-  window.addEventListener("click", unlock, { once: true });
-  window.addEventListener("touchstart", unlock, { once: true });
-}
-
-function playSound() {
-  try {
-    const a = getAudio();
-    a.currentTime = 0;
-    a.play().catch(() => {});
-  } catch {}
-}
-
-/* ============================================================
-   BLOC 4 : TOAST LOCAL
-   Rôle :
-   - Toast visuel avec icône Bootstrap-like
-============================================================ */
-function showToast(message, iconClass = "bi-chat-dots-fill") {
+export function showToast(message, iconClass = "bi-chat-dots-fill") {
   let t = document.getElementById("myum_global_toast");
 
   if (!t) {
@@ -109,6 +47,53 @@ function showToast(message, iconClass = "bi-chat-dots-fill") {
   }, 1800);
 }
 
+export function buildMessageNotificationPreview(message) {
+  if (!message) return { text: "Nouveau message", icon: "bi-chat-dots-fill" };
+
+  const type = message.type || "text";
+
+  if (type === "audio") {
+    const duration = message.duration ? formatSeconds(message.duration) : "0:00";
+    return {
+      text: `Note vocale (${duration})`,
+      icon: "bi-mic-fill"
+    };
+  }
+
+  if (type === "image") {
+    return {
+      text: "Image reçue",
+      icon: "bi-image-fill"
+    };
+  }
+
+  if (type === "video") {
+    return {
+      text: "Vidéo reçue",
+      icon: "bi-camera-video-fill"
+    };
+  }
+
+  if (type === "file") {
+    return {
+      text: "Fichier reçu",
+      icon: "bi-paperclip"
+    };
+  }
+
+  return {
+    text: message.text || "Nouveau message",
+    icon: "bi-chat-dots-fill"
+  };
+}
+
+function formatSeconds(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds || 0));
+  const min = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${min}:${String(sec).padStart(2, "0")}`;
+}
+
 function escapeHtmlToast(str) {
   return String(str).replace(/[&<>"']/g, (m) => ({
     "&": "&amp;",
@@ -117,145 +102,4 @@ function escapeHtmlToast(str) {
     '"': "&quot;",
     "'": "&#039;"
   }[m]));
-}
-
-/* ============================================================
-   BLOC 5 : NOTIFICATION NAVIGATEUR
-   Rôle :
-   - Notification système quand l'app est ouverte
-   - Peut apparaître dans le téléphone si permission accordée
-   Limite :
-   - Sans service worker / push, pas de vrai background push garanti
-============================================================ */
-export async function requestNotificationPermission() {
-  if (!("Notification" in window)) return "unsupported";
-
-  if (Notification.permission === "granted") return "granted";
-  if (Notification.permission === "denied") return "denied";
-
-  try {
-    return await Notification.requestPermission();
-  } catch {
-    return "error";
-  }
-}
-
-function showBrowserNotification(title, body) {
-  if (!("Notification" in window)) return;
-  if (Notification.permission !== "granted") return;
-
-  try {
-    new Notification(title, {
-      body,
-      icon: `${getBasePath()}assets/cover.jpg`
-    });
-  } catch {
-    // best effort
-  }
-}
-
-/* ============================================================
-   BLOC 6 : BADGE GLOBAL
-   Rôle :
-   - Calculer le total des unreadCount
-   - Diffuser un événement global dans l'app
-   - Permet au dashboard/nav de réagir sans dépendre du chat directement
-============================================================ */
-function emitUnreadUpdate(total) {
-  window.dispatchEvent(
-    new CustomEvent("myum:chat-unread-update", {
-      detail: { total }
-    })
-  );
-}
-
-/* ============================================================
-   BLOC 7 : LISTENER GLOBAL DES CHATS
-   Rôle :
-   - Observer tous les chats où je suis participant
-   - Calculer non-lus
-   - Détecter nouveaux messages
-============================================================ */
-let unsubscribeChats = null;
-const seenUnreadPerChat = new Map();
-
-export function initNotifications() {
-  const me = getCurrentUser();
-  const myId = me?.id;
-  if (!myId) return;
-
-  unlockAudioOnce();
-  requestNotificationPermission().catch(() => {});
-
-  const chatsRef = collection(db, "chats");
-  const q = query(chatsRef, where("participants", "array-contains", myId));
-
-  if (unsubscribeChats) unsubscribeChats();
-
-  unsubscribeChats = onSnapshot(q, (snap) => {
-    let totalUnread = 0;
-
-    snap.docChanges().forEach((change) => {
-      if (change.type === "removed") return;
-
-      const doc = change.doc;
-      const data = doc.data();
-
-      const unreadMap = data.unreadCount || {};
-      const unread = unreadMap[myId] || 0;
-      const lastSenderId = data.lastSenderId || null;
-      const previousUnread = seenUnreadPerChat.get(doc.id);
-
-      seenUnreadPerChat.set(doc.id, unread);
-      totalUnread += unread;
-
-      /* ------------------------------------------------------------
-         NOUVEAU MESSAGE :
-         - unread augmente
-         - dernier message vient d'un autre user
-      ------------------------------------------------------------ */
-      if (
-        previousUnread !== undefined &&
-        unread > previousUnread &&
-        lastSenderId &&
-        lastSenderId !== myId
-      ) {
-        showToast("Nouveau message", "bi-chat-dots-fill");
-        playSound();
-
-        // notification navigateur surtout utile si page masquée
-        if (document.visibilityState === "hidden") {
-          showBrowserNotification("MyUm", "Vous avez reçu un nouveau message");
-        }
-      }
-    });
-
-    /* ------------------------------------------------------------
-       RECALCUL GLOBAL DES NON-LUS
-    ------------------------------------------------------------ */
-    // sécurité : on recalcule aussi sur tous les docs
-    totalUnread = 0;
-    snap.forEach((doc) => {
-      const data = doc.data();
-      const unreadMap = data.unreadCount || {};
-      totalUnread += unreadMap[myId] || 0;
-    });
-
-    emitUnreadUpdate(totalUnread);
-    updateDocumentTitle(totalUnread);
-  });
-}
-
-/* ============================================================
-   BLOC 8 : TITRE DYNAMIQUE
-   Rôle :
-   - Afficher le total non lu dans l'onglet navigateur
-============================================================ */
-function updateDocumentTitle(totalUnread) {
-  const baseTitle = "MyUm";
-  if (totalUnread > 0) {
-    document.title = `(${totalUnread}) ${baseTitle}`;
-  } else {
-    document.title = baseTitle;
-  }
 }
