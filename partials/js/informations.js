@@ -56,6 +56,8 @@ async function loadInformations() {
     setField("birthday", currentUserData.birthday);
     setField("age", currentUserData.age);
     setField("fonction", currentUserData.fonction);
+    
+    initBioToggle();
 
   } catch (error) {
     console.error("Erreur chargement informations :", error);
@@ -145,6 +147,39 @@ function initEditableFields() {
       }, { once: true });
 
     });
+
+  });
+
+}
+
+// ===============================
+// BIO EXPAND / COLLAPSE
+// ===============================
+function initBioToggle() {
+
+  const bioEl = document.getElementById("info-bio");
+  const toggle = document.getElementById("bio-toggle");
+
+  if (!bioEl || !toggle) return;
+
+  // Vérifie si texte long
+  if (bioEl.scrollHeight > bioEl.clientHeight) {
+    toggle.classList.remove("hidden");
+  }
+
+  let expanded = false;
+
+  toggle.addEventListener("click", () => {
+
+    expanded = !expanded;
+
+    if (expanded) {
+      bioEl.classList.remove("line-clamp-2");
+      toggle.innerText = "Réduire";
+    } else {
+      bioEl.classList.add("line-clamp-2");
+      toggle.innerText = "Voir plus";
+    }
 
   });
 
