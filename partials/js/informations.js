@@ -31,6 +31,7 @@ export async function initInformations() {
 
   await loadInformations();
   initEditableFields();
+  initBioToggle();
 }
 
 
@@ -174,11 +175,15 @@ function initBioToggle() {
     expanded = !expanded;
 
     if (expanded) {
-      bioEl.classList.remove("line-clamp-2");
+
+      bioEl.classList.remove("bio-collapsed");
       toggle.innerText = "Réduire";
+
     } else {
-      bioEl.classList.add("line-clamp-2");
+
+      bioEl.classList.add("bio-collapsed");
       toggle.innerText = "Voir plus";
+
     }
 
   });
