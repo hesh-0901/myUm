@@ -548,23 +548,32 @@ async function startVoiceRecording() {
     };
 
     mediaRecorder.onstop = async () => {
-      const blob = new Blob(audioChunks, { type: "audio/webm" });
-      const file = new File([blob], `voice_${Date.now()}.webm`, { type: "audio/webm" });
+  const blob = new Blob(audioChunks, { type: "audio/webm" });
+  const file = new File([blob], `voice_${Date.now()}.webm`, { type: "audio/webm" });
 
-      try {
-        const uploaded = await uploadChatFile(file);
+  try {
+    const uploaded = await uploadChatFile(file);
 
-        await createMessageDoc({
-          type: "audio",
-          text: "",
-          fileUrl: uploaded.url,
-          filePath: uploaded.path,
-          fileName: file.name,
-          mimeType: file.type || "audio/webm",
-          size: file.size || 0,
-          duration: null,
-          replyTo: replyTarget
-        });
+    const tempAudio = document.createElement("audio");
+    tempAudio.src = URL.createObjectURL(blob);
+
+    const duration = await new Promise((resolve) => {
+      tempAudio.addEventListener("loadedmetadata", () => {
+        resolve(Number.isFinite(tempAudio.duration) ? tempAudio.duration : null);
+      });
+    });
+
+    await createMessageDoc({
+      type: "audio",
+      text: "",
+      fileUrl: uploaded.url,
+      filePath: uploaded.path,
+      fileName: file.name,
+      mimeType: file.type || "audio/webm",
+      size: file.size || 0,
+      duration,
+      replyTo: replyTarget
+    });
 
         clearReplyTarget();
         scrollToBottom();
@@ -627,10 +636,10 @@ async function createMessageDoc(payload) {
 
   const preview =
     payload.type === "text" ? payload.text :
-    payload.type === "image" ? "📷 Image" :
-    payload.type === "video" ? "🎬 Vidéo" :
-    payload.type === "audio" ? "🎤 Note vocale" :
-    "📎 Fichier";
+    payload.type === "image" ? "Image" :
+    payload.type === "video" ? "Vidéo" :
+    payload.type === "audio" ? `Note vocale ${payload.duration ? `(${formatSeconds(payload.duration)})` : ""}`.trim() :
+    "Fichier";
 
   const chatSnap = await getDoc(chatRef);
   const chatData = chatSnap.exists() ? chatSnap.data() : {};
@@ -645,7 +654,6 @@ async function createMessageDoc(payload) {
     [`unreadCount.${friendId}`]: nextFriendUnread
   });
 }
-
 /* ============================================================
    BLOC 18 : RENDER MESSAGE
 ============================================================ */
@@ -1497,4 +1505,20 @@ function formatDateSeparator(ts) {
     month: "long",
     year: "numeric"
   });
+}
+/* ============================================================
+   BLOC 28 : HELPERS AUDIO / DURÉE
+   Rôle :
+   - Formatter les durées
+============================================================ */
+function formatSeconds(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds || 0));
+  const min = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${min}:${String(sec).padStart(2, "0")}`;
+}
+
+function formatAudioDurationLabel(duration) {
+  if (!duration) return "0:00";
+  return formatSeconds(duration);
 }
