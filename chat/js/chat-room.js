@@ -778,106 +778,330 @@ function renderMessage(message, isMine) {
 }
 
 /* ============================================================
-   BLOC 19 : AUDIO PLAYER MOBILE
+   BLOC 19 : AUDIO PLAYER MOBILE PREMIUM
+   Rôle :
+   - Téléchargement local du vocal
+   - Auto-download si connexion correcte
+   - Progression de téléchargement
+   - Play/pause
+   - Visualiseur simple type WhatsApp
+   - Avatar sur le vocal
 ============================================================ */
 function renderAudioCard(url, isMine, message) {
   const box = document.createElement("div");
   box.className = "w-full";
 
-  const audio = document.createElement("audio");
-  audio.src = url;
-  audio.preload = "metadata";
-  audio.className = "hidden";
-
-  const row = document.createElement("div");
-  row.className =
+  const wrapper = document.createElement("div");
+  wrapper.className =
     `p-3 rounded-2xl ${
       isMine ? "bg-white/10" : "bg-gray-50 border border-gray-100"
     }`;
 
+  /* ----------------------------
+     Ligne principale
+  ----------------------------- */
   const top = document.createElement("div");
   top.className = "flex items-center gap-3";
 
-  const playBtn = document.createElement("button");
-  playBtn.className =
-    `w-10 h-10 rounded-full flex items-center justify-center ${
+  // Avatar
+  const avatar = document.createElement("div");
+  avatar.className =
+    "w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0 flex items-center justify-center text-[10px] font-bold";
+
+  const avatarImg = roomAvatar?.querySelector("img");
+  if (avatarImg) {
+    avatar.innerHTML = `<img src="${avatarImg.src}" class="w-full h-full object-cover">`;
+  } else {
+    avatar.textContent = (roomTitle?.textContent || "U").slice(0, 1).toUpperCase();
+  }
+
+  // Zone action
+  const actionBtn = document.createElement("button");
+  actionBtn.className =
+    `w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
       isMine ? "bg-white/15 text-white" : "bg-primary text-white"
     }`;
-  playBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
+  actionBtn.innerHTML = `<i class="bi bi-download"></i>`;
+
+  // Texte + durée
+  const meta = document.createElement("div");
+  meta.className = "min-w-0 flex-1";
 
   const label = document.createElement("div");
-  label.className = isMine ? "text-white/90 text-xs font-medium" : "text-gray-600 text-xs font-medium";
+  label.className = isMine ? "text-white/90 text-xs font-medium" : "text-gray-700 text-xs font-medium";
   label.textContent = "Note vocale";
 
+  const sub = document.createElement("div");
+  sub.className = isMine ? "text-white/70 text-[11px]" : "text-gray-500 text-[11px]";
+  sub.textContent = formatAudioDurationLabel(message.duration);
+
+  meta.appendChild(label);
+  meta.appendChild(sub);
+
+  // Vitesse
   const speedBtn = document.createElement("button");
   speedBtn.className =
-    `ml-auto px-2 py-1 rounded-lg text-[11px] ${
+    `px-2 py-1 rounded-lg text-[11px] shrink-0 ${
       isMine ? "bg-white/10 text-white" : "bg-gray-200 text-gray-700"
     }`;
   speedBtn.textContent = "1x";
 
-  top.appendChild(playBtn);
-  top.appendChild(label);
+  top.appendChild(avatar);
+  top.appendChild(actionBtn);
+  top.appendChild(meta);
   top.appendChild(speedBtn);
 
-  const range = document.createElement("input");
-  range.type = "range";
-  range.min = "0";
-  range.max = "100";
-  range.value = "0";
-  range.className = "mt-3 w-full";
+  /* ----------------------------
+     Barre visualiseur + progression
+  ----------------------------- */
+  const visualWrap = document.createElement("div");
+  visualWrap.className = "mt-3";
 
-  row.appendChild(top);
-  row.appendChild(range);
-  box.appendChild(row);
-  box.appendChild(audio);
+  const progressRow = document.createElement("div");
+  progressRow.className = "flex items-center gap-2";
 
+  const wave = document.createElement("div");
+  wave.className = "flex-1 flex items-end gap-[2px] h-8";
+
+  // barres fake visualizer
+  const bars = [];
+  const pattern = [20, 35, 12, 42, 18, 30, 16, 45, 22, 28, 14, 38, 18, 32, 11, 40, 20, 26];
+  pattern.forEach((h) => {
+    const bar = document.createElement("div");
+    bar.className = isMine ? "flex-1 rounded-full bg-white/45" : "flex-1 rounded-full bg-gray-300";
+    bar.style.height = `${h}%`;
+    bars.push(bar);
+    wave.appendChild(bar);
+  });
+
+  const timeText = document.createElement("div");
+  timeText.className = isMine ? "text-white/75 text-[11px] w-12 text-right" : "text-gray-500 text-[11px] w-12 text-right";
+  timeText.textContent = "0:00";
+
+  progressRow.appendChild(wave);
+  progressRow.appendChild(timeText);
+
+  visualWrap.appendChild(progressRow);
+
+  /* ----------------------------
+     Progression téléchargement
+  ----------------------------- */
+  const downloadWrap = document.createElement("div");
+  downloadWrap.className = "mt-3 hidden";
+
+  const downloadBarOuter = document.createElement("div");
+  downloadBarOuter.className = isMine ? "w-full h-2 rounded-full bg-white/15 overflow-hidden" : "w-full h-2 rounded-full bg-gray-200 overflow-hidden";
+
+  const downloadBarInner = document.createElement("div");
+  downloadBarInner.className = isMine ? "h-full bg-white/80 rounded-full" : "h-full bg-primary rounded-full";
+  downloadBarInner.style.width = "0%";
+
+  downloadBarOuter.appendChild(downloadBarInner);
+  downloadWrap.appendChild(downloadBarOuter);
+
+  /* ----------------------------
+     Audio élément caché
+  ----------------------------- */
+  const audio = document.createElement("audio");
+  audio.preload = "metadata";
+  audio.className = "hidden";
+
+  wrapper.appendChild(top);
+  wrapper.appendChild(visualWrap);
+  wrapper.appendChild(downloadWrap);
+  wrapper.appendChild(audio);
+  box.appendChild(wrapper);
+
+  /* ----------------------------
+     État local
+  ----------------------------- */
   let isPlaying = false;
+  let isDownloaded = false;
+  let currentObjectUrl = null;
   const speeds = [1, 1.5, 2];
   let speedIndex = 0;
 
-  playBtn.addEventListener("click", () => {
+  /* ----------------------------
+     Helpers UI
+  ----------------------------- */
+  function setActionPlay() {
+    actionBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
+  }
+
+  function setActionPause() {
+    actionBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
+  }
+
+  function setActionDownload() {
+    actionBtn.innerHTML = `<i class="bi bi-download"></i>`;
+  }
+
+  function setActionLoading() {
+    actionBtn.innerHTML = `<i class="bi bi-arrow-repeat"></i>`;
+  }
+
+  function updateWave(progress01) {
+    const activeBars = Math.floor(progress01 * bars.length);
+    bars.forEach((bar, index) => {
+      if (index < activeBars) {
+        bar.className = isMine ? "flex-1 rounded-full bg-white" : "flex-1 rounded-full bg-primary";
+      } else {
+        bar.className = isMine ? "flex-1 rounded-full bg-white/45" : "flex-1 rounded-full bg-gray-300";
+      }
+    });
+  }
+
+  /* ----------------------------
+     Téléchargement local
+  ----------------------------- */
+  async function downloadAudio(auto = false) {
+    if (isDownloaded) return;
+
+    try {
+      setActionLoading();
+      downloadWrap.classList.remove("hidden");
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Téléchargement audio impossible");
+
+      const total = Number(response.headers.get("content-length")) || 0;
+
+      // streaming progress si supporté
+      if (response.body && total > 0) {
+        const reader = response.body.getReader();
+        let received = 0;
+        const chunks = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+
+          const pct = Math.min(100, Math.round((received / total) * 100));
+          downloadBarInner.style.width = `${pct}%`;
+        }
+
+        const blob = new Blob(chunks, { type: message.mimeType || "audio/webm" });
+        currentObjectUrl = URL.createObjectURL(blob);
+        audio.src = currentObjectUrl;
+      } else {
+        const blob = await response.blob();
+        currentObjectUrl = URL.createObjectURL(blob);
+        audio.src = currentObjectUrl;
+        downloadBarInner.style.width = "100%";
+      }
+
+      isDownloaded = true;
+      downloadWrap.classList.add("hidden");
+      setActionPlay();
+
+      if (!auto) {
+        sub.textContent = `${formatAudioDurationLabel(message.duration)} • téléchargé`;
+      }
+    } catch (error) {
+      console.error("downloadAudio error:", error);
+      downloadWrap.classList.add("hidden");
+      setActionDownload();
+    }
+  }
+
+  /* ----------------------------
+     Auto-download intelligent
+  ----------------------------- */
+  function shouldAutoDownload() {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!conn) return false;
+
+    const type = conn.effectiveType || "";
+    const saveData = !!conn.saveData;
+
+    if (saveData) return false;
+    return type === "4g" || type === "wifi";
+  }
+
+  if (shouldAutoDownload()) {
+    downloadAudio(true).catch(() => {});
+  }
+
+  /* ----------------------------
+     Actions bouton principal
+  ----------------------------- */
+  actionBtn.addEventListener("click", async () => {
+    if (!isDownloaded) {
+      await downloadAudio(false);
+      return;
+    }
+
     if (!isPlaying) {
       audio.play().catch(() => {});
       isPlaying = true;
-      playBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
+      setActionPause();
     } else {
       audio.pause();
       isPlaying = false;
-      playBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
+      setActionPlay();
     }
   });
 
+  /* ----------------------------
+     Vitesse lecture
+  ----------------------------- */
   speedBtn.addEventListener("click", () => {
     speedIndex = (speedIndex + 1) % speeds.length;
     audio.playbackRate = speeds[speedIndex];
     speedBtn.textContent = `${speeds[speedIndex]}x`;
   });
 
-  audio.addEventListener("timeupdate", () => {
-    if (!audio.duration) return;
-    range.value = String((audio.currentTime / audio.duration) * 100);
+  /* ----------------------------
+     Events audio
+  ----------------------------- */
+  audio.addEventListener("loadedmetadata", () => {
+    if (!message.duration && Number.isFinite(audio.duration)) {
+      sub.textContent = formatSeconds(audio.duration);
+    }
   });
 
-  range.addEventListener("input", () => {
+  audio.addEventListener("timeupdate", () => {
     if (!audio.duration) return;
-    audio.currentTime = (Number(range.value) / 100) * audio.duration;
+
+    const progress = audio.currentTime / audio.duration;
+    updateWave(progress);
+    timeText.textContent = formatSeconds(audio.currentTime);
   });
 
   audio.addEventListener("ended", () => {
     isPlaying = false;
-    playBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
-    range.value = "0";
+    setActionPlay();
+    updateWave(0);
+    timeText.textContent = "0:00";
   });
 
-  row.addEventListener("contextmenu", (e) => {
+  audio.addEventListener("pause", () => {
+    if (audio.currentTime < audio.duration) {
+      isPlaying = false;
+      setActionPlay();
+    }
+  });
+
+  /* ----------------------------
+     Menu message
+  ----------------------------- */
+  wrapper.addEventListener("contextmenu", (e) => {
     e.preventDefault();
     openMessageMenu(message);
   });
 
+  let longPressTimer = null;
+  wrapper.addEventListener("touchstart", () => {
+    longPressTimer = setTimeout(() => openMessageMenu(message), 500);
+  }, { passive: true });
+
+  wrapper.addEventListener("touchend", () => clearTimeout(longPressTimer));
+  wrapper.addEventListener("touchmove", () => clearTimeout(longPressTimer));
+
   return box;
 }
-
 /* ============================================================
    BLOC 20 : RÉACTIONS
 ============================================================ */
