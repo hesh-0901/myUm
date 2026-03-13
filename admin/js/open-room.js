@@ -1,4 +1,5 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
+
 import {
   collection,
   addDoc,
@@ -6,45 +7,66 @@ import {
   getDocs,
   query,
   where,
+  limit,
   serverTimestamp,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { openRadar } from "/myUm/partials/js/radar.js";
 
+
 const openRoomBtn = document.getElementById("openRoomBtn");
 const launchRadarBtn = document.getElementById("launchRadarBtn");
+const forceStopBtn = document.getElementById("forceStopBtn");
 const activeRoomStatus = document.getElementById("activeRoomStatus");
 
 let activeRoomId = null;
+
+
 
 // ===============================
 // CHECK SALON ACTIF
 // ===============================
 
 async function checkActiveRoom() {
-  const q = query(collection(db, "presenceRooms"), where("status", "==", "active"));
+
+  const q = query(
+    collection(db, "presenceRooms"),
+    where("status", "==", "active"),
+    limit(1)
+  );
+
   const snap = await getDocs(q);
 
   if (!snap.empty) {
+
     const room = snap.docs[0];
+
     activeRoomId = room.id;
+
     activeRoomStatus.innerText = "Un salon est déjà actif.";
+
     launchRadarBtn.classList.remove("hidden");
+    forceStopBtn.classList.remove("hidden");
+
     return true;
   }
 
   activeRoomStatus.innerText = "Aucun salon actif.";
+
   return false;
 }
 
 checkActiveRoom();
+
+
 
 // ===============================
 // MODE SWITCH
 // ===============================
 
 document.querySelectorAll("input[name='mode']").forEach(radio => {
+
   radio.addEventListener("change", () => {
 
     document.getElementById("hoursContainer").classList.add("hidden");
@@ -57,16 +79,28 @@ document.querySelectorAll("input[name='mode']").forEach(radio => {
     if (radio.value === "timer") {
       document.getElementById("timerContainer").classList.remove("hidden");
     }
+
   });
+
 });
 
+
+
 document.getElementById("timerDuration").addEventListener("change", (e) => {
+
   if (e.target.value === "custom") {
+
     document.getElementById("customTimer").classList.remove("hidden");
+
   } else {
+
     document.getElementById("customTimer").classList.add("hidden");
+
   }
+
 });
+
+
 
 // ===============================
 // VALIDATION
@@ -77,27 +111,39 @@ function validateForm() {
   const date = document.getElementById("roomDate").value;
   const chorale = document.getElementById("roomChorale").value;
   const type = document.getElementById("roomType").value;
+
   const mode = document.querySelector("input[name='mode']:checked");
 
   if (!date || !chorale || !type || !mode) return false;
 
   if (mode.value === "hours") {
+
     const start = document.getElementById("startTime").value;
     const end = document.getElementById("endTime").value;
+
     if (!start || !end) return false;
   }
 
   if (mode.value === "timer") {
+
     const duration = document.getElementById("timerDuration").value;
+
     if (!duration) return false;
+
     if (duration === "custom") {
+
       const custom = document.getElementById("customTimer").value;
+
       if (!custom) return false;
+
     }
+
   }
 
   return true;
 }
+
+
 
 // ===============================
 // CREATE ROOM
@@ -106,6 +152,7 @@ function validateForm() {
 openRoomBtn.addEventListener("click", async () => {
 
   const alreadyActive = await checkActiveRoom();
+
   if (alreadyActive) {
     alert("Un salon est déjà actif.");
     return;
@@ -116,8 +163,9 @@ openRoomBtn.addEventListener("click", async () => {
     return;
   }
 
-  // 🔥 On récupère la position GPS de l'admin
   navigator.geolocation.getCurrentPosition(async (position) => {
+
+    openRoomBtn.disabled = true;
 
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
@@ -150,53 +198,62 @@ openRoomBtn.addEventListener("click", async () => {
 
       startTimestamp = new Date();
       endTimestamp = new Date(Date.now() + minutes * 60000);
+
     }
 
-// 🔥 Récupération admin connecté
-const storedUser = JSON.parse(localStorage.getItem("myum_user"));
-if (!storedUser) {
-  alert("Session invalide.");
-  return;
-}
+    const storedUser = JSON.parse(localStorage.getItem("myum_user"));
 
-const userId = storedUser.id;
-const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
+    if (!storedUser) {
+      alert("Session invalide.");
+      return;
+    }
 
-const roomRef = await addDoc(collection(db, "presenceRooms"), {
-  date,
-  chorale,
-  type,
-  description,
-  mode,
-  startTime: startTimestamp,
-  endTime: endTimestamp,
-  latitude,
-  longitude,
-  status: "active",
+    const userId = storedUser.id;
+    const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
 
-  // ✅ NOUVEAUX CHAMPS
-  createdBy: userId,
-  createdByName: fullName,
+    const roomRef = await addDoc(collection(db, "presenceRooms"), {
 
-  createdAt: serverTimestamp()
-});
+      date,
+      chorale,
+      type,
+      description,
+      mode,
+
+      startTime: startTimestamp,
+      endTime: endTimestamp,
+
+      latitude,
+      longitude,
+
+      status: "active",
+
+      createdBy: userId,
+      createdByName: fullName,
+
+      createdAt: serverTimestamp()
+
+    });
 
     activeRoomId = roomRef.id;
 
-      activeRoomStatus.innerText = "Salon actif.";
-      launchRadarBtn.classList.remove("hidden");
-      document.getElementById("forceStopBtn").classList.remove("hidden");
-      
-      autoCloseRoom(roomRef.id, endTimestamp);
-      
-      // 🔥 OUVERTURE AUTOMATIQUE DU RADAR
-      openRadar(roomRef.id);
+    activeRoomStatus.innerText = "Salon actif.";
+
+    launchRadarBtn.classList.remove("hidden");
+    forceStopBtn.classList.remove("hidden");
+
+    autoCloseRoom(roomRef.id, endTimestamp);
+
+    openRadar(roomRef.id);
 
   }, () => {
+
     alert("Géolocalisation refusée. Impossible de créer le salon.");
+
   });
 
 });
+
+
 
 // ===============================
 // AUTO CLOSE
@@ -204,27 +261,30 @@ const roomRef = await addDoc(collection(db, "presenceRooms"), {
 
 function autoCloseRoom(roomId, endTime) {
 
-  const interval = setInterval(async () => {
+  const delay = endTime.getTime() - Date.now();
 
-    if (new Date() >= endTime) {
+  if (delay <= 0) return;
 
-      await updateDoc(doc(db, "presenceRooms", roomId), {
-        status: "closed"
-      });
+  setTimeout(async () => {
 
-      clearInterval(interval);
-      activeRoomStatus.innerText = "Salon expiré.";
-      launchRadarBtn.classList.add("hidden");
-    }
+    await updateDoc(doc(db, "presenceRooms", roomId), {
+      status: "closed"
+    });
 
-  }, 5000);
+    activeRoomStatus.innerText = "Salon expiré.";
+
+    launchRadarBtn.classList.add("hidden");
+    forceStopBtn.classList.add("hidden");
+
+  }, delay);
+
 }
+
+
 
 // ===============================
 // FORCE STOP
 // ===============================
-
-const forceStopBtn = document.getElementById("forceStopBtn");
 
 forceStopBtn.addEventListener("click", async () => {
 
@@ -236,16 +296,21 @@ forceStopBtn.addEventListener("click", async () => {
 
   activeRoomStatus.innerText = "Salon arrêté manuellement.";
 
-  forceStopBtn.classList.add("hidden");
   launchRadarBtn.classList.add("hidden");
+  forceStopBtn.classList.add("hidden");
 
 });
+
+
 
 // ===============================
 // LAUNCH RADAR
 // ===============================
 
 launchRadarBtn.addEventListener("click", () => {
+
   if (!activeRoomId) return;
+
   openRadar(activeRoomId);
+
 });
