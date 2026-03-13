@@ -23,11 +23,15 @@ tailwind.config = {
 </script>
 </head>
 
-<body class="bg-gray-100 text-gray-800 pb-24">
+<body class="bg-gray-100 flex justify-center overflow-x-hidden">
 
-<div class="max-w-md mx-auto px-4 py-6 space-y-6">
+<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
-  <!-- HEADER -->
+<header id="headerContainer"></header>
+
+<main class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+
+  <!-- HEADER CARD -->
   <div class="bg-white rounded-3xl shadow-sm p-5 space-y-2">
     <h1 class="text-lg font-semibold">Ouvrir un salon de présence</h1>
     <p id="activeRoomStatus" class="text-xs text-gray-500">
@@ -152,15 +156,32 @@ tailwind.config = {
 
 </div>
 
-<!-- RADAR CONTAINER -->
+</main>
+
+<footer id="navContainer"></footer>
+
+</div>
+
 <div id="radarContainer"></div>
 
+<script type="module" src="/myUm/mains.js/app-init.js"></script>
 <script type="module" src="/myUm/admin/js/open-room.js"></script>
 
 <script type="module">
-  // Injection dynamique du radar modal
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const header = await fetch("/myUm/partials/header-back.html");
+  document.getElementById("headerContainer").innerHTML = await header.text();
+
+  const nav = await fetch("/myUm/partials/nav.html");
+  document.getElementById("navContainer").innerHTML = await nav.text();
+
   const radar = await fetch("/myUm/partials/radar.html");
   document.getElementById("radarContainer").innerHTML = await radar.text();
+
+});
+
 </script>
 
 </body>
