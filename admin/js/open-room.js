@@ -21,6 +21,34 @@ const forceStopBtn = document.getElementById("forceStopBtn");
 const activeRoomStatus = document.getElementById("activeRoomStatus");
 
 let activeRoomId = null;
+let selectedMode = null;
+
+// ===============================
+// les boutons Heures fixe
+// ===============================
+const modeHoursBtn = document.getElementById("modeHours");
+const modeTimerBtn = document.getElementById("modeTimer");
+
+const hoursContainer = document.getElementById("hoursContainer");
+const timerContainer = document.getElementById("timerContainer");
+
+modeHoursBtn.addEventListener("click", () => {
+
+  selectedMode = "hours";
+
+  hoursContainer.classList.remove("hidden");
+  timerContainer.classList.add("hidden");
+
+});
+
+modeTimerBtn.addEventListener("click", () => {
+
+  selectedMode = "timer";
+
+  timerContainer.classList.remove("hidden");
+  hoursContainer.classList.add("hidden");
+
+});
 
 
 
@@ -112,11 +140,11 @@ function validateForm() {
   const chorale = document.getElementById("roomChorale").value;
   const type = document.getElementById("roomType").value;
 
-  const mode = document.querySelector("input[name='mode']:checked");
+  const mode = selectedMode;
 
   if (!date || !chorale || !type || !mode) return false;
 
-  if (mode.value === "hours") {
+  if (mode === "hours") {
 
     const start = document.getElementById("startTime").value;
     const end = document.getElementById("endTime").value;
@@ -124,7 +152,7 @@ function validateForm() {
     if (!start || !end) return false;
   }
 
-  if (mode.value === "timer") {
+  if (mode === "timer") {
 
     const duration = document.getElementById("timerDuration").value;
 
