@@ -336,9 +336,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 try {
 
-const header = await fetch("/myUm/partials/header-back.html");
-document.getElementById("headerContainer").innerHTML = await header.text();
-
 const radar = await fetch("/myUm/partials/radar.html");
 document.getElementById("radarContainer").innerHTML = await radar.text();
 
@@ -351,6 +348,8 @@ console.error("Erreur chargement partials :", error);
 });
 
 </script>
+
+<script type="module" src="/myUm/partials/js/back-header.js"></script>
 
 </body>
 </html>
