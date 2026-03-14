@@ -203,7 +203,7 @@ openRoomBtn.addEventListener("click", async () => {
     const type = document.getElementById("roomType").value;
     const description = document.getElementById("roomDescription").value;
 
-    const mode = document.querySelector("input[name='mode']:checked").value;
+    const mode = selectedMode;
 
     let startTimestamp = null;
     let endTimestamp = null;
