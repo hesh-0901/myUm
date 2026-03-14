@@ -18,6 +18,13 @@ export async function openRadar(roomId) {
   const countdownEl = document.getElementById("radarCountdown");
   const counterEl = document.getElementById("radarCount");
   const scanBtn = document.getElementById("radarScanBtn");
+  const backBtn = document.getElementById("radarBackBtn");
+
+  if (backBtn) {
+  backBtn.onclick = () => {
+    window.location.href = "/myUm/admin/open-room.html";
+  };
+}
 
   if (!modal || !countdownEl || !counterEl || !scanBtn) return;
 
