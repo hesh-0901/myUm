@@ -309,9 +309,40 @@ function autoCloseRoom(roomId, endTime) {
 }
 
 // ===============================
-// BOUTONS CHRONO / HEURE vide
+// FERMETURE AUTO DU RADAR
 // ===============================
+async function checkRoomExpiration() {
 
+  const q = query(
+    collection(db, "presenceRooms"),
+    where("status", "==", "active"),
+    limit(1)
+  );
+
+  const snap = await getDocs(q);
+
+  if (snap.empty) return;
+
+  const room = snap.docs[0];
+  const data = room.data();
+
+  if (!data.endTime) return;
+
+  const endTime = data.endTime.toDate();
+
+  if (new Date() >= endTime) {
+
+    await updateDoc(doc(db, "presenceRooms", room.id), {
+      status: "closed"
+    });
+
+    activeRoomStatus.innerText = "Salon expiré.";
+
+  }
+
+}
+
+checkRoomExpiration();
 
 
 
