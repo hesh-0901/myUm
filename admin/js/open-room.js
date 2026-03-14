@@ -87,49 +87,6 @@ async function checkActiveRoom() {
 
 checkActiveRoom();
 
-
-
-// ===============================
-// MODE SWITCH
-// ===============================
-
-document.querySelectorAll("input[name='mode']").forEach(radio => {
-
-  radio.addEventListener("change", () => {
-
-    document.getElementById("hoursContainer").classList.add("hidden");
-    document.getElementById("timerContainer").classList.add("hidden");
-
-    if (radio.value === "hours") {
-      document.getElementById("hoursContainer").classList.remove("hidden");
-    }
-
-    if (radio.value === "timer") {
-      document.getElementById("timerContainer").classList.remove("hidden");
-    }
-
-  });
-
-});
-
-
-
-document.getElementById("timerDuration").addEventListener("change", (e) => {
-
-  if (e.target.value === "custom") {
-
-    document.getElementById("customTimer").classList.remove("hidden");
-
-  } else {
-
-    document.getElementById("customTimer").classList.add("hidden");
-
-  }
-
-});
-
-
-
 // ===============================
 // VALIDATION
 // ===============================
@@ -186,10 +143,15 @@ openRoomBtn.addEventListener("click", async () => {
     return;
   }
 
-  if (!validateForm()) {
-    alert("Veuillez remplir tous les champs obligatoires.");
-    return;
-  }
+if (!validateForm()) {
+  alert("Veuillez remplir tous les champs obligatoires.");
+  return;
+}
+
+if (!selectedMode) {
+  alert("Choisissez un mode de durée.");
+  return;
+}
 
   navigator.geolocation.getCurrentPosition(async (position) => {
 
