@@ -1,10 +1,18 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
 import {
-  collection, query, where, getDocs,
-  doc, getDoc, setDoc, onSnapshot, serverTimestamp
+collection,
+query,
+where,
+getDocs,
+doc,
+getDoc,
+setDoc,
+onSnapshot,
+serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ================= DOM ================= */
+
 const roomInfo = document.getElementById("roomInfo");
 const enterRoomBtn = document.getElementById("enterRoomBtn");
 const immersiveModal = document.getElementById("immersiveModal");
@@ -13,291 +21,403 @@ const fingerprintBtn = document.getElementById("fingerprintBtn");
 const progressCircle = document.getElementById("progressCircle");
 const immersiveTimer = document.getElementById("immersiveTimer");
 const backBtn = document.getElementById("backBtn");
+const distanceDisplay = document.getElementById("distanceDisplay");
 
 /* ================= STATE ================= */
+
 let activeRoomId = null;
 let roomData = null;
 let unsubscribe = null;
 let scanInterval = null;
 let timerInterval = null;
+let distanceInterval = null;
 let progress = 0;
 
-/* ================= PROGRESS RING SETUP ================= */
+/* ================= PROGRESS RING ================= */
+
 const radius = 110;
 const circumference = 2 * Math.PI * radius;
 
 if (progressCircle) {
-  progressCircle.style.strokeDasharray = circumference;
-  progressCircle.style.strokeDashoffset = circumference;
+progressCircle.style.strokeDasharray = circumference;
+progressCircle.style.strokeDashoffset = circumference;
+}
+
+/* ================= DISTANCE CALCULATION ================= */
+
+function getDistance(lat1, lon1, lat2, lon2){
+
+const R = 6371000;
+
+const toRad = v => v * Math.PI / 180;
+
+const dLat = toRad(lat2 - lat1);
+const dLon = toRad(lon2 - lon1);
+
+const a =
+Math.sin(dLat/2)*Math.sin(dLat/2)+
+Math.cos(toRad(lat1))*
+Math.cos(toRad(lat2))*
+Math.sin(dLon/2)*Math.sin(dLon/2);
+
+const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+return R * c;
 }
 
 /* ================= LOAD ACTIVE ROOM ================= */
-async function loadActiveRoom() {
 
-  const q = query(
-    collection(db, "presenceRooms"),
-    where("status", "==", "active")
-  );
+async function loadActiveRoom(){
 
-  const snap = await getDocs(q);
+const q = query(
+collection(db,"presenceRooms"),
+where("status","==","active")
+);
 
-  if (snap.empty) {
-    roomInfo.innerHTML = "<p>Aucun salon actif.</p>";
-    roomInfo.classList.remove("hidden");
-    return;
-  }
+const snap = await getDocs(q);
 
-  const docSnap = snap.docs[0];
-  activeRoomId = docSnap.id;
-  roomData = docSnap.data();
+if(snap.empty){
 
-  roomInfo.innerHTML = `
-    <p><strong>Ouvert par :</strong> ${roomData.createdByName}</p>
-    <p><strong>Chorale :</strong> ${roomData.chorale}</p>
-    <p><strong>Motif :</strong> ${roomData.type}</p>
-  `;
+roomInfo.innerHTML = "<p>Aucun salon actif.</p>";
+roomInfo.classList.remove("hidden");
 
-  roomInfo.classList.remove("hidden");
-  enterRoomBtn.classList.remove("hidden");
+return;
+}
 
-  startTimer();
+const docSnap = snap.docs[0];
+
+activeRoomId = docSnap.id;
+roomData = docSnap.data();
+
+roomInfo.innerHTML = `
+<p><strong>Ouvert par :</strong> ${roomData.createdByName}</p>
+<p><strong>Chorale :</strong> ${roomData.chorale}</p>
+<p><strong>Motif :</strong> ${roomData.type}</p>
+`;
+
+roomInfo.classList.remove("hidden");
+enterRoomBtn.classList.remove("hidden");
+
+startTimer();
+startDistanceTracker();
+
 }
 
 loadActiveRoom();
 
 /* ================= TIMER ================= */
-function startTimer() {
 
-  if (timerInterval) clearInterval(timerInterval);
+function startTimer(){
 
-  timerInterval = setInterval(() => {
+if(timerInterval) clearInterval(timerInterval);
 
-    if (!roomData) return;
+timerInterval = setInterval(()=>{
 
-    const diff = roomData.endTime.toDate() - new Date();
+if(!roomData) return;
 
-    if (diff <= 0) {
-      immersiveTimer.innerText = "00:00";
-      clearInterval(timerInterval);
-      return;
-    }
+const diff = roomData.endTime.toDate() - new Date();
 
-    const m = Math.floor(diff / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
+if(diff <= 0){
 
-    immersiveTimer.innerText =
-      `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+immersiveTimer.innerText = "00:00";
 
-  }, 1000);
+clearInterval(timerInterval);
+
+return;
+}
+
+const m = Math.floor(diff/60000);
+const s = Math.floor((diff%60000)/1000);
+
+immersiveTimer.innerText =
+`${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+
+},1000);
+
+}
+
+/* ================= DISTANCE TRACKER ================= */
+
+function startDistanceTracker(){
+
+if(!roomData.latitude || !roomData.longitude) return;
+
+distanceInterval = setInterval(()=>{
+
+navigator.geolocation.getCurrentPosition(pos=>{
+
+const userLat = pos.coords.latitude;
+const userLng = pos.coords.longitude;
+
+const distance = getDistance(
+userLat,
+userLng,
+roomData.latitude,
+roomData.longitude
+);
+
+if(distanceDisplay){
+
+distanceDisplay.innerText =
+`Distance : ${distance.toFixed(1)} m`;
+
+if(distance > 7){
+distanceDisplay.classList.add("text-red-500");
+}
+else{
+distanceDisplay.classList.remove("text-red-500");
+}
+
+}
+
+});
+
+},2000);
+
 }
 
 /* ================= ENTER ROOM ================= */
-enterRoomBtn?.addEventListener("click", () => {
 
-  immersiveModal.classList.remove("hidden");
+enterRoomBtn?.addEventListener("click",()=>{
 
-  unsubscribe = onSnapshot(
-    collection(db, "presenceRooms", activeRoomId, "attendances"),
-    snap => liveCount.innerText = snap.size
-  );
+immersiveModal.classList.remove("hidden");
+
+unsubscribe = onSnapshot(
+collection(db,"presenceRooms",activeRoomId,"attendances"),
+snap => liveCount.innerText = snap.size
+);
 
 });
 
 /* ================= BACK BUTTON ================= */
-backBtn?.addEventListener("click", () => {
 
-  immersiveModal.classList.add("hidden");
+backBtn?.addEventListener("click",()=>{
 
-  if (unsubscribe) {
-    unsubscribe();
-    unsubscribe = null;
-  }
+immersiveModal.classList.add("hidden");
 
-  cancelScan();
+if(unsubscribe){
+
+unsubscribe();
+unsubscribe = null;
+
+}
+
+cancelScan();
+
 });
 
-/* ================= SCAN LOGIC ================= */
-function startScan(e) {
+/* ================= SCAN ================= */
 
-  e.preventDefault();
+function startScan(e){
 
-  if (!activeRoomId || !roomData) return;
+e.preventDefault();
 
-  progress = 0;
-  updateProgress(0);
+if(!activeRoomId || !roomData) return;
 
-  fingerprintBtn.classList.add("scanning");
+progress = 0;
 
-  if (scanInterval) clearInterval(scanInterval);
+updateProgress(0);
 
-  scanInterval = setInterval(() => {
+fingerprintBtn.classList.add("scanning");
 
-    progress += 1.2;
+if(scanInterval) clearInterval(scanInterval);
 
-    updateProgress(progress);
-    spawnParticle();
+scanInterval = setInterval(()=>{
 
-    if (navigator.vibrate) navigator.vibrate(15);
+progress += 1.2;
 
-    if (progress >= 100) {
-      clearInterval(scanInterval);
-      completeScan();
-    }
+updateProgress(progress);
 
-  }, 35);
+spawnParticle();
+
+if(navigator.vibrate) navigator.vibrate(15);
+
+if(progress >= 100){
+
+clearInterval(scanInterval);
+
+completeScan();
+
 }
 
-function cancelScan() {
+},35);
 
-  if (scanInterval) clearInterval(scanInterval);
-
-  progress = 0;
-  updateProgress(0);
-
-  fingerprintBtn.classList.remove("scanning");
 }
 
-/* ================= UPDATE PROGRESS ================= */
-function updateProgress(value) {
+function cancelScan(){
 
-  if (!progressCircle) return;
+if(scanInterval) clearInterval(scanInterval);
 
-  const offset =
-    circumference - (value / 100) * circumference;
+progress = 0;
 
-  progressCircle.style.strokeDashoffset = offset;
+updateProgress(0);
+
+fingerprintBtn.classList.remove("scanning");
+
+}
+
+/* ================= PROGRESS ================= */
+
+function updateProgress(value){
+
+if(!progressCircle) return;
+
+const offset =
+circumference - (value/100) * circumference;
+
+progressCircle.style.strokeDashoffset = offset;
+
 }
 
 /* ================= PARTICLES ================= */
-function spawnParticle() {
 
-  const particle = document.createElement("div");
+function spawnParticle(){
 
-  particle.style.position = "absolute";
-  particle.style.width = "4px";
-  particle.style.height = "4px";
-  particle.style.background = "#38bdf8";
-  particle.style.borderRadius = "50%";
-  particle.style.left = (110 + Math.random() * 40 - 20) + "px";
-  particle.style.top = (110 + Math.random() * 40 - 20) + "px";
-  particle.style.opacity = "1";
-  particle.style.transition = "all 0.8s ease";
+const particle = document.createElement("div");
 
-  immersiveModal.appendChild(particle);
+particle.style.position="absolute";
+particle.style.width="4px";
+particle.style.height="4px";
+particle.style.background="#38bdf8";
+particle.style.borderRadius="50%";
 
-  setTimeout(() => {
-    particle.style.transform = "scale(3)";
-    particle.style.opacity = "0";
-  }, 10);
+particle.style.left=(110+Math.random()*40-20)+"px";
+particle.style.top=(110+Math.random()*40-20)+"px";
 
-  setTimeout(() => {
-    particle.remove();
-  }, 800);
+particle.style.opacity="1";
+particle.style.transition="all 0.8s ease";
+
+immersiveModal.appendChild(particle);
+
+setTimeout(()=>{
+particle.style.transform="scale(3)";
+particle.style.opacity="0";
+},10);
+
+setTimeout(()=>{
+particle.remove();
+},800);
+
 }
 
 /* ================= COMPLETE SCAN ================= */
-async function completeScan() {
 
-  if (navigator.vibrate)
-    navigator.vibrate([300, 150, 300, 150, 300]);
+async function completeScan(){
 
-  cinematicFlash();
-  successSoundEpic();
+if(navigator.vibrate)
+navigator.vibrate([300,150,300,150,300]);
 
-  await signPresence();
+cinematicFlash();
 
-  fingerprintBtn.innerHTML =
-    "<i class='bi bi-check-circle text-5xl text-green-400'></i>";
+successSoundEpic();
 
-  fingerprintBtn.classList.remove("scanning");
+await signPresence();
+
+fingerprintBtn.innerHTML =
+"<i class='bi bi-check-circle text-5xl text-green-400'></i>";
+
+fingerprintBtn.classList.remove("scanning");
+
 }
 
-/* ================= FLASH EFFECT ================= */
-function cinematicFlash() {
+/* ================= FLASH ================= */
 
-  const flash = document.createElement("div");
+function cinematicFlash(){
 
-  flash.style.position = "fixed";
-  flash.style.inset = "0";
-  flash.style.background = "white";
-  flash.style.opacity = "0.9";
-  flash.style.transition = "opacity 0.6s ease";
-  flash.style.zIndex = "9999";
+const flash = document.createElement("div");
 
-  document.body.appendChild(flash);
+flash.style.position="fixed";
+flash.style.inset="0";
+flash.style.background="white";
+flash.style.opacity="0.9";
+flash.style.transition="opacity 0.6s ease";
+flash.style.zIndex="9999";
 
-  setTimeout(() => flash.style.opacity = "0", 50);
-  setTimeout(() => flash.remove(), 600);
+document.body.appendChild(flash);
+
+setTimeout(()=>flash.style.opacity="0",50);
+
+setTimeout(()=>flash.remove(),600);
+
 }
 
 /* ================= SIGN PRESENCE ================= */
-async function signPresence() {
 
-  if (!roomData || roomData.status !== "active") return;
+async function signPresence(){
 
-  const storedUser =
-    JSON.parse(localStorage.getItem("myum_user"));
+if(!roomData || roomData.status!=="active") return;
 
-  if (!storedUser) return;
+const storedUser =
+JSON.parse(localStorage.getItem("myum_user"));
 
-  const attendanceRef = doc(
-    db,
-    "presenceRooms",
-    activeRoomId,
-    "attendances",
-    storedUser.id
-  );
+if(!storedUser) return;
 
-  const existing = await getDoc(attendanceRef);
+const attendanceRef = doc(
+db,
+"presenceRooms",
+activeRoomId,
+"attendances",
+storedUser.id
+);
 
-  if (existing.exists()) return;
+const existing = await getDoc(attendanceRef);
 
-  await setDoc(attendanceRef, {
-    userId: storedUser.id,
-    username: storedUser.username,
-    fullName: `${storedUser.firstName} ${storedUser.lastName}`,
-    genre: storedUser.genre === "Homme" ? "M" : "F",
-    statut: "P",
-    method: "auto",
-    timestamp: serverTimestamp()
-  });
+if(existing.exists()) return;
+
+await setDoc(attendanceRef,{
+
+userId: storedUser.id,
+username: storedUser.username,
+fullName: `${storedUser.firstName} ${storedUser.lastName}`,
+genre: storedUser.genre === "Homme" ? "M" : "F",
+statut: "P",
+method: "auto",
+timestamp: serverTimestamp()
+
+});
+
 }
 
-/* ================= EPIC SOUND ================= */
-function successSoundEpic() {
+/* ================= SOUND ================= */
 
-  const ctx =
-    new (window.AudioContext || window.webkitAudioContext)();
+function successSoundEpic(){
 
-  if (ctx.state === "suspended") ctx.resume();
+const ctx =
+new (window.AudioContext||window.webkitAudioContext)();
 
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+if(ctx.state==="suspended") ctx.resume();
 
-  osc.connect(gain);
-  gain.connect(ctx.destination);
+const osc = ctx.createOscillator();
+const gain = ctx.createGain();
 
-  osc.type = "sawtooth";
+osc.connect(gain);
+gain.connect(ctx.destination);
 
-  osc.frequency.setValueAtTime(300, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(
-    1200,
-    ctx.currentTime + 0.8
-  );
+osc.type="sawtooth";
 
-  gain.gain.setValueAtTime(0.7, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(
-    0.001,
-    ctx.currentTime + 1.5
-  );
+osc.frequency.setValueAtTime(300,ctx.currentTime);
 
-  osc.start();
-  osc.stop(ctx.currentTime + 1.5);
+osc.frequency.exponentialRampToValueAtTime(
+1200,
+ctx.currentTime+0.8
+);
+
+gain.gain.setValueAtTime(0.7,ctx.currentTime);
+
+gain.gain.exponentialRampToValueAtTime(
+0.001,
+ctx.currentTime+1.5
+);
+
+osc.start();
+osc.stop(ctx.currentTime+1.5);
+
 }
 
 /* ================= EVENTS ================= */
-fingerprintBtn?.addEventListener("mousedown", startScan);
-fingerprintBtn?.addEventListener("touchstart", startScan, { passive: false });
-fingerprintBtn?.addEventListener("mouseup", cancelScan);
-fingerprintBtn?.addEventListener("mouseleave", cancelScan);
-fingerprintBtn?.addEventListener("touchend", cancelScan);
+
+fingerprintBtn?.addEventListener("mousedown",startScan);
+fingerprintBtn?.addEventListener("touchstart",startScan,{passive:false});
+fingerprintBtn?.addEventListener("mouseup",cancelScan);
+fingerprintBtn?.addEventListener("mouseleave",cancelScan);
+fingerprintBtn?.addEventListener("touchend",cancelScan);
