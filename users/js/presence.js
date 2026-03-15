@@ -110,6 +110,10 @@ limit(1)
 
 const snap = await getDocs(q);
 
+/* DEBUG */
+console.log("Rooms trouvées :", snap.size);
+snap.forEach(d => console.log("Room :", d.id, d.data()));
+
 if(snap.empty){
 
 roomInfo.innerHTML = "<p>Aucun salon actif.</p>";
@@ -122,22 +126,6 @@ const docSnap = snap.docs[0];
 
 activeRoomId = docSnap.id;
 roomData = docSnap.data();
-
-roomInfo.innerHTML = `
-<p><strong>Ouvert par :</strong> ${roomData.createdByName}</p>
-<p><strong>Chorale :</strong> ${roomData.chorale}</p>
-<p><strong>Motif :</strong> ${roomData.type}</p>
-`;
-
-roomInfo.classList.remove("hidden");
-enterRoomBtn.classList.remove("hidden");
-
-startTimer();
-startDistanceTracker();
-
-}
-
-loadActiveRoom();
 
 /* ================= TIMER ================= */
 
@@ -457,8 +445,3 @@ fingerprintBtn?.addEventListener("touchstart",startScan,{passive:false});
 fingerprintBtn?.addEventListener("mouseup",cancelScan);
 fingerprintBtn?.addEventListener("mouseleave",cancelScan);
 fingerprintBtn?.addEventListener("touchend",cancelScan);
-
-/* ================= DEBUG ================= */
-
-console.log("Rooms trouvées :", snap.size);
-snap.forEach(d => console.log(d.id, d.data()));
