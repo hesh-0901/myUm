@@ -31,6 +31,26 @@ export async function openRadar(roomId) {
   modal.classList.remove("hidden");
 
   const roomRef = doc(db, "presenceRooms", roomId);
+
+  // ==============================
+// LISTENER SALON (TEMPS RÉEL)
+// ==============================
+
+onSnapshot(roomRef, (snapshot) => {
+
+  const data = snapshot.data();
+  if (!data) return;
+
+  if (data.status === "closed") {
+
+    closeRadar();
+
+    window.location.href = "/myUm/admin/open-room.html";
+
+  }
+
+});
+  
   const roomSnap = await getDoc(roomRef);
 
   if (!roomSnap.exists()) return;
