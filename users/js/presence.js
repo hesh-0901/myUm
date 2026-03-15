@@ -81,7 +81,7 @@ if(!distanceDot) return;
 const maxRadius = 120;
 
 /* distance max autorisée */
-const maxDistance = 7;
+const maxDistance = 30;
 
 /* normalisation distance */
 let ratio = Math.min(distance / maxDistance,1);
@@ -188,6 +188,11 @@ navigator.geolocation.getCurrentPosition(
 
 (pos)=>{
 
+if(pos.coords.accuracy > 40){
+console.log("Position ignorée (précision mauvaise) :", pos.coords.accuracy);
+return;
+}
+
 const userLat = pos.coords.latitude;
 const userLng = pos.coords.longitude;
 
@@ -224,7 +229,7 @@ if(distanceDisplay){
 distanceDisplay.innerText =
 `Distance : ${distance.toFixed(1)} m`;
 
-if(distance > 7){
+if(distance > 30){
 distanceDisplay.classList.add("text-red-500");
 }
 else{
@@ -437,7 +442,7 @@ alert("Position GPS inconnue.");
 return;
 }
 
-if(currentDistance > 7){
+if(currentDistance > 30){
 alert("Vous êtes trop loin du lieu de présence.");
 return;
 }
