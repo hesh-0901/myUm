@@ -37,6 +37,7 @@ let timerInterval = null;
 let distanceInterval = null;
 let progress = 0;
 let currentDistance = null;
+let positionHistory = [];
 
 /* ================= PROGRESS RING ================= */
 
@@ -190,16 +191,31 @@ navigator.geolocation.getCurrentPosition(
 const userLat = pos.coords.latitude;
 const userLng = pos.coords.longitude;
 
+positionHistory.push({
+lat: userLat,
+lng: userLng
+});
+
+if(positionHistory.length > 5){
+positionHistory.shift();
+}
+
+const avgLat =
+positionHistory.reduce((a,b)=>a+b.lat,0) / positionHistory.length;
+
+const avgLng =
+positionHistory.reduce((a,b)=>a+b.lng,0) / positionHistory.length;
+
 const distance = getDistance(
-userLat,
-userLng,
+avgLat,
+avgLng,
 roomData.latitude,
 roomData.longitude
 );
 
 currentDistance = distance;
 
-console.log("Distance calculée :", distance);
+console.log("Distance stabilisée :", distance);
 
 updateRadar(distance);
 
