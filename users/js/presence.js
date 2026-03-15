@@ -201,7 +201,7 @@ lat: userLat,
 lng: userLng
 });
 
-if(positionHistory.length > 5){
+if(positionHistory.length > 3){
 positionHistory.shift();
 }
 
@@ -257,13 +257,13 @@ distanceDisplay.innerText = "Géolocalisation refusée";
 
 {
 enableHighAccuracy: true,
-maximumAge: 0,
+maximumAge: 3000,
 timeout: 5000
 }
 
 );
 
-},2000);
+},1000);
 
 }
 /* ================= ENTER ROOM ================= */
