@@ -1,211 +1,272 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
 <title>Scanner Biométrique - MyUm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link rel="icon" href="/myUm/assets/favicon.ico">
 
 <style>
 
 /* ===== ANTI SELECTION ===== */
+
 *{
-  -webkit-user-select:none;
-  user-select:none;
-  -webkit-touch-callout:none;
-  -webkit-tap-highlight-color:transparent;
+-webkit-user-select:none;
+user-select:none;
+-webkit-touch-callout:none;
+-webkit-tap-highlight-color:transparent;
 }
 
-/* ===== LIGHT GLASS BACKGROUND ===== */
+/* ===== LIGHT BACKGROUND ===== */
+
 body{
-  background: linear-gradient(135deg,#eef6ff,#f8fbff);
+background:linear-gradient(135deg,#eef6ff,#f8fbff);
 }
 
-/* ===== IMMERSIVE GLASS PANEL ===== */
+/* ===== IMMERSIVE SCANNER BACKGROUND ===== */
+
 #immersiveModal{
-  background: radial-gradient(circle at center, rgba(37,150,217,0.12), transparent 60%);
-  backdrop-filter: blur(20px);
+background:radial-gradient(circle at center,
+rgba(37,150,217,0.12),
+transparent 60%);
+backdrop-filter:blur(20px);
 }
 
 /* ===== PROGRESS RING ===== */
+
 .progress-ring{
-  transform: rotate(-90deg);
+transform:rotate(-90deg);
 }
 
 .progress-ring circle{
-  transition: stroke-dashoffset 0.05s linear;
+transition:stroke-dashoffset 0.05s linear;
 }
 
 /* ===== LASER LINE ===== */
+
 #laserLine{
-  position:absolute;
-  width:2px;
-  height:200px;
-  background:linear-gradient(to bottom,
-    transparent,
-    #2596D9,
-    #3FA9F5,
-    #2596D9,
-    transparent);
-  box-shadow:0 0 15px rgba(37,150,217,0.6);
-  animation:laserMove 1.8s linear infinite;
-  opacity:0;
+position:absolute;
+width:2px;
+height:200px;
+background:linear-gradient(
+to bottom,
+transparent,
+#2596D9,
+#3FA9F5,
+#2596D9,
+transparent
+);
+box-shadow:0 0 15px rgba(37,150,217,0.6);
+animation:laserMove 1.8s linear infinite;
+opacity:0;
 }
 
 .scanning #laserLine{
-  opacity:1;
+opacity:1;
 }
 
 @keyframes laserMove{
-  0%{transform:translateY(-100px)}
-  100%{transform:translateY(100px)}
+0%{transform:translateY(-100px)}
+100%{transform:translateY(100px)}
 }
 
 /* ===== HUD ROTATION ===== */
+
 #hudOverlay{
-  position:absolute;
-  width:260px;
-  height:260px;
-  border:1px solid rgba(37,150,217,0.3);
-  border-radius:50%;
-  box-shadow:
-    0 0 20px rgba(37,150,217,0.2),
-    inset 0 0 15px rgba(37,150,217,0.15);
-  animation:rotateHud 12s linear infinite;
+position:absolute;
+width:260px;
+height:260px;
+border:1px solid rgba(37,150,217,0.3);
+border-radius:50%;
+box-shadow:
+0 0 20px rgba(37,150,217,0.2),
+inset 0 0 15px rgba(37,150,217,0.15);
+animation:rotateHud 12s linear infinite;
 }
 
 @keyframes rotateHud{
-  from{transform:rotate(0deg)}
-  to{transform:rotate(360deg)}
+from{transform:rotate(0deg)}
+to{transform:rotate(360deg)}
 }
 
-/* ===== SCANNING GLOW ===== */
+/* ===== SCAN GLOW ===== */
+
 .scanning{
-  box-shadow:
-    0 0 30px rgba(37,150,217,0.5),
-    0 0 60px rgba(63,169,245,0.4);
-  transition: box-shadow 0.2s ease;
+box-shadow:
+0 0 30px rgba(37,150,217,0.5),
+0 0 60px rgba(63,169,245,0.4);
+transition:box-shadow 0.2s ease;
 }
 
 </style>
+
 </head>
 
-<body class="text-gray-800 font-sans overflow-hidden">
 
-<!-- BACK BUTTON -->
-<button id="backBtn"
-class="fixed top-5 left-5 z-50
-       w-11 h-11 rounded-full
-       flex items-center justify-center
-       bg-white/70 backdrop-blur-md
-       border border-blue-200
-       text-blue-600 text-lg
-       shadow-md
-       transition duration-300 hover:scale-110">
-<i class="bi bi-arrow-left"></i>
-</button>
+<body data-title="Scanner biométrique"
+class="text-gray-800 font-sans overflow-hidden">
+
+
+<!-- HEADER BACK -->
+
+<header id="header-back"></header>
+
+
+<!-- WAITING SCREEN -->
+
+<div id="waitingScreen"
+class="flex flex-col items-center justify-center
+h-screen space-y-6 text-center">
+
+<i class="bi bi-radar text-6xl text-blue-500 animate-pulse"></i>
+
+<p class="text-sm tracking-widest text-blue-600">
+Recherche d'un salon actif...
+</p>
+
+</div>
 
 
 <!-- MAIN PANEL -->
-<div class="relative z-10 max-w-md mx-auto px-6 py-10 space-y-8">
 
-  <!-- ROOM INFO -->
-  <div id="roomInfo"
-       class="hidden
-              bg-white/80 backdrop-blur-xl
-              border border-blue-100
-              rounded-3xl p-6
-              text-blue-900
-              shadow-xl">
-  </div>
+<div class="relative z-10 max-w-md mx-auto px-6 py-24 space-y-8">
 
-  <!-- ENTER BUTTON -->
-  <button id="enterRoomBtn"
-    class="hidden w-full py-4 rounded-2xl
-           uppercase tracking-widest font-semibold
-           bg-gradient-to-r from-blue-500 to-sky-500
-           text-white
-           shadow-lg
-           transition duration-300
-           hover:shadow-xl
-           active:scale-95">
+<!-- ROOM INFO -->
 
-    <i class="bi bi-door-open mr-2"></i>
-    Accéder au Scanner
+<div id="roomInfo"
 
-  </button>
+class="hidden
+bg-white/80 backdrop-blur-xl
+border border-blue-100
+rounded-3xl p-6
+text-blue-900
+shadow-xl
+space-y-3">
 
 </div>
 
 
-<!-- IMMERSIVE HUD -->
+<!-- ENTER BUTTON -->
+
+<button id="enterRoomBtn"
+
+class="hidden w-full py-4 rounded-2xl
+flex items-center justify-center gap-3
+uppercase tracking-widest font-semibold
+bg-gradient-to-r from-blue-500 to-sky-500
+text-white
+shadow-lg
+active:scale-95
+transition duration-300">
+
+<i class="bi bi-door-open"></i>
+
+Entrer dans le scanner
+
+</button>
+
+</div>
+
+
+<!-- IMMERSIVE SCANNER -->
+
 <div id="immersiveModal"
+
 class="fixed inset-0 z-50 hidden
-       flex flex-col items-center justify-center
-       bg-white">
+flex flex-col items-center justify-center
+bg-white">
 
-  <!-- TITLE -->
-  <p class="text-xs tracking-[0.5em] text-blue-600 mb-3">
-    BIOMETRIC AUTHORIZATION
-  </p>
 
-  <!-- LIVE COUNT -->
-  <p id="liveCount"
-     class="text-5xl font-bold text-blue-700 mb-12">
-     0
-  </p>
+<p class="text-xs tracking-[0.5em] text-blue-600 mb-3">
+BIOMETRIC AUTHORIZATION
+</p>
 
-  <!-- SCAN ZONE -->
-  <div class="relative flex items-center justify-center">
 
-    <div id="hudOverlay"></div>
-    <div id="laserLine"></div>
+<p id="liveCount"
 
-    <svg class="progress-ring" width="260" height="260">
-      <circle
-        stroke="#e5e7eb"
-        stroke-width="8"
-        fill="transparent"
-        r="110"
-        cx="130"
-        cy="130"/>
-      <circle
-        id="progressCircle"
-        stroke="#2596D9"
-        stroke-width="8"
-        fill="transparent"
-        r="110"
-        cx="130"
-        cy="130"
-        stroke-dasharray="691"
-        stroke-dashoffset="691"/>
-    </svg>
+class="text-5xl font-bold text-blue-700 mb-12">
+0
+</p>
 
-    <button id="fingerprintBtn"
-      class="absolute w-32 h-32 rounded-full
-             flex items-center justify-center
-             bg-gradient-to-br from-blue-500 to-sky-600
-             text-white
-             shadow-lg
-             transition duration-200">
 
-      <i class="bi bi-fingerprint text-6xl"></i>
+<div class="relative flex items-center justify-center">
 
-    </button>
+<div id="hudOverlay"></div>
 
-  </div>
+<div id="laserLine"></div>
 
-  <!-- TIMER -->
-  <p id="immersiveTimer"
-     class="mt-12 text-lg tracking-widest text-blue-600">
-     00:00
-  </p>
+
+<svg class="progress-ring" width="260" height="260">
+
+<circle
+stroke="#e5e7eb"
+stroke-width="8"
+fill="transparent"
+r="110"
+cx="130"
+cy="130"/>
+
+<circle
+id="progressCircle"
+stroke="#2596D9"
+stroke-width="8"
+fill="transparent"
+r="110"
+cx="130"
+cy="130"
+stroke-dasharray="691"
+stroke-dashoffset="691"/>
+
+</svg>
+
+
+<button id="fingerprintBtn"
+
+class="absolute w-32 h-32 rounded-full
+flex items-center justify-center
+bg-gradient-to-br from-blue-500 to-sky-600
+text-white
+shadow-lg
+transition duration-200
+active:scale-95">
+
+<i class="bi bi-fingerprint text-6xl"></i>
+
+</button>
 
 </div>
+
+
+<p id="immersiveTimer"
+
+class="mt-12 text-lg tracking-widest text-blue-600">
+00:00
+</p>
+
+
+<p id="scanStatus"
+
+class="text-xs tracking-widest text-blue-500 mt-2">
+EN ATTENTE
+</p>
+
+</div>
+
+
+
+<script type="module" src="/myUm/partials/js/back-header.js"></script>
 
 <script type="module" src="/myUm/users/js/presence.js"></script>
+
 
 </body>
 </html>
