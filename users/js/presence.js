@@ -87,8 +87,10 @@ const maxDistance = 30;
 let ratio = Math.min(distance / maxDistance,1);
 
 /* angle aléatoire */
-const angle = Math.random() * Math.PI * 2;
-
+const angle = Math.atan2(
+roomData.longitude - positionHistory[positionHistory.length-1].lng,
+roomData.latitude - positionHistory[positionHistory.length-1].lat
+);
 /* position */
 const r = ratio * maxRadius;
 
