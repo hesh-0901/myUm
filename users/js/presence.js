@@ -127,6 +127,20 @@ const docSnap = snap.docs[0];
 activeRoomId = docSnap.id;
 roomData = docSnap.data();
 
+roomInfo.innerHTML = `
+<p><strong>Ouvert par :</strong> ${roomData.createdByName}</p>
+<p><strong>Chorale :</strong> ${roomData.chorale}</p>
+<p><strong>Motif :</strong> ${roomData.type}</p>
+`;
+
+roomInfo.classList.remove("hidden");
+enterRoomBtn.classList.remove("hidden");
+
+startTimer();
+startDistanceTracker();
+
+}
+
 /* ================= TIMER ================= */
 
 function startTimer(){
