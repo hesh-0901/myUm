@@ -49,7 +49,29 @@ modeTimerBtn.addEventListener("click", () => {
   hoursContainer.classList.add("hidden");
 
 });
+// ===============================
+// TIMER PERSONNALISÉ
+// ===============================
+const timerDuration = document.getElementById("timerDuration");
+const customTimer = document.getElementById("customTimer");
 
+if (timerDuration) {
+
+  timerDuration.addEventListener("change", () => {
+
+    if (timerDuration.value === "custom") {
+
+      customTimer.classList.remove("hidden");
+
+    } else {
+
+      customTimer.classList.add("hidden");
+
+    }
+
+  });
+
+}
 
 
 // ===============================
