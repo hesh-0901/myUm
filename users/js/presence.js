@@ -234,6 +234,10 @@ timeout: 5000
 }
 
 );
+
+},2000);
+
+}
 /* ================= ENTER ROOM ================= */
 
 enterRoomBtn?.addEventListener("click",()=>{
