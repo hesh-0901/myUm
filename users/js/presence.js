@@ -218,6 +218,11 @@ roomData.latitude,
 roomData.longitude
 );
 
+if(currentDistance && Math.abs(distance - currentDistance) > 50){
+console.log("Saut GPS ignoré");
+return;
+}
+
 currentDistance = distance;
 
 console.log("Distance stabilisée :", distance);
