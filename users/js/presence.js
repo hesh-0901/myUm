@@ -220,7 +220,7 @@ navigator.geolocation.getCurrentPosition(
 
 (pos)=>{
 
-if(pos.coords.accuracy > 40){
+if(pos.coords.accuracy > 120){
 console.log("Position ignorée (précision mauvaise) :", pos.coords.accuracy);
 return;
 }
