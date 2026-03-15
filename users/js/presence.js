@@ -1,14 +1,16 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
+
 import {
-collection,
-query,
-where,
-getDocs,
-doc,
-getDoc,
-setDoc,
-onSnapshot,
-serverTimestamp
+  collection,
+  query,
+  where,
+  limit,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ================= DOM ================= */
@@ -102,7 +104,8 @@ async function loadActiveRoom(){
 
 const q = query(
 collection(db,"presenceRooms"),
-where("status","==","active")
+where("status","==","active"),
+limit(1)
 );
 
 const snap = await getDocs(q);
