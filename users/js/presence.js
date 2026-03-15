@@ -36,6 +36,7 @@ let scanInterval = null;
 let timerInterval = null;
 let distanceInterval = null;
 let progress = 0;
+let currentDistance = null;
 
 /* ================= PROGRESS RING ================= */
 
@@ -194,6 +195,7 @@ roomData.latitude,
 roomData.longitude
 );
 
+currentDistance = distance;
 console.log("Distance calculée :", distance);
 
 updateRadar(distance);
@@ -399,13 +401,32 @@ setTimeout(()=>flash.remove(),600);
 
 async function signPresence(){
 
-if(!roomData || roomData.status!=="active") return;
+/* vérifier salon actif */
+if(!roomData || roomData.status !== "active"){
+console.log("Salon non actif");
+return;
+}
 
-const storedUser =
-JSON.parse(localStorage.getItem("myum_user"));
+/* vérifier distance GPS */
+if(currentDistance === null){
+alert("Position GPS inconnue.");
+return;
+}
 
-if(!storedUser) return;
+if(currentDistance > 7){
+alert("Vous êtes trop loin du lieu de présence.");
+return;
+}
 
+/* récupérer utilisateur */
+const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+
+if(!storedUser){
+alert("Session utilisateur introuvable.");
+return;
+}
+
+/* référence présence */
 const attendanceRef = doc(
 db,
 "presenceRooms",
@@ -414,10 +435,15 @@ activeRoomId,
 storedUser.id
 );
 
+/* vérifier si déjà signé */
 const existing = await getDoc(attendanceRef);
 
-if(existing.exists()) return;
+if(existing.exists()){
+alert("Présence déjà enregistrée.");
+return;
+}
 
+/* enregistrer présence */
 await setDoc(attendanceRef,{
 
 userId: storedUser.id,
@@ -429,6 +455,8 @@ method: "auto",
 timestamp: serverTimestamp()
 
 });
+
+console.log("Présence enregistrée");
 
 }
 
