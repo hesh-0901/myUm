@@ -107,6 +107,52 @@ box-shadow:
 transition:box-shadow 0.2s ease;
 }
 
+/* ===== RADAR SWEEP ===== */
+
+#radarSweep{
+position:absolute;
+width:260px;
+height:260px;
+border-radius:50%;
+pointer-events:none;
+overflow:hidden;
+}
+
+#radarSweep::after{
+content:"";
+position:absolute;
+width:50%;
+height:100%;
+top:0;
+left:50%;
+transform-origin:left center;
+background:linear-gradient(
+to right,
+rgba(37,150,217,0.45),
+rgba(63,169,245,0.25),
+transparent
+);
+
+#distanceRadar{
+background:
+radial-gradient(circle at center,
+rgba(37,150,217,0.12) 1px,
+transparent 1px),
+radial-gradient(circle at center,
+rgba(37,150,217,0.08) 2px,
+transparent 2px);
+background-size:60px 60px;
+}
+
+box-shadow:0 0 25px rgba(37,150,217,0.35);
+animation:radarSweepAnim 3s linear infinite;
+}
+
+@keyframes radarSweepAnim{
+from{transform:rotate(0deg)}
+to{transform:rotate(360deg)}
+}
+
 </style>
 
 </head>
@@ -236,6 +282,8 @@ stroke-dashoffset="691"/>
 <div id="distanceRadar"
 class="absolute w-[260px] h-[260px]
 rounded-full pointer-events-none">
+
+<div id="radarSweep"></div>
 
 <div id="distanceDot"
 class="absolute w-3 h-3 bg-blue-500
