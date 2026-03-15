@@ -180,7 +180,9 @@ if(!roomData.latitude || !roomData.longitude) return;
 
 distanceInterval = setInterval(()=>{
 
-navigator.geolocation.getCurrentPosition(pos=>{
+navigator.geolocation.getCurrentPosition(
+
+(pos)=>{
 
 const userLat = pos.coords.latitude;
 const userLng = pos.coords.longitude;
@@ -192,8 +194,10 @@ roomData.latitude,
 roomData.longitude
 );
 
+console.log("Distance calculée :", distance);
+
 updateRadar(distance);
-  
+
 if(distanceDisplay){
 
 distanceDisplay.innerText =
@@ -208,7 +212,19 @@ distanceDisplay.classList.remove("text-red-500");
 
 }
 
-});
+},
+
+(err)=>{
+
+console.error("Erreur géolocalisation :", err);
+
+if(distanceDisplay){
+distanceDisplay.innerText = "Géolocalisation refusée";
+}
+
+}
+
+);
 
 },2000);
 
