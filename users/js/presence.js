@@ -124,6 +124,8 @@ return;
 }
 
 const docSnap = snap.docs[0];
+const waitingScreen = document.getElementById("waitingScreen");
+if(waitingScreen) waitingScreen.style.display = "none";
 
 activeRoomId = docSnap.id;
 roomData = docSnap.data();
