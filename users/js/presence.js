@@ -457,3 +457,8 @@ fingerprintBtn?.addEventListener("touchstart",startScan,{passive:false});
 fingerprintBtn?.addEventListener("mouseup",cancelScan);
 fingerprintBtn?.addEventListener("mouseleave",cancelScan);
 fingerprintBtn?.addEventListener("touchend",cancelScan);
+
+/* ================= DEBUG ================= */
+
+console.log("Rooms trouvées :", snap.size);
+snap.forEach(d => console.log(d.id, d.data()));
