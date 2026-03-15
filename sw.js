@@ -40,6 +40,9 @@ const STATIC_ASSETS = [
 "/myUm/admin/user-details.html",
 "/myUm/admin/users-management.html"
 
+   /* partials */
+"/myUm/partials/header.html"
+
 ];
 
 
