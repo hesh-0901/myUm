@@ -196,6 +196,7 @@ roomData.longitude
 );
 
 currentDistance = distance;
+
 console.log("Distance calculée :", distance);
 
 updateRadar(distance);
@@ -224,14 +225,15 @@ if(distanceDisplay){
 distanceDisplay.innerText = "Géolocalisation refusée";
 }
 
+},
+
+{
+enableHighAccuracy: true,
+maximumAge: 0,
+timeout: 5000
 }
 
 );
-
-},2000);
-
-}
-
 /* ================= ENTER ROOM ================= */
 
 enterRoomBtn?.addEventListener("click",()=>{
