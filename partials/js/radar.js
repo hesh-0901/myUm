@@ -11,6 +11,7 @@ import {
 
 let countdownInterval = null;
 let attendanceUnsubscribe = null;
+let roomUnsubscribe = null;
 
 export async function openRadar(roomId) {
 
@@ -32,15 +33,16 @@ export async function openRadar(roomId) {
 
   const roomRef = doc(db, "presenceRooms", roomId);
 
-  // ==============================
+// ==============================
 // LISTENER SALON (TEMPS RÉEL)
 // ==============================
 
-onSnapshot(roomRef, (snapshot) => {
+roomUnsubscribe = onSnapshot(roomRef, (snapshot) => {
 
   const data = snapshot.data();
   if (!data) return;
 
+  // si le salon est fermé
   if (data.status === "closed") {
 
     closeRadar();
@@ -50,13 +52,24 @@ onSnapshot(roomRef, (snapshot) => {
   }
 
 });
-  
-  const roomSnap = await getDoc(roomRef);
 
-  if (!roomSnap.exists()) return;
 
-  const roomData = roomSnap.data();
-  if (roomData.status !== "active") {
+// ==============================
+// RÉCUPÉRATION DONNÉES SALON
+// ==============================
+
+const roomSnap = await getDoc(roomRef);
+
+if (!roomSnap.exists()) return;
+
+const roomData = roomSnap.data();
+
+// sécurité si salon déjà fermé
+if (roomData.status !== "active") {
+
+  closeRadar();
+  window.location.href = "/myUm/admin/open-room.html";
+
   return;
 }
 
@@ -248,4 +261,10 @@ export function closeRadar() {
     attendanceUnsubscribe();
     attendanceUnsubscribe = null;
   }
+
+  if (roomUnsubscribe) {
+    roomUnsubscribe();
+    roomUnsubscribe = null;
+  }
+
 }
