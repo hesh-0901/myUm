@@ -22,6 +22,8 @@ const progressCircle = document.getElementById("progressCircle");
 const immersiveTimer = document.getElementById("immersiveTimer");
 const backBtn = document.getElementById("backBtn");
 const distanceDisplay = document.getElementById("distanceDisplay");
+const distanceRadar = document.getElementById("distanceRadar");
+const distanceDot = document.getElementById("distanceDot");
 
 /* ================= STATE ================= */
 
@@ -63,6 +65,35 @@ Math.sin(dLon/2)*Math.sin(dLon/2);
 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
 return R * c;
+}
+
+/* ================= RADAR VISUAL ================= */
+
+function updateRadar(distance){
+
+if(!distanceDot) return;
+
+/* rayon radar */
+const maxRadius = 120;
+
+/* distance max autorisée */
+const maxDistance = 7;
+
+/* normalisation distance */
+let ratio = Math.min(distance / maxDistance,1);
+
+/* angle aléatoire */
+const angle = Math.random() * Math.PI * 2;
+
+/* position */
+const r = ratio * maxRadius;
+
+const x = 130 + r * Math.cos(angle);
+const y = 130 + r * Math.sin(angle);
+
+distanceDot.style.left = x + "px";
+distanceDot.style.top = y + "px";
+
 }
 
 /* ================= LOAD ACTIVE ROOM ================= */
@@ -156,6 +187,8 @@ roomData.latitude,
 roomData.longitude
 );
 
+updateRadar(distance);
+  
 if(distanceDisplay){
 
 distanceDisplay.innerText =
