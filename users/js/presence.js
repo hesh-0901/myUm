@@ -26,6 +26,7 @@ const backBtn = document.getElementById("backBtn");
 const distanceDisplay = document.getElementById("distanceDisplay");
 const distanceRadar = document.getElementById("distanceRadar");
 const distanceDot = document.getElementById("distanceDot");
+const radarBackBtn = document.getElementById("radarBackBtn");
 
 /* ================= STATE ================= */
 
@@ -38,6 +39,20 @@ let distanceInterval = null;
 let progress = 0;
 let currentDistance = null;
 let positionHistory = [];
+
+/* ================= BOUTON RETOUR ================= */
+radarBackBtn?.addEventListener("click",()=>{
+
+immersiveModal.classList.add("hidden");
+
+if(unsubscribe){
+unsubscribe();
+unsubscribe = null;
+}
+
+cancelScan();
+
+});
 
 /* ================= PROGRESS RING ================= */
 
@@ -164,6 +179,21 @@ if(diff <= 0){
 immersiveTimer.innerText = "00:00";
 
 clearInterval(timerInterval);
+
+/* fermer radar */
+immersiveModal.classList.add("hidden");
+
+/* arrêter scan */
+cancelScan();
+
+/* arrêter distance */
+if(distanceInterval) clearInterval(distanceInterval);
+
+/* arrêter compteur */
+if(unsubscribe){
+unsubscribe();
+unsubscribe = null;
+}
 
 return;
 }
