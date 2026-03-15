@@ -200,11 +200,14 @@ class="text-5xl font-bold text-blue-700 mb-12">
 
 <div class="relative flex items-center justify-center">
 
+<!-- HUD -->
 <div id="hudOverlay"></div>
 
+<!-- LASER -->
 <div id="laserLine"></div>
 
 
+<!-- SCAN PROGRESS -->
 <svg class="progress-ring" width="260" height="260">
 
 <circle
@@ -229,15 +232,27 @@ stroke-dashoffset="691"/>
 </svg>
 
 
+<!-- RADAR DISTANCE -->
+<div id="distanceRadar"
+class="absolute w-[260px] h-[260px]
+rounded-full pointer-events-none">
+
+<div id="distanceDot"
+class="absolute w-3 h-3 bg-blue-500
+rounded-full transition-all duration-500">
+</div>
+
+</div>
+
+
+<!-- FINGERPRINT -->
 <button id="fingerprintBtn"
 
 class="absolute w-32 h-32 rounded-full
 flex items-center justify-center
 bg-gradient-to-br from-blue-500 to-sky-600
-text-white
-shadow-lg
-transition duration-200
-active:scale-95">
+text-white shadow-lg
+transition duration-200 active:scale-95">
 
 <i class="bi bi-fingerprint text-6xl"></i>
 
