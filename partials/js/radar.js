@@ -62,22 +62,26 @@ export async function openRadar(roomId) {
       const end = roomData.endTime.toDate();
       const diff = end - now;
 
-      if (diff <= 0) {
-
-        clearInterval(countdownInterval);
-
-        // Ferme officiellement le salon
-        await updateDoc(roomRef, {
-          status: "closed"
-        });
-
-        countdownEl.innerText = "00:00";
-        scanBtn.disabled = true;
-
-        closeRadar(); // 🔥 fermeture automatique
-
-        return;
-      }
+        if (diff <= 0) {
+        
+          clearInterval(countdownInterval);
+        
+          await updateDoc(roomRef, {
+            status: "closed"
+          });
+        
+          countdownEl.innerText = "00:00";
+          scanBtn.disabled = true;
+        
+          closeRadar();
+        
+          // 🔥 retour automatique vers open-room
+          setTimeout(() => {
+            window.location.href = "/myUm/admin/open-room.html";
+          }, 800);
+        
+          return;
+        }
 
       const minutes = Math.floor(diff / 60000);
       const seconds = Math.floor((diff % 60000) / 1000);
