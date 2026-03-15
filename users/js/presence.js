@@ -402,7 +402,7 @@ timestamp: serverTimestamp()
 
 }
 
-/* ================= SOUND ================= */
+/* ================= SOUND ================== */
 
 function successSoundEpic(){
 
