@@ -38,7 +38,7 @@ const STATIC_ASSETS = [
 "/myUm/admin/presence-details.html",
 "/myUm/admin/presence-management.html",
 "/myUm/admin/user-details.html",
-"/myUm/admin/users-management.html"
+"/myUm/admin/users-management.html",
 
    /* partials */
 "/myUm/partials/header.html"
