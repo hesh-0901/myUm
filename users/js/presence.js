@@ -459,3 +459,7 @@ fingerprintBtn?.addEventListener("touchstart",startScan,{passive:false});
 fingerprintBtn?.addEventListener("mouseup",cancelScan);
 fingerprintBtn?.addEventListener("mouseleave",cancelScan);
 fingerprintBtn?.addEventListener("touchend",cancelScan);
+
+/* ================= START ================= */
+
+loadActiveRoom();
