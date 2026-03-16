@@ -72,7 +72,6 @@ if (!friendId) {
 ============================================================ */
 const backBtn = document.getElementById("backBtn");
 const voiceCallBtn = document.getElementById("voiceCallBtn");
-const chatHomeBtn = document.getElementById("chatHomeBtn");
 
 const roomAvatar = document.getElementById("roomAvatar");
 const roomTitle = document.getElementById("roomTitle");
@@ -89,12 +88,13 @@ const emptyState = document.getElementById("emptyState");
 
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
+const sendBtnIcon = document.getElementById("sendBtnIcon");
+
 const composerFooter = document.getElementById("composerFooter");
 
 const attachBtn = document.getElementById("attachBtn");
 const fileInput = document.getElementById("fileInput");
 
-const recordBtn = document.getElementById("recordBtn");
 const voiceRecorderMount = document.getElementById("voiceRecorderMount");
 
 const emojiBtn = document.getElementById("emojiBtn");
@@ -109,20 +109,9 @@ const replyPreviewText = document.getElementById("replyPreviewText");
 const cancelReplyBtn = document.getElementById("cancelReplyBtn");
 
 const messageMenuOverlay = document.getElementById("messageMenuOverlay");
-const quickReactionsRow = document.getElementById("quickReactionsRow");
-const reactionBtns = Array.from(document.querySelectorAll(".reactionBtn"));
-const moreReactionBtn = document.getElementById("moreReactionBtn");
-const reactionPickerPanel = document.getElementById("reactionPickerPanel");
-const reactionPickerMount = document.getElementById("reactionPickerMount");
 
-const replyActionBtn = document.getElementById("replyActionBtn");
-const pinActionBtn = document.getElementById("pinActionBtn");
-const forwardActionBtn = document.getElementById("forwardActionBtn");
-const downloadActionBtn = document.getElementById("downloadActionBtn");
-const deleteMineActionBtn = document.getElementById("deleteMineActionBtn");
-const deleteAllActionBtn = document.getElementById("deleteAllActionBtn");
-const closeMessageMenuBtn = document.getElementById("closeMessageMenuBtn");
-
+const copyActionBtn = document.getElementById("copyActionBtn");
+const editActionBtn = document.getElementById("editActionBtn");
 /* ============================================================
    BLOC 4 : NAVIGATION
 ============================================================ */
