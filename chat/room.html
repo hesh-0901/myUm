@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
 
-  <!-- ============================================================
-       VIEWPORT MOBILE FIXE
-       Rôle :
-       - Empêcher le zoom / dézoom sur mobile
-  ============================================================ -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- VIEWPORT MOBILE FIXE -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <title>Discussion - MyUm</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -46,16 +47,20 @@
 </head>
 
 <body class="bg-gray-100 font-display text-gray-800 h-screen overflow-hidden flex justify-center">
+
   <div class="relative w-full max-w-[420px] h-screen bg-white flex flex-col overflow-hidden">
 
     <!-- HEADER -->
     <header class="shrink-0 bg-white border-b border-gray-100 z-20">
       <div class="px-4 py-3 flex items-center justify-between gap-3">
+
+        <!-- HOME -->
         <button id="backBtn"
           class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-          <i class="bi bi-arrow-left"></i>
+          <i class="bi bi-house-door-fill"></i>
         </button>
 
+        <!-- USER -->
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <div id="roomAvatar"
             class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 shrink-0">
@@ -69,17 +74,12 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button id="voiceCallBtn"
-            class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-            <i class="bi bi-telephone-fill"></i>
-          </button>
+        <!-- CALL -->
+        <button id="voiceCallBtn"
+          class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
+          <i class="bi bi-telephone-fill"></i>
+        </button>
 
-          <button id="chatHomeBtn"
-            class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700 active:scale-95 transition">
-            <i class="bi bi-chat-dots"></i>
-          </button>
-        </div>
       </div>
     </header>
 
@@ -87,34 +87,47 @@
     <div id="pinnedBanner"
       class="hidden shrink-0 bg-amber-50 border-b border-amber-100 px-4 py-2">
       <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
+
+        <button id="pinnedPreview"
+          class="min-w-0 flex-1 text-left">
           <div class="text-[11px] font-semibold text-amber-700 flex items-center gap-1">
             <i class="bi bi-pin-angle-fill"></i>
-            Message épinglé
+            Messages épinglés
           </div>
-          <div id="pinnedPreview" class="text-xs text-gray-600 truncate">—</div>
-        </div>
+
+          <div id="pinnedPreviewText"
+            class="text-xs text-gray-600 truncate">
+            —
+          </div>
+        </button>
 
         <button id="unpinBtn"
           class="w-8 h-8 rounded-lg bg-white border border-amber-200 text-amber-700 flex items-center justify-center">
           <i class="bi bi-x"></i>
         </button>
+
       </div>
     </div>
 
     <!-- MESSAGES -->
-    <main id="messagesWrapper" class="flex-1 min-h-0 overflow-y-auto bg-gray-100 px-3 py-4">
+    <main id="messagesWrapper"
+      class="flex-1 min-h-0 overflow-y-auto bg-gray-100 px-3 py-4">
+
       <div id="messages" class="space-y-2"></div>
 
-      <div id="emptyState" class="hidden text-center text-sm text-gray-500 pt-10">
+      <div id="emptyState"
+        class="hidden text-center text-sm text-gray-500 pt-10">
         Aucun message pour l’instant.
       </div>
     </main>
 
     <!-- SCROLL BUTTON -->
-    <div id="scrollToBottomBtn" class="hidden absolute bottom-32 right-4 z-30">
+    <div id="scrollToBottomBtn"
+      class="hidden absolute bottom-32 right-4 z-30">
+
       <button
         class="relative px-4 py-3 rounded-2xl bg-primary text-white shadow-xl flex items-center gap-2 active:scale-95 transition overflow-hidden">
+
         <span class="absolute inset-0 rounded-2xl bg-lightblue opacity-30 blur-md animate-pulse pointer-events-none"></span>
 
         <span class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/15">
@@ -129,63 +142,75 @@
           class="relative min-w-[22px] h-[22px] px-2 rounded-full bg-white text-primary text-[11px] font-bold flex items-center justify-center">
           0
         </span>
+
       </button>
     </div>
 
-    <!-- REPLY PREVIEW -->
+    <!-- REPLY -->
     <div id="replyPreview"
       class="hidden shrink-0 bg-blue-50 border-t border-b border-blue-100 px-4 py-2">
+
       <div class="flex items-start justify-between gap-3">
+
         <div class="min-w-0">
           <div class="text-[11px] font-semibold text-primary">Réponse</div>
-          <div id="replyPreviewText" class="text-xs text-gray-600 truncate">—</div>
+          <div id="replyPreviewText"
+            class="text-xs text-gray-600 truncate">—</div>
         </div>
 
         <button id="cancelReplyBtn"
           class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-gray-500 flex items-center justify-center">
           <i class="bi bi-x"></i>
         </button>
+
       </div>
     </div>
 
-    <!-- VOICE RECORDER PANEL -->
-    <div id="voiceRecorderMount" class="hidden shrink-0 bg-white border-t border-gray-100 px-3 py-3"></div>
+    <!-- VOICE -->
+    <div id="voiceRecorderMount"
+      class="hidden shrink-0 bg-white border-t border-gray-100 px-3 py-3"></div>
 
     <!-- FOOTER -->
-    <footer id="composerFooter" class="shrink-0 bg-white border-t border-gray-100">
+    <footer id="composerFooter"
+      class="shrink-0 bg-white border-t border-gray-100">
+
       <div class="px-3 py-3 flex items-center gap-2">
+
+        <!-- ATTACH -->
         <button id="attachBtn"
           class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
           <i class="bi bi-paperclip text-lg"></i>
         </button>
 
-        <button id="recordBtn"
-          class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
-          <i class="bi bi-mic-fill text-lg"></i>
-        </button>
-
-        <!-- EMOJI BUTTON -->
+        <!-- EMOJI -->
         <button id="emojiBtn"
           class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center active:scale-95 transition">
           <i class="bi bi-emoji-smile text-lg"></i>
         </button>
 
+        <!-- INPUT -->
         <input id="messageInput"
           type="text"
           placeholder="Écrire un message..."
           class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-lightblue text-sm" />
 
+        <!-- SMART BUTTON -->
         <button id="sendBtn"
           class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center active:scale-95 transition shadow-sm">
-          <i class="bi bi-send-fill"></i>
+
+          <i id="sendBtnIcon" class="bi bi-mic-fill"></i>
+
         </button>
+
       </div>
 
-      <input id="fileInput" type="file" class="hidden"
+      <input id="fileInput"
+        type="file"
+        class="hidden"
         accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,.js,.php,.html,.css,.json,.sql,.py,.java,.cpp,.c,.ts,.tsx,.jsx,.xml,.yml,.yaml" />
     </footer>
 
-    <!-- EMOJI PICKER PANEL -->
+    <!-- EMOJI PICKER -->
     <div id="emojiPanel"
       class="hidden shrink-0 bg-white border-t border-gray-100 p-2">
       <div id="emojiPickerMount" class="w-full"></div>
@@ -194,6 +219,7 @@
     <!-- MESSAGE MENU -->
     <div id="messageMenuOverlay"
       class="hidden absolute inset-0 z-40 bg-black/20 backdrop-blur-[1px]">
+
       <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl p-4 space-y-2">
 
         <!-- QUICK REACTIONS -->
@@ -208,51 +234,63 @@
           </button>
         </div>
 
-        <!-- FULL REACTION PICKER -->
         <div id="reactionPickerPanel" class="hidden pt-2">
           <div id="reactionPickerMount" class="w-full"></div>
         </div>
 
         <button id="replyActionBtn"
-          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
           <i class="bi bi-reply-fill text-primary"></i>
           Répondre
         </button>
 
         <button id="pinActionBtn"
-          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
           <i class="bi bi-pin-angle-fill text-primary"></i>
           Épingler
         </button>
 
+        <button id="copyActionBtn"
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
+          <i class="bi bi-copy text-primary"></i>
+          Copier
+        </button>
+
+        <button id="editActionBtn"
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
+          <i class="bi bi-pencil-square text-primary"></i>
+          Modifier
+        </button>
+
         <button id="forwardActionBtn"
-          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
           <i class="bi bi-forward-fill text-primary"></i>
           Transférer
         </button>
 
         <button id="downloadActionBtn"
-          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
           <i class="bi bi-download text-primary"></i>
           Télécharger
         </button>
 
         <button id="deleteMineActionBtn"
-          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
           <i class="bi bi-trash text-danger"></i>
           Supprimer pour moi
         </button>
 
         <button id="deleteAllActionBtn"
-          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm font-medium text-left">
+          class="w-full flex items-center gap-3 p-3 rounded-2xl bg-gray-50 text-sm">
           <i class="bi bi-trash-fill text-danger"></i>
           Supprimer pour tout le monde
         </button>
 
         <button id="closeMessageMenuBtn"
-          class="w-full flex items-center justify-center gap-2 p-3 rounded-2xl bg-danger text-white text-sm font-semibold">
+          class="w-full flex items-center justify-center p-3 rounded-2xl bg-danger text-white text-sm font-semibold">
           Fermer
         </button>
+
       </div>
     </div>
 
@@ -274,7 +312,21 @@
     window.MyUmRecordPlugin = RecordPlugin;
   </script>
 
+  <!-- SW -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", async () => {
+        try {
+          await navigator.serviceWorker.register("../sw.js");
+        } catch (e) {
+          console.error("SW error:", e);
+        }
+      });
+    }
+  </script>
+
   <script type="module" src="../mains.js/app-init.js"></script>
   <script type="module" src="./js/chat-room.js"></script>
+
 </body>
 </html>
