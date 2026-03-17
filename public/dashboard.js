@@ -49,6 +49,12 @@ document.getElementById("navbar-container").innerHTML = await nav.text();
 
 await import("../partials/js/nav.js");
 
+const notif = await fetch("../partials/notifications.html");
+document.getElementById("notifications-container").innerHTML = await notif.text();
+
+const { initNotifications } = await import("../partials/js/notifications-dsh.js");
+initNotifications();
+
 await initDashboard();
 loadProfileCompletion();
 
