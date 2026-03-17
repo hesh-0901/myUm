@@ -429,6 +429,7 @@ alert("Erreur lors de la connexion.");
 if(submitBtn) submitBtn.disabled = false;
 
 }
+
 });
 
 }
