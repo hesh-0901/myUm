@@ -24,7 +24,7 @@ const countEl = document.getElementById("notifCount");
 if(!list) return;
 
 // ============================
-// QUERY (EXEMPLE)
+// QUERY
 // ============================
 
 const q = query(
@@ -40,10 +40,22 @@ list.innerHTML = "";
 
 let unread = 0;
 
+// ============================
+// EMPTY STATE
+// ============================
+
 if(snap.empty){
-list.innerHTML = `<p class="text-xs text-gray-400">Aucune notification</p>`;
-countEl.innerText = "0";
+
+list.innerHTML = `
+<p class="text-[11px] text-soft/60">
+Aucune notification
+</p>
+`;
+
+if(countEl) countEl.innerText = "0";
+
 return;
+
 }
 
 // ============================
@@ -54,18 +66,26 @@ snap.forEach(docSnap=>{
 
 const data = docSnap.data();
 
+// compteur non lu
 if(!data.read) unread++;
 
 const div = document.createElement("div");
 
+// 🎨 STYLE DYNAMIQUE
 div.className = `
-p-2 rounded-xl text-xs
-bg-[#022b4a] border border-white/5
+p-2 rounded-xl text-xs transition-all
+${data.read 
+? "opacity-60 bg-[#022b4a]" 
+: "bg-[#033c66] border border-accent/30"}
 `;
 
+// contenu
 div.innerHTML = `
-<p>${data.message || "Notification"}</p>
-<p class="text-[10px] text-gray-400 mt-1">
+<p class="text-soft">
+${data.message || "Notification"}
+</p>
+
+<p class="text-[10px] text-soft/60 mt-1">
 ${data.createdAt?.toDate().toLocaleString() || ""}
 </p>
 `;
@@ -74,14 +94,12 @@ list.appendChild(div);
 
 });
 
-${data.read 
-? "opacity-60" 
-: "bg-[#033c66] border-accent/30"}
-
 // ============================
 // COUNT
 // ============================
 
+if(countEl){
 countEl.innerText = unread;
+}
 
 }
