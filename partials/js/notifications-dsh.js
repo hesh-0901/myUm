@@ -59,8 +59,8 @@ if(!data.read) unread++;
 const div = document.createElement("div");
 
 div.className = `
-p-2 rounded-xl border text-xs
-${data.read ? "bg-gray-50" : "bg-blue-50 border-blue-200"}
+p-2 rounded-xl text-xs
+bg-[#022b4a] border border-white/5
 `;
 
 div.innerHTML = `
@@ -73,6 +73,10 @@ ${data.createdAt?.toDate().toLocaleString() || ""}
 list.appendChild(div);
 
 });
+
+${data.read 
+? "opacity-60" 
+: "bg-[#033c66] border-accent/30"}
 
 // ============================
 // COUNT
