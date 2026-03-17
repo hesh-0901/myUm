@@ -1,5 +1,11 @@
 import { db } from "../mains.js/firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+collection,
+query,
+where,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
@@ -42,7 +48,7 @@ document.getElementById("navbar-container").innerHTML = await nav.text();
 
 await import("../partials/js/nav.js");
 
-initDashboard();
+await initDashboard();
 loadProfileCompletion();
 
 }catch(error){
@@ -53,20 +59,20 @@ console.error("Erreur chargement dashboard :",error);
 
 }
 
-function initDashboard(){
+async function initDashboard(){
 
 const user = JSON.parse(localStorage.getItem("myum_user"));
 
 if(!user) return;
 
 const allowedChorales = getAllowedChorales(user);
-initGauge();
+initGauge(allowedChorales);
 initQuickActions();
 initScroll();
 
 }
 
-function initGauge(){
+async function initGauge(allowedChorales){
 
 const canvas=document.getElementById("participationChart");
 if(!canvas) return;
@@ -93,10 +99,10 @@ totalPresences += attendancesSnap.size;
 
 }
 
-// 💡 calcul simple
 const participation = totalSessions === 0
 ? 0
 : Math.min(100, Math.round((totalPresences / (totalSessions*10)) * 100));
+
 const ctx=canvas.getContext("2d");
 
 new Chart(ctx,{
