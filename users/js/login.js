@@ -433,10 +433,6 @@ if(submitBtn) submitBtn.disabled = false;
 
 }
 
-}
-
-
-
 // ============================
 // HASH PASSWORD
 // ============================
