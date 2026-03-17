@@ -5,6 +5,22 @@ import { checkAuth } from "../mains.js/auth-guard.js";
 import { initHeader } from "../partials/js/header.js";
 import { initSidebar } from "../partials/js/sidebar.js";
 
+// ============================
+// CHORALE ACCESS LOGIC
+// ============================
+
+function getAllowedChorales(user){
+
+const mainChorales = ["PC","WS","VN"];
+
+if(mainChorales.includes(user.chorale)){
+return [user.chorale,"UM"];
+}else{
+return ["PC","WS","VN","UM"];
+}
+
+}
+
 checkAuth();
 
 initApp();
@@ -39,6 +55,11 @@ console.error("Erreur chargement dashboard :",error);
 
 function initDashboard(){
 
+const user = JSON.parse(localStorage.getItem("myum_user"));
+
+if(!user) return;
+
+const allowedChorales = getAllowedChorales(user);
 initGauge();
 initQuickActions();
 initScroll();
@@ -50,7 +71,32 @@ function initGauge(){
 const canvas=document.getElementById("participationChart");
 if(!canvas) return;
 
-const participation=75;
+const q = query(
+collection(db,"presenceRooms"),
+where("chorale","in",allowedChorales)
+);
+
+const snap = await getDocs(q);
+
+let totalSessions = snap.size;
+let totalPresences = 0;
+
+for(const docSnap of snap.docs){
+
+const roomId = docSnap.id;
+
+const attendancesSnap = await getDocs(
+collection(db,"presenceRooms",roomId,"attendances")
+);
+
+totalPresences += attendancesSnap.size;
+
+}
+
+// 💡 calcul simple
+const participation = totalSessions === 0
+? 0
+: Math.min(100, Math.round((totalPresences / (totalSessions*10)) * 100));
 const ctx=canvas.getContext("2d");
 
 new Chart(ctx,{
