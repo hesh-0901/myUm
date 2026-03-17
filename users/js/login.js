@@ -421,7 +421,7 @@ JSON.stringify(session)
 
 window.location.href = "../public/dashboard.html";
 
-}catch(error){
+catch(error){
 
 console.error("Erreur login :",error);
 alert("Erreur lors de la connexion.");
