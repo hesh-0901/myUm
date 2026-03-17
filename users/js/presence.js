@@ -13,7 +13,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ================= DOM ================== */
+/* ================= DOM =================== */
 
 const roomInfo = document.getElementById("roomInfo");
 const enterRoomBtn = document.getElementById("enterRoomBtn");
