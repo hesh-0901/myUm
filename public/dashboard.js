@@ -66,9 +66,23 @@ const user = JSON.parse(localStorage.getItem("myum_user"));
 if(!user) return;
 
 const allowedChorales = getAllowedChorales(user);
-initGauge(allowedChorales);
+await initGauge(allowedChorales);
+
 initQuickActions();
 initScroll();
+initRegisterNavigation();
+
+}
+
+function initRegisterNavigation(){
+
+const registerBtn = document.getElementById("openRegisterBtn");
+
+if(registerBtn){
+registerBtn.addEventListener("click",()=>{
+window.location.href = "../public/registre-presence.html";
+});
+}
 
 }
 
