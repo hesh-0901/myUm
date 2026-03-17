@@ -273,15 +273,45 @@ return;
 const userDoc = querySnapshot.docs[0];
 const userData = userDoc.data();
 
-
 // ============================
-// VERIFICATION ADMIN
+// VERIFICATION APPROBATION ADMIN
 // ============================
 
 if(!userData.isActive || userData.isActive === "pending"){
 
-alert("Votre compte est en attente de validation.");
+Swal.fire({
+title: "Demande envoyée",
+html: `
+<div style="font-size:14px;line-height:1.6;color:#555">
+
+<p>
+Votre inscription a bien été enregistrée.
+</p>
+
+<p style="margin-top:8px">
+Un administrateur doit maintenant valider votre compte.
+</p>
+
+<p style="margin-top:14px;font-weight:500;color:#1A3668">
+Vous serez notifié sur WhatsApp dès l’activation.
+</p>
+
+</div>
+`,
+icon: "success",
+confirmButtonText: "Compris",
+confirmButtonColor: "#1A3668",
+background: "#ffffff",
+color: "#111",
+width: 380,
+padding: "1.5rem",
+buttonsStyling: true,
+allowOutsideClick: false,
+allowEscapeKey: false
+});
+
 if(submitBtn) submitBtn.disabled = false;
+
 return;
 
 }
@@ -344,49 +374,6 @@ if(submitBtn) submitBtn.disabled = false;
 }
 
 });
-
-}
-
-// ============================
-// VERIFICATION APPROBATION ADMIN
-// ============================
-
-if(!userData.isActive || userData.isActive === "pending"){
-
-Swal.fire({
-title: "Demande envoyée",
-html: `
-<div style="font-size:14px;line-height:1.6;color:#555">
-
-<p>
-Votre inscription a bien été enregistrée.
-</p>
-
-<p style="margin-top:8px">
-Un administrateur doit maintenant valider votre compte.
-</p>
-
-<p style="margin-top:14px;font-weight:500;color:#1A3668">
-Vous serez notifié sur WhatsApp dès l’activation.
-</p>
-
-</div>
-`,
-icon: "success",
-confirmButtonText: "Compris",
-confirmButtonColor: "#1A3668",
-background: "#ffffff",
-color: "#111",
-width: 380,
-padding: "1.5rem",
-buttonsStyling: true,
-allowOutsideClick: false,
-allowEscapeKey: false
-});
-
-if(submitBtn) submitBtn.disabled = false;
-
-return;
 
 }
 
