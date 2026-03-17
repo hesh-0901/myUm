@@ -204,16 +204,26 @@ form.addEventListener("submit", async (e) => {
 e.preventDefault();
 
 const submitBtn = form.querySelector("button");
+
+try {
+
+// ============================
+// UI STATE
+// ============================
+
 if(submitBtn) submitBtn.disabled = true;
 
 const rememberCheck = document.getElementById("rememberMe");
 
+
+// ============================
+// VALIDATION INPUTS
+// ============================
+
 if(!usernameInput || !passwordInput){
 
 alert("Erreur formulaire.");
-
 if(submitBtn) submitBtn.disabled = false;
-
 return;
 
 }
@@ -228,12 +238,22 @@ const password = passwordInput.value;
 if(!username || !password){
 
 alert("Veuillez remplir tous les champs.");
-
 if(submitBtn) submitBtn.disabled = false;
-
 return;
 
 }
+
+
+// ============================
+// HASH PASSWORD (OBLIGATOIRE)
+// ============================
+
+const hashedInputPassword = await hashPassword(password);
+
+
+// ============================
+// FIRESTORE QUERY
+// ============================
 
 const q = query(
 collection(db,"users"),
@@ -245,9 +265,7 @@ const querySnapshot = await getDocs(q);
 if(querySnapshot.empty){
 
 alert("Utilisateur introuvable.");
-
 if(submitBtn) submitBtn.disabled = false;
-
 return;
 
 }
@@ -255,6 +273,79 @@ return;
 const userDoc = querySnapshot.docs[0];
 const userData = userDoc.data();
 
+
+// ============================
+// VERIFICATION ADMIN
+// ============================
+
+if(!userData.isActive || userData.isActive === "pending"){
+
+alert("Votre compte est en attente de validation.");
+if(submitBtn) submitBtn.disabled = false;
+return;
+
+}
+
+
+// ============================
+// VERIFICATION PASSWORD
+// ============================
+
+if(hashedInputPassword !== userData.passwordHash){
+
+alert("Mot de passe incorrect.");
+if(submitBtn) submitBtn.disabled = false;
+return;
+
+}
+
+
+// ============================
+// SESSION
+// ============================
+
+const session = {
+
+id: userDoc.id,
+username: userData.username,
+firstName: userData.firstName,
+lastName: userData.lastName,
+chorale: userData.chorale,
+role: userData.role,
+photoURL: userData.photoURL || null
+
+};
+
+
+// ============================
+// STORAGE
+// ============================
+
+localStorage.setItem(
+"myum_user",
+JSON.stringify(session)
+);
+
+
+// ============================
+// REDIRECT
+// ============================
+
+window.location.href = "../public/dashboard.html";
+
+
+}catch(error){
+
+console.error("Erreur login :", error);
+alert("Erreur lors de la connexion.");
+
+if(submitBtn) submitBtn.disabled = false;
+
+}
+
+});
+
+}
 
 // ============================
 // VERIFICATION APPROBATION ADMIN
