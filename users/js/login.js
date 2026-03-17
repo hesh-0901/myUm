@@ -14,7 +14,11 @@ getDocs
 // DOM READY
 // ============================
 
+if(document.readyState === "loading"){
 document.addEventListener("DOMContentLoaded", initLogin);
+}else{
+initLogin();
+}
 
 function initLogin(){
 
@@ -51,6 +55,7 @@ if(passwordInput) passwordInput.value = "";
 
 let autoUser = null;
 
+
 try{
 
 const savedUser = localStorage.getItem("myum_user");
@@ -61,6 +66,7 @@ autoUser = JSON.parse(savedUser);
 
 }catch(e){
 
+console.error("Erreur parsing user :", e);
 localStorage.removeItem("myum_user");
 autoUser = null;
 
@@ -187,7 +193,6 @@ passwordToggle.classList.replace("bi-eye-slash","bi-eye");
 }
 
 
-
 // ============================
 // LOGIN NORMAL
 // ============================
@@ -198,28 +203,37 @@ form.addEventListener("submit", async (e) => {
 
 e.preventDefault();
 
+const submitBtn = form.querySelector("button");
+if(submitBtn) submitBtn.disabled = true;
+
 const rememberCheck = document.getElementById("rememberMe");
 
 if(!usernameInput || !passwordInput){
 
 alert("Erreur formulaire.");
+
+if(submitBtn) submitBtn.disabled = false;
+
 return;
 
 }
 
-const username = usernameInput.value.trim().toUpperCase();
-const password = passwordInput.value;
+const username = usernameInput.value
+.trim()
+.replace(/\s/g,"")
+.toUpperCase();
 
-const remember = rememberCheck ? rememberCheck.checked : false;
+const password = passwordInput.value;
 
 if(!username || !password){
 
 alert("Veuillez remplir tous les champs.");
+
+if(submitBtn) submitBtn.disabled = false;
+
 return;
 
 }
-
-try{
 
 const q = query(
 collection(db,"users"),
@@ -231,6 +245,9 @@ const querySnapshot = await getDocs(q);
 if(querySnapshot.empty){
 
 alert("Utilisateur introuvable.");
+
+if(submitBtn) submitBtn.disabled = false;
+
 return;
 
 }
@@ -243,7 +260,7 @@ const userData = userDoc.data();
 // VERIFICATION APPROBATION ADMIN
 // ============================
 
-if(userData.isActive === "pending"){
+if(!userData.isActive || userData.isActive === "pending"){
 
 Swal.fire({
 title: "Demande envoyée",
@@ -276,6 +293,8 @@ allowOutsideClick: false,
 allowEscapeKey: false
 });
 
+if(submitBtn) submitBtn.disabled = false;
+
 return;
 
 }
@@ -285,11 +304,12 @@ return;
 // VERIFICATION MOT DE PASSE
 // ============================
 
-const hashedInputPassword = await hashPassword(password);
-
 if(hashedInputPassword !== userData.passwordHash){
 
 alert("Mot de passe incorrect.");
+
+if(submitBtn) submitBtn.disabled = false;
+
 return;
 
 }
@@ -314,27 +334,10 @@ photoURL:userData.photoURL || null
 
 // stockage session
 
-if(remember){
-
 localStorage.setItem(
 "myum_user",
 JSON.stringify(session)
 );
-
-}else{
-
-sessionStorage.setItem(
-"myum_user",
-JSON.stringify(session)
-);
-
-}
-
-sessionStorage.setItem(
-"myum_session",
-"active"
-);
-
 
 // redirect
 
@@ -345,8 +348,9 @@ window.location.href = "../public/dashboard.html";
 console.error("Erreur login :",error);
 alert("Erreur lors de la connexion.");
 
-}
+if(submitBtn) submitBtn.disabled = false;
 
+}
 });
 
 }
