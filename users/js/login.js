@@ -207,25 +207,14 @@ const submitBtn = form.querySelector("button");
 
 try {
 
-// ============================
-// UI STATE
-// ============================
-
+// UI
 if(submitBtn) submitBtn.disabled = true;
 
-const rememberCheck = document.getElementById("rememberMe");
-
-
-// ============================
-// VALIDATION INPUTS
-// ============================
-
+// validation
 if(!usernameInput || !passwordInput){
-
 alert("Erreur formulaire.");
 if(submitBtn) submitBtn.disabled = false;
 return;
-
 }
 
 const username = usernameInput.value
@@ -236,25 +225,15 @@ const username = usernameInput.value
 const password = passwordInput.value;
 
 if(!username || !password){
-
 alert("Veuillez remplir tous les champs.");
 if(submitBtn) submitBtn.disabled = false;
 return;
-
 }
 
-
-// ============================
-// HASH PASSWORD (OBLIGATOIRE)
-// ============================
-
+// hash
 const hashedInputPassword = await hashPassword(password);
 
-
-// ============================
-// FIRESTORE QUERY
-// ============================
-
+// query
 const q = query(
 collection(db,"users"),
 where("username","==",username)
@@ -263,39 +242,26 @@ where("username","==",username)
 const querySnapshot = await getDocs(q);
 
 if(querySnapshot.empty){
-
 alert("Utilisateur introuvable.");
 if(submitBtn) submitBtn.disabled = false;
 return;
-
 }
 
 const userDoc = querySnapshot.docs[0];
 const userData = userDoc.data();
 
-// ============================
-// VERIFICATION APPROBATION ADMIN
-// ============================
-
+// admin check (UN SEUL BLOC)
 if(!userData.isActive || userData.isActive === "pending"){
 
 Swal.fire({
 title: "Demande envoyée",
 html: `
 <div style="font-size:14px;line-height:1.6;color:#555">
-
-<p>
-Votre inscription a bien été enregistrée.
-</p>
-
-<p style="margin-top:8px">
-Un administrateur doit maintenant valider votre compte.
-</p>
-
+<p>Votre inscription a bien été enregistrée.</p>
+<p style="margin-top:8px">Un administrateur doit maintenant valider votre compte.</p>
 <p style="margin-top:14px;font-weight:500;color:#1A3668">
 Vous serez notifié sur WhatsApp dès l’activation.
 </p>
-
 </div>
 `,
 icon: "success",
@@ -311,31 +277,18 @@ allowEscapeKey: false
 });
 
 if(submitBtn) submitBtn.disabled = false;
-
 return;
-
 }
 
-
-// ============================
-// VERIFICATION PASSWORD
-// ============================
-
+// password check
 if(hashedInputPassword !== userData.passwordHash){
-
 alert("Mot de passe incorrect.");
 if(submitBtn) submitBtn.disabled = false;
 return;
-
 }
 
-
-// ============================
-// SESSION
-// ============================
-
+// session
 const session = {
-
 id: userDoc.id,
 username: userData.username,
 firstName: userData.firstName,
@@ -343,87 +296,16 @@ lastName: userData.lastName,
 chorale: userData.chorale,
 role: userData.role,
 photoURL: userData.photoURL || null
-
 };
 
+localStorage.setItem("myum_user", JSON.stringify(session));
 
-// ============================
-// STORAGE
-// ============================
-
-localStorage.setItem(
-"myum_user",
-JSON.stringify(session)
-);
-
-
-// ============================
-// REDIRECT
-// ============================
-
+// redirect
 window.location.href = "../public/dashboard.html";
-
 
 }catch(error){
 
 console.error("Erreur login :", error);
-alert("Erreur lors de la connexion.");
-
-if(submitBtn) submitBtn.disabled = false;
-
-}
-
-});
-
-}
-
-
-// ============================
-// VERIFICATION MOT DE PASSE
-// ============================
-
-if(hashedInputPassword !== userData.passwordHash){
-
-alert("Mot de passe incorrect.");
-
-if(submitBtn) submitBtn.disabled = false;
-
-return;
-
-}
-
-
-// ============================
-// SESSION UTILISATEUR
-// ============================
-
-const session = {
-
-id:userDoc.id,
-username:userData.username,
-firstName:userData.firstName,
-lastName:userData.lastName,
-chorale:userData.chorale,
-role:userData.role,
-photoURL:userData.photoURL || null
-
-};
-
-
-// stockage session
-
-localStorage.setItem(
-"myum_user",
-JSON.stringify(session)
-);
-
-// redirect
-
-window.location.href = "../public/dashboard.html";
-
-catch(error){
-
-console.error("Erreur login :",error);
 alert("Erreur lors de la connexion.");
 
 if(submitBtn) submitBtn.disabled = false;
