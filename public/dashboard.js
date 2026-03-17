@@ -89,9 +89,14 @@ window.location.href = "../public/registre-presence.html";
 
 async function initGauge(allowedChorales){
 
-const canvas=document.getElementById("participationChart");
+const canvas = document.getElementById("participationChart");
 if(!canvas) return;
 
+// récupérer utilisateur
+const user = JSON.parse(localStorage.getItem("myum_user"));
+if(!user) return;
+
+// récupérer les salons filtrés
 const q = query(
 collection(db,"presenceRooms"),
 where("chorale","in",allowedChorales)
@@ -100,25 +105,37 @@ where("chorale","in",allowedChorales)
 const snap = await getDocs(q);
 
 let totalSessions = snap.size;
-let totalPresences = 0;
+let userPresences = 0;
 
+// boucle sur chaque salon
 for(const docSnap of snap.docs){
 
 const roomId = docSnap.id;
 
-const attendancesSnap = await getDocs(
-collection(db,"presenceRooms",roomId,"attendances")
+// vérifier présence de cet utilisateur
+const attendanceRef = doc(
+db,
+"presenceRooms",
+roomId,
+"attendances",
+user.id
 );
 
-totalPresences += attendancesSnap.size;
+const attendanceSnap = await getDoc(attendanceRef);
+
+if(attendanceSnap.exists()){
+userPresences++;
+}
 
 }
 
+// calcul réel utilisateur
 const participation = totalSessions === 0
 ? 0
-: Math.min(100, Math.round((totalPresences / (totalSessions*10)) * 100));
+: Math.round((userPresences / totalSessions) * 100);
 
-const ctx=canvas.getContext("2d");
+// render chart
+const ctx = canvas.getContext("2d");
 
 new Chart(ctx,{
 type:"doughnut",
@@ -140,8 +157,9 @@ legend:{display:false}
 }
 });
 
-const label=document.getElementById("percentageLabel");
-if(label) label.innerText=participation+"%";
+// label %
+const label = document.getElementById("percentageLabel");
+if(label) label.innerText = participation + "%";
 
 }
 
