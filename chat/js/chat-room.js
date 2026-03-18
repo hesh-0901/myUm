@@ -119,10 +119,6 @@ backBtn?.addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
-chatHomeBtn?.addEventListener("click", () => {
-  window.location.href = "index.html";
-});
-
 voiceCallBtn?.addEventListener("click", () => {
   window.location.href = `call-voice.html?uid=${encodeURIComponent(friendId)}&mode=caller`;
 });
