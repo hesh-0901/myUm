@@ -450,8 +450,6 @@ Supprimer
 
 }
 
-
-
 function bindActionButtons(user){
 
 const approveBtn = document.getElementById("approveBtn");
@@ -463,33 +461,42 @@ const suspendBtn = document.getElementById("suspendBtn");
 const deleteBtn = document.getElementById("deleteBtn");
 
 if(approveBtn){
-approveBtn.onclick=()=>updateStatus(user,"active");
+approveBtn.onclick = () => updateStatus(user,"active");
 }
 
 if(rejectBtn){
-rejectBtn.onclick=()=>updateStatus(user,"rejected");
+rejectBtn.onclick = () => updateStatus(user,"rejected");
 }
 
 if(restoreBtn){
-restoreBtn.onclick=()=>updateStatus(user,"active");
+restoreBtn.onclick = () => updateStatus(user,"active");
 }
 
-}
-
+// ✅ VOIR PLUS
 if(viewMoreBtn){
-viewMoreBtn.onclick = () => goToUserProfile(user);
-}
-
-if(suspendBtn){
-suspendBtn.onclick = async () => {
-await suspendUser(user);
-modal.classList.add("hidden");
-loadUsers();
-loadStats();
+viewMoreBtn.onclick = () => {
+goToUserProfile(user);
 };
 }
 
+// ✅ SUSPENDRE
+if(suspendBtn){
+suspendBtn.onclick = async () => {
 
+const success = await suspendUser(user);
+
+if(success){
+modal.classList.add("hidden");
+loadUsers();
+loadStats();
+}
+
+};
+}
+
+// delete → prochaine étape
+
+}
 
 async function updateStatus(user,status){
 
