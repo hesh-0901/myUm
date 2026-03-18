@@ -369,31 +369,6 @@ ${user.firstName||""} ${user.lastName||""}
 </div>
 
 
-function formatDateTime(timestamp){
-
-if(!timestamp) return "-";
-
-try{
-
-const date = timestamp.toDate
-? timestamp.toDate()
-: new Date(timestamp);
-
-return date.toLocaleString("fr-FR",{
-day:"2-digit",
-month:"2-digit",
-year:"numeric",
-hour:"2-digit",
-minute:"2-digit"
-});
-
-}catch(e){
-
-return "-";
-
-}
-
-}
 
 <div class="flex gap-2 pt-5">
 
@@ -518,6 +493,32 @@ return date.toLocaleDateString("fr-FR",{
 day:"2-digit",
 month:"2-digit",
 year:"numeric"
+});
+
+}catch(e){
+
+return "-";
+
+}
+
+}
+
+function formatDateTime(timestamp){
+
+if(!timestamp) return "-";
+
+try{
+
+const date = timestamp.toDate
+? timestamp.toDate()
+: new Date(timestamp);
+
+return date.toLocaleString("fr-FR",{
+day:"2-digit",
+month:"2-digit",
+year:"numeric",
+hour:"2-digit",
+minute:"2-digit"
 });
 
 }catch(e){
