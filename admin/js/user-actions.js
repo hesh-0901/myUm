@@ -6,12 +6,11 @@ import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/fireb
 // ===============================
 export function goToUserProfile(user){
 
-localStorage.setItem("myum_user", JSON.stringify({
-id: user.id
-}));
+  localStorage.setItem("myum_user", JSON.stringify({
+    id: user.id
+  }));
 
-window.location.href = "/myUm/users/enreg.html";
-
+  window.location.href = "/myUm/users/enreg.html";
 }
 
 
@@ -20,47 +19,24 @@ window.location.href = "/myUm/users/enreg.html";
 // ===============================
 export async function suspendUser(user){
 
-if(!confirm("Suspendre ce compte ?")) return;
+  if(!confirm("Suspendre ce compte ?")) return false;
 
-try{
+  try{
 
-const ref = doc(db,"users",user.id);
+    const ref = doc(db,"users",user.id);
 
-await updateDoc(ref,{
-isActive: "suspended"
-});
+    await updateDoc(ref,{
+      isActive: "suspended"
+    });
 
-alert("Compte suspendu");
+    return true;
 
-}catch(err){
+  }catch(err){
 
-console.error(err);
-alert("Erreur suspension");
+    console.error(err);
+    alert("Erreur suspension");
 
-}
-
-}
-
-export async function suspendUser(user){
-
-if(!confirm("Suspendre ce compte ?")) return false;
-
-try{
-
-const ref = doc(db,"users",user.id);
-
-await updateDoc(ref,{
-isActive: "suspended"
-});
-
-return true;
-
-}catch(err){
-
-console.error(err);
-alert("Erreur suspension");
-return false;
-
-}
+    return false;
+  }
 
 }
