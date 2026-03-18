@@ -358,7 +358,7 @@ const date = new Date(birth);
 const day = String(date.getDate()).padStart(2,"0");
 const month = String(date.getMonth()+1).padStart(2,"0");
 
-const username = `${firstName.slice(0,2)}${lastName.slice(0,2)}${day}${month}-${chorale}`;
+const username = `${firstName.charAt(0)}${lastName.charAt(0)}${day}${month}-${chorale}`;
 
 const q = query(collection(db,"users"),where("username","==",username));
 
