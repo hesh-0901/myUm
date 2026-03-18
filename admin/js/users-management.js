@@ -363,11 +363,37 @@ ${user.firstName||""} ${user.lastName||""}
 
 <div class="flex justify-between">
 <span class="text-gray-500">Dernière connexion</span>
-<span>${formatDate(user.lastLogin)}</span>
+<span>${formatDateTime(user.lastSeen)}</span>
 </div>
 
 </div>
 
+
+function formatDateTime(timestamp){
+
+if(!timestamp) return "-";
+
+try{
+
+const date = timestamp.toDate
+? timestamp.toDate()
+: new Date(timestamp);
+
+return date.toLocaleString("fr-FR",{
+day:"2-digit",
+month:"2-digit",
+year:"numeric",
+hour:"2-digit",
+minute:"2-digit"
+});
+
+}catch(e){
+
+return "-";
+
+}
+
+}
 
 <div class="flex gap-2 pt-5">
 
