@@ -40,3 +40,27 @@ alert("Erreur suspension");
 }
 
 }
+
+export async function suspendUser(user){
+
+if(!confirm("Suspendre ce compte ?")) return false;
+
+try{
+
+const ref = doc(db,"users",user.id);
+
+await updateDoc(ref,{
+isActive: "suspended"
+});
+
+return true;
+
+}catch(err){
+
+console.error(err);
+alert("Erreur suspension");
+return false;
+
+}
+
+}
