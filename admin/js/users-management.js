@@ -1,5 +1,6 @@
 /*admin/js/users-management.js*/
 import { db } from "../../mains.js/firebase-config.js";
+import { goToUserProfile, suspendUser } from "./user-actions.js";
 
 import {
 collection,
@@ -423,9 +424,28 @@ Restaurer
 }
 
 return`
-<div class="text-sm opacity-60 w-full text-center">
-Utilisateur actif
-</div>
+
+<button id="viewMoreBtn"
+class="flex-1 bg-blue-500 text-white rounded-xl py-2 text-sm font-semibold">
+
+Voir plus
+
+</button>
+
+<button id="suspendBtn"
+class="flex-1 bg-yellow-500 text-white rounded-xl py-2 text-sm font-semibold">
+
+Suspendre
+
+</button>
+
+<button id="deleteBtn"
+class="flex-1 bg-red-600 text-white rounded-xl py-2 text-sm font-semibold">
+
+Supprimer
+
+</button>
+
 `;
 
 }
@@ -434,9 +454,13 @@ Utilisateur actif
 
 function bindActionButtons(user){
 
-const approveBtn=document.getElementById("approveBtn");
-const rejectBtn=document.getElementById("rejectBtn");
-const restoreBtn=document.getElementById("restoreBtn");
+const approveBtn = document.getElementById("approveBtn");
+const rejectBtn = document.getElementById("rejectBtn");
+const restoreBtn = document.getElementById("restoreBtn");
+
+const viewMoreBtn = document.getElementById("viewMoreBtn");
+const suspendBtn = document.getElementById("suspendBtn");
+const deleteBtn = document.getElementById("deleteBtn");
 
 if(approveBtn){
 approveBtn.onclick=()=>updateStatus(user,"active");
@@ -450,6 +474,19 @@ if(restoreBtn){
 restoreBtn.onclick=()=>updateStatus(user,"active");
 }
 
+}
+
+if(viewMoreBtn){
+viewMoreBtn.onclick = () => goToUserProfile(user);
+}
+
+if(suspendBtn){
+suspendBtn.onclick = async () => {
+await suspendUser(user);
+modal.classList.add("hidden");
+loadUsers();
+loadStats();
+};
 }
 
 
