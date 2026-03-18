@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v1.33.2"; /*henoch shungu */
+const VERSION = "v1.33.3"; /*henoch shungu */
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
