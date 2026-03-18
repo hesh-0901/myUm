@@ -28,14 +28,14 @@ import {
   createVoiceRecorderComposer,
   buildVoiceReplyPreview,
   formatTime
-} from "./voice-message.js";
+} from "/myUm/chat/js/voice-message.js";
 
 import {
   initMessageEmojiPicker,
   initReactionEmojiPicker,
   getQuickReactionList,
   saveRecentEmoji
-} from "./emoji-picker.js";
+} from "/myUm/chat/js/emoji-picker.js";
 
 /* ============================================================
    BLOC 1 : SESSION
