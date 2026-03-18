@@ -481,7 +481,7 @@ alert("Erreur mise à jour");
 
 function formatDate(timestamp){
 
-if(!timestamp) return "-";
+if(!timestamp) return "Jamais connecté";
 
 try{
 
