@@ -112,6 +112,23 @@ const messageMenuOverlay = document.getElementById("messageMenuOverlay");
 
 const copyActionBtn = document.getElementById("copyActionBtn");
 const editActionBtn = document.getElementById("editActionBtn");
+
+const moreReactionBtn = document.getElementById("moreReactionBtn");
+const reactionPickerPanel = document.getElementById("reactionPickerPanel");
+const reactionPickerMount = document.getElementById("reactionPickerMount");
+
+const quickReactionsRow = document.getElementById("quickReactionsRow");
+
+const closeMessageMenuBtn = document.getElementById("closeMessageMenuBtn");
+const reactionBtns = document.querySelectorAll(".reactionBtn");
+
+const replyActionBtn = document.getElementById("replyActionBtn");
+const pinActionBtn = document.getElementById("pinActionBtn");
+const forwardActionBtn = document.getElementById("forwardActionBtn");
+const downloadActionBtn = document.getElementById("downloadActionBtn");
+
+const deleteMineActionBtn = document.getElementById("deleteMineActionBtn");
+const deleteAllActionBtn = document.getElementById("deleteAllActionBtn");
 /* ============================================================
    BLOC 4 : NAVIGATION
 ============================================================ */
@@ -169,7 +186,6 @@ async function initRoom() {
   bindScrollTracking();
   bindScrollButton();
   bindAttachments();
-  bindVoiceRecorder();
   bindMessageMenu();
   bindReplyUi();
   initEmojiSystems();
@@ -463,7 +479,23 @@ function listenMessages() {
 function bindComposerEvents() {
   bindTypingEmitter();
 
-  sendBtn?.addEventListener("click", sendTextMessage);
+  messageInput?.addEventListener("input", () => {
+    const hasText = messageInput.value.trim().length > 0;
+
+    sendBtnIcon.className = hasText
+      ? "bi bi-send-fill"
+      : "bi bi-mic-fill";
+  });
+
+  sendBtn?.addEventListener("click", () => {
+    const hasText = messageInput.value.trim().length > 0;
+
+    if (hasText) {
+      sendTextMessage();
+    } else {
+      openVoiceRecorder();
+    }
+  });
 
   messageInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -574,12 +606,6 @@ async function uploadChatFile(file) {
 /* ============================================================
    BLOC 17 : ENREGISTREMENT VOCAL WAVESURFER
 ============================================================ */
-function bindVoiceRecorder() {
-  recordBtn?.addEventListener("click", () => {
-    openVoiceRecorder();
-  });
-}
-
 function openVoiceRecorder() {
   if (currentRecorderUi) return;
 
