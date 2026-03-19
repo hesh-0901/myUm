@@ -15,7 +15,14 @@ document.addEventListener("DOMContentLoaded", initEnreg);
 // ===============================
 async function initEnreg() {
 
-  const storedUser = localStorage.getItem("myum_user");
+const selectedUser = localStorage.getItem("myum_selected_user");
+const sessionUser = localStorage.getItem("myum_user");
+
+if(selectedUser){
+  currentUserId = JSON.parse(selectedUser).id;
+}else if(sessionUser){
+  currentUserId = JSON.parse(sessionUser).id;
+}
   if (!storedUser) return;
 
   const sessionUser = JSON.parse(storedUser);
