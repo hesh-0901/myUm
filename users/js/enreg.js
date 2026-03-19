@@ -15,29 +15,35 @@ document.addEventListener("DOMContentLoaded", initEnreg);
 // ===============================
 async function initEnreg() {
 
-const selectedUser = localStorage.getItem("myum_selected_user");
-const sessionUser = localStorage.getItem("myum_user");
+  const selectedUserRaw = localStorage.getItem("myum_selected_user");
+  const sessionUserRaw = localStorage.getItem("myum_user");
 
-if(selectedUser){
-  currentUserId = JSON.parse(selectedUser).id;
-}else if(sessionUser){
-  currentUserId = JSON.parse(sessionUser).id;
-}
-  if (!storedUser) return;
+  // 🔥 priorité admin (voir plus)
+  if(selectedUserRaw){
 
-  const sessionUser = JSON.parse(storedUser);
+    const selectedUser = JSON.parse(selectedUserRaw);
+    currentUserId = selectedUser.id;
 
-  currentUserId = sessionUser.id;
+  }
+  // 👤 sinon utilisateur connecté
+  else if(sessionUserRaw){
+
+    const sessionUser = JSON.parse(sessionUserRaw);
+    currentUserId = sessionUser.id;
+
+  }
+  else{
+    return;
+  }
+
+  console.log("USER CHARGÉ :", currentUserId); // debug
 
   await loadUserData();
 
   injectBackButton();
-
   highlightRequiredFields();
-
   initEditableSystem();
 }
-
 // ===============================
 // LOAD USER DATA
 // ===============================
