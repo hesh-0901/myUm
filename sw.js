@@ -250,3 +250,20 @@ statusText:"Offline"
 }
 
 }
+
+/* =========================
+   GET VERSION (CLIENT)
+========================= */
+
+self.addEventListener("message", event => {
+
+  if(event.data === "GET_VERSION"){
+
+    event.source.postMessage({
+      type: "VERSION",
+      version: VERSION
+    });
+
+  }
+
+});
