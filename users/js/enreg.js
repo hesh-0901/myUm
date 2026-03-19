@@ -1,6 +1,6 @@
 // =======================================
 // ENREG.JS - MYUM PREMIUM ENGINE
-// =======================================
+// ========================================
 
 import { db } from "/myUm/mains.js/firebase-config.js";
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
