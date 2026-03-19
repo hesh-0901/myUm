@@ -29,6 +29,17 @@ const closeBtn = document.getElementById("closeAppModal");
 const versionEl = document.getElementById("appVersion");
 
 let deferredPrompt = null;
+let isInstalled = false;
+
+// 🔥 détecter si déjà installé
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  isInstalled = true;
+}
+
+// iOS fallback
+if (window.navigator.standalone === true) {
+  isInstalled = true;
+}
 
 // 🔥 récupérer version depuis SW
 if(navigator.serviceWorker){
@@ -57,9 +68,28 @@ navigator.serviceWorker.ready.then(reg=>{
 
 // écouter install prompt
 window.addEventListener("beforeinstallprompt", (e)=>{
-e.preventDefault();
-deferredPrompt = e;
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // 🔥 app installable
+  installBtnMain.disabled = false;
 });
+
+  if(!('serviceWorker' in navigator)){
+
+  installBtnMain.innerHTML = `
+  <div class="flex items-center gap-3">
+    <i class="bi bi-x-circle text-lg"></i>
+    <span class="text-sm font-medium">
+      Non compatible
+    </span>
+  </div>
+  `;
+
+  installBtnMain.classList.add("bg-gray-400");
+  installBtnMain.disabled = true;
+
+}
 
 // ouvrir modal
 btn.addEventListener("click", ()=>{
@@ -504,6 +534,28 @@ function initPhotoCrop() {
   });
 
 }
+
+const installBtnMain = document.getElementById("installAppBtn");
+
+if(isInstalled){
+
+  installBtnMain.innerHTML = `
+  <div class="flex items-center gap-3">
+    <i class="bi bi-check-circle text-lg"></i>
+    <span class="text-sm font-medium">
+      Application installée
+    </span>
+  </div>
+  `;
+
+  installBtnMain.classList.remove("from-accent","to-primary");
+  installBtnMain.classList.add("bg-gray-400");
+
+  installBtnMain.disabled = true;
+
+}
+
+navigator.vibrate?.(50);
 
 
 // ======================================
