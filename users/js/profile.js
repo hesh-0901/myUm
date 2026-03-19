@@ -17,6 +17,82 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+// ======================================
+// INSTALLER APPLICATION
+// ======================================
+function initInstallApp(){
+
+const btn = document.getElementById("installAppBtn");
+const modal = document.getElementById("appModal");
+const content = document.getElementById("modalContent");
+const closeBtn = document.getElementById("closeAppModal");
+const versionEl = document.getElementById("appVersion");
+
+let deferredPrompt = null;
+
+// 🔥 récupérer version depuis SW
+navigator.serviceWorker.getRegistration().then(reg=>{
+if(reg && reg.active){
+versionEl.innerText = "Version " + reg.active.scriptURL.split("?v=")[1] || "1.0.0";
+}
+});
+
+// écouter install prompt
+window.addEventListener("beforeinstallprompt", (e)=>{
+e.preventDefault();
+deferredPrompt = e;
+});
+
+// ouvrir modal
+btn.addEventListener("click", ()=>{
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+setTimeout(()=>{
+content.classList.remove("scale-90","opacity-0");
+content.classList.add("scale-100","opacity-100");
+},10);
+
+});
+
+// fermer modal
+closeBtn.addEventListener("click", closeModal);
+modal.addEventListener("click",(e)=>{
+if(e.target === modal) closeModal();
+});
+
+function closeModal(){
+
+content.classList.add("scale-90","opacity-0");
+
+setTimeout(()=>{
+modal.classList.add("hidden");
+modal.classList.remove("flex");
+},200);
+
+}
+
+// bouton installer
+document.getElementById("installBtn").onclick = async ()=>{
+
+if(!deferredPrompt){
+alert("Installation non disponible");
+return;
+}
+
+deferredPrompt.prompt();
+
+const choice = await deferredPrompt.userChoice;
+
+if(choice.outcome === "accepted"){
+closeModal();
+}
+
+};
+
+}
+
 
 // ======================================
 // VARIABLES GLOBALES
@@ -50,7 +126,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initEditButtons();
   initLogout();
-  initPhotoCrop(); // initialisation cropper
+  initPhotoCrop();
+
+  initInstallApp(); // 🔥 AJOUT ICI
 
 });
 
