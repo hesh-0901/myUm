@@ -30,9 +30,35 @@ const versionEl = document.getElementById("appVersion");
 
 let isInstalled = false;
 
-// 🔥 détecter si déjà installé
+// 🔥 détecter si déjà installé (Android / Desktop)
 if (window.matchMedia('(display-mode: standalone)').matches) {
   isInstalled = true;
+}
+
+// 🔥 iOS support
+if (window.navigator.standalone === true) {
+  isInstalled = true;
+}
+
+// 🔥 SI INSTALLÉ → désactiver bouton
+if(isInstalled){
+
+  btn.innerHTML = `
+  <div class="flex items-center gap-3">
+    <i class="bi bi-check-circle text-lg"></i>
+    <span class="text-sm font-medium">
+      Application installée
+    </span>
+  </div>
+  `;
+
+  btn.classList.remove("from-accent","to-primary");
+  btn.classList.add("bg-gray-400");
+
+  btn.disabled = true;
+
+}
+
 }
 
 // iOS fallback
@@ -551,10 +577,6 @@ function initPhotoCrop() {
   });
 
 }
-
-const installBtnMain = document.getElementById("installAppBtn");
-
-if(isInstalled){
 
   installBtnMain.innerHTML = `
   <div class="flex items-center gap-3">
