@@ -176,14 +176,6 @@ window.deferredPrompt = null;
 
 };
 
-if(choice.outcome === "accepted"){
-closeModal();
-}
-
-};
-
-}
-
 
 // ======================================
 // VARIABLES GLOBALES
