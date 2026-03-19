@@ -11,11 +11,22 @@ INITIALISATION
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const storedUser = localStorage.getItem("myum_user");
-  if (!storedUser) return;
+const selectedUserRaw = localStorage.getItem("myum_selected_user");
+const sessionUserRaw = localStorage.getItem("myum_user");
 
-  const sessionUser = JSON.parse(storedUser);
+if(selectedUserRaw){
+
+  const selectedUser = JSON.parse(selectedUserRaw);
+  currentUserId = selectedUser.id;
+
+}else if(sessionUserRaw){
+
+  const sessionUser = JSON.parse(sessionUserRaw);
   currentUserId = sessionUser.id;
+
+}else{
+  return;
+}
 
   const btn = document.getElementById("exportPdfBtn");
 
