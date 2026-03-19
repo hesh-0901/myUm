@@ -28,7 +28,6 @@ const content = document.getElementById("modalContent");
 const closeBtn = document.getElementById("closeAppModal");
 const versionEl = document.getElementById("appVersion");
 
-let deferredPrompt = null;
 let isInstalled = false;
 
 // 🔥 détecter si déjà installé
@@ -124,13 +123,20 @@ modal.classList.remove("flex");
 // bouton installer
 document.getElementById("installBtn").onclick = async ()=>{
 
-if(!deferredPrompt){
-alert("Installation non disponible");
+if(!window.deferredPrompt){
+alert("Utilisez le menu du navigateur pour installer");
 return;
 }
 
-deferredPrompt.prompt();
+window.deferredPrompt.prompt();
 
+const choice = await window.deferredPrompt.userChoice;
+
+if(choice.outcome === "accepted"){
+closeModal();
+}
+
+window.deferredPrompt = null;
 const choice = await deferredPrompt.userChoice;
 
 if(choice.outcome === "accepted"){
