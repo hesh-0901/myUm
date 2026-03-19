@@ -68,7 +68,7 @@ navigator.serviceWorker.ready.then(reg=>{
 // écouter install prompt
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
-  deferredPrompt = e;
+ window.deferredPrompt = e;
 
   // 🔥 app installable
   installBtnMain.disabled = false;
@@ -89,6 +89,7 @@ window.addEventListener("beforeinstallprompt", (e)=>{
   installBtnMain.disabled = true;
 
 }
+  console.log("Deferred:", window.deferredPrompt);
 
 // ouvrir modal
 btn.addEventListener("click", ()=>{
@@ -130,6 +131,15 @@ return;
 
 window.deferredPrompt.prompt();
 
+document.getElementById("installBtn").onclick = async ()=>{
+
+if(!window.deferredPrompt){
+alert("Utilisez le menu du navigateur pour installer");
+return;
+}
+
+window.deferredPrompt.prompt();
+
 const choice = await window.deferredPrompt.userChoice;
 
 if(choice.outcome === "accepted"){
@@ -137,7 +147,8 @@ closeModal();
 }
 
 window.deferredPrompt = null;
-const choice = await deferredPrompt.userChoice;
+
+};
 
 if(choice.outcome === "accepted"){
 closeModal();
