@@ -158,12 +158,10 @@ posts
 </div>
 
 
-
 <!-- INFORMATIONS -->
 <div id="informations-container"
 class="mt-8 px-4 space-y-4">
 </div>
-
 
 
 <!-- AMIS -->
@@ -171,51 +169,54 @@ class="mt-8 px-4 space-y-4">
 class="mt-8 px-4">
 </div>
 
+
 <!-- SECURITY -->
 <div class="mt-8 px-4 pb-32">
 
-<div class="bg-card rounded-2xl p-5 space-y-3">
+  <div class="bg-card rounded-2xl p-5 space-y-4">
 
-<h2 class="text-sm font-semibold text-soft">
-Sécurité du compte
-</h2>
+    <h2 class="text-sm font-semibold text-soft">
+      Sécurité du compte
+    </h2>
 
-<div class="mt-6 px-4">
+    <!-- INSTALL APP -->
+    <div class="mt-2">
 
-<button id="installAppBtn"
-class="w-full flex items-center justify-between
-p-4 rounded-2xl bg-gradient-to-r from-accent to-primary
-text-white shadow-lg active:scale-95 transition">
+      <button id="installAppBtn"
+      class="w-full flex items-center justify-between
+      p-4 rounded-2xl bg-gradient-to-r from-accent to-primary
+      text-white shadow-lg active:scale-95 transition
+      hover:shadow-2xl hover:scale-[1.02]">
 
-<div class="flex items-center gap-3">
-<i class="bi bi-download text-lg"></i>
-<span class="text-sm font-medium">
-Télécharger l’application
-</span>
+        <div class="flex items-center gap-3">
+          <i class="bi bi-download text-lg"></i>
+          <span class="text-sm font-medium">
+            Télécharger l’application
+          </span>
+        </div>
+
+        <i class="bi bi-chevron-right"></i>
+
+      </button>
+
+    </div>
+
+    <!-- LOGOUT -->
+    <button id="logoutBtn"
+    class="w-full flex items-center justify-between
+    p-3 rounded-xl bg-white/10 hover:bg-white/20 transition">
+
+      <span class="text-sm text-white">
+        Déconnexion
+      </span>
+
+      <i class="bi bi-box-arrow-right text-white"></i>
+
+    </button>
+
+  </div>
+
 </div>
-
-<i class="bi bi-chevron-right"></i>
-
-</button>
-
-</div>
-
-<button id="logoutBtn"
-class="w-full flex items-center justify-between
-p-3 rounded-xl bg-white/10 hover:bg-white/20 transition">
-
-<span class="text-sm text-white">
-Déconnexion
-</span>
-
-<i class="bi bi-box-arrow-right text-white"></i>
-
-</button>
-
-</div>
-
-</div>
-
 
 
 <footer id="navbar-container" class="mt-auto"></footer>
@@ -223,77 +224,76 @@ Déconnexion
 </div>
 
 
-
 <div id="sidebar-container"></div>
-
 
 
 <!-- CROP MODAL -->
 <div id="cropModal"
 class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
 
-<div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
+  <div class="bg-white rounded-3xl p-4 w-[90%] max-w-md">
 
-<h2 class="text-lg font-semibold mb-3">
-Ajuster la photo
-</h2>
+    <h2 class="text-lg font-semibold mb-3">
+      Ajuster la photo
+    </h2>
 
-<div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-<img id="cropImage">
+    <div class="w-full h-72 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+      <img id="cropImage">
+    </div>
+
+    <div class="flex justify-end gap-3 mt-4">
+
+      <button id="cancelCrop"
+      class="px-4 py-2 text-sm bg-gray-200 rounded-lg">
+        Annuler
+      </button>
+
+      <button id="confirmCrop"
+      class="px-4 py-2 text-sm bg-primary text-white rounded-lg">
+        Valider
+      </button>
+
+    </div>
+
+  </div>
+
 </div>
 
-<div class="flex justify-end gap-3 mt-4">
 
-<button id="cancelCrop"
-class="px-4 py-2 text-sm bg-gray-200 rounded-lg">
-Annuler
-</button>
-
-<button id="confirmCrop"
-class="px-4 py-2 text-sm bg-primary text-white rounded-lg">
-Valider
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- VERSION MODAL -->
+<!-- APP MODAL -->
 <div id="appModal"
 class="fixed inset-0 hidden items-center justify-center bg-black/60 backdrop-blur-sm z-50">
 
-<div id="modalContent"
-class="bg-white rounded-3xl p-6 w-[90%] max-w-sm text-center
-scale-90 opacity-0 transition duration-300">
+  <div id="modalContent"
+  class="bg-white rounded-3xl p-6 w-[90%] max-w-sm text-center
+  scale-90 opacity-0 transition duration-300">
 
-<img src="/myUm/assets/logo-myum.png"
-class="w-20 mx-auto mb-4">
+    <img src="/myUm/assets/logo-myum.png"
+    class="w-20 mx-auto mb-4">
 
-<h2 class="text-lg font-semibold text-gray-800">
-MyUm
-</h2>
+    <h2 class="text-lg font-semibold text-gray-800">
+      MyUm
+    </h2>
 
-<p id="appVersion"
-class="text-sm text-gray-500 mt-1">
-Version ...
-</p>
+    <p id="appVersion"
+    class="text-sm text-gray-500 mt-1">
+      Version ...
+    </p>
 
-<button id="installBtn"
-class="mt-5 w-full py-3 rounded-xl bg-primary text-white font-medium">
-Installer
-</button>
+    <button id="installBtn"
+    class="mt-5 w-full py-3 rounded-xl bg-primary text-white font-medium
+    hover:opacity-90 transition">
+      Installer
+    </button>
 
-<button id="closeAppModal"
-class="mt-3 text-sm text-gray-400">
-Fermer
-</button>
+    <button id="closeAppModal"
+    class="mt-3 text-sm text-gray-400 hover:text-gray-600 transition">
+      Fermer
+    </button>
+
+  </div>
 
 </div>
-
-</div>
-
 
 
 <script type="module" src="/myUm/users/js/profile.js"></script>
