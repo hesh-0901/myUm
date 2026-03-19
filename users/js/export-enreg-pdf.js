@@ -354,10 +354,23 @@ if(data.username){
   const date = now.toLocaleDateString();
   const time = now.toLocaleTimeString();
 
-  const signature = `DOCUMENT AUTHENTIFIÉ MYUM
-Utilisateur : ${fullName}
-Horodatage : ${date} ${time}
-Identifiant : ${currentUserId}`;
+  const sessionUserRaw = localStorage.getItem("myum_user");
+  
+  let downloadedBy = "Inconnu";
+  
+  if(sessionUserRaw){
+  
+    const sessionUser = JSON.parse(sessionUserRaw);
+  
+    downloadedBy = sessionUser.username || sessionUser.id;
+  
+  }
+
+  const signature = `DOCUMENT AUTHENTIFIÉ MYUM 2026
+  Utilisateur : ${fullName}
+  Téléchargé par : ${downloadedBy}
+  Horodatage : ${date} ${time}
+  Identifiant : ${currentUserId}`;
 
   pdf.setFontSize(8);
   pdf.setTextColor(...colors.muted);
