@@ -1,5 +1,6 @@
 import { db } from "../../mains.js/firebase-config.js";
 import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ===============================
 // NAVIGATION PROFIL
@@ -35,6 +36,29 @@ export async function suspendUser(user){
 
     console.error(err);
     alert("Erreur suspension");
+
+    return false;
+  }
+
+}
+
+// ===============================
+// SUPPRIMER UTILISATEUR
+// ===============================
+export async function deleteUser(user){
+
+  if(!confirm("Supprimer définitivement ce compte ?")) return false;
+
+  try{
+
+    await deleteDoc(doc(db,"users",user.id));
+
+    return true;
+
+  }catch(err){
+
+    console.error(err);
+    alert("Erreur suppression");
 
     return false;
   }
