@@ -17,6 +17,7 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+
 // ======================================
 // INSTALLER APPLICATION
 // ======================================
@@ -167,7 +168,6 @@ window.deferredPrompt = null;
 };
 
 }
-
 
 // ======================================
 // VARIABLES GLOBALES
