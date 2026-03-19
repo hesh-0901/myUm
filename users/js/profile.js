@@ -26,21 +26,29 @@ const btn = document.getElementById("installAppBtn");
 const modal = document.getElementById("appModal");
 const content = document.getElementById("modalContent");
 const closeBtn = document.getElementById("closeAppModal");
+const installBtn = document.getElementById("installBtn");
 const versionEl = document.getElementById("appVersion");
 
 let isInstalled = false;
 
-// 🔥 détecter si déjà installé (Android / Desktop)
+// ===============================
+// DETECTION INSTALL
+// ===============================
+
+// Android / Desktop
 if (window.matchMedia('(display-mode: standalone)').matches) {
   isInstalled = true;
 }
 
-// 🔥 iOS support
+// iOS
 if (window.navigator.standalone === true) {
   isInstalled = true;
 }
 
-// 🔥 SI INSTALLÉ → désactiver bouton
+// ===============================
+// UI SI INSTALLÉ
+// ===============================
+
 if(isInstalled){
 
   btn.innerHTML = `
@@ -56,32 +64,24 @@ if(isInstalled){
   btn.classList.add("bg-gray-400");
 
   btn.disabled = true;
-
 }
 
-}
+// ===============================
+// VERSION DEPUIS SW
+// ===============================
 
-// iOS fallback
-if (window.navigator.standalone === true) {
-  isInstalled = true;
-}
-
-// 🔥 récupérer version depuis SW
 if(navigator.serviceWorker){
 
 navigator.serviceWorker.ready.then(reg=>{
 
   if(reg.active){
 
-    // envoyer message au SW
     reg.active.postMessage("GET_VERSION");
 
     navigator.serviceWorker.addEventListener("message", event => {
 
       if(event.data.type === "VERSION"){
-
         versionEl.innerText = "Version " + event.data.version;
-
       }
 
     });
@@ -89,35 +89,26 @@ navigator.serviceWorker.ready.then(reg=>{
   }
 
 });
+
 }
 
-// écouter install prompt
-window.addEventListener("beforeinstallprompt", (e)=>{
-  e.preventDefault();
- window.deferredPrompt = e;
+// ===============================
+// CAPTURE INSTALL EVENT
+// ===============================
 
-  // 🔥 app installable
-  installBtnMain.disabled = false;
+window.addEventListener("beforeinstallprompt", (e)=>{
+
+  e.preventDefault();
+  window.deferredPrompt = e;
+
+  console.log("PWA prête à être installée 🔥");
+
 });
 
-  if(!('serviceWorker' in navigator)){
+// ===============================
+// OUVRIR MODAL
+// ===============================
 
-  installBtnMain.innerHTML = `
-  <div class="flex items-center gap-3">
-    <i class="bi bi-x-circle text-lg"></i>
-    <span class="text-sm font-medium">
-      Non compatible
-    </span>
-  </div>
-  `;
-
-  installBtnMain.classList.add("bg-gray-400");
-  installBtnMain.disabled = true;
-
-}
-  console.log("Deferred:", window.deferredPrompt);
-
-// ouvrir modal
 btn.addEventListener("click", ()=>{
 
 modal.classList.remove("hidden");
@@ -130,8 +121,12 @@ content.classList.add("scale-100","opacity-100");
 
 });
 
-// fermer modal
+// ===============================
+// FERMER MODAL
+// ===============================
+
 closeBtn.addEventListener("click", closeModal);
+
 modal.addEventListener("click",(e)=>{
 if(e.target === modal) closeModal();
 });
@@ -147,17 +142,11 @@ modal.classList.remove("flex");
 
 }
 
-// bouton installer
-document.getElementById("installBtn").onclick = async ()=>{
+// ===============================
+// INSTALL CLICK
+// ===============================
 
-if(!window.deferredPrompt){
-alert("Utilisez le menu du navigateur pour installer");
-return;
-}
-
-window.deferredPrompt.prompt();
-
-document.getElementById("installBtn").onclick = async ()=>{
+installBtn.onclick = async ()=>{
 
 if(!window.deferredPrompt){
 alert("Utilisez le menu du navigateur pour installer");
@@ -170,11 +159,14 @@ const choice = await window.deferredPrompt.userChoice;
 
 if(choice.outcome === "accepted"){
 closeModal();
+navigator.vibrate?.(50);
 }
 
 window.deferredPrompt = null;
 
 };
+
+}
 
 
 // ======================================
