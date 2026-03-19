@@ -6,9 +6,9 @@ import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/fireb
 // ===============================
 export function goToUserProfile(user){
 
-  localStorage.setItem("myum_user", JSON.stringify({
-    id: user.id
-  }));
+    localStorage.setItem("myum_selected_user", JSON.stringify({
+      id: user.id
+    }));
 
   window.location.href = "/myUm/users/enreg.html";
 }
