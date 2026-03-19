@@ -31,11 +31,29 @@ const versionEl = document.getElementById("appVersion");
 let deferredPrompt = null;
 
 // 🔥 récupérer version depuis SW
-navigator.serviceWorker.getRegistration().then(reg=>{
-if(reg && reg.active){
-versionEl.innerText = "Version " + reg.active.scriptURL.split("?v=")[1] || "1.0.0";
-}
+if(navigator.serviceWorker){
+
+navigator.serviceWorker.ready.then(reg=>{
+
+  if(reg.active){
+
+    // envoyer message au SW
+    reg.active.postMessage("GET_VERSION");
+
+    navigator.serviceWorker.addEventListener("message", event => {
+
+      if(event.data.type === "VERSION"){
+
+        versionEl.innerText = "Version " + event.data.version;
+
+      }
+
+    });
+
+  }
+
 });
+}
 
 // écouter install prompt
 window.addEventListener("beforeinstallprompt", (e)=>{
