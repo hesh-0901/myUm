@@ -64,9 +64,14 @@ if(isInstalled){
   btn.classList.add("bg-green-600");
 
   // 🔥 ACTION → ouvrir app
-  btn.onclick = ()=>{
-    window.location.href = "/myUm/index.html";
-  };
+btn.onclick = ()=>{
+  navigator.serviceWorker.getRegistration().then(reg=>{
+    if(reg){
+      reg.update();
+    }
+    location.reload();
+  });
+};
 
 }
 
