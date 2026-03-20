@@ -245,3 +245,4 @@ window.deferredPrompt = null;
 
 };
 }
+  }
