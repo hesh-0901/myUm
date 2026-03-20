@@ -43,17 +43,35 @@ if(navigator.serviceWorker){
       requestVersion();
     });
 
-    navigator.serviceWorker.addEventListener("message", event=>{
+navigator.serviceWorker.addEventListener("message", event=>{
 
-      if(event.data?.type === "VERSION"){
+  if(event.data?.type === "VERSION"){
 
-        const swVersion = event.data.version;
-        console.log("✅ VERSION REÇUE :", swVersion);
+    const swVersion = event.data.version;
+    console.log("✅ VERSION REÇUE :", swVersion);
 
-        // ton traitement ici
-      }
+    const localVersion = localStorage.getItem("app_version");
 
-    });
+    if(!localVersion){
+      localStorage.setItem("app_version", swVersion);
+    }
+
+    if(!isInstalled){
+      state = "install";
+    }
+    else if(localVersion && localVersion !== swVersion){
+      state = "update";
+    }
+    else{
+      state = "upToDate";
+    }
+
+    renderButton(state, swVersion);
+
+    localStorage.setItem("app_version", swVersion);
+  }
+
+});
 
   });
 
