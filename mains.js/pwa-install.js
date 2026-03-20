@@ -53,8 +53,13 @@ if(isIOS() && !isStandalone()){
 
 installBtn.style.display="none";
 
-installText.innerHTML =
-'Sur iPhone :<br><br><b>Partager</b> <i class="bi bi-box-arrow-up"></i><br>puis <b>Ajouter à l’écran d’accueil</b>';
+if(installText){
+  installText.innerHTML = `
+  Sur iPhone :<br><br><b>Partager</b>
+  <i class="bi bi-box-arrow-up"></i><br>
+  puis <b>Ajouter à l’écran d’accueil</b>
+  `;
+}
 
 showModal();
 
