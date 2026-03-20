@@ -84,9 +84,61 @@ navigator.serviceWorker.ready.then(reg=>{
 
     navigator.serviceWorker.addEventListener("message", event => {
 
-      if(event.data.type === "VERSION"){
-        versionEl.innerText = "Version " + event.data.version;
-      }
+        if(event.data.type === "VERSION"){
+        
+          const swVersion = event.data.version;
+          versionEl.innerText = "Version " + swVersion;
+        
+          const localVersion = localStorage.getItem("app_version");
+        
+          // 🔥 première fois → on enregistre
+          if(!localVersion){
+            localStorage.setItem("app_version", swVersion);
+          }
+        
+          // 🔥 comparaison version
+          if(localVersion && localVersion !== swVersion){
+        
+            // 🚀 UPDATE DISPONIBLE
+            btn.innerHTML = `
+            <div class="flex items-center gap-3">
+              <i class="bi bi-arrow-repeat text-lg"></i>
+              <span class="text-sm font-medium">
+                Mettre à jour (${swVersion})
+              </span>
+            </div>
+            `;
+        
+            btn.classList.remove("bg-green-600");
+            btn.classList.add("bg-orange-500");
+        
+            btn.onclick = ()=>{
+              location.reload(true);
+            };
+        
+          }
+        
+          else if(isInstalled){
+        
+            // ✅ À JOUR
+            btn.innerHTML = `
+            <div class="flex items-center gap-3">
+              <i class="bi bi-check-circle text-lg"></i>
+              <span class="text-sm font-medium">
+                App à jour (${swVersion})
+              </span>
+            </div>
+            `;
+        
+            btn.classList.remove("from-accent","to-primary");
+            btn.classList.add("bg-gray-500");
+        
+          }
+        
+          // 🔥 on sauvegarde la version actuelle
+          localStorage.setItem("app_version", swVersion);
+        
+        }
 
     });
 
