@@ -20,54 +20,44 @@ window.matchMedia('(display-mode: standalone)').matches
 // ===============================
 // SERVICE WORKER VERSION
 // ===============================
-
 if(navigator.serviceWorker){
 
-navigator.serviceWorker.ready.then(reg=>{
+  navigator.serviceWorker.ready.then(reg=>{
 
-if(reg.active){
+    function requestVersion(){
 
-reg.active.postMessage("GET_VERSION");
+      if(!navigator.serviceWorker.controller){
+        console.log("⏳ SW pas actif");
+        return;
+      }
 
-navigator.serviceWorker.addEventListener("message", event=>{
+      reg.active.postMessage("GET_VERSION");
+    }
 
-if(event.data.type === "VERSION"){
+    // 🔥 appeler direct
+    requestVersion();
 
-const swVersion = event.data.version;
-if(versionEl) versionEl.innerText = "Version " + swVersion;
+    // 🔥 fallback si controller arrive plus tard
+    navigator.serviceWorker.addEventListener("controllerchange", ()=>{
+      console.log("🔥 SW contrôle maintenant la page");
+      requestVersion();
+    });
 
-const localVersion = localStorage.getItem("app_version");
+    navigator.serviceWorker.addEventListener("message", event=>{
 
-if(!localVersion){
-localStorage.setItem("app_version", swVersion);
-}
+      if(event.data?.type === "VERSION"){
 
-// STATE
-if(!isInstalled){
-state = "install";
-}
-else if(localVersion && localVersion !== swVersion){
-state = "update";
-}
-else{
-state = "upToDate";
-}
+        const swVersion = event.data.version;
+        console.log("✅ VERSION REÇUE :", swVersion);
 
-renderButton(state, swVersion);
+        // ton traitement ici
+      }
 
-localStorage.setItem("app_version", swVersion);
+    });
 
-}
-
-});
+  });
 
 }
-
-});
-
-}
-
-
 // ===============================
 // RENDER BUTTON
 // ===============================
