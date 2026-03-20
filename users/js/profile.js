@@ -49,22 +49,25 @@ if (window.navigator.standalone === true) {
 // ===============================
 // UI SI INSTALLÉ
 // ===============================
-
 if(isInstalled){
 
   btn.innerHTML = `
   <div class="flex items-center gap-3">
-    <i class="bi bi-check-circle text-lg"></i>
+    <i class="bi bi-box-arrow-up-right text-lg"></i>
     <span class="text-sm font-medium">
-      Application installée
+      Ouvrir l’application
     </span>
   </div>
   `;
 
   btn.classList.remove("from-accent","to-primary");
-  btn.classList.add("bg-gray-400");
+  btn.classList.add("bg-green-600");
 
-  btn.disabled = true;
+  // 🔥 ACTION → ouvrir app
+  btn.onclick = ()=>{
+    window.location.href = "/myUm/index.html";
+  };
+
 }
 
 // ===============================
