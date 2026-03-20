@@ -235,4 +235,10 @@ window.deferredPrompt = null;
 
 };
 }
+}
+function clearUpdateNotification(){
+  const notif = document.querySelector(".update-notif");
+  if(notif){
+    notif.remove();
   }
+}
