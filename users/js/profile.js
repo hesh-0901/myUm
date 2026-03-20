@@ -76,30 +76,31 @@ if(isInstalled){
 
 if(navigator.serviceWorker){
 
-navigator.serviceWorker.ready.then(reg=>{
+  navigator.serviceWorker.ready.then(reg=>{
 
-  if(reg.active){
+    if(reg.active){
 
-    reg.active.postMessage("GET_VERSION");
+      reg.active.postMessage("GET_VERSION");
 
-    navigator.serviceWorker.addEventListener("message", event => {
+      navigator.serviceWorker.addEventListener("message", event => {
 
         if(event.data.type === "VERSION"){
-        
+
           const swVersion = event.data.version;
           versionEl.innerText = "Version " + swVersion;
-        
+
           const localVersion = localStorage.getItem("app_version");
-        
-          // 🔥 première fois → on enregistre
+
+          // 🔥 première fois
           if(!localVersion){
             localStorage.setItem("app_version", swVersion);
           }
-        
-          // 🔥 comparaison version
+
+          // ===============================
+          // UPDATE DISPONIBLE
+          // ===============================
           if(localVersion && localVersion !== swVersion){
-        
-            // 🚀 UPDATE DISPONIBLE
+
             btn.innerHTML = `
             <div class="flex items-center gap-3">
               <i class="bi bi-arrow-repeat text-lg"></i>
@@ -108,64 +109,71 @@ navigator.serviceWorker.ready.then(reg=>{
               </span>
             </div>
             `;
-        
-            btn.classList.remove("bg-green-600");
-            btn.classList.add("bg-orange-500");
-        
+
+            btn.classList.remove("bg-green-600","bg-primary");
+            btn.classList.add("bg-accent");
+
             btn.onclick = ()=>{
-              location.reload(true);
+              location.reload();
             };
-        
+
           }
-        
+
+          // ===============================
+          // APP À JOUR
+          // ===============================
           else if(isInstalled){
 
-  // ✅ ÉTAT INITIAL (à jour)
-  btn.innerHTML = `
-  <div class="flex items-center gap-3">
-    <i class="bi bi-check-circle text-lg"></i>
-    <span class="text-sm font-medium">
-      App à jour (${swVersion})
-    </span>
-  </div>
-  `;
+            btn.innerHTML = `
+            <div class="flex items-center gap-3">
+              <i class="bi bi-check-circle text-lg"></i>
+              <span class="text-sm font-medium">
+                App à jour (${swVersion})
+              </span>
+            </div>
+            `;
 
-  btn.classList.remove("from-accent","to-primary");
-  btn.classList.add("bg-primary");
+            btn.classList.remove("from-accent","to-primary","bg-green-600");
+            btn.classList.add("bg-primary");
 
-  // 🔥 CLICK = VÉRIFICATION UPDATE (sans reload)
-  btn.onclick = async ()=>{
+            btn.onclick = async ()=>{
 
-    // ⏳ SPINNER
-    btn.innerHTML = `
-    <div class="flex items-center gap-3">
-      <i class="bi bi-arrow-repeat animate-spin text-lg"></i>
-      <span class="text-sm font-medium">
-        Vérification...
-      </span>
-    </div>
-    `;
+              btn.innerHTML = `
+              <div class="flex items-center gap-3">
+                <i class="bi bi-arrow-repeat animate-spin text-lg"></i>
+                <span class="text-sm font-medium">
+                  Vérification...
+                </span>
+              </div>
+              `;
 
-    await new Promise(r => setTimeout(r, 1500));
+              await new Promise(r => setTimeout(r, 1500));
 
-    // ✅ CONFIRMATION
-    btn.innerHTML = `
-    <div class="flex items-center gap-3">
-      <i class="bi bi-check-circle text-lg"></i>
-      <span class="text-sm font-medium">
-        Application à jour (${swVersion})
-      </span>
-    </div>
-    `;
+              btn.innerHTML = `
+              <div class="flex items-center gap-3">
+                <i class="bi bi-check-circle text-lg"></i>
+                <span class="text-sm font-medium">
+                  Application à jour (${swVersion})
+                </span>
+              </div>
+              `;
 
-    navigator.vibrate?.(30);
+            };
 
-  };
+          }
+
+          // 🔥 sauvegarde version
+          localStorage.setItem("app_version", swVersion);
+
+        }
+
+      });
+
+    }
+
+  });
 
 }
-
-// 🔥 SAUVEGARDE VERSION
-localStorage.setItem("app_version", swVersion);
 
 // ===============================
 // CAPTURE INSTALL EVENT
