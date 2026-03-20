@@ -53,8 +53,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   initPhotoCrop();
 
   // ✅ AJOUT ICI
-  initInstallApp(currentUserId);
-
+initInstallApp({
+  userId: currentUserId,
+  button: document.getElementById("installAppBtn"),
+  modal: document.getElementById("appModal"),
+  modalContent: document.getElementById("modalContent"),
+  closeBtn: document.getElementById("closeAppModal"),
+  installBtn: document.getElementById("installBtn"),
+  versionEl: document.getElementById("appVersion")
 });
 
 // ======================================
