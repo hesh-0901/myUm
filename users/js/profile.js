@@ -62,6 +62,7 @@ initInstallApp({
   installBtn: document.getElementById("installBtn"),
   versionEl: document.getElementById("appVersion")
 });
+});
 
 // ======================================
 // LOAD USER DATA
