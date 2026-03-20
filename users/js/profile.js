@@ -119,34 +119,53 @@ navigator.serviceWorker.ready.then(reg=>{
           }
         
           else if(isInstalled){
-        
-            // ✅ À JOUR
-            btn.innerHTML = `
-            <div class="flex items-center gap-3">
-              <i class="bi bi-check-circle text-lg"></i>
-              <span class="text-sm font-medium">
-                App à jour (${swVersion})
-              </span>
-            </div>
-            `;
-        
-            btn.classList.remove("from-accent","to-primary");
-            btn.classList.add("bg-gray-500");
-        
-          }
-        
-          // 🔥 on sauvegarde la version actuelle
-          localStorage.setItem("app_version", swVersion);
-        
-        }
 
-    });
+  // ✅ ÉTAT INITIAL (à jour)
+  btn.innerHTML = `
+  <div class="flex items-center gap-3">
+    <i class="bi bi-check-circle text-lg"></i>
+    <span class="text-sm font-medium">
+      App à jour (${swVersion})
+    </span>
+  </div>
+  `;
 
-  }
+  btn.classList.remove("from-accent","to-primary");
+  btn.classList.add("bg-primary");
 
-});
+  // 🔥 CLICK = VÉRIFICATION UPDATE (sans reload)
+  btn.onclick = async ()=>{
+
+    // ⏳ SPINNER
+    btn.innerHTML = `
+    <div class="flex items-center gap-3">
+      <i class="bi bi-arrow-repeat animate-spin text-lg"></i>
+      <span class="text-sm font-medium">
+        Vérification...
+      </span>
+    </div>
+    `;
+
+    await new Promise(r => setTimeout(r, 1500));
+
+    // ✅ CONFIRMATION
+    btn.innerHTML = `
+    <div class="flex items-center gap-3">
+      <i class="bi bi-check-circle text-lg"></i>
+      <span class="text-sm font-medium">
+        Application à jour (${swVersion})
+      </span>
+    </div>
+    `;
+
+    navigator.vibrate?.(30);
+
+  };
 
 }
+
+// 🔥 SAUVEGARDE VERSION
+localStorage.setItem("app_version", swVersion);
 
 // ===============================
 // CAPTURE INSTALL EVENT
