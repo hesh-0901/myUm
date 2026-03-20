@@ -51,8 +51,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   initLogout();
   initPhotoCrop();
 
-  initInstallApp(); // 🔥 AJOUT ICI
-
 });
 
 
@@ -409,9 +407,6 @@ function initPhotoCrop() {
   });
 
 }
-
-navigator.vibrate?.(50);
-
 
 // ======================================
 // LOGOUT
