@@ -96,28 +96,38 @@ if(navigator.serviceWorker){
             localStorage.setItem("app_version", swVersion);
           }
 
-          // ===============================
-          // UPDATE DISPONIBLE
-          // ===============================
-          if(localVersion && localVersion !== swVersion){
+// ===============================
+// UPDATE DISPONIBLE
+// ===============================
+if(localVersion && localVersion !== swVersion){
 
-            btn.innerHTML = `
-            <div class="flex items-center gap-3">
-              <i class="bi bi-arrow-repeat text-lg"></i>
-              <span class="text-sm font-medium">
-                Mettre à jour (${swVersion})
-              </span>
-            </div>
-            `;
+  btn.innerHTML = `
+  <div class="flex items-center gap-3">
+    <i class="bi bi-arrow-repeat text-lg"></i>
+    <span class="text-sm font-medium">
+      Mettre à jour (${swVersion})
+    </span>
+  </div>
+  `;
 
-            btn.classList.remove("bg-green-600","bg-primary");
-            btn.classList.add("bg-accent");
+  btn.classList.remove("bg-green-600","bg-primary");
+  btn.classList.add("bg-accent");
 
-            btn.onclick = ()=>{
-              location.reload();
-            };
+  // 🔥 NOTIFICATION (ANTI-SPAM)
+  if(localStorage.getItem("update_notified") !== swVersion){
 
-          }
+    import("/myUm/notifications/update.js").then(module=>{
+      module.pushUpdateNotification(currentUserId, swVersion);
+    });
+
+    localStorage.setItem("update_notified", swVersion);
+  }
+
+  btn.onclick = ()=>{
+    location.reload();
+  };
+
+}
 
           // ===============================
           // APP À JOUR
