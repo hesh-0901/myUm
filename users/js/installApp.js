@@ -224,7 +224,8 @@ modal.classList.remove("flex");
 // INSTALL ACTION
 // ===============================
 
-installBtn?.onclick = async ()=>{
+if(installBtn){
+installBtn.onclick = async ()=>{
 
 if(!window.deferredPrompt){
 alert("Utilisez le menu du navigateur pour installer");
@@ -243,5 +244,4 @@ navigator.vibrate?.(50);
 window.deferredPrompt = null;
 
 };
-
 }
