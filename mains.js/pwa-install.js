@@ -74,3 +74,7 @@ modal?.classList.add("flex");
 function hideModal(){
 modal?.classList.add("hidden");
 }
+
+window.addEventListener("beforeinstallprompt", (e)=>{
+  console.log("🔥 INSTALL EVENT OK");
+});
