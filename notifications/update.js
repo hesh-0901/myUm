@@ -1,37 +1,56 @@
-// ======================================
-// UPDATE NOTIFICATIONS SYSTEM
-// ======================================
+export function pushUpdateNotification(userId, version){
 
-import { db } from "/myUm/mains.js/firebase-config.js";
-import { collection, addDoc, serverTimestamp } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const container = document.getElementById("notifications");
+  if(!container) return;
 
-// ===============================
-// PUSH UPDATE NOTIFICATION
-// ===============================
+  // ❌ éviter doublon
+  if(document.querySelector(".update-notif")) return;
 
-export async function pushUpdateNotification(userId, version){
+  const notif = document.createElement("div");
+  notif.className = `
+  update-notif
+  flex items-center justify-between
+  bg-accent/20 text-white
+  px-4 py-3 rounded-xl mb-2
+  text-sm backdrop-blur
+  animate-fadeIn
+  `;
 
-  try{
+  notif.innerHTML = `
+  <div class="flex items-center gap-2">
+    <i class="bi bi-arrow-repeat"></i>
+    <span>Mise à jour disponible (${version})</span>
+  </div>
 
-    await addDoc(collection(db,"notifications"),{
+  <div class="flex items-center gap-3">
 
-      userId: userId,
-      type: "update",
+    <!-- bouton update -->
+    <button class="update-btn text-xs underline opacity-80 hover:opacity-100">
+      Mettre à jour
+    </button>
 
-      message: `Nouvelle version disponible (${version})`,
+    <!-- corbeille DISCRÈTE -->
+    <button class="delete-btn opacity-40 hover:opacity-80 transition text-xs">
+      <i class="bi bi-trash"></i>
+    </button>
 
-      read: false,
-      createdAt: serverTimestamp()
+  </div>
+  `;
 
-    });
+  container.appendChild(notif);
 
-    console.log("✅ Notification update envoyée");
+  // ===============================
+  // ACTION UPDATE
+  // ===============================
+  notif.querySelector(".update-btn").onclick = ()=>{
+    location.reload();
+  };
 
-  }catch(err){
-
-    console.error("❌ Erreur notif update :", err);
-
-  }
+  // ===============================
+  // SUPPRESSION MANUELLE 🗑️
+  // ===============================
+  notif.querySelector(".delete-btn").onclick = ()=>{
+    notif.remove();
+  };
 
 }
