@@ -82,7 +82,7 @@ ${data.read
 // contenu
 div.innerHTML = `
 <p class="text-soft">
-${data.message || "Notification"}
+${formatNotificationMessage(data)}
 </p>
 
 <p class="text-[10px] text-soft/60 mt-1">
@@ -93,6 +93,20 @@ ${data.createdAt?.toDate().toLocaleString() || ""}
 list.appendChild(div);
 
 });
+
+// ============================
+// FORMAT MESSAGE
+// ============================
+
+function formatNotificationMessage(data){
+
+  if(data.type === "update"){
+    return `🚀 ${data.message}`;
+  }
+
+  return data.message || "Notification";
+
+}
 
 // ============================
 // COUNT
