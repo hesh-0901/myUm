@@ -1,23 +1,16 @@
-// ======================================
-// INSTALL APP MODULE (PROFILE PAGE)
-// ======================================
+export function initInstallApp({
+  userId,
+  button,
+  modal,
+  modalContent,
+  closeBtn,
+  installBtn,
+  versionEl
+}){
 
-export function initInstallApp(currentUserId){
-
-const btn = document.getElementById("installAppBtn");
-const modal = document.getElementById("appModal");
-const content = document.getElementById("modalContent");
-const closeBtn = document.getElementById("closeAppModal");
-const installBtn = document.getElementById("installBtn");
-const versionEl = document.getElementById("appVersion");
-
-if(!btn) return;
+if(!button) return;
 
 let state = "install";
-
-// ===============================
-// DETECTION INSTALL
-// ===============================
 
 const isInstalled =
 window.matchMedia('(display-mode: standalone)').matches
@@ -25,7 +18,7 @@ window.matchMedia('(display-mode: standalone)').matches
 
 
 // ===============================
-// VERSION SERVICE WORKER
+// SERVICE WORKER VERSION
 // ===============================
 
 if(navigator.serviceWorker){
@@ -41,7 +34,7 @@ navigator.serviceWorker.addEventListener("message", event=>{
 if(event.data.type === "VERSION"){
 
 const swVersion = event.data.version;
-versionEl.innerText = "Version " + swVersion;
+if(versionEl) versionEl.innerText = "Version " + swVersion;
 
 const localVersion = localStorage.getItem("app_version");
 
@@ -49,10 +42,7 @@ if(!localVersion){
 localStorage.setItem("app_version", swVersion);
 }
 
-// ===============================
-// DETERMINE STATE
-// ===============================
-
+// STATE
 if(!isInstalled){
 state = "install";
 }
@@ -63,13 +53,8 @@ else{
 state = "upToDate";
 }
 
-// ===============================
-// RENDER
-// ===============================
-
 renderButton(state, swVersion);
 
-// sauvegarde
 localStorage.setItem("app_version", swVersion);
 
 }
@@ -93,7 +78,7 @@ switch(state){
 
 case "install":
 
-btn.innerHTML = `
+button.innerHTML = `
 <div class="flex items-center gap-3">
 <i class="bi bi-download text-lg"></i>
 <span class="text-sm font-medium">
@@ -102,15 +87,15 @@ Télécharger l’application
 </div>
 `;
 
-btn.classList.remove("bg-accent");
-btn.classList.add("bg-primary");
+button.classList.remove("bg-accent");
+button.classList.add("bg-primary");
 
 break;
 
 
 case "update":
 
-btn.innerHTML = `
+button.innerHTML = `
 <div class="flex items-center gap-3">
 <i class="bi bi-arrow-repeat text-lg"></i>
 <span class="text-sm font-medium">
@@ -119,14 +104,13 @@ Mettre à jour (${version})
 </div>
 `;
 
-btn.classList.remove("bg-primary");
-btn.classList.add("bg-accent");
+button.classList.remove("bg-primary");
+button.classList.add("bg-accent");
 
-// notification anti-spam
 if(localStorage.getItem("update_notified") !== version){
 
 import("/myUm/notifications/update.js").then(module=>{
-module.pushUpdateNotification(currentUserId, version);
+module.pushUpdateNotification(userId, version);
 });
 
 localStorage.setItem("update_notified", version);
@@ -137,7 +121,7 @@ break;
 
 case "upToDate":
 
-btn.innerHTML = `
+button.innerHTML = `
 <div class="flex items-center gap-3">
 <i class="bi bi-check-circle text-lg"></i>
 <span class="text-sm font-medium">
@@ -146,8 +130,8 @@ App à jour (${version})
 </div>
 `;
 
-btn.classList.remove("bg-accent");
-btn.classList.add("bg-primary");
+button.classList.remove("bg-accent");
+button.classList.add("bg-primary");
 
 break;
 
@@ -157,21 +141,23 @@ break;
 
 
 // ===============================
-// CLICK HANDLER UNIQUE
+// CLICK HANDLER
 // ===============================
 
-btn.onclick = async ()=>{
+button.onclick = async ()=>{
 
 switch(state){
 
 case "install":
 
+if(!modal) return;
+
 modal.classList.remove("hidden");
 modal.classList.add("flex");
 
 setTimeout(()=>{
-content.classList.remove("scale-90","opacity-0");
-content.classList.add("scale-100","opacity-100");
+modalContent.classList.remove("scale-90","opacity-0");
+modalContent.classList.add("scale-100","opacity-100");
 },10);
 
 break;
@@ -180,13 +166,12 @@ break;
 case "update":
 
 location.reload();
-
 break;
 
 
 case "upToDate":
 
-btn.innerHTML = `
+button.innerHTML = `
 <div class="flex items-center gap-3">
 <i class="bi bi-arrow-repeat animate-spin text-lg"></i>
 <span class="text-sm font-medium">
@@ -197,7 +182,7 @@ Vérification...
 
 await new Promise(r=>setTimeout(r,1200));
 
-btn.innerHTML = `
+button.innerHTML = `
 <div class="flex items-center gap-3">
 <i class="bi bi-check-circle text-lg"></i>
 <span class="text-sm font-medium">
@@ -214,7 +199,7 @@ break;
 
 
 // ===============================
-// MODAL
+// MODAL EVENTS
 // ===============================
 
 closeBtn?.addEventListener("click", closeModal);
@@ -225,7 +210,7 @@ if(e.target === modal) closeModal();
 
 function closeModal(){
 
-content.classList.add("scale-90","opacity-0");
+modalContent.classList.add("scale-90","opacity-0");
 
 setTimeout(()=>{
 modal.classList.add("hidden");
@@ -239,7 +224,7 @@ modal.classList.remove("flex");
 // INSTALL ACTION
 // ===============================
 
-installBtn.onclick = async ()=>{
+installBtn?.onclick = async ()=>{
 
 if(!window.deferredPrompt){
 alert("Utilisez le menu du navigateur pour installer");
