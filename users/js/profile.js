@@ -562,22 +562,6 @@ function initPhotoCrop() {
 
 }
 
-  installBtnMain.innerHTML = `
-  <div class="flex items-center gap-3">
-    <i class="bi bi-check-circle text-lg"></i>
-    <span class="text-sm font-medium">
-      Application installée
-    </span>
-  </div>
-  `;
-
-  installBtnMain.classList.remove("from-accent","to-primary");
-  installBtnMain.classList.add("bg-gray-400");
-
-  installBtnMain.disabled = true;
-
-}
-
 navigator.vibrate?.(50);
 
 
