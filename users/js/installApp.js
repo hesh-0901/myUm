@@ -111,6 +111,8 @@ break;
 
 case "upToDate":
 
+clearUpdateNotification(); // 🔥 AJOUT ICI
+
 button.innerHTML = `
 <div class="flex items-center gap-3">
 <i class="bi bi-check-circle text-lg"></i>
