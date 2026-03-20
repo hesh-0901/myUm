@@ -4,6 +4,7 @@ import { checkAuth } from "./auth-guard.js";
 import { initPresence } from "./presence.js";
 import { initNotifications } from "./notifications.js";
 import { initIncomingCalls } from "./incoming-calls.js";
+import "./pwa-install.js";
 
 /* ============================================================
    BLOC 1 : APP INIT GLOBAL
