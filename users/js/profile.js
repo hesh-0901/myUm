@@ -3,6 +3,7 @@
 // ======================================
 
 import { db } from "../../mains.js/firebase-config.js";
+import { initInstallApp } from "./installApp.js";
 
 import {
   doc,
@@ -51,8 +52,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   initLogout();
   initPhotoCrop();
 
-});
+  // ✅ AJOUT ICI
+  initInstallApp(currentUserId);
 
+});
 
 // ======================================
 // LOAD USER DATA
