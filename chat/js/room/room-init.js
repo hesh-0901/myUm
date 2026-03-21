@@ -20,6 +20,7 @@ import { clearReplyTarget } from "./room-reply.js";
 ============================================================ */
 export async function initRoomCore() {
   try {
+console.log("🚀 initRoomCore lancé");
     /* =========================
        SESSION
     ========================= */
@@ -117,7 +118,6 @@ export async function initRoomCore() {
     });
 
   } catch (error) {
-    console.error("initRoomCore error:", error);
-    alert("Erreur room : " + (error?.message || error));
-  }
+  console.error("🔥 ERREUR ROOM :", error);
+  alert("🔥 " + (error?.message || error));
 }
