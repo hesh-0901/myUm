@@ -113,6 +113,22 @@ const messageMenuOverlay = document.getElementById("messageMenuOverlay");
 const copyActionBtn = document.getElementById("copyActionBtn");
 const editActionBtn = document.getElementById("editActionBtn");
 
+const moreReactionBtn = document.getElementById("moreReactionBtn");
+const reactionPickerPanel = document.getElementById("reactionPickerPanel");
+const reactionPickerMount = document.getElementById("reactionPickerMount");
+
+const quickReactionsRow = document.getElementById("quickReactionsRow");
+
+const closeMessageMenuBtn = document.getElementById("closeMessageMenuBtn");
+const reactionBtns = document.querySelectorAll(".reactionBtn");
+
+const replyActionBtn = document.getElementById("replyActionBtn");
+const pinActionBtn = document.getElementById("pinActionBtn");
+const forwardActionBtn = document.getElementById("forwardActionBtn");
+const downloadActionBtn = document.getElementById("downloadActionBtn");
+
+const deleteMineActionBtn = document.getElementById("deleteMineActionBtn");
+const deleteAllActionBtn = document.getElementById("deleteAllActionBtn");
 /* ============================================================
    BLOC 4 : NAVIGATION
 ============================================================ */
