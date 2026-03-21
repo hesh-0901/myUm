@@ -8,7 +8,12 @@ export function getRoomDom() {
     messagesWrapper: document.getElementById("messagesWrapper"),
     messageInput: document.getElementById("messageInput"),
     sendBtn: document.getElementById("sendBtn"),
-    sendBtnIcon: document.getElementById("sendBtnIcon")
+    sendBtnIcon: document.getElementById("sendBtnIcon"),
+
+    // ✅ AJOUT ICI (CORRECT)
+    replyPreview: document.getElementById("replyPreview"),
+    replyPreviewText: document.getElementById("replyPreviewText"),
+    cancelReplyBtn: document.getElementById("cancelReplyBtn")
   };
 }
 
@@ -29,7 +34,3 @@ export function renderRoomAvatar(roomAvatar, photoURL, initials) {
     roomAvatar.appendChild(img);
   };
 }
-
-replyPreview: document.getElementById("replyPreview"),
-replyPreviewText: document.getElementById("replyPreviewText"),
-cancelReplyBtn: document.getElementById("cancelReplyBtn"),
