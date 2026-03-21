@@ -1,123 +1,95 @@
-import { db } from "../mains.js/firebase-config.js";
+// chat/js/room-init.js
 
+import { db } from "../../mains.js/firebase-config.js";
 import {
   doc,
-  collection,
   getDoc,
-  setDoc,
-  serverTimestamp
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-import { getRoomDom } from "./room-ui.js";
-import { listenMessages } from "./room-messages.js";
-import { sendTextMessage } from "./room-send.js";
-
-import { bindSmartSend } from "./room-voice.js";
-import { clearReplyTarget } from "./room-reply.js";
+import {
+  getRoomDom,
+  renderRoomAvatar,
+  bindSmartButton
+} from "./room-ui.js";
 
 /* ============================================================
-   INIT CORE
+   SESSION
 ============================================================ */
-export async function initRoomCore() {
+function getCurrentUser() {
   try {
-console.log("🚀 initRoomCore lancé");
-    /* =========================
-       SESSION
-    ========================= */
-    const currentUser = JSON.parse(localStorage.getItem("myum_user"));
-    const myId = currentUser?.id;
+    return JSON.parse(localStorage.getItem("myum_user"));
+  } catch {
+    return null;
+  }
+}
 
-    if (!myId) {
-      alert("Session invalide");
-      window.location.href = "../users/login.html";
-      return;
-    }
+const currentUser = getCurrentUser();
+const myId = currentUser?.id;
 
-    /* =========================
-       PARAMS
-    ========================= */
-    const params = new URLSearchParams(window.location.search);
-    const friendId = params.get("uid");
+/* ============================================================
+   PARAMS
+============================================================ */
+const params = new URLSearchParams(window.location.search);
+const friendId = params.get("uid");
 
-    if (!friendId) {
-      alert("Aucun utilisateur");
-      window.location.href = "index.html";
-      return;
-    }
+/* ============================================================
+   INIT GLOBAL
+============================================================ */
+export async function initRoomCore({
+  onSendText,
+  onOpenRecorder,
+  onMessagesSnapshot
+}) {
+  const dom = getRoomDom();
 
-    /* =========================
-       CHAT ID
-    ========================= */
-    const chatId = `chat_${[myId, friendId].sort().join("_")}`;
+  if (!myId || !friendId) {
+    alert("Session invalide");
+    window.location.href = "../users/login.html";
+    return;
+  }
 
-    const chatRef = doc(db, "chats", chatId);
-    const messagesRef = collection(db, "chats", chatId, "messages");
+  /* ================= NAV ================= */
+  dom.backBtn?.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
 
-    /* =========================
-       DOM
-    ========================= */
-    const dom = getRoomDom();
+  dom.voiceCallBtn?.addEventListener("click", () => {
+    window.location.href = `call-voice.html?uid=${friendId}&mode=caller`;
+  });
 
-    /* =========================
-       ENSURE CHAT
-    ========================= */
-    const snap = await getDoc(chatRef);
+  /* ================= SMART BUTTON ================= */
+  bindSmartButton(dom, onSendText, onOpenRecorder);
 
-    if (!snap.exists()) {
-      await setDoc(chatRef, {
-        participants: [myId, friendId],
-        lastMessage: "",
-        lastSenderId: "",
-        lastMessageAt: serverTimestamp(),
-        unreadCount: {
-          [myId]: 0,
-          [friendId]: 0
-        },
-        createdAt: serverTimestamp()
-      });
-    }
+  /* ================= USER INFO ================= */
+  await loadFriend(dom);
 
-    /* =========================
-       LISTEN MESSAGES
-    ========================= */
-    listenMessages(messagesRef, dom.messagesEl, myId);
+  /* ================= LISTENER MESSAGES ================= */
+  onMessagesSnapshot?.(dom);
+}
 
-    /* =========================
-       SMART SEND (IMPORTANT)
-    ========================= */
-    bindSmartSend(
-      dom,
+/* ============================================================
+   LOAD FRIEND
+============================================================ */
+async function loadFriend(dom) {
+  const snap = await getDoc(doc(db, "users", friendId));
 
-      // SEND TEXT
-      async () => {
-        const text = dom.messageInput.value.trim();
-        if (!text) return;
+  if (!snap.exists()) return;
 
-        await sendTextMessage({
-          messagesRef,
-          chatRef,
-          friendId,
-          myId,
-          text
-        });
+  const u = snap.data();
 
-        dom.messageInput.value = "";
-      },
+  const name =
+    `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+    u.username ||
+    "Utilisateur";
 
-      // OPEN VOICE
-      () => {
-        alert("🎤 Voice bientôt activé (phase 3)");
-      }
-    );
+  dom.roomTitle.textContent = name;
 
-    /* =========================
-       CANCEL REPLY
-    ========================= */
-    dom.cancelReplyBtn?.addEventListener("click", () => {
-      clearReplyTarget(dom);
-    });
+  const initials =
+    `${(u.firstName?.[0] || "")}${(u.lastName?.[0] || "")}`.toUpperCase() || "U";
 
-  } catch (error) {
-  console.error("🔥 ERREUR ROOM :", error);
-  alert("🔥 " + (error?.message || error));
+  renderRoomAvatar(dom.roomAvatar, u.photoURL, initials);
+
+  /* présence simple */
+  dom.roomSub.textContent = "En ligne";
 }
