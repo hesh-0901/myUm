@@ -1,17 +1,54 @@
+async function initRoom() {
+  alert("1");
 
+  await guardFriendship();
+  alert("2");
 
-//console.log("CHAT ROOM JS LOADED");
-//import { initRoomCore } from "./room-init.js";
+  await ensureChatDocument();
+  alert("3");
 
-//initRoomCore({
- // onSendText: sendTextMessage,
-  //onOpenRecorder: openVoiceRecorder,
- // onMessagesSnapshot: listenMessages
-//});
-alert("INIT START");
+  bindComposerEvents();
+  alert("4");
 
-initRoom().then(() => {
-  alert("INIT SUCCESS");
-}).catch((e) => {
-  alert("INIT ERROR: " + e.message);
-});
+  bindScrollTracking();
+  alert("5");
+
+  bindScrollButton();
+  alert("6");
+
+  bindAttachments();
+  alert("7");
+
+  bindVoiceRecorder();
+  alert("8");
+
+  bindMessageMenu();
+  alert("9");
+
+  bindReplyUi();
+  alert("10");
+
+  initEmojiSystems();
+  alert("11");
+
+  renderQuickReactionButtons();
+  alert("12");
+
+  listenChatMeta();
+  alert("13");
+
+  listenFriendProfileAndPresence();
+  alert("14");
+
+  listenTypingState();
+  alert("15");
+
+  listenMessages();
+  alert("16");
+
+  await markDeliveredReadAndResetUnread();
+  alert("17");
+
+  await updateChatReadMeta();
+  alert("18");
+}
