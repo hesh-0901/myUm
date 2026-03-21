@@ -1,3 +1,4 @@
+console.log("CHAT ROOM JS LOADED");
 import { initRoomCore } from "./room-init.js";
 
 initRoomCore({
