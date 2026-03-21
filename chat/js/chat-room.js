@@ -1,3 +1,7 @@
-import { initRoomCore } from "./room/room-init.js";
+import { initRoomCore } from "./room-init.js";
 
-initRoomCore();
+initRoomCore({
+  onSendText: sendTextMessage,
+  onOpenRecorder: openVoiceRecorder,
+  onMessagesSnapshot: listenMessages
+});
