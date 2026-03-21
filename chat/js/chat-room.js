@@ -4,7 +4,7 @@ alert("CHAT ROOM START");
 //import { initRoomCore } from "./room-init.js";
 
 //initRoomCore({
-  onSendText: sendTextMessage,
-  onOpenRecorder: openVoiceRecorder,
-  onMessagesSnapshot: listenMessages
+ // onSendText: sendTextMessage,
+  //onOpenRecorder: openVoiceRecorder,
+ // onMessagesSnapshot: listenMessages
 //});
