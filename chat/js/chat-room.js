@@ -8,3 +8,10 @@ alert("CHAT ROOM START");
   //onOpenRecorder: openVoiceRecorder,
  // onMessagesSnapshot: listenMessages
 //});
+alert("INIT START");
+
+initRoom().then(() => {
+  alert("INIT SUCCESS");
+}).catch((e) => {
+  alert("INIT ERROR: " + e.message);
+});
