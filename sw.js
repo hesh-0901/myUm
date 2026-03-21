@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v1.35.6.0.1"; /*Enoch MWALIMU
+const VERSION = "v1.35.6.0.2"; /*Enoch MWALIMU
 découpage chat-room.js : fixing bugs d'affichage*/
 
 const CACHE_STATIC = "myum-static-" + VERSION;
