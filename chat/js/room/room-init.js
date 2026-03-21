@@ -1,4 +1,4 @@
-import { db } from "../../../mains.js/firebase-config.js";
+import { db } from "../mains.js/firebase-config.js";
 
 import {
   doc,
