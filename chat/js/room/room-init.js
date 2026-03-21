@@ -1,6 +1,6 @@
 // chat/js/room-init.js
 
-import { db } from "../../mains.js/firebase-config.js";
+import { db } from "/myUm/mains.js/firebase-config.js";
 import {
   doc,
   getDoc,
