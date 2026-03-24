@@ -90,12 +90,45 @@ countHEl.textContent = countH;
 countFEl.textContent = countF;
 countNMEl.textContent = countNM;
 
-
-// ================= RENDER CHORALES (STYLE AMÉLIORÉ)
+// ================= RENDER CHORALES (STYLE PRO)
 
 choraleContainer.innerHTML = "";
 
-Object.entries(chorales).forEach(([name,data]) => {
+// mapping noms complets
+const choraleNames = {
+PC: "Prophetic Choir",
+WS: "Wake Up Song",
+VN: "Vent Nouveau",
+IN: "Instrumentiste",
+AD: "Administration",
+GT: "Visiteur"
+};
+
+// couleurs fixes (plus propre que random)
+const choraleStyles = {
+PC: "bg-blue-100 text-blue-600",
+WS: "bg-green-100 text-green-600",
+VN: "bg-purple-100 text-purple-600",
+IN: "bg-yellow-100 text-yellow-600",
+AD: "bg-red-100 text-red-600",
+GT: "bg-gray-200 text-gray-600"
+};
+
+// icônes adaptées
+const choraleIcons = {
+PC: "bi-mic-fill",
+WS: "bi-music-note-list",
+VN: "bi-wind",
+IN: "bi-music-note-beamed",
+AD: "bi-gear-fill",
+GT: "bi-person"
+};
+
+Object.entries(chorales).forEach(([code,data]) => {
+
+const name = choraleNames[code] || code;
+const style = choraleStyles[code] || "bg-gray-100 text-gray-600";
+const icon = choraleIcons[code] || "bi-music-note";
 
 const card = document.createElement("div");
 
@@ -111,33 +144,41 @@ transition
 active:scale-95
 `;
 
-// petit effet couleur aléatoire soft
-const colors = [
-"bg-blue-100 text-blue-600",
-"bg-green-100 text-green-600",
-"bg-purple-100 text-purple-600",
-"bg-yellow-100 text-yellow-600"
-];
-
-const randomColor = colors[Math.floor(Math.random()*colors.length)];
+// petit pourcentage visuel (bonus UX)
+const percent = Math.round((data.count / totalUsersEl.textContent) * 100) || 0;
 
 card.innerHTML = `
 
 <div class="flex items-center gap-3">
 
-<div class="w-10 h-10 rounded-xl flex items-center justify-center ${randomColor}">
-<i class="bi bi-music-note-beamed"></i>
+<div class="w-11 h-11 rounded-2xl flex items-center justify-center ${style}">
+<i class="bi ${icon} text-lg"></i>
 </div>
 
-<div>
-<p class="text-sm font-medium text-gray-700">${name}</p>
-<p class="text-xs text-gray-400">Chorale</p>
-</div>
+<div class="flex flex-col">
+
+<p class="text-sm font-semibold text-gray-800">
+${name}
+</p>
+
+<p class="text-xs text-gray-400">
+${percent}% des choristes
+</p>
 
 </div>
 
-<div class="text-lg font-semibold text-primary">
+</div>
+
+<div class="text-right">
+
+<p class="text-lg font-semibold text-primary">
 ${data.count}
+</p>
+
+<p class="text-xs text-gray-400">
+membres
+</p>
+
 </div>
 
 `;
