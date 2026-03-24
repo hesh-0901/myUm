@@ -10,15 +10,6 @@ getDocs
 // LOAD PARTIALS
 // ======================================
 
-async function loadPartials(){
-
-const nav = await fetch("/myUm/partials/nav.html").then(r=>r.text());
-document.getElementById("nav").innerHTML = nav;
-
-await import("/myUm/partials/js/nav.js");
-}
-
-loadPartials();
 
 
 // ======================================
@@ -127,13 +118,6 @@ const percent = total > 0
   ? Math.round((data.count / total) * 100) 
   : 0;
 
-  // ✅ DEBUG ICI (BON ENDROIT)
-console.log({
-  chorale: name,
-  count: data.count,
-  total,
-  percent
-});
 const card = document.createElement("div");
 
 card.className = `
@@ -195,6 +179,14 @@ card.innerHTML = `
 choraleContainer.appendChild(card);
 
 const bar = card.querySelector(".progress-bar");
+
+if(bar){
+  bar.style.transition = "width 0.8s ease";
+
+  requestAnimationFrame(() => {
+    bar.style.width = percent + "%";
+  });
+}
 
 // 👉 AJOUT ICI
 bar.style.transition = "width 0.8s ease";
