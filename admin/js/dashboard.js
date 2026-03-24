@@ -5,6 +5,7 @@ collection,
 getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+
 // ======================================
 // LOAD PARTIALS
 // ======================================
@@ -32,7 +33,7 @@ loadPartials();
 
 const totalUsersEl = document.getElementById("totalUsers");
 const countHEl = document.getElementById("countH");
-const countMEl = document.getElementById("countM");
+const countFEl = document.getElementById("countM");
 const countNMEl = document.getElementById("countNM");
 const choraleContainer = document.getElementById("choraleContainer");
 
@@ -50,7 +51,7 @@ const snap = await getDocs(collection(db,"users"));
 let total = 0;
 
 let countH = 0;
-let countM = 0;
+let countF = 0;
 let countNM = 0;
 
 const chorales = {};
@@ -63,45 +64,82 @@ if(user.role !== "choriste") return;
 
 total++;
 
-// ================= GENRE
-const genre = user.genre || "NM";
+const genre = (user.genre || "").toUpperCase();
 
 if(genre === "H") countH++;
-else if(genre === "M") countM++;
+else if(genre === "M" || genre === "F") countF++;
 else countNM++;
 
-// ================= CHORALE
 const chorale = user.chorale || "Inconnue";
 
 if(!chorales[chorale]){
-chorales[chorale] = 0;
+chorales[chorale] = {
+count:0
+};
 }
 
-chorales[chorale]++;
+chorales[chorale].count++;
 
 });
+
 
 // ================= UPDATE UI
 
 totalUsersEl.textContent = total;
 countHEl.textContent = countH;
-countMEl.textContent = countM;
+countFEl.textContent = countF;
 countNMEl.textContent = countNM;
 
 
-// ================= RENDER CHORALES
+// ================= RENDER CHORALES (STYLE AMÉLIORÉ)
 
 choraleContainer.innerHTML = "";
 
-Object.entries(chorales).forEach(([name,count]) => {
+Object.entries(chorales).forEach(([name,data]) => {
 
 const card = document.createElement("div");
 
-card.className = "bg-white rounded-3xl shadow-sm p-4 flex justify-between items-center";
+card.className = `
+bg-white
+rounded-3xl
+shadow-sm
+p-4
+flex
+items-center
+justify-between
+transition
+active:scale-95
+`;
+
+// petit effet couleur aléatoire soft
+const colors = [
+"bg-blue-100 text-blue-600",
+"bg-green-100 text-green-600",
+"bg-purple-100 text-purple-600",
+"bg-yellow-100 text-yellow-600"
+];
+
+const randomColor = colors[Math.floor(Math.random()*colors.length)];
 
 card.innerHTML = `
-<span class="text-sm text-gray-600">${name}</span>
-<span class="text-lg font-semibold text-primary">${count}</span>
+
+<div class="flex items-center gap-3">
+
+<div class="w-10 h-10 rounded-xl flex items-center justify-center ${randomColor}">
+<i class="bi bi-music-note-beamed"></i>
+</div>
+
+<div>
+<p class="text-sm font-medium text-gray-700">${name}</p>
+<p class="text-xs text-gray-400">Chorale</p>
+</div>
+
+</div>
+
+<div class="text-lg font-semibold text-primary">
+${data.count}
+</div>
+
 `;
 
 choraleContainer.appendChild(card);
