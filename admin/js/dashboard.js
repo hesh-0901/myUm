@@ -207,7 +207,7 @@ bar.style.transition = "width 0.8s ease";
 
 requestAnimationFrame(() => {
   bar.style.width = percent + "%";
-}, 100);
+});
   
 });
 
