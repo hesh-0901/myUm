@@ -50,11 +50,17 @@ if(user.role !== "choriste") return;
 
 total++;
 
-const genre = (user.genre || "").toUpperCase();
+const genre = (user.genre || "").toLowerCase();
 
-if(genre === "H") countH++;
-else if(genre === "M" || genre === "F") countF++;
-else countNM++;
+if (genre === "homme" || genre === "h") {
+  countH++;
+}
+else if (genre === "femme" || genre === "f" || genre === "m") {
+  countF++;
+}
+else {
+  countNM++;
+}
 
 const chorale = user.chorale || "Inconnue";
 
