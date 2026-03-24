@@ -200,7 +200,10 @@ choraleContainer.appendChild(card);
 
 const bar = card.querySelector(".progress-bar");
 
-setTimeout(() => {
+// 👉 AJOUT ICI
+bar.style.transition = "width 0.8s ease";
+
+requestAnimationFrame(() => {
   bar.style.width = percent + "%";
 }, 100);
   
