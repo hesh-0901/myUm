@@ -175,7 +175,9 @@ card.innerHTML = `
 
     <!-- PROGRESS BAR -->
       <div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
-        <div class="progress-bar bg-gradient-to-r from-[#2596D9] to-[#3FA9F5] h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+        <div class="progress-bar h-2 rounded-full" 
+     style="width:0%; display:block; background: linear-gradient(to right, #2596D9, #3FA9F5);">
+</div>
       </div>
 
   </div>
