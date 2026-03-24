@@ -66,11 +66,25 @@ const chorale = user.chorale || "Inconnue";
 
 if(!chorales[chorale]){
 chorales[chorale] = {
-count:0
+  count: 0,
+  H: 0,
+  F: 0,
+  NM: 0
 };
 }
 
 chorales[chorale].count++;
+
+// gestion genre par chorale
+if (genre === "homme" || genre === "h") {
+  chorales[chorale].H++;
+}
+else if (genre === "femme" || genre === "f" || genre === "m") {
+  chorales[chorale].F++;
+}
+else {
+  chorales[chorale].NM++;
+}
 
 });
 
@@ -154,9 +168,25 @@ card.innerHTML = `
       ${name}
     </p>
 
-    <p class="text-xs text-gray-400">
-      ${percent}% des choristes
-    </p>
+        <p class="text-xs text-gray-400">
+          ${percent}% des choristes
+        </p>
+        
+        <div class="flex gap-3 mt-2 text-xs text-gray-500">
+        
+          <span class="text-green-600 font-medium">
+            H: ${data.H}
+          </span>
+        
+          <span class="text-pink-600 font-medium">
+            F: ${data.F}
+          </span>
+        
+          <span class="text-gray-500 font-medium">
+            NM: ${data.NM}
+          </span>
+        
+        </div>
 
     <!-- PROGRESS BAR -->
       <div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
