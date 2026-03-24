@@ -16,12 +16,6 @@ const nav = await fetch("/myUm/partials/nav.html").then(r=>r.text());
 document.getElementById("nav").innerHTML = nav;
 
 await import("/myUm/partials/js/nav.js");
-
-const nav = await fetch("/myUm/partials/nav.html").then(r=>r.text());
-document.getElementById("nav").innerHTML = nav;
-
-await import("/myUm/partials/js/nav.js");
-
 }
 
 loadPartials();
