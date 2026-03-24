@@ -12,10 +12,10 @@ getDocs
 
 async function loadPartials(){
 
-const header = await fetch("/myUm/partials/header-back.html").then(r=>r.text());
-document.getElementById("header").innerHTML = header;
+const nav = await fetch("/myUm/partials/nav.html").then(r=>r.text());
+document.getElementById("nav").innerHTML = nav;
 
-await import("/myUm/partials/js/back-header.js");
+await import("/myUm/partials/js/nav.js");
 
 const nav = await fetch("/myUm/partials/nav.html").then(r=>r.text());
 document.getElementById("nav").innerHTML = nav;
