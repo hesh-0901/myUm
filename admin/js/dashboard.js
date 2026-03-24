@@ -129,7 +129,8 @@ Object.entries(chorales).forEach(([code,data]) => {
 const name = choraleNames[code] || code;
 const style = choraleStyles[code] || "bg-gray-100 text-gray-600";
 const icon = choraleIcons[code] || "bi-music-note";
-
+const total = parseInt(totalUsersEl.textContent) || 1;
+const percent = Math.round((data.count / total) * 100);
 const card = document.createElement("div");
 
 card.className = `
@@ -151,40 +152,38 @@ card.innerHTML = `
 
 <div class="flex items-center gap-3">
 
-<div class="w-11 h-11 rounded-2xl flex items-center justify-center ${style}">
-<i class="bi ${icon} text-lg"></i>
-</div>
+  <div class="w-11 h-11 rounded-2xl flex items-center justify-center ${style}">
+    <i class="bi ${icon} text-lg"></i>
+  </div>
 
-<div class="flex flex-col w-full">
+  <div class="flex flex-col w-full">
 
-<p class="text-sm font-semibold text-gray-800">
-${name}
-</p>
+    <p class="text-sm font-semibold text-gray-800">
+      ${name}
+    </p>
 
-<p class="text-xs text-gray-400">
-${percent}% des choristes
-</p>
+    <p class="text-xs text-gray-400">
+      ${percent}% des choristes
+    </p>
 
-<!-- PROGRESS BAR -->
-<div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
-  <div style="width: ${percent}%" class="bg-gradient-to-r from-[#2596D9] to-[#3FA9F5] h-2 rounded-full transition-all"></div>
-</div>
+    <!-- PROGRESS BAR -->
+    <div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
+      <div style="width: ${percent}%" class="bg-gradient-to-r from-[#2596D9] to-[#3FA9F5] h-2 rounded-full transition-all"></div>
+    </div>
 
-</div>
-
-</div>
+  </div>
 
 </div>
 
 <div class="text-right">
 
-<p class="text-lg font-semibold text-primary">
-${data.count}
-</p>
+  <p class="text-lg font-semibold text-primary">
+    ${data.count}
+  </p>
 
-<p class="text-xs text-gray-400">
-membres
-</p>
+  <p class="text-xs text-gray-400">
+    membres
+  </p>
 
 </div>
 
