@@ -129,8 +129,6 @@ Object.entries(chorales).forEach(([code,data]) => {
 const name = choraleNames[code] || code;
 const style = choraleStyles[code] || "bg-gray-100 text-gray-600";
 const icon = choraleIcons[code] || "bi-music-note";
-const total = parseInt(totalUsersEl.textContent) || 1;
-const percent = Math.round((data.count / total) * 100);
 const card = document.createElement("div");
 
 card.className = `
