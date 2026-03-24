@@ -174,9 +174,9 @@ card.innerHTML = `
     </p>
 
     <!-- PROGRESS BAR -->
-    <div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
-      <div style="width: ${percent}%" class="bg-gradient-to-r from-[#2596D9] to-[#3FA9F5] h-2 rounded-full transition-all"></div>
-    </div>
+      <div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
+        <div class="progress-bar bg-gradient-to-r from-[#2596D9] to-[#3FA9F5] h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+      </div>
 
   </div>
 
@@ -198,6 +198,12 @@ card.innerHTML = `
 
 choraleContainer.appendChild(card);
 
+const bar = card.querySelector(".progress-bar");
+
+setTimeout(() => {
+  bar.style.width = percent + "%";
+}, 100);
+  
 });
 
 }catch(err){
