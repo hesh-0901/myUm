@@ -132,6 +132,14 @@ const icon = choraleIcons[code] || "bi-music-note";
 const percent = total > 0 
   ? Math.round((data.count / total) * 100) 
   : 0;
+
+  // ✅ DEBUG ICI (BON ENDROIT)
+console.log({
+  chorale: name,
+  count: data.count,
+  total,
+  percent
+});
 const card = document.createElement("div");
 
 card.className = `
@@ -201,11 +209,6 @@ alert("Erreur chargement dashboard");
 
 }
 
-console.log({
-  chorale: name,
-  count: data.count,
-  total,
-  percent
-});
-
 loadDashboard();
+
+
