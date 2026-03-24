@@ -155,7 +155,7 @@ card.innerHTML = `
 <i class="bi ${icon} text-lg"></i>
 </div>
 
-<div class="flex flex-col">
+<div class="flex flex-col w-full">
 
 <p class="text-sm font-semibold text-gray-800">
 ${name}
@@ -164,6 +164,13 @@ ${name}
 <p class="text-xs text-gray-400">
 ${percent}% des choristes
 </p>
+
+<!-- PROGRESS BAR -->
+<div class="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
+  <div style="width: ${percent}%" class="bg-gradient-to-r from-[#2596D9] to-[#3FA9F5] h-2 rounded-full transition-all"></div>
+</div>
+
+</div>
 
 </div>
 
