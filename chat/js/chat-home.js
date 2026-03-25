@@ -75,9 +75,16 @@ friendsCardBtn?.addEventListener("click", () => {
 /* ============================================================
    BLOC 5 : INIT
 ============================================================ */
+
 init();
 
-function init() {
+async function init() {
+  console.log("HOME INIT START");
+
+  await checkMaintenance(myId); // 🔥 TRÈS IMPORTANT
+
+  console.log("MAINTENANCE PASSED");
+
   listenChats();
   listenFriendRequestsBadge();
 
