@@ -22,3 +22,4 @@ export async function checkMaintenance(myId) {
     console.error("Maintenance check error:", e);
   }
 }
+console.log("MAINTENANCE CHECK RUNNING");
