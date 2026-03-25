@@ -1,3 +1,4 @@
+import { checkMaintenance } from "./maintenance-check.js";
 async function initRoom() {
   alert("1");
 
