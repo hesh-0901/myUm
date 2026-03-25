@@ -1,6 +1,7 @@
 import { checkMaintenance } from "./maintenance-check.js";
 async function initRoom() {
   alert("1");
+  await checkMaintenance(myId);
 
   await guardFriendship();
   alert("2");
