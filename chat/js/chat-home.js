@@ -1,4 +1,5 @@
 // chat/js/chat-home.js
+import { checkMaintenance } from "./maintenance-check.js";
 
 import { db } from "../../mains.js/firebase-config.js";
 import {
