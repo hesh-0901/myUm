@@ -14,7 +14,7 @@ export async function checkMaintenance(myId) {
     /* ⚠️ TOI = ADMIN */
     const ADMIN_ID = "TON_ID_ICI";
 
-    if (isMaintenance && myId !== ADMIN_ID) {
+    if (true) {
       window.location.href = "../maintenance.html";
     }
 
