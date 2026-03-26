@@ -8,7 +8,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script type="module">
+  import { db } from "../mains.js/firebase-config.js";
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  async function blockIfMaintenance() {
+    try {
+      const user = JSON.parse(localStorage.getItem("myum_user"));
+      const myId = user?.id;
+
+      const snap = await getDoc(doc(db, "config", "app"));
+
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+
+      const isMaintenance = data.chatMaintenance === true;
+
+      const ADMIN_ID = "TON_ID";
+
+      if (isMaintenance && myId !== ADMIN_ID) {
+        window.location.href = "/myUm/chat/maintenance.html";
+      }
+
+    } catch (e) {
+      console.error("Maintenance check fail:", e);
+    }
+  }
+
+  await blockIfMaintenance();
+</script>
   <script>
     tailwind.config = {
       theme: {
