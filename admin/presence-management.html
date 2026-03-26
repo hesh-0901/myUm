@@ -5,39 +5,66 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Présences - MyUm</title>
+<title>Salons de présence - MyUm</title>
 
-<link rel="icon" href="/myUm/assets/favicon.png">
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<!-- Favicon -->
+<link rel="icon" href="/myUm/assets/favicon.png">
+
+<!-- Theme -->
+<meta name="theme-color" content="#1A3668">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary:'#1A3668',
+        medium:'#2596D9',
+        lightblue:'#3FA9F5',
+        danger:'#DC2626'
+      }
+    }
+  }
+}
+</script>
 
 </head>
 
 <body class="bg-gray-100 flex justify-center overflow-x-hidden">
 
+<!-- APP CONTAINER -->
 <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
+<!-- HEADER -->
 <header id="header-back"></header>
 
-<main class="flex-1 overflow-y-auto px-4 pt-20 pb-6 space-y-5">
+<!-- MAIN -->
+<main class="flex-1 overflow-y-auto px-4 pt-20 pb-6 space-y-6">
 
-<!-- TOP BAR ACTIONS -->
+<!-- TOP BAR -->
 <div class="flex items-center justify-between">
 
 <p class="text-lg font-semibold text-gray-800">
-Présences
+Salons
 </p>
 
-<div class="flex items-center gap-3">
+<div class="flex items-center gap-4">
 
-<button id="searchBtn" class="text-gray-500 text-lg">
+<button id="searchBtn" class="text-gray-500 text-lg active:scale-95 transition">
 <i class="bi bi-search"></i>
 </button>
 
-<button id="filterBtn" class="text-gray-500 text-lg">
+<button id="filterBtn" class="text-gray-500 text-lg active:scale-95 transition">
 <i class="bi bi-funnel"></i>
 </button>
 
-<button id="sortBtn" class="text-gray-500 text-lg">
+<button id="sortBtn" class="text-gray-500 text-lg active:scale-95 transition">
 <i class="bi bi-sort-down"></i>
 </button>
 
@@ -45,33 +72,37 @@ Présences
 
 </div>
 
-<!-- SEARCH BAR (HIDDEN) -->
+<!-- SEARCH BAR -->
 <div id="searchContainer" class="hidden">
 <input
 type="text"
 id="searchInput"
-placeholder="Rechercher..."
+placeholder="Rechercher un salon..."
 class="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-primary text-sm">
 </div>
 
-<!-- INFOS SALON -->
-<div id="roomInfo" class="bg-white rounded-3xl shadow-sm p-4 space-y-1">
-<p class="text-sm text-gray-500">Chargement...</p>
+<!-- LISTE DES SALONS -->
+<div id="roomsList" class="space-y-3">
+
+<!-- LOADING STATE -->
+<div class="bg-white rounded-3xl shadow-sm p-4 flex items-center justify-between">
+
+<div class="space-y-1">
+<p class="text-sm font-medium text-gray-400">Chargement...</p>
+<p class="text-xs text-gray-300">Veuillez patienter</p>
 </div>
 
-<!-- COMPTEUR -->
-<div class="bg-white rounded-3xl shadow-sm p-4 flex justify-between items-center">
-<p class="text-sm text-gray-600">Présents</p>
-<p id="totalCount" class="text-lg font-semibold">0</p>
+<div class="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+
 </div>
 
-<!-- LISTE -->
-<div id="presenceList" class="space-y-3"></div>
+</div>
 
 </main>
 
 </div>
 
+<!-- SCRIPTS -->
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
 <script type="module" src="/myUm/admin/js/presence-details.js"></script>
 <script type="module" src="/myUm/partials/js/back-header.js"></script>
