@@ -82,7 +82,7 @@ init();
 async function init() {
   console.log("HOME INIT START");
 
-  await checkMaintenance(myId); // 🔥 TRÈS IMPORTANT
+  await checkMaintenance(DZapCVzzXOmcazOyuod9); // 🔥 TRÈS IMPORTANT
 
   console.log("MAINTENANCE PASSED");
 
