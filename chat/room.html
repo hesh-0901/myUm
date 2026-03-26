@@ -341,9 +341,9 @@
 
       const isMaintenance = data.chatMaintenance === true;
 
-      const ADMIN_ID = "TON_ID";
+      const ADMIN_ID = "DZapCVzzXOmcazOyuod9";
 
-      if (isMaintenance && myId !== ADMIN_ID) {
+      if (isMaintenance && myId !== DZapCVzzXOmcazOyuod9) {
         window.location.href = "/myUm/chat/maintenance.html";
       }
 
@@ -355,7 +355,7 @@
   await blockIfMaintenance();
 </script>
     <script type="module" src="../mains.js/app-init.js"></script>
-    
+    <script type="module" src="../chat/js/chat-room.js"></script>
    
     <script>
   alert("JS LOADED");
