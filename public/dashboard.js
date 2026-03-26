@@ -172,7 +172,7 @@ if(label) label.innerText = participation + "%";
 function initQuickActions(){
 
 const routes={
-btnMessage:"../chat/index.html",
+btnMessage:"../chat/maintenance.html",
 btnAgenda:"../agenda/index.html",
 btnPublication:"../annonce/index.html",
 btnPresenceRoom:"../users/presence.html",
