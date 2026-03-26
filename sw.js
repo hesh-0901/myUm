@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v1.35.6.1.2.1"; /*Enoch MWALIMU
+const VERSION = "v1.35.6.1.2.2"; /*Enoch MWALIMU
 découpage chat-room.js : fixing bugs d'affichage
 upgrading chat Maintenance ==> first*/
 
