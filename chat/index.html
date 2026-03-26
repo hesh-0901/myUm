@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Maintenance</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .glow {
+      box-shadow: 0 0 40px rgba(63,169,245,0.4),
+                  0 0 80px rgba(63,169,245,0.2);
+    }
+  </style>
+</head>
+
+<body class="bg-black flex items-center justify-center h-screen text-white">
+
+  <div class="text-center px-6">
+
+    <!-- ICON -->
+    <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow animate-pulse">
+      <i class="bi bi-tools text-3xl"></i>
+    </div>
+
+    <!-- TITLE -->
+    <h1 class="text-xl font-bold mb-3">
+      Maintenance en cours
+    </h1>
+
+    <!-- MESSAGE -->
+    <p id="maintenanceText" class="text-gray-400 text-sm mb-4">
+      Chargement...
+    </p>
+
+    <!-- TIMER -->
+    <div id="eta" class="text-xs text-lightblue hidden">
+      ⏳ Retour estimé : <span id="etaValue"></span> min
+    </div>
+
+  </div>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- SCRIPT -->
+  <script type="module">
+    import { db } from "../mains.js/firebase-config.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const textEl = document.getElementById("maintenanceText");
+    const etaEl = document.getElementById("eta");
+    const etaValue = document.getElementById("etaValue");
+
+    async function loadMaintenance() {
+      try {
+        const snap = await getDoc(doc(db, "config", "app"));
+
+        if (!snap.exists()) return;
+
+        const data = snap.data();
+
+        textEl.textContent = data.maintenanceMessage || "Maintenance en cours...";
+
+        if (data.maintenanceETA) {
+          etaEl.classList.remove("hidden");
+          etaValue.textContent = data.maintenanceETA;
+        }
+
+      } catch (e) {
+        textEl.textContent = "Une maintenance est en cours...";
+      }
+    }
+
+    loadMaintenance();
+  </script>
+
+</body>
+</html>
