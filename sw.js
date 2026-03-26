@@ -4,7 +4,7 @@
 
 const VERSION = "v1.35.6.1.2.3"; /*Enoch MWALIMU
 découpage chat-room.js : fixing bugs d'affichage
-upgrading chat Maintenance ==> first*/
+upgrading chat Maintenance for dashboard bouton ==> Second*/
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
@@ -33,7 +33,7 @@ const STATIC_ASSETS = [
 
 /* chat */
 "/myUm/chat/room.html",
-
+"/myUm/chat/dashboard.html",
 /* admin */
 "/myUm/admin/annonce-admin.html",
 "/myUm/admin/open-room.html",
