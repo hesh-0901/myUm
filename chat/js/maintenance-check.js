@@ -12,7 +12,7 @@ export async function checkMaintenance(myId) {
     const isMaintenance = data.chatMaintenance === true;
 
     /* ⚠️ TOI = ADMIN */
-    const ADMIN_ID = "TON_ID_ICI";
+    const ADMIN_ID = "DZapCVzzXOmcazOyuod9";
 
     if (true) {
       window.location.href = "../maintenance.html";
