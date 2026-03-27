@@ -64,7 +64,15 @@ caches.open(CACHE_STATIC)
 
 console.log("SW: caching static assets");
 
-return cache.addAll(STATIC_ASSETS);
+await Promise.all(
+  STATIC_ASSETS.map(async (url) => {
+    try {
+      await cache.add(url);
+    } catch (err) {
+      console.warn("❌ Cache fail:", url);
+    }
+  })
+);
 
 })
 
@@ -255,6 +263,15 @@ statusText:"Offline"
 }
 
 }
+
+self.addEventListener("message", event => {
+
+  if (event.data === "SKIP_WAITING") {
+    console.log("⚡ SKIP WAITING RECEIVED");
+    self.skipWaiting();
+  }
+
+});
 
 /* =========================
    GET VERSION (CLIENT)
