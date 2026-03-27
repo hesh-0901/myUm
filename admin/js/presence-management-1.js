@@ -1,9 +1,16 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
-
 import {
   collection,
-  getDocs
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+let lastDoc = null;
+let isLoading = false;
+let hasMore = true;
 
 
 const roomsList = document.getElementById("roomsList");
@@ -29,11 +36,45 @@ function formatDate(dateStr) {
 // ===============================
 // LOAD ROOMS
 // ===============================
-export async function loadRooms() {
+export async function loadRooms(initial = false) {
 
-  const snap = await getDocs(collection(db, "presenceRooms"));
+  if (isLoading || !hasMore) return;
 
-  rooms = [];
+  isLoading = true;
+
+  let q;
+
+  if (initial) {
+    roomsList.innerHTML = "";
+    rooms = [];
+    lastDoc = null;
+    hasMore = true;
+  }
+
+  if (lastDoc) {
+    q = query(
+      collection(db, "presenceRooms"),
+      orderBy("createdAt", "desc"),
+      startAfter(lastDoc),
+      limit(10)
+    );
+  } else {
+    q = query(
+      collection(db, "presenceRooms"),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
+  }
+
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    hasMore = false;
+    isLoading = false;
+    return;
+  }
+
+  lastDoc = snap.docs[snap.docs.length - 1];
 
   snap.forEach(doc => {
     rooms.push({
@@ -42,19 +83,11 @@ export async function loadRooms() {
     });
   });
 
-  // TRI PRO : actifs en haut + récents
-  rooms.sort((a, b) => {
-
-    if (a.status === "active" && b.status !== "active") return -1;
-    if (a.status !== "active" && b.status === "active") return 1;
-
-    return new Date(b.date) - new Date(a.date);
-
-  });
-
   filteredRooms = [...rooms];
 
   renderRooms();
+
+  isLoading = false;
 }
 
 
@@ -129,4 +162,15 @@ item.innerHTML = `
 
 
 // ===============================
-loadRooms();
+loadRooms(true);
+
+window.addEventListener("scroll", () => {
+
+  const scrollPosition = window.innerHeight + window.scrollY;
+  const bottom = document.body.offsetHeight - 100;
+
+  if (scrollPosition >= bottom) {
+    loadRooms();
+  }
+
+});
