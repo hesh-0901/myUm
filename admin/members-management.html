@@ -1,33 +1,105 @@
-<body data-title="Membres" class="bg-gray-100 flex justify-center overflow-x-hidden">
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Membres - MyUm</title>
+
+<link rel="manifest" href="/myUm/manifest.json">
+<link rel="icon" href="/myUm/assets/favicon.png">
+<meta name="theme-color" content="#1A3668">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary:'#1A3668',
+        medium:'#2596D9'
+      }
+    }
+  }
+}
+</script>
+
+</head>
+
+<body data-title="Membres"
+class="bg-gray-100 flex justify-center overflow-x-hidden font-[Inter]">
 
 <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
+<!-- HEADER -->
 <header id="header-back"></header>
 
 <main class="flex-1 overflow-y-auto px-4 pt-20 pb-6 space-y-5">
 
-<!-- SEARCH -->
+<!-- SEARCH + IMPORT -->
+<div class="flex gap-2">
+
 <input
-  type="text"
-  id="searchInput"
-  placeholder="Rechercher..."
-  class="w-full p-3 rounded-xl border border-gray-200 text-sm">
+type="text"
+id="searchInput"
+placeholder="Rechercher membre..."
+class="flex-1 p-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-primary">
+
+<button id="importBtn"
+class="w-12 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 active:scale-95 transition">
+
+<i class="bi bi-upload"></i>
+
+</button>
+
+</div>
 
 <!-- ADD BUTTON -->
 <button id="addBtn"
-class="w-full bg-gradient-to-r from-primary to-medium text-white py-3 rounded-xl text-sm font-semibold">
+class="w-full bg-gradient-to-r from-primary to-medium text-white py-3 rounded-xl text-sm font-semibold active:scale-95 transition">
+
 Ajouter un membre
+
 </button>
 
 <!-- LIST -->
-<div id="membersList" class="space-y-3"></div>
+<div id="membersList" class="space-y-3">
+
+<!-- LOADING -->
+<div class="bg-white rounded-3xl shadow-sm p-4 flex items-center justify-between">
+
+<div class="space-y-1">
+<p class="text-sm text-gray-400">Chargement...</p>
+<p class="text-xs text-gray-300">Veuillez patienter</p>
+</div>
+
+<div class="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+
+</div>
+
+</div>
 
 </main>
 
 </div>
 
+<!-- IMPORT FILE INPUT (hidden) -->
+<input type="file" id="importFile" accept=".json,.csv" class="hidden">
+
+<!-- SCRIPTS -->
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
 <script type="module" src="/myUm/admin/js/members-management.js"></script>
 <script type="module" src="/myUm/partials/js/back-header.js"></script>
 
 </body>
+</html>
