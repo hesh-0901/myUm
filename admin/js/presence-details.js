@@ -165,6 +165,8 @@ function renderPresences(snap) {
 }
 
 
+import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
+
 // ACTIONS
 openRadarBtn.addEventListener("click", () => {
   if (!roomId) return;
@@ -173,10 +175,8 @@ openRadarBtn.addEventListener("click", () => {
 
 addManualBtn.addEventListener("click", () => {
   if (!roomId) return;
-  window.location.href =
-    `/myUm/admin/add-presence-manual.html?roomId=${roomId}`;
+  openAttendanceModal(roomId);
 });
-
 
 // INIT
 loadRoom();
