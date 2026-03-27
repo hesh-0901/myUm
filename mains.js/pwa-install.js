@@ -84,3 +84,61 @@ modal?.classList.add("hidden");
 window.addEventListener("beforeinstallprompt", (e)=>{
   console.log("🔥 INSTALL EVENT OK");
 });
+
+// ===============================
+// SERVICE WORKER UPDATE CONTROL
+// ===============================
+
+let newWorker;
+
+if ("serviceWorker" in navigator) {
+
+  navigator.serviceWorker.register("/myUm/sw.js")
+  .then(reg => {
+
+    if (reg.waiting) {
+      newWorker = reg.waiting;
+      forceUpdate();
+    }
+
+    reg.addEventListener("updatefound", () => {
+
+      if (reg.installing) {
+        newWorker = reg.installing;
+      }
+
+      newWorker?.addEventListener("statechange", () => {
+
+        if (
+          newWorker.state === "installed" &&
+          navigator.serviceWorker.controller
+        ) {
+          forceUpdate();
+        }
+
+      });
+
+    });
+
+  });
+
+}
+
+
+// FORCE UPDATE
+function forceUpdate() {
+
+  console.log("⚡ FORCE UPDATE TRIGGERED");
+
+  if (newWorker) {
+    newWorker.postMessage("SKIP_WAITING");
+  }
+
+}
+
+
+// RELOAD AUTO
+navigator.serviceWorker?.addEventListener("controllerchange", () => {
+  console.log("🔄 NEW VERSION ACTIVE");
+  window.location.reload();
+});
