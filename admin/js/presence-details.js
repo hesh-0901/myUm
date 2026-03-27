@@ -97,8 +97,7 @@ async function loadRoom() {
 async function loadPresences() {
 
   const q = query(
-    collection(db, "presenceRooms", roomId, "attendances")
-    where("roomId", "==", roomId),
+    collection(db, "presenceRooms", roomId, "attendances"),
     orderBy("createdAt", "desc")
   );
 
