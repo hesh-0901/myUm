@@ -81,5 +81,15 @@ tailwind.config = {
 <script type="module" src="/myUm/admin/js/presence-details.js"></script>
 <script type="module" src="/myUm/partials/js/back-header.js"></script>
 
+<div id="attendanceModalContainer"></div>
+
+<script type="module">
+import { loadPartial } from "/myUm/partials/js/load-partial.js";
+
+await loadPartial("add-attendance-modal", "#attendanceModalContainer");
+</script>
+
+<script type="module" src="/myUm/partials/js/add-attendance-modal.js"></script>
+
 </body>
 </html>
