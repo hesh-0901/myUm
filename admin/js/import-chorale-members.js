@@ -1,0 +1,76 @@
+// ===============================
+// IMPORT DES 2 FIREBASE
+// ===============================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+// ===============================
+// FIREBASE SOURCE (umprogramme)
+// ===============================
+const sourceConfig = {
+  apiKey: "AIzaSyAlP7tV7bGECaJAAZ7Gl6HoaQPT0XSq6Aw",
+  authDomain: "umprogramme.firebaseapp.com",
+  projectId: "umprogramme",
+  storageBucket: "umprogramme.firebasestorage.app",
+  messagingSenderId: "427078378723",
+  appId: "1:427078378723:web:e3c90cc3644a73911d91d6"
+};
+
+const sourceApp = initializeApp(sourceConfig, "source");
+const sourceDB = getFirestore(sourceApp);
+
+
+// ===============================
+// FIREBASE DESTINATION (MyUm)
+// ===============================
+import { db } from "/myUm/mains.js/firebase-config.js";
+
+
+// ===============================
+// IMPORT FUNCTION
+// ===============================
+async function importChoraleMembers() {
+
+  console.log("Début import...");
+
+  const snap = await getDocs(collection(sourceDB, "chorale_members"));
+
+  if (snap.empty) {
+    console.log("Aucune donnée trouvée.");
+    return;
+  }
+
+  let count = 0;
+
+  for (const docSnap of snap.docs) {
+
+    const data = docSnap.data();
+
+    // 🔥 ADAPTATION DES DONNÉES
+    const member = {
+      matricule: data.matricule || "",
+      fullName: data.fullName || data.name || "",
+      chorale: data.chorale || "",
+      photoURL: data.photoURL || "",
+      createdAt: new Date()
+    };
+
+    await addDoc(collection(db, "members"), member);
+
+    count++;
+    console.log(`Importé : ${member.fullName}`);
+  }
+
+  console.log(`Import terminé : ${count} membres`);
+}
+
+
+// ===============================
+importChoraleMembers();
