@@ -145,3 +145,50 @@ searchInput.addEventListener("input", () => {
 
 // ===============================
 loadMembers();
+
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db } from "/myUm/mains.js/firebase-config.js";
+
+const importBtn = document.getElementById("importBtn");
+const importFile = document.getElementById("importFile");
+
+// CLICK → ouvre le fichier
+importBtn.addEventListener("click", () => {
+  importFile.click();
+});
+
+// IMPORT
+importFile.addEventListener("change", async (e) => {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+
+  try {
+
+    const data = JSON.parse(text);
+
+    let count = 0;
+
+    for (const m of data) {
+
+      if (!m.fullName || !m.matricule) continue;
+
+      await addDoc(collection(db, "members"), {
+        fullName: m.fullName,
+        matricule: m.matricule
+      });
+
+      count++;
+    }
+
+    alert(`Import terminé : ${count} membres`);
+
+  } catch (err) {
+
+    alert("Fichier invalide (JSON attendu)");
+
+  }
+
+});
