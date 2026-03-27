@@ -96,10 +96,10 @@ async function loadRoom() {
 // LOAD PRESENCES
 async function loadPresences() {
 
-  const q = query(
-    collection(db, "presenceRooms", roomId, "attendances"),
-    orderBy("createdAt", "desc")
-  );
+    const q = query(
+      collection(db, "presenceRooms", roomId, "attendances"),
+      orderBy("timestamp", "desc")
+    );
 
   const snap = await getDocs(q);
 
