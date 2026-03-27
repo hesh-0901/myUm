@@ -214,28 +214,34 @@ document.getElementById("membersShortcut")?.addEventListener("click", () => {
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
 
-  const header = document.getElementById("header-back");
+  const interval = setInterval(() => {
 
-  if (!header) return;
+    const header = document.getElementById("header-back");
 
-  const actionBtn = document.createElement("button");
+    if (!header || header.innerHTML.trim() === "") return;
 
-  actionBtn.innerHTML = '<i class="bi bi-collection"></i>';
+    clearInterval(interval);
 
-  actionBtn.className = `
-    absolute right-4 top-1/2 -translate-y-1/2
-    text-gray-400 text-lg active:scale-95 transition
-  `;
+    const actionBtn = document.createElement("button");
 
-  actionBtn.addEventListener("click", () => {
-    window.location.href = "/myUm/admin/members-management.html";
-  });
+    actionBtn.innerHTML = '<i class="bi bi-collection"></i>';
 
-  header.style.position = "relative";
+    actionBtn.className = `
+      absolute right-4 top-1/2 -translate-y-1/2
+      text-gray-400 text-lg active:scale-95 transition
+    `;
 
-  header.appendChild(actionBtn);
+    actionBtn.addEventListener("click", () => {
+      window.location.href = "/myUm/admin/members-management.html";
+    });
+
+    header.style.position = "relative";
+
+    header.appendChild(actionBtn);
+
+  }, 100);
 
 });
 </script>
