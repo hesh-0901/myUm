@@ -214,6 +214,7 @@ if (!selectedMode) {
     }
 
     const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+    const photoURL = storedUser.photoURL || "/myUm/assets/default-avatar.png";
 
     if (!storedUser) {
       alert("Session invalide.");
@@ -223,28 +224,29 @@ if (!selectedMode) {
     const userId = storedUser.id;
     const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
 
-    const roomRef = await addDoc(collection(db, "presenceRooms"), {
+const roomRef = await addDoc(collection(db, "presenceRooms"), {
 
-      date,
-      chorale,
-      type,
-      description,
-      mode,
+  date,
+  chorale,
+  type,
+  description,
+  mode,
 
-      startTime: startTimestamp,
-      endTime: endTimestamp,
+  startTime: startTimestamp,
+  endTime: endTimestamp,
 
-      latitude,
-      longitude,
+  latitude,
+  longitude,
 
-      status: "active",
+  status: "active",
 
-      createdBy: userId,
-      createdByName: fullName,
+  createdBy: userId,
+  createdByName: fullName,
+  photoURL: photoURL, // ✅ AJOUT ICI
 
-      createdAt: serverTimestamp()
+  createdAt: serverTimestamp()
 
-    });
+});
 
     activeRoomId = roomRef.id;
 
