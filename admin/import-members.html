@@ -1,7 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
+
 <head>
-<title>Import Members</title>
+<meta charset="UTF-8">
+<title>Import Membres</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+button {
+  padding: 15px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #1A3668;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+</style>
+
 </head>
 
 <body>
@@ -10,6 +41,9 @@
 
 <script type="module">
 
+// ===============================
+// FIREBASE IMPORTS
+// ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
 import {
@@ -19,9 +53,13 @@ import {
   addDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// 🔥 TA DB ACTUELLE
 import { db } from "/myUm/mains.js/firebase-config.js";
 
-// 🔥 SOURCE (umprogramme)
+
+// ===============================
+// SOURCE (umprogramme)
+// ===============================
 const sourceConfig = {
   apiKey: "AIzaSyAlP7tV7bGECaJAAZ7Gl6HoaQPT0XSq6Aw",
   authDomain: "umprogramme.firebaseapp.com",
@@ -36,37 +74,61 @@ const sourceDB = getFirestore(sourceApp);
 
 
 // ===============================
-// IMPORT
+// IMPORT LOGIC
 // ===============================
-document.getElementById("startImport").addEventListener("click", async () => {
+const btn = document.getElementById("startImport");
+
+let isImporting = false;
+
+btn.addEventListener("click", async () => {
+
+  if (isImporting) return;
+
+  isImporting = true;
+
+  btn.disabled = true;
+  btn.innerText = "Import en cours...";
 
   console.log("Début import...");
 
-  const snap = await getDocs(collection(sourceDB, "chorale_members"));
+  try {
 
-  if (snap.empty) {
-    alert("Aucune donnée trouvée");
-    return;
+    const snap = await getDocs(collection(sourceDB, "chorale_members"));
+
+    if (snap.empty) {
+      alert("Aucune donnée trouvée");
+      return;
+    }
+
+    let count = 0;
+
+    for (const docSnap of snap.docs) {
+
+      const data = docSnap.data();
+
+      const member = {
+        matricule: data.matricule || "",
+        fullName: data.fullName || data.name || ""
+      };
+
+      await addDoc(collection(db, "members"), member);
+
+      count++;
+      console.log("Importé :", member.fullName);
+    }
+
+    alert(`Import terminé : ${count} membres`);
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Erreur pendant l'import");
+
   }
 
-  let count = 0;
-
-  for (const docSnap of snap.docs) {
-
-    const data = docSnap.data();
-
-    const member = {
-      matricule: data.matricule || "",
-      fullName: data.fullName || data.name || "",
-    };
-
-    await addDoc(collection(db, "members"), member);
-
-    count++;
-    console.log("Importé :", member.fullName);
-  }
-
-  alert(`Import terminé : ${count} membres`);
+  isImporting = false;
+  btn.disabled = false;
+  btn.innerText = "Lancer import";
 
 });
 
