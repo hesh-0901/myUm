@@ -107,8 +107,8 @@ btn.addEventListener("click", async () => {
       const data = docSnap.data();
 
       const member = {
-        matricule: data.matricule || "",
-        fullName: data.fullName || data.name || ""
+        matricule: docSnap.id,
+        fullName: data.nomComplet || ""
       };
 
       await addDoc(collection(db, "members"), member);
