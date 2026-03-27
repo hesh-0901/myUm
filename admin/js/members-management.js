@@ -133,6 +133,13 @@ searchInput.oninput = () => {
   render();
 };
 
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.remove("hidden");
+  setTimeout(()=> t.classList.add("hidden"), 2000);
+}
+
 // LOADER
 function loader() {
   return `
@@ -141,5 +148,6 @@ function loader() {
     <div class="h-14 bg-gray-100 rounded-xl"></div>
   </div>`;
 }
+
 
 loadMembers();
