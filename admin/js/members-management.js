@@ -84,6 +84,10 @@ function render() {
     el.innerHTML = `
       <div class="flex items-center gap-3">
 
+  <div class="text-xs w-5 text-gray-400">
+    ${index + 1}
+  </div>
+
         <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
           ${m.fullName?.charAt(0) || "U"}
         </div>
