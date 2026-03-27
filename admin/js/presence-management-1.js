@@ -84,6 +84,9 @@ export function renderRooms() {
 item.innerHTML = `
   <div class="flex items-start gap-3">
 
+item.innerHTML = `
+  <div class="flex items-start gap-3">
+
     <!-- PHOTO -->
     <img 
       src="${room.photoURL || '/myUm/assets/default-avatar.png'}"
