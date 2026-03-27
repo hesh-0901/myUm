@@ -13,9 +13,7 @@ import {
 import { openRadar } from "/myUm/partials/js/radar.js";
 
 
-// ===============================
 // DOM
-// ===============================
 const roomInfo = document.getElementById("roomInfo");
 const presenceList = document.getElementById("presenceList");
 const presenceCount = document.getElementById("presenceCount");
@@ -24,14 +22,12 @@ const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
 
 
-// ===============================
+// PARAM
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get("roomId");
 
 
-// ===============================
 // FORMAT
-// ===============================
 function formatDate(dateStr) {
   if (!dateStr) return "";
 
@@ -53,9 +49,7 @@ function formatTime(timestamp) {
 }
 
 
-// ===============================
-// ROOM
-// ===============================
+// LOAD ROOM
 async function loadRoom() {
 
   const snap = await getDoc(doc(db, "presenceRooms", roomId));
@@ -99,9 +93,7 @@ async function loadRoom() {
 }
 
 
-// ===============================
-// PRESENCES
-// ===============================
+// LOAD PRESENCES
 async function loadPresences() {
 
   const q = query(
@@ -113,18 +105,17 @@ async function loadPresences() {
   const snap = await getDocs(q);
 
   renderPresences(snap);
-
 }
 
 
-// ===============================
+// RENDER
 function renderPresences(snap) {
 
   presenceList.innerHTML = "";
 
   if (snap.empty) {
     presenceList.innerHTML =
-      "<p class='text-sm text-gray-500 px-4'>Aucune présence</p>";
+      "<p class='text-sm text-gray-500'>Aucune présence</p>";
     presenceCount.innerText = "0 présence";
     return;
   }
@@ -139,8 +130,8 @@ function renderPresences(snap) {
 
     row.className = `
       flex items-center gap-3
-      px-4 py-3
-      border-b border-gray-100
+      p-3 rounded-xl border border-gray-100
+      active:scale-[0.98] transition
     `;
 
     row.innerHTML = `
@@ -150,7 +141,7 @@ function renderPresences(snap) {
 
       <div class="flex-1">
 
-        <p class="text-sm text-gray-800 font-medium">
+        <p class="text-sm font-medium text-gray-800">
           ${d.fullName || "Utilisateur"}
         </p>
 
@@ -175,9 +166,7 @@ function renderPresences(snap) {
 }
 
 
-// ===============================
 // ACTIONS
-// ===============================
 openRadarBtn.addEventListener("click", () => {
   if (!roomId) return;
   openRadar(roomId);
@@ -185,12 +174,11 @@ openRadarBtn.addEventListener("click", () => {
 
 addManualBtn.addEventListener("click", () => {
   if (!roomId) return;
-
   window.location.href =
     `/myUm/admin/add-presence-manual.html?roomId=${roomId}`;
 });
 
 
-// ===============================
+// INIT
 loadRoom();
 loadPresences();
