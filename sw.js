@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v1.35.6.1.2.3"; /*Enoch MWALIMU
+const VERSION = "v1.35.6.1.2.4"; /*Enoch MWALIMU
 découpage chat-room.js : fixing bugs d'affichage
 upgrading chat Maintenance for dashboard bouton ==> DONE
 Courage Mwalimu ! 😊😊😊😊😊*/
