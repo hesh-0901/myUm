@@ -29,33 +29,22 @@ console.error("Erreur chargement header-back :", error);
 }
 
 
-/* ===============================
-   INIT HEADER
-================================ */
-
 function initHeaderBack(){
 
+const container = document.getElementById("header-back"); // 🔥 important
 const backBtn = document.getElementById("globalBackBtn");
 const title = document.getElementById("backHeaderTitle");
 
 const pageTitle = document.body.dataset.title;
 
 if(title && pageTitle){
-
-title.textContent = pageTitle;
-
+  title.textContent = pageTitle;
 }
 
 if(backBtn){
-
-backBtn.addEventListener("click",()=>{
-
-window.history.back();
-
-});
-
-}
-
+  backBtn.addEventListener("click",()=>{
+    window.history.back();
+  });
 }
 
 // ===============================
@@ -76,9 +65,11 @@ if (window.location.pathname.includes("users-management.html")) {
     window.location.href = "/myUm/admin/members-management.html";
   });
 
-  header.style.position = "relative";
+  container.style.position = "relative"; // ✅ CORRECT
 
-  header.appendChild(actionBtn);
+  container.appendChild(actionBtn);
+}
+
 }
 
 /* ===============================
