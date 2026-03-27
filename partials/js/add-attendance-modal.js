@@ -8,11 +8,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-const modal = document.getElementById("attendanceModal");
-const closeBtn = document.getElementById("closeAttendanceModal");
-const searchInput = document.getElementById("attendanceSearch");
-const results = document.getElementById("attendanceResults");
-
+// ===============================
+// STATE
+// ===============================
 let currentRoomId = null;
 let members = [];
 
@@ -23,24 +21,58 @@ let members = [];
 export function openAttendanceModal(roomId) {
 
   currentRoomId = roomId;
+
+  const modal = document.getElementById("attendanceModal");
+
+  if (!modal) return;
+
   modal.classList.remove("hidden");
+
+  initModalEvents(); // 🔥 important
 
   loadMembers();
 }
 
 
 // ===============================
-// CLOSE
+// INIT EVENTS (APRÈS INJECTION)
 // ===============================
-closeBtn.addEventListener("click", () => {
-  modal.classList.add("hidden");
-});
+function initModalEvents() {
+
+  const modal = document.getElementById("attendanceModal");
+  const closeBtn = document.getElementById("closeAttendanceModal");
+  const searchInput = document.getElementById("attendanceSearch");
+
+  if (!modal || !closeBtn || !searchInput) return;
+
+  // CLOSE
+  closeBtn.onclick = () => {
+    modal.classList.add("hidden");
+  };
+
+  // SEARCH
+  searchInput.oninput = () => {
+
+    const value = searchInput.value.toLowerCase();
+
+    const filtered = members.filter(m =>
+      m.name?.toLowerCase().includes(value)
+    );
+
+    renderMembers(filtered);
+  };
+
+}
 
 
 // ===============================
 // LOAD MEMBERS
 // ===============================
 async function loadMembers() {
+
+  const results = document.getElementById("attendanceResults");
+
+  if (!results) return;
 
   const snap = await getDocs(collection(db, "members"));
 
@@ -55,24 +87,13 @@ async function loadMembers() {
 
 
 // ===============================
-// SEARCH
-// ===============================
-searchInput.addEventListener("input", () => {
-
-  const value = searchInput.value.toLowerCase();
-
-  const filtered = members.filter(m =>
-    m.name?.toLowerCase().includes(value)
-  );
-
-  renderMembers(filtered);
-});
-
-
-// ===============================
 // RENDER
 // ===============================
 function renderMembers(list) {
+
+  const results = document.getElementById("attendanceResults");
+
+  if (!results) return;
 
   results.innerHTML = "";
 
@@ -92,9 +113,9 @@ function renderMembers(list) {
         <p class="text-xs text-gray-500">${m.chorale || ""}</p>
       </div>
 
-      <button class="text-primary text-sm font-semibold">
+      <span class="text-primary text-sm font-semibold">
         Ajouter
-      </button>
+      </span>
     `;
 
     item.addEventListener("click", () => addAttendance(m));
@@ -113,6 +134,8 @@ async function addAttendance(member) {
 
   if (!currentRoomId) return;
 
+  const modal = document.getElementById("attendanceModal");
+
   await addDoc(
     collection(db, "presenceRooms", currentRoomId, "attendances"),
     {
@@ -126,6 +149,6 @@ async function addAttendance(member) {
     }
   );
 
-  modal.classList.add("hidden");
+  if (modal) modal.classList.add("hidden");
 
 }
