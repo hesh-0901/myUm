@@ -213,16 +213,18 @@ if (!selectedMode) {
 
     }
 
-    const storedUser = JSON.parse(localStorage.getItem("myum_user"));
-    const photoURL = storedUser.photoURL || "/myUm/assets/default-avatar.png";
-
-    if (!storedUser) {
-      alert("Session invalide.");
-      return;
-    }
-
-    const userId = storedUser.id;
-    const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
+      const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+      
+      if (!storedUser) {
+        alert("Session invalide.");
+        return;
+      }
+      
+      const userId = storedUser.id;
+      const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
+      
+      // ✅ AJOUT ICI
+      const photoURL = storedUser.photoURL || "/myUm/assets/default-avatar.png";
 
 const roomRef = await addDoc(collection(db, "presenceRooms"), {
 
