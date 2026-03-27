@@ -107,10 +107,6 @@ function render() {
 
     el.querySelector(".edit").onclick = () => openModal(m);
     el.querySelector(".delete").onclick = () => openDeleteModal(m);
-      if (!confirm("Supprimer ?")) return;
-      await deleteDoc(doc(db, "members", m.id));
-      loadMembers();
-    };
 
     membersList.appendChild(el);
   });
@@ -126,30 +122,6 @@ function openModal(m = null) {
 
   modal.classList.remove("hidden");
 }
-
-// SAVE
-saveBtn.onclick = async () => {
-
-  const name = modalName.value.trim();
-  const mat = modalMatricule.value.trim();
-
-  if (!name || !mat) return;
-
-  if (editing) {
-    await updateDoc(doc(db, "members", editing.id), {
-      fullName: name,
-      matricule: mat
-    });
-  } else {
-    await addDoc(collection(db, "members"), {
-      fullName: name,
-      matricule: mat
-    });
-  }
-
-  modal.classList.add("hidden");
-  loadMembers();
-};
 
 // CLOSE
 closeModal.onclick = () => modal.classList.add("hidden");
