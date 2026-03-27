@@ -60,29 +60,30 @@ const STATIC_ASSETS = [
 
 self.addEventListener("install", event => {
 
-event.waitUntil(
+  event.waitUntil(
 
-caches.open(CACHE_STATIC)
-.then(async cache => {
+    caches.open(CACHE_STATIC)
+    .then(async cache => {
 
-  console.log("SW: caching static assets");
+      console.log("SW: caching static assets");
 
-  await Promise.all(
-    STATIC_ASSETS.map(async (url) => {
-      try {
-        await cache.add(url);
-      } catch (err) {
-        console.warn("❌ Cache fail:", url);
-      }
+      await Promise.all(
+        STATIC_ASSETS.map(async (url) => {
+          try {
+            await cache.add(url);
+          } catch (err) {
+            console.warn("❌ Cache fail:", url);
+          }
+        })
+      );
+
     })
+
   );
 
-})
-
-self.skipWaiting();
+  self.skipWaiting();
 
 });
-
 
 /* =========================
    ACTIVATE
