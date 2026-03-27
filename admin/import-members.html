@@ -93,7 +93,7 @@ btn.addEventListener("click", async () => {
 
   try {
 
-    const snap = await getDocs(collection(sourceDB, "chorale_members"));
+    const snap = await getDocs(collection(sourceDB, "chorale_membres"));
 
     if (snap.empty) {
       alert("Aucune donnée trouvée");
