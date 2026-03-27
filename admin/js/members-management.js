@@ -146,9 +146,6 @@ searchInput.addEventListener("input", () => {
 // ===============================
 loadMembers();
 
-import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { db } from "/myUm/mains.js/firebase-config.js";
-
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
 
