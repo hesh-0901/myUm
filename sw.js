@@ -60,23 +60,21 @@ self.addEventListener("install", event => {
 event.waitUntil(
 
 caches.open(CACHE_STATIC)
-.then(cache => {
+.then(async cache => {
 
-console.log("SW: caching static assets");
+  console.log("SW: caching static assets");
 
-await Promise.all(
-  STATIC_ASSETS.map(async (url) => {
-    try {
-      await cache.add(url);
-    } catch (err) {
-      console.warn("❌ Cache fail:", url);
-    }
-  })
-);
+  await Promise.all(
+    STATIC_ASSETS.map(async (url) => {
+      try {
+        await cache.add(url);
+      } catch (err) {
+        console.warn("❌ Cache fail:", url);
+      }
+    })
+  );
 
 })
-
-);
 
 self.skipWaiting();
 
