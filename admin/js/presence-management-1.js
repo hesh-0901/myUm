@@ -81,22 +81,24 @@ export function renderRooms() {
 
     const formattedDate = formatDate(room.date);
 
-    item.innerHTML = `
+item.innerHTML = `
+  <div class="flex items-start gap-3">
+
+    <!-- PHOTO -->
+    <img 
+      src="${room.photoURL || '/myUm/assets/default-avatar.png'}"
+      class="w-10 h-10 rounded-full object-cover">
+
+    <!-- CONTENU -->
+    <div class="flex-1 space-y-1">
+
       <div class="flex justify-between items-start">
 
-        <div class="space-y-1">
+        <p class="text-xs font-semibold text-gray-800 leading-snug">
+          ${formattedDate} • ${room.chorale} • ${room.createdByName} • ${room.type}
+        </p>
 
-          <p class="text-xs font-semibold text-gray-800 leading-snug">
-            ${formattedDate} • ${room.chorale} • ${room.createdByName} • ${room.type}
-          </p>
-
-          <p class="text-xs text-gray-500 line-clamp-2">
-            ${room.description || "Aucune description"}
-          </p>
-
-        </div>
-
-        <span class="text-xs px-2 py-1 rounded-full 
+        <span class="text-[10px] px-2 py-1 rounded-full 
           ${room.status === "active"
             ? "bg-green-100 text-green-600"
             : "bg-gray-100 text-gray-500"}">
@@ -104,7 +106,15 @@ export function renderRooms() {
         </span>
 
       </div>
-    `;
+
+      <p class="text-[11px] text-gray-500 line-clamp-2">
+        ${room.description || "Aucune description"}
+      </p>
+
+    </div>
+
+  </div>
+`;
 
     // NAVIGATION
     item.addEventListener("click", () => {
