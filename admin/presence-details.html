@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Détails présence - MyUm</title>
+<title>Présence - MyUm</title>
 
 <link rel="manifest" href="/myUm/manifest.json">
 <link rel="icon" href="/myUm/assets/favicon.png">
@@ -45,33 +45,26 @@
     <!-- INFOS SALON -->
     <div id="roomInfo"></div>
 
-    <!-- LISTE PRESENCES -->
-    <div id="presenceList" class="divide-y divide-gray-100"></div>
+    <!-- COMPTEUR -->
+    <div id="presenceCount" class="px-4 pb-2 text-xs text-gray-500"></div>
+
+    <!-- LISTE -->
+    <div id="presenceList" class="px-4 space-y-3"></div>
 
   </main>
 
-  <!-- FOOTER / NAV (non utilisé ici mais gardé propre si besoin futur) -->
-  <footer id="nav"></footer>
-
 </div>
-
 
 <!-- INIT GLOBAL -->
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
 
-<!-- PARTIALS -->
+<!-- PARTIAL -->
 <script type="module">
-
 import { loadPartial } from "/myUm/partials/js/load-partial.js";
-
-// Page secondaire → header-back uniquement
 await loadPartial("header-back", "#header");
-
-// Pas de nav ici (page secondaire)
-
 </script>
 
-<!-- PAGE LOGIC -->
+<!-- LOGIC -->
 <script type="module" src="/myUm/admin/js/presence-details.js"></script>
 
 </body>
