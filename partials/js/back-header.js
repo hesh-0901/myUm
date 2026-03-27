@@ -58,6 +58,28 @@ window.history.back();
 
 }
 
+// ===============================
+// ACTION ADMIN (MEMBERS)
+// ===============================
+if (window.location.pathname.includes("users-management.html")) {
+
+  const actionBtn = document.createElement("button");
+
+  actionBtn.innerHTML = '<i class="bi bi-collection"></i>';
+
+  actionBtn.className = `
+    absolute right-4 top-1/2 -translate-y-1/2
+    text-gray-400 text-lg active:scale-95 transition
+  `;
+
+  actionBtn.addEventListener("click", () => {
+    window.location.href = "/myUm/admin/members-management.html";
+  });
+
+  header.style.position = "relative";
+
+  header.appendChild(actionBtn);
+}
 
 /* ===============================
    START
