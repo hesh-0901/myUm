@@ -14,144 +14,109 @@ import { openRadar } from "/myUm/partials/js/radar.js";
 
 
 // ===============================
-// ELEMENTS DOM
+// DOM
 // ===============================
 const roomInfo = document.getElementById("roomInfo");
 const presenceList = document.getElementById("presenceList");
+const presenceCount = document.getElementById("presenceCount");
 
 const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
 
 
 // ===============================
-// PARAMS
-// ===============================
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get("roomId");
 
 
 // ===============================
-// FORMAT DATE
+// FORMAT
 // ===============================
 function formatDate(dateStr) {
   if (!dateStr) return "";
 
   if (dateStr.includes("/")) return dateStr;
 
-  const [year, month, day] = dateStr.split("-");
-  return `${day}/${month}/${year}`;
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function formatTime(timestamp) {
+  if (!timestamp) return "";
+
+  const date = timestamp.toDate();
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 
 // ===============================
-// LOAD ROOM DETAILS
+// ROOM
 // ===============================
 async function loadRoom() {
 
-  if (!roomId) return;
+  const snap = await getDoc(doc(db, "presenceRooms", roomId));
 
-  try {
-
-    const roomRef = doc(db, "presenceRooms", roomId);
-    const snap = await getDoc(roomRef);
-
-    if (!snap.exists()) {
-      roomInfo.innerHTML =
-        "<p class='text-sm text-gray-500 p-4'>Salon introuvable</p>";
-      return;
-    }
-
-    const room = snap.data();
-
-    renderRoom(room);
-
-  } catch (error) {
-    console.error(error);
+  if (!snap.exists()) {
+    roomInfo.innerHTML =
+      "<p class='text-sm text-gray-500'>Salon introuvable</p>";
+    return;
   }
 
-}
-
-
-// ===============================
-// RENDER ROOM
-// ===============================
-function renderRoom(room) {
-
-  const formattedDate = formatDate(room.date);
+  const room = snap.data();
 
   roomInfo.innerHTML = `
-    <div class="p-4 space-y-3">
+    <div class="flex items-center gap-3">
 
-      <div class="flex items-center gap-3">
+      <img 
+        src="${room.photoURL || '/myUm/assets/default-avatar.png'}"
+        class="w-10 h-10 rounded-full object-cover">
 
-        <img 
-          src="${room.photoURL || '/myUm/assets/default-avatar.png'}"
-          class="w-12 h-12 rounded-full object-cover">
+      <div class="flex-1">
 
-        <div>
-          <p class="text-sm font-semibold text-gray-800">
-            ${room.chorale}
-          </p>
-          <p class="text-xs text-gray-500">
-            ${formattedDate} • ${room.type}
-          </p>
-        </div>
+        <p class="text-sm font-semibold text-gray-800">
+          ${room.chorale}
+        </p>
 
-      </div>
-
-      <div class="flex justify-between items-center">
-
-        <span class="text-xs px-2 py-1 rounded-full 
-          ${room.status === "active"
-            ? "bg-green-100 text-green-600"
-            : "bg-gray-100 text-gray-500"}">
-          ${room.status === "active" ? "Actif" : "Fermé"}
-        </span>
-
-        <p class="text-xs text-gray-400">
-          ${room.createdByName || ""}
+        <p class="text-xs text-gray-500">
+          ${formatDate(room.date)} • ${room.type}
         </p>
 
       </div>
 
-      <p class="text-xs text-gray-500">
-        ${room.description || "Aucune description"}
-      </p>
+      <span class="text-[10px] px-2 py-1 rounded-full
+        ${room.status === "active"
+          ? "bg-green-100 text-green-600"
+          : "bg-gray-100 text-gray-500"}">
+        ${room.status === "active" ? "Actif" : "Fermé"}
+      </span>
 
     </div>
   `;
-
 }
 
 
 // ===============================
-// LOAD PRESENCES
+// PRESENCES
 // ===============================
 async function loadPresences() {
 
-  if (!roomId) return;
+  const q = query(
+    collection(db, "presences"),
+    where("roomId", "==", roomId),
+    orderBy("createdAt", "desc")
+  );
 
-  try {
+  const snap = await getDocs(q);
 
-    const q = query(
-      collection(db, "presences"),
-      where("roomId", "==", roomId),
-      orderBy("createdAt", "desc")
-    );
-
-    const snap = await getDocs(q);
-
-    renderPresences(snap);
-
-  } catch (error) {
-    console.error(error);
-  }
+  renderPresences(snap);
 
 }
 
 
-// ===============================
-// RENDER PRESENCES
 // ===============================
 function renderPresences(snap) {
 
@@ -159,39 +124,51 @@ function renderPresences(snap) {
 
   if (snap.empty) {
     presenceList.innerHTML =
-      "<p class='text-sm text-gray-500 p-4'>Aucune présence</p>";
+      "<p class='text-sm text-gray-500 px-4'>Aucune présence</p>";
+    presenceCount.innerText = "0 présence";
     return;
   }
 
+  presenceCount.innerText = `${snap.size} présence(s)`;
+
   snap.forEach(doc => {
 
-    const data = doc.data();
+    const d = doc.data();
 
-    const item = document.createElement("div");
+    const row = document.createElement("div");
 
-    item.className = `
-      flex items-center gap-3 p-4 border-b border-gray-100
+    row.className = `
+      flex items-center gap-3
+      px-4 py-3
+      border-b border-gray-100
     `;
 
-    item.innerHTML = `
+    row.innerHTML = `
       <img 
-        src="${data.photoURL || '/myUm/assets/default-avatar.png'}"
-        class="w-10 h-10 rounded-full object-cover">
+        src="${d.photoURL || '/myUm/assets/default-avatar.png'}"
+        class="w-9 h-9 rounded-full object-cover">
 
       <div class="flex-1">
 
-        <p class="text-sm font-medium text-gray-800">
-          ${data.fullName || "Utilisateur"}
+        <p class="text-sm text-gray-800 font-medium">
+          ${d.fullName || "Utilisateur"}
         </p>
 
         <p class="text-xs text-gray-500">
-          ${data.method === "manual" ? "Ajout manuel" : "Radar"}
+          ${d.chorale || "—"} • ${formatTime(d.createdAt)}
         </p>
 
       </div>
+
+      <span class="text-[10px] px-2 py-1 rounded-full
+        ${d.method === "manual"
+          ? "bg-blue-100 text-blue-600"
+          : "bg-green-100 text-green-600"}">
+        ${d.method === "manual" ? "Manuel" : "Radar"}
+      </span>
     `;
 
-    presenceList.appendChild(item);
+    presenceList.appendChild(row);
 
   });
 
@@ -201,15 +178,11 @@ function renderPresences(snap) {
 // ===============================
 // ACTIONS
 // ===============================
-
-// RADAR
 openRadarBtn.addEventListener("click", () => {
   if (!roomId) return;
   openRadar(roomId);
 });
 
-
-// AJOUT MANUEL
 addManualBtn.addEventListener("click", () => {
   if (!roomId) return;
 
@@ -218,8 +191,6 @@ addManualBtn.addEventListener("click", () => {
 });
 
 
-// ===============================
-// INIT
 // ===============================
 loadRoom();
 loadPresences();
