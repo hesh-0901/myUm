@@ -50,7 +50,9 @@ if(backBtn){
 // ===============================
 // ACTION ADMIN (MEMBERS)
 // ===============================
-if (window.location.pathname.includes("users-management.html")) {
+const path = window.location.pathname;
+
+if (path.endsWith("users-management.html")) {
 
   const actionBtn = document.createElement("button");
 
