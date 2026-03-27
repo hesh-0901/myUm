@@ -86,7 +86,7 @@ export function renderRooms() {
 
         <div class="space-y-1">
 
-          <p class="text-sm font-medium text-gray-800 leading-snug">
+          <p class="text-xs font-semibold text-gray-800 leading-snug">
             ${formattedDate} • ${room.chorale} • ${room.createdByName} • ${room.type}
           </p>
 
