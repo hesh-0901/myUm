@@ -18,14 +18,48 @@ let members = [];
 let filtered = [];
 let editing = null;
 
+const confirmModal = document.getElementById("confirmModal");
+const confirmDeleteBtn = document.getElementById("confirmDelete");
+const cancelDeleteBtn = document.getElementById("cancelDelete");
+
+let deleteTarget = null;
+
+function openDeleteModal(member){
+  deleteTarget = member;
+  confirmModal.classList.remove("hidden");
+}
+
+cancelDeleteBtn.onclick = () => {
+  confirmModal.classList.add("hidden");
+};
+
+confirmDeleteBtn.onclick = async () => {
+
+  if (!deleteTarget) return;
+
+  await deleteDoc(doc(db, "members", deleteTarget.id));
+
+  confirmModal.classList.add("hidden");
+  showToast("Membre supprimé");
+
+  loadMembers();
+};
+
 // LOAD
 async function loadMembers() {
 
-  membersList.innerHTML = loader();
-
   const snap = await getDocs(collection(db, "members"));
 
-  members = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  members = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+
+  // TRI ALPHABÉTIQUE
+  members.sort((a, b) =>
+    (a.fullName || "").localeCompare(b.fullName || "")
+  );
+
   filtered = [...members];
 
   render();
@@ -41,7 +75,7 @@ function render() {
     return;
   }
 
-  filtered.forEach(m => {
+  filtered.forEach((m, index) => {
 
     const el = document.createElement("div");
 
@@ -68,7 +102,7 @@ function render() {
     `;
 
     el.querySelector(".edit").onclick = () => openModal(m);
-    el.querySelector(".delete").onclick = async () => {
+    el.querySelector(".delete").onclick = () => openDeleteModal(m);
       if (!confirm("Supprimer ?")) return;
       await deleteDoc(doc(db, "members", m.id));
       loadMembers();
@@ -139,6 +173,53 @@ function showToast(msg){
   t.classList.remove("hidden");
   setTimeout(()=> t.classList.add("hidden"), 2000);
 }
+
+const btnText = document.getElementById("btnText");
+const btnLoader = document.getElementById("btnLoader");
+
+function startBtnLoading(){
+  btnText.textContent = "Traitement...";
+  btnLoader.classList.remove("hidden");
+}
+
+function stopBtnLoading(){
+  btnText.textContent = "Enregistrer";
+  btnLoader.classList.add("hidden");
+}
+
+saveBtn.onclick = async () => {
+
+  const name = modalName.value.trim();
+  const mat = modalMatricule.value.trim();
+  if (!name || !mat) return;
+
+  startBtnLoading();
+
+  try {
+
+    if (editing) {
+      await updateDoc(doc(db, "members", editing.id), {
+        fullName: name,
+        matricule: mat
+      });
+      showToast("Membre modifié");
+    } else {
+      await addDoc(collection(db, "members"), {
+        fullName: name,
+        matricule: mat
+      });
+      showToast("Membre ajouté");
+    }
+
+    modal.classList.add("hidden");
+    loadMembers();
+
+  } catch {
+    showToast("Erreur");
+  }
+
+  stopBtnLoading();
+};
 
 // LOADER
 function loader() {
