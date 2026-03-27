@@ -2,9 +2,12 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v1.35.6.1.2.6; /*Enoch MWALIMU
+const VERSION = "v1.35.6.1.2.6"; 
+/* 
+Enoch MWALIMU
 découpage chat-room.js : fixing bugs d'affichage
-upgrading chat Maintenance for dashboard bouton ==> DONE*/
+upgrading chat Maintenance for dashboard bouton ==> DONE
+*/
 
 const CACHE_STATIC = "myum-static-" + VERSION;
 const CACHE_DYNAMIC = "myum-dynamic-" + VERSION;
