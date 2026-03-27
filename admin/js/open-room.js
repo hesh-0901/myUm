@@ -5,6 +5,7 @@ import {
   addDoc,
   doc,
   getDocs,
+  getDoc, // ✅ AJOUTE ÇA
   query,
   where,
   limit,
@@ -220,11 +221,23 @@ if (!selectedMode) {
         return;
       }
       
-      const userId = storedUser.id;
-      const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
-      
-      // ✅ AJOUT ICI
-      const photoURL = storedUser.photoURL || "/myUm/assets/default-avatar.png";
+const userId = storedUser.id;
+const fullName = `${storedUser.firstName} ${storedUser.lastName}`;
+
+// ✅ RÉCUPÉRATION DIRECTE FIRESTORE (FIABLE)
+let photoURL = "/myUm/assets/default-avatar.png";
+
+try {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+    photoURL = userData.photoURL || photoURL;
+  }
+} catch (error) {
+  console.error("Erreur récupération photo :", error);
+}
 
 const roomRef = await addDoc(collection(db, "presenceRooms"), {
 
