@@ -51,21 +51,28 @@ function render() {
 
     const item = document.createElement("div");
 
-    item.className = "bg-white rounded-3xl shadow-sm p-4 space-y-2";
+    item.className = "bg-white rounded-3xl shadow-sm p-4 flex items-center justify-between active:scale-[0.98] transition";
 
     item.innerHTML = `
-      <div class="flex justify-between items-center">
-
+      <div class="flex items-center gap-3">
+    
+        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
+          ${m.fullName?.charAt(0) || "U"}
+        </div>
+    
         <div>
           <p class="text-sm font-semibold">${m.fullName}</p>
           <p class="text-xs text-gray-500">${m.matricule}</p>
         </div>
-
-        <div class="flex gap-3">
-          <i class="bi bi-pencil edit text-gray-500 cursor-pointer"></i>
-          <i class="bi bi-trash delete text-red-500 cursor-pointer"></i>
-        </div>
-
+    
+      </div>
+    
+      <div class="flex gap-3 text-lg">
+    
+        <i class="bi bi-pencil edit text-gray-400 active:scale-90"></i>
+    
+        <i class="bi bi-trash delete text-red-400 active:scale-90"></i>
+    
       </div>
     `;
 
