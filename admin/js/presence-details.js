@@ -1,325 +1,225 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
+
 import {
   doc,
   getDoc,
-  updateDoc,
   collection,
+  query,
+  where,
   getDocs,
-  setDoc,
-  deleteDoc,
-  serverTimestamp
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ================= GLOBAL STATE ================= */
+import { openRadar } from "/myUm/partials/js/radar.js";
 
-let currentRoomId = null;
-let roomData = null;
-let attendanceData = [];
-let currentUser = JSON.parse(localStorage.getItem("myum_user"));
 
-/* ================= INIT ================= */
+// ===============================
+// ELEMENTS DOM
+// ===============================
+const roomInfo = document.getElementById("roomInfo");
+const presenceList = document.getElementById("presenceList");
 
-document.addEventListener("DOMContentLoaded", async () => {
+const openRadarBtn = document.getElementById("openRadarBtn");
+const addManualBtn = document.getElementById("addManualBtn");
 
-  await injectPartials();
 
-  const params = new URLSearchParams(window.location.search);
-  currentRoomId = params.get("roomId");
+// ===============================
+// PARAMS
+// ===============================
+const urlParams = new URLSearchParams(window.location.search);
+const roomId = urlParams.get("roomId");
 
-  if (!currentRoomId) {
-    alert("Salon introuvable.");
-    return;
-  }
 
-  await loadRoom();
-  await loadAttendances();
-  initActions();
-});
+// ===============================
+// FORMAT DATE
+// ===============================
+function formatDate(dateStr) {
+  if (!dateStr) return "";
 
-/* ================= PARTIAL INJECTION ================= */
+  if (dateStr.includes("/")) return dateStr;
 
-async function injectPartials() {
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+
+// ===============================
+// LOAD ROOM DETAILS
+// ===============================
+async function loadRoom() {
+
+  if (!roomId) return;
 
   try {
 
-    // HEADER
-    const headerRes = await fetch("/myUm/partials/header-back.html");
+    const roomRef = doc(db, "presenceRooms", roomId);
+    const snap = await getDoc(roomRef);
 
-    if (headerRes.ok) {
-
-      document.getElementById("headerContainer").innerHTML =
-        await headerRes.text();
-
-      // IMPORT dynamique du gestionnaire
-      const { initBackHeader } = await import(
-        "/myUm/partials/js/back-header.js"
-      );
-
-      // Initialise le bouton retour
-      initBackHeader();
-
+    if (!snap.exists()) {
+      roomInfo.innerHTML =
+        "<p class='text-sm text-gray-500 p-4'>Salon introuvable</p>";
+      return;
     }
 
-    // MODAL
-    const modalRes = await fetch("/myUm/partials/add-member.html");
+    const room = snap.data();
 
-    if (modalRes.ok) {
-      document.getElementById("modalContainer").innerHTML =
-        await modalRes.text();
-    }
+    renderRoom(room);
 
   } catch (error) {
-    console.error("Erreur injection partials :", error);
+    console.error(error);
   }
+
 }
-/* ================= LOAD ROOM ================= */
 
-async function loadRoom() {
 
-  const snap = await getDoc(doc(db, "presenceRooms", currentRoomId));
-  if (!snap.exists()) return;
+// ===============================
+// RENDER ROOM
+// ===============================
+function renderRoom(room) {
 
-  roomData = snap.data();
+  const formattedDate = formatDate(room.date);
 
-  const container = document.getElementById("roomInfo");
+  roomInfo.innerHTML = `
+    <div class="p-4 space-y-3">
 
-  container.innerHTML = `
-    <div><strong>Date :</strong> ${roomData.date || "-"}</div>
-    <div><strong>Chorale :</strong> ${roomData.chorale || "-"}</div>
-    <div><strong>Motif :</strong> ${roomData.type || "-"}</div>
-    <div><strong>Description :</strong> ${roomData.description || "-"}</div>
-    <div><strong>Statut :</strong> ${roomData.status || "-"}</div>
+      <div class="flex items-center gap-3">
+
+        <img 
+          src="${room.photoURL || '/myUm/assets/default-avatar.png'}"
+          class="w-12 h-12 rounded-full object-cover">
+
+        <div>
+          <p class="text-sm font-semibold text-gray-800">
+            ${room.chorale}
+          </p>
+          <p class="text-xs text-gray-500">
+            ${formattedDate} • ${room.type}
+          </p>
+        </div>
+
+      </div>
+
+      <div class="flex justify-between items-center">
+
+        <span class="text-xs px-2 py-1 rounded-full 
+          ${room.status === "active"
+            ? "bg-green-100 text-green-600"
+            : "bg-gray-100 text-gray-500"}">
+          ${room.status === "active" ? "Actif" : "Fermé"}
+        </span>
+
+        <p class="text-xs text-gray-400">
+          ${room.createdByName || ""}
+        </p>
+
+      </div>
+
+      <p class="text-xs text-gray-500">
+        ${room.description || "Aucune description"}
+      </p>
+
+    </div>
   `;
 
-  // Permissions
-  if (currentUser?.role === "admin") {
-    const reopenBtn = document.getElementById("reopenRoom");
-    if (reopenBtn) reopenBtn.classList.remove("hidden");
-  }
-
-  if (currentUser?.role === "super_admin") {
-    document.getElementById("approveRoom")?.classList.remove("hidden");
-    document.getElementById("disapproveRoom")?.classList.remove("hidden");
-  }
 }
 
-/* ================= LOAD ATTENDANCES ================= */
 
-async function loadAttendances() {
+// ===============================
+// LOAD PRESENCES
+// ===============================
+async function loadPresences() {
 
-  const snap = await getDocs(
-    collection(db, "presenceRooms", currentRoomId, "attendances")
-  );
+  if (!roomId) return;
 
-  const body = document.getElementById("attendanceTableBody");
-  body.innerHTML = "";
-  attendanceData = [];
+  try {
 
-  let index = 1;
-
-  snap.forEach(docSnap => {
-
-    const data = docSnap.data();
-    const formatted =
-      data.timestamp?.toDate().toLocaleString("fr-FR") || "-";
-
-    attendanceData.push({
-      Nom: data.fullName,
-      Username: data.username,
-      Genre: data.genre,
-      Méthode: data.method,
-      Horodatage: formatted
-    });
-
-    body.innerHTML += `
-      <tr>
-        <td class="px-4 py-3">${index++}</td>
-        <td class="px-4 py-3">${data.fullName}</td>
-        <td class="px-4 py-3">${data.username}</td>
-        <td class="px-4 py-3 text-center">${data.genre}</td>
-        <td class="px-4 py-3">${data.method}</td>
-        <td class="px-4 py-3">${formatted}</td>
-        <td class="px-4 py-3 text-center">
-          ${
-            currentUser?.role !== "member"
-              ? `<button onclick="removeAttendance('${docSnap.id}')"
-                  class="text-red-600 hover:text-red-800">
-                  <i class="bi bi-trash"></i>
-                 </button>`
-              : ""
-          }
-        </td>
-      </tr>
-    `;
-  });
-}
-
-/* ================= REMOVE ATTENDANCE ================= */
-
-window.removeAttendance = async function (userId) {
-  await deleteDoc(
-    doc(db, "presenceRooms", currentRoomId, "attendances", userId)
-  );
-  await loadAttendances();
-};
-
-/* ================= ACTIONS ================== */
-
-function initActions() {
-
-  // OPEN MODAL
-  document.getElementById("openAddMember")?.addEventListener("click", () => {
-    document.getElementById("addMemberModal")?.classList.remove("hidden");
-  });
-
-  // CLOSE MODAL
-  document.getElementById("closeAddMember")
-    ?.addEventListener("click", closeModal);
-
-  document.getElementById("cancelAddMember")
-    ?.addEventListener("click", closeModal);
-
-  // CONFIRM ADD
-  document.getElementById("confirmAddMember")
-    ?.addEventListener("click", addManualUser);
-
-  // REOPEN ROOM
-  document.getElementById("reopenRoom")
-    ?.addEventListener("click", async () => {
-
-      await updateDoc(
-        doc(db, "presenceRooms", currentRoomId),
-        { status: "active" }
-      );
-
-      alert("Salon réouvert.");
-      await loadRoom();
-    });
-
-  // APPROVE
-  document.getElementById("approveRoom")
-    ?.addEventListener("click", async () => {
-
-      await updateDoc(
-        doc(db, "presenceRooms", currentRoomId),
-        { status: "approved" }
-      );
-
-      alert("Salon approuvé.");
-      await loadRoom();
-    });
-
-  // DISAPPROVE
-  document.getElementById("disapproveRoom")
-    ?.addEventListener("click", async () => {
-
-      await updateDoc(
-        doc(db, "presenceRooms", currentRoomId),
-        { status: "active" }
-      );
-
-      alert("Salon désapprouvé.");
-      await loadRoom();
-    });
-
-  // EXPORT
-  document.getElementById("exportXLS")
-    ?.addEventListener("click", exportXLS);
-
-  document.getElementById("exportPDF")
-    ?.addEventListener("click", exportPDF);
-}
-
-/* ================= CLOSE MODAL ================= */
-
-function closeModal() {
-  document.getElementById("addMemberModal")
-    ?.classList.add("hidden");
-}
-
-/* ================= ADD MANUAL USER ================= */
-
-async function addManualUser() {
-
-  const usernameInput = document.getElementById("manualUsername");
-  const username = usernameInput?.value.trim();
-
-  if (!username) return alert("Username requis.");
-
-  const usersSnap = await getDocs(collection(db, "users"));
-
-  let userFound = null;
-
-  usersSnap.forEach(docSnap => {
-    if (docSnap.data().username === username) {
-      userFound = { ...docSnap.data(), id: docSnap.id };
-    }
-  });
-
-  if (!userFound) {
-    alert("Utilisateur introuvable.");
-    return;
-  }
-
-  await setDoc(
-    doc(db, "presenceRooms", currentRoomId, "attendances", userFound.id),
-    {
-      userId: userFound.id,
-      username: userFound.username,
-      fullName: userFound.firstName + " " + userFound.lastName,
-      genre: userFound.genre === "Homme" ? "M" : "F",
-      method: "manual",
-      timestamp: serverTimestamp()
-    }
-  );
-
-  usernameInput.value = "";
-  closeModal();
-  await loadAttendances();
-}
-
-/* ================= EXPORT XLS ================= */
-
-function exportXLS() {
-
-  if (!attendanceData.length) {
-    alert("Aucune donnée à exporter.");
-    return;
-  }
-
-  const worksheet = XLSX.utils.json_to_sheet(attendanceData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Participants");
-
-  XLSX.writeFile(workbook, "Participants_Salon_MyUm.xlsx");
-}
-
-/* ================= EXPORT PDF ================= */
-
-function exportPDF() {
-
-  if (!attendanceData.length) {
-    alert("Aucune donnée à exporter.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(14);
-  doc.text("Liste des Participants", 14, 15);
-
-  let y = 25;
-
-  attendanceData.forEach((p, i) => {
-    doc.setFontSize(10);
-    doc.text(
-      `${i + 1}. ${p.Nom} - ${p.Username} - ${p.Genre} - ${p.Méthode}`,
-      14,
-      y
+    const q = query(
+      collection(db, "presences"),
+      where("roomId", "==", roomId),
+      orderBy("createdAt", "desc")
     );
-    y += 7;
+
+    const snap = await getDocs(q);
+
+    renderPresences(snap);
+
+  } catch (error) {
+    console.error(error);
+  }
+
+}
+
+
+// ===============================
+// RENDER PRESENCES
+// ===============================
+function renderPresences(snap) {
+
+  presenceList.innerHTML = "";
+
+  if (snap.empty) {
+    presenceList.innerHTML =
+      "<p class='text-sm text-gray-500 p-4'>Aucune présence</p>";
+    return;
+  }
+
+  snap.forEach(doc => {
+
+    const data = doc.data();
+
+    const item = document.createElement("div");
+
+    item.className = `
+      flex items-center gap-3 p-4 border-b border-gray-100
+    `;
+
+    item.innerHTML = `
+      <img 
+        src="${data.photoURL || '/myUm/assets/default-avatar.png'}"
+        class="w-10 h-10 rounded-full object-cover">
+
+      <div class="flex-1">
+
+        <p class="text-sm font-medium text-gray-800">
+          ${data.fullName || "Utilisateur"}
+        </p>
+
+        <p class="text-xs text-gray-500">
+          ${data.method === "manual" ? "Ajout manuel" : "Radar"}
+        </p>
+
+      </div>
+    `;
+
+    presenceList.appendChild(item);
+
   });
 
-  doc.save("Participants_Salon_MyUm.pdf");
 }
+
+
+// ===============================
+// ACTIONS
+// ===============================
+
+// RADAR
+openRadarBtn.addEventListener("click", () => {
+  if (!roomId) return;
+  openRadar(roomId);
+});
+
+
+// AJOUT MANUEL
+addManualBtn.addEventListener("click", () => {
+  if (!roomId) return;
+
+  window.location.href =
+    `/myUm/admin/add-presence-manual.html?roomId=${roomId}`;
+});
+
+
+// ===============================
+// INIT
+// ===============================
+loadRoom();
+loadPresences();
