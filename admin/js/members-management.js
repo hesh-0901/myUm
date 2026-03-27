@@ -1,198 +1,145 @@
 /*members-management.js*/
 import { db } from "/myUm/mains.js/firebase-config.js";
-
 import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const membersList = document.getElementById("membersList");
 const searchInput = document.getElementById("searchInput");
 const addBtn = document.getElementById("addBtn");
 
+const modal = document.getElementById("memberModal");
+const modalName = document.getElementById("modalName");
+const modalMatricule = document.getElementById("modalMatricule");
+const saveBtn = document.getElementById("saveMember");
+const closeModal = document.getElementById("closeModal");
+
 let members = [];
 let filtered = [];
+let editing = null;
 
-
-// ===============================
-// LOAD MEMBERS
-// ===============================
+// LOAD
 async function loadMembers() {
+
+  membersList.innerHTML = loader();
 
   const snap = await getDocs(collection(db, "members"));
 
-  members = [];
-
-  snap.forEach(docSnap => {
-    members.push({
-      id: docSnap.id,
-      ...docSnap.data()
-    });
-  });
-
+  members = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   filtered = [...members];
 
   render();
 }
 
-
-// ===============================
 // RENDER
-// ===============================
 function render() {
 
   membersList.innerHTML = "";
 
+  if (!filtered.length) {
+    membersList.innerHTML = `<p class="text-sm text-gray-400 text-center">Aucun membre</p>`;
+    return;
+  }
+
   filtered.forEach(m => {
 
-    const item = document.createElement("div");
+    const el = document.createElement("div");
 
-    item.className = "bg-white rounded-3xl shadow-sm p-4 flex items-center justify-between active:scale-[0.98] transition";
+    el.className = "bg-white rounded-3xl shadow-sm p-4 flex justify-between items-center";
 
-    item.innerHTML = `
+    el.innerHTML = `
       <div class="flex items-center gap-3">
-    
+
         <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
           ${m.fullName?.charAt(0) || "U"}
         </div>
-    
+
         <div>
           <p class="text-sm font-semibold">${m.fullName}</p>
           <p class="text-xs text-gray-500">${m.matricule}</p>
         </div>
-    
+
       </div>
-    
+
       <div class="flex gap-3 text-lg">
-    
-        <i class="bi bi-pencil edit text-gray-400 active:scale-90"></i>
-    
-        <i class="bi bi-trash delete text-red-400 active:scale-90"></i>
-    
+        <i class="bi bi-pencil edit text-gray-400"></i>
+        <i class="bi bi-trash delete text-red-400"></i>
       </div>
     `;
 
-    // EDIT
-    item.querySelector(".edit").addEventListener("click", () => {
-      editMember(m);
-    });
-
-    // DELETE
-    item.querySelector(".delete").addEventListener("click", async () => {
-
-      if (!confirm("Supprimer ce membre ?")) return;
-
+    el.querySelector(".edit").onclick = () => openModal(m);
+    el.querySelector(".delete").onclick = async () => {
+      if (!confirm("Supprimer ?")) return;
       await deleteDoc(doc(db, "members", m.id));
       loadMembers();
+    };
 
+    membersList.appendChild(el);
+  });
+}
+
+// MODAL OPEN
+function openModal(m = null) {
+
+  editing = m;
+
+  modalName.value = m?.fullName || "";
+  modalMatricule.value = m?.matricule || "";
+
+  modal.classList.remove("hidden");
+}
+
+// SAVE
+saveBtn.onclick = async () => {
+
+  const name = modalName.value.trim();
+  const mat = modalMatricule.value.trim();
+
+  if (!name || !mat) return;
+
+  if (editing) {
+    await updateDoc(doc(db, "members", editing.id), {
+      fullName: name,
+      matricule: mat
     });
+  } else {
+    await addDoc(collection(db, "members"), {
+      fullName: name,
+      matricule: mat
+    });
+  }
 
-    membersList.appendChild(item);
-  });
-}
-
-
-// ===============================
-// ADD MEMBER
-// ===============================
-addBtn.addEventListener("click", async () => {
-
-  const name = prompt("Nom complet");
-  const matricule = prompt("Matricule");
-
-  if (!name || !matricule) return;
-
-  await addDoc(collection(db, "members"), {
-    fullName: name,
-    matricule: matricule
-  });
-
+  modal.classList.add("hidden");
   loadMembers();
-});
+};
 
+// CLOSE
+closeModal.onclick = () => modal.classList.add("hidden");
+modal.onclick = e => { if (e.target === modal) modal.classList.add("hidden"); };
 
-// ===============================
-// EDIT MEMBER
-// ===============================
-async function editMember(m) {
+// ADD BTN
+addBtn.onclick = () => openModal();
 
-  const name = prompt("Modifier nom", m.fullName);
-  const matricule = prompt("Modifier matricule", m.matricule);
-
-  if (!name || !matricule) return;
-
-  await updateDoc(doc(db, "members", m.id), {
-    fullName: name,
-    matricule: matricule
-  });
-
-  loadMembers();
-}
-
-
-// ===============================
 // SEARCH
-// ===============================
-searchInput.addEventListener("input", () => {
+searchInput.oninput = () => {
 
-  const value = searchInput.value.toLowerCase();
+  const v = searchInput.value.toLowerCase();
 
   filtered = members.filter(m =>
-    m.fullName.toLowerCase().includes(value) ||
-    m.matricule.toLowerCase().includes(value)
+    (m.fullName || "").toLowerCase().includes(v) ||
+    (m.matricule || "").toLowerCase().includes(v)
   );
 
   render();
-});
+};
 
+// LOADER
+function loader() {
+  return `
+  <div class="animate-pulse space-y-2">
+    <div class="h-14 bg-gray-100 rounded-xl"></div>
+    <div class="h-14 bg-gray-100 rounded-xl"></div>
+  </div>`;
+}
 
-// ===============================
 loadMembers();
-
-const importBtn = document.getElementById("importBtn");
-const importFile = document.getElementById("importFile");
-
-// CLICK → ouvre le fichier
-importBtn.addEventListener("click", () => {
-  importFile.click();
-});
-
-// IMPORT
-importFile.addEventListener("change", async (e) => {
-
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const text = await file.text();
-
-  try {
-
-    const data = JSON.parse(text);
-
-    let count = 0;
-
-    for (const m of data) {
-
-      if (!m.fullName || !m.matricule) continue;
-
-      await addDoc(collection(db, "members"), {
-        fullName: m.fullName,
-        matricule: m.matricule
-      });
-
-      count++;
-    }
-
-    alert(`Import terminé : ${count} membres`);
-
-  } catch (err) {
-
-    alert("Fichier invalide (JSON attendu)");
-
-  }
-
-});
