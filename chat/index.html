@@ -1,19 +1,22 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
 
+  <!-- MOBILE NO ZOOM -->
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <title>MyUm Chat</title>
 
+  <!-- TAILWIND -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- ICONS -->
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+  <!-- STYLE -->
   <style>
     .glow {
       box-shadow: 0 0 40px rgba(63,169,245,0.4),
@@ -22,7 +25,7 @@
   </style>
 </head>
 
-<body class="bg-black text-white">
+<body id="body" class="bg-black text-white opacity-0 transition duration-300">
 
   <!-- 🔴 MAINTENANCE -->
   <div id="maintenanceScreen"
@@ -34,12 +37,11 @@
       </div>
 
       <h1 class="text-xl font-bold mb-3">
-       Votre Nouvelle fontionnalité de Messagerie 
-        entre Choriste  arrive bientôt...
+        Votre nouvelle fonctionnalité de messagerie entre choristes arrive bientôt...
       </h1>
 
       <p id="maintenanceText" class="text-red-400 text-sm mb-4">
-        Maintenance en cours...
+        Chargement...
       </p>
 
       <div id="eta" class="text-xs text-lightblue hidden">
@@ -49,19 +51,17 @@
 
   </div>
 
-
-  <!-- 🟢 APP -->
+  <!-- 🟢 APP (ADMIN) -->
   <div id="appContent" class="hidden bg-white text-black min-h-screen">
 
     <div class="p-6 text-center">
       <h1 class="text-lg font-bold mb-2">Chat MyUm</h1>
-      <p class="text-sm text-gray-500">Version admin active</p>
+      <p class="text-sm text-gray-500">Mode admin actif</p>
     </div>
 
-    <!-- 👉 Ici tu mettras ton vrai chat plus tard -->
+    <!-- 👉 ici tu vas mettre ton vrai chat plus tard -->
 
   </div>
-
 
   <!-- 🔥 SCRIPT -->
   <script type="module">
@@ -74,6 +74,7 @@
 
     const maintenanceEl = document.getElementById("maintenanceScreen");
     const appEl = document.getElementById("appContent");
+    const body = document.getElementById("body");
 
     async function init() {
       try {
@@ -81,6 +82,12 @@
         const myId = user?.id;
 
         const ADMIN_ID = "DZapCVzzXOmcazOyuod9";
+
+        // 🔒 pas connecté = maintenance
+        if (!myId) {
+          showMaintenance();
+          return;
+        }
 
         const snap = await getDoc(doc(db, "config", "app"));
 
@@ -91,8 +98,9 @@
 
         const data = snap.data();
 
-        // Texte maintenance
-        textEl.textContent = data.maintenanceMessage || "Votre Nouvelle fontionnalité de Messagerie entre Choriste \n arrive bientôt...";
+        // 🔥 TEXTE HTML (avec retour ligne)
+        textEl.innerHTML = data.maintenanceMessage 
+          || "Votre nouvelle fonctionnalité de messagerie<br>entre choristes arrive bientôt...";
 
         if (data.maintenanceETA) {
           etaEl.classList.remove("hidden");
@@ -101,13 +109,13 @@
 
         const isMaintenance = data.chatMaintenance === true;
 
-        // 🔥 ADMIN = bypass
+        // 👑 ADMIN
         if (myId === ADMIN_ID) {
           showApp();
           return;
         }
 
-        // 🔥 USERS
+        // 👥 USERS
         if (isMaintenance) {
           showMaintenance();
         } else {
@@ -115,7 +123,7 @@
         }
 
       } catch (e) {
-        console.error(e);
+        console.error("INIT ERROR:", e);
         showMaintenance();
       }
     }
@@ -123,14 +131,23 @@
     function showApp() {
       maintenanceEl.classList.add("hidden");
       appEl.classList.remove("hidden");
+      body.classList.remove("opacity-0");
     }
 
     function showMaintenance() {
       maintenanceEl.classList.remove("hidden");
       appEl.classList.add("hidden");
+      body.classList.remove("opacity-0");
     }
 
     init();
+
+    // 🔥 DEV MODE → SUPPRIME CACHE SERVICE WORKER
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      });
+    }
   </script>
 
 </body>
