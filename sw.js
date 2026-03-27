@@ -269,8 +269,14 @@ self.addEventListener("message", event => {
     self.skipWaiting();
   }
 
-});
+  if (event.data === "GET_VERSION") {
+    event.source.postMessage({
+      type: "VERSION",
+      version: VERSION
+    });
+  }
 
+});
 /* =========================
    GET VERSION (CLIENT)
 ========================= */
