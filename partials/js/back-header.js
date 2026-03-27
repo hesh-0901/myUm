@@ -67,11 +67,12 @@ if (path.endsWith("users-management.html")) {
     window.location.href = "/myUm/admin/members-management.html";
   });
 
-  container.style.position = "relative"; // ✅ CORRECT
+  const headerContent = container.firstElementChild;
 
-  container.appendChild(actionBtn);
-}
+  if (!headerContent) return;
 
+  headerContent.style.position = "relative";
+  headerContent.appendChild(actionBtn);
 }
 
 /* ===============================
