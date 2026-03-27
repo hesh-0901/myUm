@@ -35,6 +35,14 @@ class="bg-gray-100 flex justify-center overflow-x-hidden font-[Inter]">
 
 <header id="header-back"></header>
 
+<!-- ICON ACTION -->
+<div class="absolute top-4 right-4 z-10">
+  <button id="membersShortcut"
+    class="text-gray-400 text-lg active:scale-95 transition">
+    <i class="bi bi-collection"></i>
+  </button>
+</div>
+
 <div class="h-16"></div>
 
 <!-- contenu -->
@@ -206,6 +214,12 @@ src="/myUm/admin/js/users-management.js"></script>
 
 <script type="module"
 src="/myUm/mains.js/app-init.js"></script>
+
+<script>
+document.getElementById("membersShortcut")?.addEventListener("click", () => {
+  window.location.href = "/myUm/admin/members-management.html";
+});
+</script>
 
 </body>
 </html>
