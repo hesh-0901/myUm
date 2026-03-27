@@ -35,14 +35,6 @@ class="bg-gray-100 flex justify-center overflow-x-hidden font-[Inter]">
 
 <header id="header-back"></header>
 
-<!-- ICON ACTION -->
-<div class="absolute top-4 right-4 z-10">
-  <button id="membersShortcut"
-    class="text-gray-400 text-lg active:scale-95 transition">
-    <i class="bi bi-collection"></i>
-  </button>
-</div>
-
 <div class="h-16"></div>
 
 <!-- contenu -->
@@ -218,6 +210,33 @@ src="/myUm/mains.js/app-init.js"></script>
 <script>
 document.getElementById("membersShortcut")?.addEventListener("click", () => {
   window.location.href = "/myUm/admin/members-management.html";
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const header = document.getElementById("header-back");
+
+  if (!header) return;
+
+  const actionBtn = document.createElement("button");
+
+  actionBtn.innerHTML = '<i class="bi bi-collection"></i>';
+
+  actionBtn.className = `
+    absolute right-4 top-1/2 -translate-y-1/2
+    text-gray-400 text-lg active:scale-95 transition
+  `;
+
+  actionBtn.addEventListener("click", () => {
+    window.location.href = "/myUm/admin/members-management.html";
+  });
+
+  header.style.position = "relative";
+
+  header.appendChild(actionBtn);
+
 });
 </script>
 
