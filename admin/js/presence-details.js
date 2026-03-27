@@ -5,15 +5,17 @@ import {
   getDoc,
   collection,
   query,
-  where,
   getDocs,
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { openRadar } from "/myUm/partials/js/radar.js";
+import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
 
 
+// ===============================
 // DOM
+// ===============================
 const roomInfo = document.getElementById("roomInfo");
 const presenceList = document.getElementById("presenceList");
 const presenceCount = document.getElementById("presenceCount");
@@ -22,12 +24,16 @@ const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
 
 
+// ===============================
 // PARAM
+// ===============================
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get("roomId");
 
 
+// ===============================
 // FORMAT
+// ===============================
 function formatDate(dateStr) {
   if (!dateStr) return "";
 
@@ -49,8 +55,12 @@ function formatTime(timestamp) {
 }
 
 
+// ===============================
 // LOAD ROOM
+// ===============================
 async function loadRoom() {
+
+  if (!roomId) return;
 
   const snap = await getDoc(doc(db, "presenceRooms", roomId));
 
@@ -93,13 +103,17 @@ async function loadRoom() {
 }
 
 
+// ===============================
 // LOAD PRESENCES
+// ===============================
 async function loadPresences() {
 
-    const q = query(
-      collection(db, "presenceRooms", roomId, "attendances"),
-      orderBy("timestamp", "desc")
-    );
+  if (!roomId) return;
+
+  const q = query(
+    collection(db, "presenceRooms", roomId, "attendances"),
+    orderBy("timestamp", "desc")
+  );
 
   const snap = await getDocs(q);
 
@@ -107,7 +121,9 @@ async function loadPresences() {
 }
 
 
+// ===============================
 // RENDER
+// ===============================
 function renderPresences(snap) {
 
   presenceList.innerHTML = "";
@@ -145,7 +161,7 @@ function renderPresences(snap) {
         </p>
 
         <p class="text-xs text-gray-500">
-          ${d.chorale || "—"} • ${formatTime(d.createdAt)}
+          ${d.chorale || "—"} • ${formatTime(d.timestamp)}
         </p>
 
       </div>
@@ -165,9 +181,9 @@ function renderPresences(snap) {
 }
 
 
-import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
-
+// ===============================
 // ACTIONS
+// ===============================
 openRadarBtn.addEventListener("click", () => {
   if (!roomId) return;
   openRadar(roomId);
@@ -178,6 +194,9 @@ addManualBtn.addEventListener("click", () => {
   openAttendanceModal(roomId);
 });
 
+
+// ===============================
 // INIT
+// ===============================
 loadRoom();
 loadPresences();
