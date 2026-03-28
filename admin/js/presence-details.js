@@ -13,6 +13,7 @@ import { openRadar } from "/myUm/partials/js/radar.js";
 import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
 
 
+
 // ===============================
 // DOM
 // ===============================
@@ -23,6 +24,12 @@ const presenceCount = document.getElementById("presenceCount");
 const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
 
+// ===============================
+// STATS
+// ===============================
+let allPresences = [];
+let currentPage = 1;
+const perPage = 20;
 
 // ===============================
 // PARAM
@@ -117,51 +124,53 @@ async function loadPresences() {
 
   const snap = await getDocs(q);
 
-  renderPresences(snap);
+  allPresences = [];
+
+  snap.forEach(doc => {
+    allPresences.push(doc.data());
+  });
+
+  renderPaginated();
 }
 
 
 // ===============================
 // RENDER
 // ===============================
-function renderPresences(snap) {
+function renderPresences(list, startIndex = 0) {
 
   presenceList.innerHTML = "";
 
-  if (snap.empty) {
+  if (!list.length) {
     presenceList.innerHTML =
       "<p class='text-sm text-gray-500'>Aucune présence</p>";
     presenceCount.innerText = "0 présence";
     return;
   }
 
-  presenceCount.innerText = `${snap.size} présence(s)`;
+  presenceCount.innerText = `${allPresences.length} présence(s)`;
 
-  snap.forEach(doc => {
+  list.forEach((d, i) => {
 
-    const d = doc.data();
+    const index = startIndex + i + 1;
 
     const row = document.createElement("div");
 
     row.className = `
-      flex items-center gap-3
-      p-3 rounded-xl border border-gray-100
-      active:scale-[0.98] transition
+      flex items-center justify-between
+      px-4 py-2
+      border-b border-gray-100
     `;
 
     row.innerHTML = `
-      <img 
-        src="${d.photoURL || '/myUm/assets/default-avatar.png'}"
-        class="w-9 h-9 rounded-full object-cover">
-
       <div class="flex-1">
 
-        <p class="text-sm font-medium text-gray-800">
-          ${d.fullName || "Utilisateur"}
+        <p class="text-sm text-gray-800 font-medium">
+          ${index.toString().padStart(2, "0")} • ${d.username || ""}
         </p>
 
         <p class="text-xs text-gray-500">
-          ${d.chorale || "—"} • ${formatTime(d.timestamp)}
+          ${d.fullName || ""} • ${formatTime(d.timestamp)}
         </p>
 
       </div>
@@ -175,11 +184,8 @@ function renderPresences(snap) {
     `;
 
     presenceList.appendChild(row);
-
   });
-
 }
-
 
 // ===============================
 // ACTIONS
@@ -194,6 +200,76 @@ addManualBtn.addEventListener("click", () => {
   openAttendanceModal(roomId);
 });
 
+
+// ===============================
+// MAJ AUTO
+// ===============================
+window.addEventListener("presenceUpdated", () => {
+  loadPresences();
+});
+
+// ===============================
+// PAGINATION
+// ===============================
+function renderPaginated() {
+
+  const totalPages = Math.ceil(allPresences.length / perPage);
+
+  if (currentPage > totalPages) currentPage = totalPages || 1;
+
+  const start = (currentPage - 1) * perPage;
+  const pageData = allPresences.slice(start, start + perPage);
+
+  renderPresences(pageData, start);
+
+  renderPaginationControls(totalPages);
+}
+
+// ===============================
+// CONTROL PAGINATION
+// ===============================
+function renderPaginationControls(totalPages) {
+
+  let controls = document.getElementById("paginationControls");
+
+  if (!controls) {
+    controls = document.createElement("div");
+    controls.id = "paginationControls";
+    controls.className = "flex items-center justify-center gap-4 py-3 text-sm text-gray-600";
+
+    presenceList.after(controls);
+  }
+
+  controls.innerHTML = `
+    <button ${currentPage === 1 ? "disabled" : ""}
+      class="px-2">
+      ←
+    </button>
+
+    <span>${currentPage} / ${totalPages || 1}</span>
+
+    <button ${currentPage === totalPages ? "disabled" : ""}
+      class="px-2">
+      →
+    </button>
+  `;
+
+  const [prevBtn, nextBtn] = controls.querySelectorAll("button");
+
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPaginated();
+    }
+  };
+
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPaginated();
+    }
+  };
+}
 
 // ===============================
 // INIT
