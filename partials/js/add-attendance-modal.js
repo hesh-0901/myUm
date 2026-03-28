@@ -70,25 +70,27 @@ async function loadData() {
   users = [];
   members = [];
 
-  usersSnap.forEach(doc => {
-    const data = doc.data();
-    users.push({
-      id: doc.id,
-      username: data.username || "",
-      fullName: data.fullName || data.name || "",
-      source: "users"
+    usersSnap.forEach(doc => {
+      const d = doc.data();
+    
+      users.push({
+        id: doc.id,
+        username: d.username || "",
+        fullName: `${d.firstName || ""} ${d.lastName || ""}`.trim(),
+        source: "users"
+      });
     });
-  });
-
-  membersSnap.forEach(doc => {
-    const data = doc.data();
-    members.push({
-      id: doc.id,
-      username: data.username || "",
-      fullName: data.name || data.fullName || "",
-      source: "members"
+    
+    membersSnap.forEach(doc => {
+      const d = doc.data();
+    
+      members.push({
+        id: doc.id,
+        username: d.matricule || "", // ⚠️ IMPORTANT
+        fullName: d.fullName || "",
+        source: "members"
+      });
     });
-  });
 
   mergeData();
 }
@@ -217,10 +219,18 @@ async function addAttendance(member) {
 
   if (!currentRoomId || !member.username) return;
 
+  const fullName = member.fullName?.trim();
+
+  // ⚠️ sécurité anti vide
+  if (!fullName) {
+    alert("Nom introuvable pour ce choriste");
+    return;
+  }
+
   await addDoc(
     collection(db, "presenceRooms", currentRoomId, "attendances"),
     {
-      fullName: getName(member),
+      fullName: fullName,
       username: member.username,
       chorale: getChorale(member.username),
 
@@ -229,6 +239,5 @@ async function addAttendance(member) {
     }
   );
 
-  // UX propre → fermeture + feedback visuel futur possible
   document.getElementById("attendanceModal")?.classList.add("hidden");
 }
