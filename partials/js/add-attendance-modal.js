@@ -115,7 +115,7 @@ function applyFilters() {
       if (type === "id") {
         return m.username?.toLowerCase().includes(value);
       }
-      return m.name?.toLowerCase().includes(value);
+      return (m.fullName || m.name || "").toLowerCase().includes(value);
     });
   }
 
@@ -149,7 +149,9 @@ function render(list) {
             ? '<i class="bi bi-exclamation-circle text-gray-400 text-xs ml-1"></i>'
             : ""}
         </p>
-        <p class="text-xs text-gray-500">${m.name || ""}</p>
+        <p class="text-xs text-gray-500">
+  ${m.fullName || m.name || ""}
+</p>
       </div>
 
       <span class="text-primary text-sm font-semibold">+</span>
@@ -172,7 +174,7 @@ async function addAttendance(member) {
   await addDoc(
     collection(db, "presenceRooms", currentRoomId, "attendances"),
     {
-      fullName: member.name,
+      fullName: member.fullName || member.name || "",
       username: member.username,
       chorale: getChorale(member.username),
 
