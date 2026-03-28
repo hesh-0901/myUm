@@ -10,12 +10,12 @@ let currentRoomId = null;
 let users = [];
 let members = [];
 let finalList = [];
-
+let presentUsernames = new Set();
 
 // ===============================
 // OPEN
 // ===============================
-export function openAttendanceModal(roomId) {
+export async function openAttendanceModal(roomId) {
 
   currentRoomId = roomId;
 
@@ -26,14 +26,14 @@ export function openAttendanceModal(roomId) {
 
   initEvents();
 
-  // ⚡ évite re-fetch inutile
+  await loadPresentUsers(); // 🔥 AJOUT
+
   if (finalList.length === 0) {
-    loadData();
+    await loadData();
   } else {
     render(finalList);
   }
 }
-
 
 // ===============================
 // INIT EVENTS
@@ -161,6 +161,22 @@ function applyFilters() {
   render(list);
 }
 
+async function loadPresentUsers() {
+
+  const snap = await getDocs(
+    collection(db, "presenceRooms", currentRoomId, "attendances")
+  );
+
+  presentUsernames.clear();
+
+  snap.forEach(doc => {
+    const d = doc.data();
+    if (d.username) {
+      presentUsernames.add(d.username);
+    }
+  });
+
+}
 
 // ===============================
 // RENDER
@@ -180,12 +196,15 @@ function render(list) {
 
   list.forEach(m => {
 
+    const isPresent = presentUsernames.has(m.username);
+
     const item = document.createElement("div");
 
     item.className = `
       flex items-center justify-between
       p-3 rounded-xl border border-gray-100
-      active:scale-[0.98] transition
+      ${isPresent ? "opacity-50" : "active:scale-[0.98]"}
+      transition
     `;
 
     item.innerHTML = `
@@ -197,15 +216,22 @@ function render(list) {
             : ""}
         </p>
 
-          <p class="text-xs text-gray-500">
-            ${m.fullName}
-          </p>
+        <p class="text-xs text-gray-500">
+          ${m.fullName}
+        </p>
       </div>
 
-      <span class="text-primary text-sm font-semibold">+</span>
+      ${
+        isPresent
+          ? `<span class="text-[10px] text-gray-400">déjà présent</span>`
+          : `<span class="text-primary text-sm font-semibold">+</span>`
+      }
     `;
 
-    item.onclick = () => addAttendance(m);
+    // 🔒 Empêche clic si déjà présent
+    if (!isPresent) {
+      item.onclick = () => addAttendance(m);
+    }
 
     container.appendChild(item);
   });
@@ -221,7 +247,6 @@ async function addAttendance(member) {
 
   const fullName = member.fullName?.trim();
 
-  // ⚠️ sécurité anti vide
   if (!fullName) {
     alert("Nom introuvable pour ce choriste");
     return;
@@ -233,11 +258,18 @@ async function addAttendance(member) {
       fullName: fullName,
       username: member.username,
       chorale: getChorale(member.username),
-
       method: "manual",
       timestamp: serverTimestamp()
     }
   );
 
+  // 🔥 REFRESH MODAL (doublon + badge)
+  await loadPresentUsers();
+  render(finalList);
+
+  // 🔥 BONUS : prévenir la page principale
+  window.dispatchEvent(new Event("presenceUpdated"));
+
+  // fermer modal
   document.getElementById("attendanceModal")?.classList.add("hidden");
 }
