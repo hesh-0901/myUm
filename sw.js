@@ -2,7 +2,7 @@
    VERSIONING
 ========================= */
 
-const VERSION = "v1.35.6.1.3.3"; 
+const VERSION = "v1.35.6.1.3.4"; 
 /* 
 Enoch MWALIMU
 découpage chat-room.js : fixing bugs d'affichage
