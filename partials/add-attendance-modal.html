@@ -11,14 +11,35 @@ class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 ba
       </button>
     </div>
 
-    <!-- SEARCH -->
-    <input
-      id="attendanceSearch"
-      placeholder="Rechercher choriste..."
-      class="w-full p-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-primary">
+    <!-- CONTROLS -->
+    <div class="flex gap-2">
 
-    <!-- LIST -->
-    <div id="attendanceResults" class="max-h-60 overflow-y-auto space-y-2"></div>
+      <!-- CHORALE -->
+      <select id="choraleFilter"
+      class="p-2 rounded-xl border text-xs">
+        <option value="all">Toute</option>
+        <option value="PC">PC</option>
+        <option value="VN">VN</option>
+        <option value="WS">WS</option>
+      </select>
+
+      <!-- TYPE -->
+      <select id="searchType"
+      class="p-2 rounded-xl border text-xs">
+        <option value="name">Nom</option>
+        <option value="id">ID</option>
+      </select>
+
+      <!-- INPUT -->
+      <input id="attendanceSearch"
+      placeholder="Rechercher..."
+      class="flex-1 p-2 rounded-xl border text-xs">
+
+    </div>
+
+    <!-- RESULTS -->
+    <div id="attendanceResults"
+    class="max-h-60 overflow-y-auto space-y-2"></div>
 
   </div>
 
