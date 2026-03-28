@@ -25,7 +25,13 @@ export function openAttendanceModal(roomId) {
   modal.classList.remove("hidden");
 
   initEvents();
-  loadData();
+
+  // ⚡ évite re-fetch inutile
+  if (finalList.length === 0) {
+    loadData();
+  } else {
+    render(finalList);
+  }
 }
 
 
@@ -38,6 +44,8 @@ function initEvents() {
   const searchInput = document.getElementById("attendanceSearch");
   const searchType = document.getElementById("searchType");
   const choraleFilter = document.getElementById("choraleFilter");
+
+  if (!closeBtn || !searchInput || !searchType || !choraleFilter) return;
 
   closeBtn.onclick = () => {
     document.getElementById("attendanceModal").classList.add("hidden");
@@ -54,26 +62,47 @@ function initEvents() {
 // ===============================
 async function loadData() {
 
-  const usersSnap = await getDocs(collection(db, "users"));
-  const membersSnap = await getDocs(collection(db, "members"));
+  const [usersSnap, membersSnap] = await Promise.all([
+    getDocs(collection(db, "users")),
+    getDocs(collection(db, "members"))
+  ]);
 
   users = [];
   members = [];
 
-  usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data(), source: "users" }));
-  membersSnap.forEach(doc => members.push({ id: doc.id, ...doc.data(), source: "members" }));
+  usersSnap.forEach(doc => {
+    const data = doc.data();
+    users.push({
+      id: doc.id,
+      username: data.username || "",
+      fullName: data.fullName || data.name || "",
+      source: "users"
+    });
+  });
+
+  membersSnap.forEach(doc => {
+    const data = doc.data();
+    members.push({
+      id: doc.id,
+      username: data.username || "",
+      fullName: data.name || data.fullName || "",
+      source: "members"
+    });
+  });
 
   mergeData();
 }
 
 
 // ===============================
-// MERGE
+// MERGE (users prioritaire)
 // ===============================
 function mergeData() {
 
   const usersMap = {};
-  users.forEach(u => usersMap[u.username] = u);
+  users.forEach(u => {
+    if (u.username) usersMap[u.username] = true;
+  });
 
   finalList = [...users];
 
@@ -88,14 +117,22 @@ function mergeData() {
 
 
 // ===============================
-// FILTERS
+// HELPERS
 // ===============================
 function getChorale(username) {
   if (!username) return "";
   const parts = username.split("-");
-  return parts[parts.length - 1];
+  return parts[parts.length - 1] || "";
 }
 
+function getName(m) {
+  return m.fullName || "";
+}
+
+
+// ===============================
+// FILTERS
+// ===============================
 function applyFilters() {
 
   const value = document.getElementById("attendanceSearch").value.toLowerCase();
@@ -113,9 +150,9 @@ function applyFilters() {
   if (value) {
     list = list.filter(m => {
       if (type === "id") {
-        return m.username?.toLowerCase().includes(value);
+        return (m.username || "").toLowerCase().includes(value);
       }
-      return (m.fullName || m.name || "").toLowerCase().includes(value);
+      return getName(m).toLowerCase().includes(value);
     });
   }
 
@@ -129,7 +166,15 @@ function applyFilters() {
 function render(list) {
 
   const container = document.getElementById("attendanceResults");
+  if (!container) return;
+
   container.innerHTML = "";
+
+  if (list.length === 0) {
+    container.innerHTML =
+      "<p class='text-xs text-gray-400 text-center'>Aucun résultat</p>";
+    return;
+  }
 
   list.forEach(m => {
 
@@ -144,14 +189,15 @@ function render(list) {
     item.innerHTML = `
       <div>
         <p class="text-sm font-semibold text-gray-800">
-          ${m.username || ""}
+          ${m.username}
           ${m.source === "members"
             ? '<i class="bi bi-exclamation-circle text-gray-400 text-xs ml-1"></i>'
             : ""}
         </p>
+
         <p class="text-xs text-gray-500">
-  ${m.fullName || m.name || ""}
-</p>
+          ${getName(m)}
+        </p>
       </div>
 
       <span class="text-primary text-sm font-semibold">+</span>
@@ -169,12 +215,12 @@ function render(list) {
 // ===============================
 async function addAttendance(member) {
 
-  if (!currentRoomId) return;
+  if (!currentRoomId || !member.username) return;
 
   await addDoc(
     collection(db, "presenceRooms", currentRoomId, "attendances"),
     {
-      fullName: member.fullName || member.name || "",
+      fullName: getName(member),
       username: member.username,
       chorale: getChorale(member.username),
 
@@ -183,5 +229,6 @@ async function addAttendance(member) {
     }
   );
 
-  document.getElementById("attendanceModal").classList.add("hidden");
+  // UX propre → fermeture + feedback visuel futur possible
+  document.getElementById("attendanceModal")?.classList.add("hidden");
 }
