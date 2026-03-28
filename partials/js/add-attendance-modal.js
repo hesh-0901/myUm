@@ -1,5 +1,4 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
-
 import {
   collection,
   getDocs,
@@ -7,95 +6,130 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-
-// ===============================
-// STATE
-// ===============================
 let currentRoomId = null;
+let users = [];
 let members = [];
+let finalList = [];
 
 
 // ===============================
-// OPEN MODAL
+// OPEN
 // ===============================
 export function openAttendanceModal(roomId) {
 
   currentRoomId = roomId;
 
   const modal = document.getElementById("attendanceModal");
-
   if (!modal) return;
 
   modal.classList.remove("hidden");
 
-  initModalEvents(); // 🔥 important
-
-  loadMembers();
+  initEvents();
+  loadData();
 }
 
 
 // ===============================
-// INIT EVENTS (APRÈS INJECTION)
+// INIT EVENTS
 // ===============================
-function initModalEvents() {
+function initEvents() {
 
-  const modal = document.getElementById("attendanceModal");
   const closeBtn = document.getElementById("closeAttendanceModal");
   const searchInput = document.getElementById("attendanceSearch");
+  const searchType = document.getElementById("searchType");
+  const choraleFilter = document.getElementById("choraleFilter");
 
-  if (!modal || !closeBtn || !searchInput) return;
-
-  // CLOSE
   closeBtn.onclick = () => {
-    modal.classList.add("hidden");
+    document.getElementById("attendanceModal").classList.add("hidden");
   };
 
-  // SEARCH
-  searchInput.oninput = () => {
-
-    const value = searchInput.value.toLowerCase();
-
-    const filtered = members.filter(m =>
-      m.name?.toLowerCase().includes(value)
-    );
-
-    renderMembers(filtered);
-  };
-
+  searchInput.oninput = applyFilters;
+  searchType.onchange = applyFilters;
+  choraleFilter.onchange = applyFilters;
 }
 
 
 // ===============================
-// LOAD MEMBERS
+// LOAD DATA
 // ===============================
-async function loadMembers() {
+async function loadData() {
 
-  const results = document.getElementById("attendanceResults");
+  const usersSnap = await getDocs(collection(db, "users"));
+  const membersSnap = await getDocs(collection(db, "members"));
 
-  if (!results) return;
-
-  const snap = await getDocs(collection(db, "members"));
-
+  users = [];
   members = [];
 
-  snap.forEach(doc => {
-    members.push({ id: doc.id, ...doc.data() });
+  usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data(), source: "users" }));
+  membersSnap.forEach(doc => members.push({ id: doc.id, ...doc.data(), source: "members" }));
+
+  mergeData();
+}
+
+
+// ===============================
+// MERGE
+// ===============================
+function mergeData() {
+
+  const usersMap = {};
+  users.forEach(u => usersMap[u.username] = u);
+
+  finalList = [...users];
+
+  members.forEach(m => {
+    if (!usersMap[m.username]) {
+      finalList.push(m);
+    }
   });
 
-  renderMembers(members);
+  render(finalList);
+}
+
+
+// ===============================
+// FILTERS
+// ===============================
+function getChorale(username) {
+  if (!username) return "";
+  const parts = username.split("-");
+  return parts[parts.length - 1];
+}
+
+function applyFilters() {
+
+  const value = document.getElementById("attendanceSearch").value.toLowerCase();
+  const type = document.getElementById("searchType").value;
+  const chorale = document.getElementById("choraleFilter").value;
+
+  let list = [...finalList];
+
+  // CHORALE
+  if (chorale !== "all") {
+    list = list.filter(m => getChorale(m.username) === chorale);
+  }
+
+  // SEARCH
+  if (value) {
+    list = list.filter(m => {
+      if (type === "id") {
+        return m.username?.toLowerCase().includes(value);
+      }
+      return m.name?.toLowerCase().includes(value);
+    });
+  }
+
+  render(list);
 }
 
 
 // ===============================
 // RENDER
 // ===============================
-function renderMembers(list) {
+function render(list) {
 
-  const results = document.getElementById("attendanceResults");
-
-  if (!results) return;
-
-  results.innerHTML = "";
+  const container = document.getElementById("attendanceResults");
+  container.innerHTML = "";
 
   list.forEach(m => {
 
@@ -109,46 +143,43 @@ function renderMembers(list) {
 
     item.innerHTML = `
       <div>
-        <p class="text-sm font-medium text-gray-800">${m.name}</p>
-        <p class="text-xs text-gray-500">${m.chorale || ""}</p>
+        <p class="text-sm font-semibold text-gray-800">
+          ${m.username || ""}
+          ${m.source === "members"
+            ? '<i class="bi bi-exclamation-circle text-gray-400 text-xs ml-1"></i>'
+            : ""}
+        </p>
+        <p class="text-xs text-gray-500">${m.name || ""}</p>
       </div>
 
-      <span class="text-primary text-sm font-semibold">
-        Ajouter
-      </span>
+      <span class="text-primary text-sm font-semibold">+</span>
     `;
 
-    item.addEventListener("click", () => addAttendance(m));
+    item.onclick = () => addAttendance(m);
 
-    results.appendChild(item);
-
+    container.appendChild(item);
   });
-
 }
 
 
 // ===============================
-// ADD ATTENDANCE
+// ADD
 // ===============================
 async function addAttendance(member) {
 
   if (!currentRoomId) return;
 
-  const modal = document.getElementById("attendanceModal");
-
   await addDoc(
     collection(db, "presenceRooms", currentRoomId, "attendances"),
     {
       fullName: member.name,
-      chorale: member.chorale || "",
-      userId: member.id,
+      username: member.username,
+      chorale: getChorale(member.username),
 
       method: "manual",
-
       timestamp: serverTimestamp()
     }
   );
 
-  if (modal) modal.classList.add("hidden");
-
+  document.getElementById("attendanceModal").classList.add("hidden");
 }
