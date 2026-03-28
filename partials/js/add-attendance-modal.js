@@ -197,9 +197,9 @@ function render(list) {
             : ""}
         </p>
 
-        <p class="text-xs text-gray-500">
-          ${getName(m)}
-        </p>
+          <p class="text-xs text-gray-500">
+            ${m.fullName}
+          </p>
       </div>
 
       <span class="text-primary text-sm font-semibold">+</span>
