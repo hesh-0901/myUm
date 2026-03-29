@@ -1,5 +1,5 @@
 // ===============================
-// EXPORT USERS XLSX - MYUM
+// EXPORT USERS XLSX - MYUM (PRO)
 // ===============================
 
 import { db } from "/myUm/mains.js/firebase-config.js";
@@ -14,7 +14,6 @@ import {
 export function initExportUsers() {
 
   const btn = document.getElementById("exportUsersBtn");
-
   if (!btn) return;
 
   btn.addEventListener("click", async () => {
@@ -24,7 +23,7 @@ export function initExportUsers() {
 }
 
 // ===============================
-// EXPORT FUNCTION
+// EXPORT
 // ===============================
 async function exportUsersToXLSX() {
 
@@ -37,8 +36,9 @@ async function exportUsersToXLSX() {
     snap.forEach(docSnap => {
 
       const data = docSnap.data();
+      const id = docSnap.id;
 
-      users.push(formatUserForExport(data));
+      users.push(formatUserForExport(data, id));
 
     });
 
@@ -53,22 +53,28 @@ async function exportUsersToXLSX() {
 }
 
 // ===============================
-// FORMAT USER DATA
+// FORMAT USER
 // ===============================
-function formatUserForExport(user) {
+function formatUserForExport(user, id) {
 
   return {
 
-    // ===== PROFIL =====
-    "Nom complet": (user.firstName || "") + " " + (user.lastName || ""),
+    // ===== SYSTEM =====
+    "User ID": id,
+
+    // ===== IDENTITÉ =====
+    "Prénom": user.firstName || "",
+    "Nom": user.lastName || "",
+    "Nom complet": `${user.firstName || ""} ${user.lastName || ""}`,
     "Username": user.username || "",
-    "Fonction": user.fonction || "",
+    "Photo URL": user.photoURL || "",
 
     // ===== INFOS =====
     "Bio": user.bio || "",
     "Téléphone": user.phone || "",
-    "Date de naissance": user.birthday || "",
+    "Date de naissance": formatDate(user.birthday),
     "Âge": user.age || "",
+    "Fonction": user.fonction || "",
 
     // ===== PERSONNEL =====
     "Genre": user.genre || "",
@@ -80,11 +86,15 @@ function formatUserForExport(user) {
     // ===== EGLISE =====
     "Type membre": user.typeMembre || "",
     "Église provenance": user.egliseProvenance || "",
-    
-    // 🔥 AJOUT ICI
+
+    // 🔥 DATES IMPORTANTES
     "Date adhésion église": formatDate(user.dateAdhesionEglise),
     "Date adhésion département": formatDate(user.dateAdhesionDepartement),
-    
+
+    // 🔥 ANCIENNETÉ
+    "Ancienneté église (jours)": calculateDays(user.dateAdhesionEglise),
+    "Ancienneté département (jours)": calculateDays(user.dateAdhesionDepartement),
+
     "Année baptême": user.anneeBapteme || "",
     "Type baptême": user.typeBapteme || "",
     "Statut affermissement": user.statutAffermissement || "",
@@ -111,9 +121,6 @@ function formatArray(value) {
 
 }
 
-// ===============================
-// FORMAT DATE
-// ===============================
 function formatDate(date) {
 
   if (!date) return "";
@@ -123,6 +130,20 @@ function formatDate(date) {
   if (isNaN(d)) return "";
 
   return d.toLocaleDateString("fr-FR");
+
+}
+
+function calculateDays(date) {
+
+  if (!date) return "";
+
+  const d = new Date(date);
+
+  if (isNaN(d)) return "";
+
+  const diff = Date.now() - d.getTime();
+
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
 
 }
 
@@ -137,6 +158,13 @@ function generateXLSX(data) {
   }
 
   const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // 🔥 Auto width columns (pro)
+  const cols = Object.keys(data[0]).map(key => ({
+    wch: Math.max(key.length, 15)
+  }));
+
+  worksheet["!cols"] = cols;
 
   const workbook = XLSX.utils.book_new();
 
