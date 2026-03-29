@@ -179,6 +179,9 @@ function renderPresences(list, startIndex = 0) {
           }">
             ${d.method === "manual" ? "Manuel" : "Radar"}
           </span>
+          <span class="ml-1 text-gray-400">
+            ${getStatusLabel(d)}
+          </span>
         </p>
 
       </div>
