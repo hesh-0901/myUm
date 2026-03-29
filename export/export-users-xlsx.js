@@ -80,6 +80,11 @@ function formatUserForExport(user) {
     // ===== EGLISE =====
     "Type membre": user.typeMembre || "",
     "Église provenance": user.egliseProvenance || "",
+    
+    // 🔥 AJOUT ICI
+    "Date adhésion église": formatDate(user.dateAdhesionEglise),
+    "Date adhésion département": formatDate(user.dateAdhesionDepartement),
+    
     "Année baptême": user.anneeBapteme || "",
     "Type baptême": user.typeBapteme || "",
     "Statut affermissement": user.statutAffermissement || "",
