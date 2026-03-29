@@ -1,5 +1,5 @@
 // ===============================
-// EXPORT USERS XLSX - MYUM PRO MAX
+// EXPORT USERS XLSX - MYUM PRO MAX FINAL
 // ===============================
 
 import { db } from "/myUm/mains.js/firebase-config.js";
@@ -38,11 +38,6 @@ async function exportUsersToXLSX() {
 
     });
 
-    // 🔥 TRI PAR DATE ADHÉSION (plus récents en haut)
-    users.sort((a, b) => {
-      return parseDate(b["Date adhésion église"]) - parseDate(a["Date adhésion église"]);
-    });
-
     generateXLSX(users);
 
   } catch (error) {
@@ -56,44 +51,36 @@ async function exportUsersToXLSX() {
 // ===============================
 function formatUser(user, id) {
 
+  const eglise = splitDate(user.dateAdhesionEglise);
+  const departement = splitDate(user.dateAdhesionDepartement);
+
   return {
 
     // ===== SYSTEM =====
     "User ID": id,
 
     // ===== IDENTITÉ =====
-    "Prénom": user.firstName || "",
-    "Nom": user.lastName || "",
     "Nom complet": `${user.firstName || ""} ${user.lastName || ""}`,
     "Username": user.username || "",
 
-    // ===== INFOS =====
-    "Téléphone": user.phone || "",
-    "Date de naissance": formatDate(user.birthday),
-    "Fonction": user.fonction || "",
-
     // ===== PERSONNEL =====
     "Genre": user.genre || "",
-    "État civil": user.etatCivil || "",
-    "Statut relationnel": user.statutRelationnel || "",
     "Commune": user.commune || "",
-    "Vie séculière": formatArray(user.vieSeculiere),
 
     // ===== EGLISE =====
     "Type membre": user.typeMembre || "",
-    "Église provenance": user.egliseProvenance || "",
 
-    // 🔥 DATES PROPRES
-    "Date adhésion église": formatDate(user.dateAdhesionEglise),
-    "Date adhésion département": formatDate(user.dateAdhesionDepartement),
+    // 🔥 ÉGLISE SPLIT
+    "Année adhésion église": eglise.year,
+    "Date adhésion église": eglise.date,
 
-    "Année baptême": user.anneeBapteme || "",
-    "Type baptême": user.typeBapteme || "",
+    // 🔥 DÉPARTEMENT SPLIT
+    "Année adhésion département": departement.year,
+    "Date adhésion département": departement.date,
+
+    // ===== AUTRES =====
     "Statut affermissement": user.statutAffermissement || "",
     "Responsable ministère": user.responsableMinistere || "",
-
-    // ===== ACTIVITÉS =====
-    "Registre voix": user.registreVoix || "",
     "Groupe musique": user.groupeMusique || ""
 
   };
@@ -101,48 +88,33 @@ function formatUser(user, id) {
 }
 
 // ===============================
-// HELPERS
+// 🔥 SPLIT INTELLIGENT
 // ===============================
+function splitDate(value) {
 
-function formatArray(value) {
-  if (Array.isArray(value)) return value.join(", ");
-  return value || "";
-}
-
-// 🔥 FORMAT DATE ROBUSTE
-function formatDate(date) {
-
-  if (!date) return "";
-
-  // année seule
-  if (typeof date === "string" && /^\d{4}$/.test(date)) {
-    return date;
+  if (!value) {
+    return { year: "", date: "" };
   }
 
-  const d = new Date(date);
-
-  if (isNaN(d)) return "";
-
-  return d.toLocaleDateString("fr-FR");
-}
-
-// 🔥 PARSE POUR TRI
-function parseDate(date) {
-
-  if (!date) return 0;
-
-  // année seule
-  if (/^\d{4}$/.test(date)) {
-    return new Date(date + "-01-01").getTime();
+  // ✅ cas année seule
+  if (typeof value === "string" && /^\d{4}$/.test(value)) {
+    return {
+      year: value,
+      date: ""
+    };
   }
 
-  const parts = date.split("/");
+  // ✅ cas date complète
+  const d = new Date(value);
 
-  if (parts.length === 3) {
-    return new Date(parts.reverse().join("-")).getTime();
+  if (!isNaN(d)) {
+    return {
+      year: "",
+      date: d.toLocaleDateString("fr-FR")
+    };
   }
 
-  return 0;
+  return { year: "", date: "" };
 
 }
 
@@ -156,12 +128,12 @@ function generateXLSX(data) {
 
   const ws = XLSX.utils.json_to_sheet(data);
 
-  // 🔥 AUTO FILTER (Excel pro)
+  // filtre Excel
   ws["!autofilter"] = { ref: "A1:Z1" };
 
-  // 🔥 LARGEUR COLONNES
+  // largeur propre
   ws["!cols"] = Object.keys(data[0]).map(key => ({
-    wch: Math.max(key.length + 2, 18)
+    wch: Math.max(key.length + 2, 20)
   }));
 
   const wb = XLSX.utils.book_new();
