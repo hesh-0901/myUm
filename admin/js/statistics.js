@@ -8,7 +8,7 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-import { initExportUsers } from "/myUm/export/js/export-users-xlsx.js";
+import { initExportUsers } from "/myUm/export/export-users-xlsx.js";
 
 document.addEventListener("DOMContentLoaded", initDashboard);
 
