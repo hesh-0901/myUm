@@ -92,28 +92,30 @@ function formatUser(user, id) {
 // ===============================
 // 🔥 SPLIT INTELLIGENT
 // ===============================
-function splitDate(value) {
+function splitDate(dateValue, yearValue) {
 
-  if (!value) {
-    return { year: "", date: "" };
+  // 🔥 PRIORITÉ À LA DATE (nouveaux membres)
+  if (dateValue) {
+
+    const d = new Date(dateValue);
+
+    if (!isNaN(d)) {
+      return {
+        year: "",
+        date: d.toLocaleDateString("fr-FR")
+      };
+    }
+
   }
 
-  // ✅ cas année seule
-  if (typeof value === "string" && /^\d{4}$/.test(value)) {
+  // 🔥 SINON ANNÉE (anciens membres)
+  if (yearValue) {
+
     return {
-      year: value,
+      year: yearValue,
       date: ""
     };
-  }
 
-  // ✅ cas date complète
-  const d = new Date(value);
-
-  if (!isNaN(d)) {
-    return {
-      year: "",
-      date: d.toLocaleDateString("fr-FR")
-    };
   }
 
   return { year: "", date: "" };
