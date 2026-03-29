@@ -1,8 +1,9 @@
 import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
-import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
+import autoTableModule from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
 
-// ===============================
-// EXPORT PDF
+// 🔥 FIX ICI
+const autoTable = autoTableModule.default;
+
 // ===============================
 export function exportToPDF(data = []) {
 
@@ -13,18 +14,12 @@ export function exportToPDF(data = []) {
 
   const doc = new jsPDF();
 
-  // ===============================
-  // HEADER
-  // ===============================
   doc.setFontSize(16);
   doc.text("Liste de présence", 14, 15);
 
   doc.setFontSize(10);
   doc.text(`Total : ${data.length}`, 14, 22);
 
-  // ===============================
-  // DATA
-  // ===============================
   const rows = data.map((d, i) => {
 
     const date = d.timestamp?.toDate();
@@ -45,9 +40,6 @@ export function exportToPDF(data = []) {
     ];
   });
 
-  // ===============================
-  // TABLE (🔥 FIX ICI)
-  // ===============================
   autoTable(doc, {
     startY: 28,
     head: [[
@@ -60,12 +52,8 @@ export function exportToPDF(data = []) {
       "Statut"
     ]],
     body: rows,
-    styles: {
-      fontSize: 8
-    },
-    headStyles: {
-      fillColor: [26, 54, 104] // primary
-    }
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [26, 54, 104] }
   });
 
   doc.save("presences.pdf");
