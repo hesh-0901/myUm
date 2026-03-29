@@ -11,6 +11,7 @@ import {
 
 import { openRadar } from "/myUm/partials/js/radar.js";
 import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
+import { initPresenceActions } from "/myUm/admin/js/presence-details-actions.js";
 
 
 
@@ -278,3 +279,4 @@ function renderPaginationControls(totalPages) {
 // ===============================
 loadRoom();
 loadPresences();
+initPresenceActions();
