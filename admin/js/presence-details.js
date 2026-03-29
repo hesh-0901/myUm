@@ -127,7 +127,7 @@ async function loadPresences() {
   allPresences = [];
 
   snap.forEach(doc => {
-    allPresences.push(doc.data());
+    allPresences.push({ id: doc.id, ...doc.data() });
   });
 
   renderPaginated();
@@ -163,30 +163,32 @@ function renderPresences(list, startIndex = 0) {
     `;
 
     row.innerHTML = `
-      <div class="flex-1">
+  <div class="flex-1">
 
-        <p class="text-sm text-gray-800 font-medium">
-          ${index.toString().padStart(2, "0")} • ${d.username || ""}
-        </p>
+    <p class="text-sm text-gray-800 font-medium">
+      ${index.toString().padStart(2, "0")} • ${d.username || ""}
+    </p>
 
-        <p class="text-xs text-gray-500">
-          ${d.fullName || ""} • ${formatTime(d.timestamp)}
-        </p>
-
-      </div>
-
-      <span class="text-[10px] px-2 py-1 rounded-full
-        ${d.method === "manual"
-          ? "bg-blue-100 text-blue-600"
-          : "bg-green-100 text-green-600"}">
+    <p class="text-xs text-gray-500">
+      ${d.fullName || ""} • ${formatTime(d.timestamp)}
+      <span class="ml-1 ${
+        d.method === "manual"
+          ? "text-blue-600"
+          : "text-green-600"
+      }">
         ${d.method === "manual" ? "Manuel" : "Radar"}
       </span>
-    `;
+    </p>
 
-    presenceList.appendChild(row);
-  });
-}
+  </div>
 
+  <!-- ACTIONS -->
+  <button class="actionBtn p-2 text-gray-500"
+    data-id="${d.id || ""}"
+    data-username="${d.username}">
+    <i class="bi bi-three-dots-vertical"></i>
+  </button>
+`;
 // ===============================
 // ACTIONS
 // ===============================
