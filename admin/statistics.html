@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Statistiques</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/myUm/manifest.json">
+  <link rel="icon" href="/myUm/assets/favicon.png">
+  <meta name="theme-color" content="#1A3668">
+
+  <!-- Tailwind (déjà présent normalement) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- XLSX -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body class="bg-gray-100 flex justify-center overflow-x-hidden">
+
+  <!-- APP SHELL -->
+  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+
+    <!-- HEADER (back) -->
+    <header id="header-container"></header>
+
+    <!-- MAIN -->
+    <main class="flex-1 overflow-y-auto p-5 space-y-6">
+
+      <!-- TITLE -->
+      <div>
+        <h1 class="text-lg font-semibold text-primary">Statistiques</h1>
+        <p class="text-sm text-gray-500">Vue globale de l’application</p>
+      </div>
+
+      <!-- STATS CARDS -->
+      <div class="space-y-4">
+
+        <!-- USERS -->
+        <div class="p-5 rounded-3xl shadow-sm bg-white border border-gray-100">
+          <p class="text-sm text-gray-500">Utilisateurs</p>
+          <p id="totalUsers" class="text-2xl font-semibold text-primary mt-1">0</p>
+        </div>
+
+        <!-- COMPLETION -->
+        <div class="p-5 rounded-3xl shadow-sm bg-white border border-gray-100">
+          <p class="text-sm text-gray-500">Profil complété moyen</p>
+
+          <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+            <div id="completionBar" class="bg-gradient-to-r from-medium to-lightblue h-2 rounded-full w-0"></div>
+          </div>
+
+          <p id="completionText" class="text-sm mt-2 text-gray-600">0%</p>
+        </div>
+
+      </div>
+
+      <!-- HIDDEN EXPORT BUTTON -->
+      <button id="exportUsersBtn"
+        class="opacity-0 absolute bottom-3 right-3 w-10 h-10">
+      </button>
+
+    </main>
+
+    <!-- FOOTER NAV -->
+    <footer id="nav-container"></footer>
+
+  </div>
+
+  <!-- SCRIPTS -->
+  <script type="module" src="/myUm/mains.js/app-init.js"></script>
+  <script type="module" src="/myUm/admin/js/statistics.js"></script>
+
+</body>
+</html>
