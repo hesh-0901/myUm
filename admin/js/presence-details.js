@@ -88,34 +88,29 @@ async function loadRoom() {
 
   const room = snap.data();
 
-  roomInfo.innerHTML = `
-    <div class="flex items-center gap-3">
+roomInfo.innerHTML = `
+  <div class="bg-gray-50 rounded-2xl p-3 space-y-1">
 
-      <img 
-        src="${room.photoURL || '/myUm/assets/default-avatar.png'}"
-        class="w-10 h-10 rounded-full object-cover">
+    <p class="text-sm font-semibold text-gray-800">
+      ${room.chorale}
+    </p>
 
-      <div class="flex-1">
+    <p class="text-xs text-gray-500">
+      ${formatDate(room.date)} • ${room.type}
+    </p>
 
-        <p class="text-sm font-semibold text-gray-800">
-          ${room.chorale}
-        </p>
+    <p class="text-xs text-gray-400">
+      ${room.createdByName || ""}
+    </p>
 
-        <p class="text-xs text-gray-500">
-          ${formatDate(room.date)} • ${room.type}
-        </p>
+    ${
+      room.description
+        ? `<p class="text-xs text-gray-500">${room.description}</p>`
+        : ""
+    }
 
-      </div>
-
-      <span class="text-[10px] px-2 py-1 rounded-full
-        ${room.status === "active"
-          ? "bg-green-100 text-green-600"
-          : "bg-gray-100 text-gray-500"}">
-        ${room.status === "active" ? "Actif" : "Fermé"}
-      </span>
-
-    </div>
-  `;
+  </div>
+`;
 }
 
 
