@@ -62,9 +62,6 @@ function showMenu(btn, id) {
     item.onclick = () => handleAction(item.dataset.action, id);
   });
 
-  setTimeout(() => {
-    document.addEventListener("click", removeMenu, { once: true });
-  }, 50);
 }
 
 
