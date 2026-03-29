@@ -1,5 +1,5 @@
 // ===============================
-// EXPORT USERS XLSX - MYUM (PRO)
+// EXPORT USERS XLSX - MYUM (FIXED)
 // ===============================
 
 import { db } from "/myUm/mains.js/firebase-config.js";
@@ -87,11 +87,11 @@ function formatUserForExport(user, id) {
     "Type membre": user.typeMembre || "",
     "Église provenance": user.egliseProvenance || "",
 
-    // 🔥 DATES IMPORTANTES
+    // 🔥 DATES (corrigées)
     "Date adhésion église": formatDate(user.dateAdhesionEglise),
     "Date adhésion département": formatDate(user.dateAdhesionDepartement),
 
-    // 🔥 ANCIENNETÉ
+    // 🔥 ANCIENNETÉ (corrigée)
     "Ancienneté église (jours)": calculateDays(user.dateAdhesionEglise),
     "Ancienneté département (jours)": calculateDays(user.dateAdhesionDepartement),
 
@@ -111,31 +111,39 @@ function formatUserForExport(user, id) {
 // ===============================
 // HELPERS
 // ===============================
+
+// tableau → string
 function formatArray(value) {
-
-  if (Array.isArray(value)) {
-    return value.join(", ");
-  }
-
+  if (Array.isArray(value)) return value.join(", ");
   return value || "";
-
 }
 
+// 🔥 FORMAT DATE ROBUSTE
 function formatDate(date) {
 
   if (!date) return "";
+
+  // ✅ cas année seule (ex: 2020)
+  if (typeof date === "string" && /^\d{4}$/.test(date)) {
+    return date;
+  }
 
   const d = new Date(date);
 
   if (isNaN(d)) return "";
 
   return d.toLocaleDateString("fr-FR");
-
 }
 
+// 🔥 CALCUL ANCIENNETÉ ROBUSTE
 function calculateDays(date) {
 
   if (!date) return "";
+
+  // ❌ si juste une année → pas de calcul
+  if (typeof date === "string" && /^\d{4}$/.test(date)) {
+    return "";
+  }
 
   const d = new Date(date);
 
@@ -159,9 +167,9 @@ function generateXLSX(data) {
 
   const worksheet = XLSX.utils.json_to_sheet(data);
 
-  // 🔥 Auto width columns (pro)
+  // auto width propre
   const cols = Object.keys(data[0]).map(key => ({
-    wch: Math.max(key.length, 15)
+    wch: Math.max(key.length, 18)
   }));
 
   worksheet["!cols"] = cols;
