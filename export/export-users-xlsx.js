@@ -51,34 +51,36 @@ async function exportUsersToXLSX() {
 // ===============================
 function formatUser(user, id) {
 
-  const eglise = splitDate(user.dateAdhesionEglise);
-  const departement = splitDate(user.dateAdhesionDepartement);
+  const eglise = splitDate(
+    user.dateAdhesionEglise,
+    user.anneeAdhesionEglise
+  );
+
+  const departement = splitDate(
+    user.dateAdhesionDepartement,
+    user.anneeAdhesionDepartement
+  );
 
   return {
 
-    // ===== SYSTEM =====
     "User ID": id,
 
-    // ===== IDENTITÉ =====
     "Nom complet": `${user.firstName || ""} ${user.lastName || ""}`,
     "Username": user.username || "",
 
-    // ===== PERSONNEL =====
     "Genre": user.genre || "",
     "Commune": user.commune || "",
 
-    // ===== EGLISE =====
     "Type membre": user.typeMembre || "",
 
-    // 🔥 ÉGLISE SPLIT
+    // 🔥 ÉGLISE
     "Année adhésion église": eglise.year,
     "Date adhésion église": eglise.date,
 
-    // 🔥 DÉPARTEMENT SPLIT
+    // 🔥 DÉPARTEMENT
     "Année adhésion département": departement.year,
     "Date adhésion département": departement.date,
 
-    // ===== AUTRES =====
     "Statut affermissement": user.statutAffermissement || "",
     "Responsable ministère": user.responsableMinistere || "",
     "Groupe musique": user.groupeMusique || ""
