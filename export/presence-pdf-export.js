@@ -1,6 +1,9 @@
 import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
 
+// 🔥 IMPORTANT : attacher le plugin
+jsPDF.API.autoTable = autoTable;
+
 // ===============================
 // EXPORT PDF
 // ===============================
@@ -23,7 +26,7 @@ export function exportToPDF(data = []) {
   doc.text(`Total : ${data.length}`, 14, 22);
 
   // ===============================
-  // TABLE DATA
+  // DATA
   // ===============================
   const rows = data.map((d, i) => {
 
@@ -45,7 +48,10 @@ export function exportToPDF(data = []) {
     ];
   });
 
-  autoTable(doc, {
+  // ===============================
+  // TABLE
+  // ===============================
+  doc.autoTable({
     startY: 28,
     head: [[
       "Index",
@@ -61,7 +67,7 @@ export function exportToPDF(data = []) {
       fontSize: 8
     },
     headStyles: {
-      fillColor: [26, 54, 104] // primary
+      fillColor: [26, 54, 104]
     }
   });
 
