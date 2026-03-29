@@ -1,6 +1,13 @@
 import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 import autoTableModule from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
 
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import { db } from "/myUm/mains.js/firebase-config.js";
+
 const autoTable = autoTableModule.default;
 
 // ===============================
@@ -22,6 +29,43 @@ async function loadImageAsBase64(url) {
 }
 
 // ===============================
+// 🔥 GET ALL MEMBERS
+// ===============================
+async function getAllMembers() {
+
+  const usersSnap = await getDocs(collection(db, "users"));
+  const membersSnap = await getDocs(collection(db, "members"));
+
+  const map = new Map();
+
+  usersSnap.forEach(doc => {
+    const d = doc.data();
+    if (!d.username) return;
+
+    map.set(d.username, {
+      username: d.username,
+      fullName: `${d.firstName || ""} ${d.lastName || ""}`.trim(),
+      chorale: d.username.split("-").pop()
+    });
+  });
+
+  membersSnap.forEach(doc => {
+    const d = doc.data();
+    if (!d.matricule) return;
+
+    if (!map.has(d.matricule)) {
+      map.set(d.matricule, {
+        username: d.matricule,
+        fullName: d.fullName,
+        chorale: d.matricule.split("-").pop()
+      });
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+// ===============================
 export async function exportAdvancedPDF(data = [], room = {}) {
 
   const doc = new jsPDF("p", "mm", "a4");
@@ -32,10 +76,9 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   const line = [229, 231, 235];
 
   // ===============================
-  // HEADER FUNCTION
+  // HEADER
   // ===============================
   function drawHeader() {
-
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(...dark);
@@ -58,7 +101,7 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   }
 
   // ===============================
-  // RESPONSABLE BLOCK
+  // ROOM BLOCK
   // ===============================
   async function drawRoomBlock(y = 45) {
 
@@ -78,7 +121,7 @@ export async function exportAdvancedPDF(data = [], room = {}) {
     doc.setTextColor(...dark);
 
     doc.text(
-      (room.createdByName || "Responsable inconnu").toUpperCase(),
+      (room.createdByName || "").toUpperCase(),
       14 + avatarSize + 4,
       y + 6
     );
@@ -94,15 +137,7 @@ export async function exportAdvancedPDF(data = [], room = {}) {
     );
 
     doc.setTextColor(...light);
-    doc.text(
-      `Date : ${room.date || "-"}`,
-      14 + avatarSize + 4,
-      y + 16
-    );
-
-    if (room.description) {
-      doc.text(room.description, 14, y + 24);
-    }
+    doc.text(`Date : ${room.date || "-"}`, 14 + avatarSize + 4, y + 16);
 
     doc.setDrawColor(...line);
     doc.line(14, y + 30, pageWidth - 14, y + 30);
@@ -111,58 +146,51 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   }
 
   // ===============================
-  // FORMAT TABLE
+  // 🔥 BUILD CHORALE FULL LIST
   // ===============================
-  function formatRows(list) {
-    return list.map((d, i) => {
+  const allMembers = await getAllMembers();
 
-      const date = d.timestamp?.toDate();
+  const choraleMembers = allMembers.filter(
+    m => m.chorale === room.chorale
+  );
 
-      return [
-        i + 1,
-        d.username || "",
-        d.fullName || "",
-        date
-          ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-          : "",
-        d.method === "manual" ? "Manuel" : "Radar",
-        d.status === "justified" ? "J" :
-        d.status === "suspended" ? "S" :
-        d.status === "special" ? "Sp" :
-        "P"
-      ];
-    });
+  const mainRows = choraleMembers.map((m, i) => {
+
+    const attendance = data.find(d => d.username === m.username);
+
+    return [
+      i + 1,
+      m.username,
+      m.fullName,
+      attendance ? "Présent" : "Absent"
+    ];
+  });
+
+  // ===============================
+  // OTHER GROUPS (present only)
+  // ===============================
+  function filterGroup(code) {
+    return data.filter(d => d.chorale === code);
   }
 
   // ===============================
-  // GROUPING
-  // ===============================
-  const mainGroup = data.filter(d => d.chorale === room.chorale);
-  const IN = data.filter(d => d.chorale === "IN");
-  const GT = data.filter(d => d.chorale === "GT");
-  const AD = data.filter(d => d.chorale === "AD");
-
-  // ===============================
-  // PAGE 1 → CHORALE
+  // PAGE 1
   // ===============================
   drawHeader();
   let startY = await drawRoomBlock();
 
-  doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.setTextColor(...dark);
-  doc.text(`CHORALE : ${room.chorale || "-"}`, 14, startY);
+  doc.text(`CHORALE : ${room.chorale}`, 14, startY);
 
   autoTable(doc, {
     startY: startY + 4,
-    head: [["#", "Username", "Nom", "Heure", "Méthode", "Statut"]],
-    body: formatRows(mainGroup),
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [245, 247, 250], textColor: dark }
+    head: [["#", "Username", "Nom", "Statut"]],
+    body: mainRows,
+    styles: { fontSize: 8 }
   });
 
   // ===============================
-  // PAGE 2 → AUTRES GROUPES
+  // PAGE 2
   // ===============================
   doc.addPage();
   drawHeader();
@@ -171,50 +199,27 @@ export async function exportAdvancedPDF(data = [], room = {}) {
 
   function drawSection(title, list) {
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(...dark);
+    const rows = list.map((d, i) => [
+      i + 1,
+      d.username,
+      d.fullName
+    ]);
+
     doc.text(title, 14, y);
 
     autoTable(doc, {
       startY: y + 2,
-      head: [["#", "Username", "Nom", "Heure", "Méthode", "Statut"]],
-      body: formatRows(list),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [245, 247, 250], textColor: dark }
+      head: [["#", "Username", "Nom"]],
+      body: rows,
+      styles: { fontSize: 8 }
     });
 
     y = doc.lastAutoTable.finalY + 8;
   }
 
-  drawSection("INSTRUMENTISTES (IN)", IN);
-  drawSection("VISITEURS (GT)", GT);
-  drawSection("ADMINISTRATION (AD)", AD);
-
-  // ===============================
-  // FOOTER GLOBAL
-  // ===============================
-  const pageCount = doc.internal.getNumberOfPages();
-
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-
-    const pageHeight = doc.internal.pageSize.getHeight();
-
-    doc.setDrawColor(...line);
-    doc.line(14, pageHeight - 25, 80, pageHeight - 25);
-
-    doc.setFontSize(9);
-    doc.setTextColor(...light);
-    doc.text("Signature du responsable", 14, pageHeight - 20);
-
-    doc.text(
-      `Page ${i}/${pageCount}`,
-      pageWidth - 14,
-      pageHeight - 10,
-      { align: "right" }
-    );
-  }
+  drawSection("INSTRUMENTISTES (IN)", filterGroup("IN"));
+  drawSection("VISITEURS (GT)", filterGroup("GT"));
+  drawSection("ADMINISTRATION (AD)", filterGroup("AD"));
 
   doc.save("presence-myum-advanced.pdf");
 }
