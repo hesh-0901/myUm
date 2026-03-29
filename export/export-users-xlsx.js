@@ -1,5 +1,5 @@
 // ===============================
-// EXPORT USERS XLSX - MYUM (FIXED)
+// EXPORT USERS XLSX - MYUM PRO MAX
 // ===============================
 
 import { db } from "/myUm/mains.js/firebase-config.js";
@@ -8,8 +8,6 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ===============================
-// INIT
 // ===============================
 export function initExportUsers() {
 
@@ -23,23 +21,26 @@ export function initExportUsers() {
 }
 
 // ===============================
-// EXPORT
-// ===============================
 async function exportUsersToXLSX() {
 
   try {
 
     const snap = await getDocs(collection(db, "users"));
 
-    const users = [];
+    let users = [];
 
     snap.forEach(docSnap => {
 
       const data = docSnap.data();
       const id = docSnap.id;
 
-      users.push(formatUserForExport(data, id));
+      users.push(formatUser(data, id));
 
+    });
+
+    // 🔥 TRI PAR DATE ADHÉSION (plus récents en haut)
+    users.sort((a, b) => {
+      return parseDate(b["Date adhésion église"]) - parseDate(a["Date adhésion église"]);
     });
 
     generateXLSX(users);
@@ -53,9 +54,7 @@ async function exportUsersToXLSX() {
 }
 
 // ===============================
-// FORMAT USER
-// ===============================
-function formatUserForExport(user, id) {
+function formatUser(user, id) {
 
   return {
 
@@ -67,13 +66,10 @@ function formatUserForExport(user, id) {
     "Nom": user.lastName || "",
     "Nom complet": `${user.firstName || ""} ${user.lastName || ""}`,
     "Username": user.username || "",
-    "Photo URL": user.photoURL || "",
 
     // ===== INFOS =====
-    "Bio": user.bio || "",
     "Téléphone": user.phone || "",
     "Date de naissance": formatDate(user.birthday),
-    "Âge": user.age || "",
     "Fonction": user.fonction || "",
 
     // ===== PERSONNEL =====
@@ -87,13 +83,9 @@ function formatUserForExport(user, id) {
     "Type membre": user.typeMembre || "",
     "Église provenance": user.egliseProvenance || "",
 
-    // 🔥 DATES (corrigées)
+    // 🔥 DATES PROPRES
     "Date adhésion église": formatDate(user.dateAdhesionEglise),
     "Date adhésion département": formatDate(user.dateAdhesionDepartement),
-
-    // 🔥 ANCIENNETÉ (corrigée)
-    "Ancienneté église (jours)": calculateDays(user.dateAdhesionEglise),
-    "Ancienneté département (jours)": calculateDays(user.dateAdhesionDepartement),
 
     "Année baptême": user.anneeBapteme || "",
     "Type baptême": user.typeBapteme || "",
@@ -112,7 +104,6 @@ function formatUserForExport(user, id) {
 // HELPERS
 // ===============================
 
-// tableau → string
 function formatArray(value) {
   if (Array.isArray(value)) return value.join(", ");
   return value || "";
@@ -123,7 +114,7 @@ function formatDate(date) {
 
   if (!date) return "";
 
-  // ✅ cas année seule (ex: 2020)
+  // année seule
   if (typeof date === "string" && /^\d{4}$/.test(date)) {
     return date;
   }
@@ -135,28 +126,26 @@ function formatDate(date) {
   return d.toLocaleDateString("fr-FR");
 }
 
-// 🔥 CALCUL ANCIENNETÉ ROBUSTE
-function calculateDays(date) {
+// 🔥 PARSE POUR TRI
+function parseDate(date) {
 
-  if (!date) return "";
+  if (!date) return 0;
 
-  // ❌ si juste une année → pas de calcul
-  if (typeof date === "string" && /^\d{4}$/.test(date)) {
-    return "";
+  // année seule
+  if (/^\d{4}$/.test(date)) {
+    return new Date(date + "-01-01").getTime();
   }
 
-  const d = new Date(date);
+  const parts = date.split("/");
 
-  if (isNaN(d)) return "";
+  if (parts.length === 3) {
+    return new Date(parts.reverse().join("-")).getTime();
+  }
 
-  const diff = Date.now() - d.getTime();
-
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+  return 0;
 
 }
 
-// ===============================
-// GENERATE XLSX
 // ===============================
 function generateXLSX(data) {
 
@@ -165,19 +154,20 @@ function generateXLSX(data) {
     return;
   }
 
-  const worksheet = XLSX.utils.json_to_sheet(data);
+  const ws = XLSX.utils.json_to_sheet(data);
 
-  // auto width propre
-  const cols = Object.keys(data[0]).map(key => ({
-    wch: Math.max(key.length, 18)
+  // 🔥 AUTO FILTER (Excel pro)
+  ws["!autofilter"] = { ref: "A1:Z1" };
+
+  // 🔥 LARGEUR COLONNES
+  ws["!cols"] = Object.keys(data[0]).map(key => ({
+    wch: Math.max(key.length + 2, 18)
   }));
 
-  worksheet["!cols"] = cols;
+  const wb = XLSX.utils.book_new();
 
-  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-
-  XLSX.writeFile(workbook, "myum_users.xlsx");
+  XLSX.writeFile(wb, "myum_users.xlsx");
 
 }
