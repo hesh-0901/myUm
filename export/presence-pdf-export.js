@@ -45,42 +45,66 @@ export function exportToPDF(data = [], room = {}) {
   doc.setDrawColor(...line);
   doc.line(14, 36, pageWidth - 14, 36);
 
-  // ===============================
-  // 👤 BLOC RESPONSABLE (PRO)
-  // ===============================
-  let y = 45;
+// ===============================
+// 👤 BLOC RESPONSABLE PREMIUM
+// ===============================
+let y = 45;
 
-  // Photo (si dispo)
+// 🔹 PHOTO (safe fallback)
+const avatarSize = 16;
+
+try {
   if (room.photoURL) {
-    try {
-      const img = new Image();
-      img.src = room.photoURL;
-
-      // ⚠️ jsPDF image async limité → fallback si erreur
-      doc.addImage(img, "JPEG", 14, y, 14, 14);
-    } catch {}
+    // ⚠️ image externe peut échouer → on ignore silencieusement
+    doc.addImage(room.photoURL, "JPEG", 14, y, avatarSize, avatarSize);
   }
+} catch (e) {
+  // fallback → rien (design reste propre)
+}
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(...dark);
+// 🔹 TEXTE PRINCIPAL
+doc.setFont("helvetica", "bold");
+doc.setFontSize(11);
+doc.setTextColor(31, 41, 55);
 
-  doc.text(room.createdByName || "-", 32, y + 6);
+doc.text(
+  (room.createdByName || "Responsable inconnu").toUpperCase(),
+  14 + avatarSize + 4,
+  y + 6
+);
 
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(...light);
+// 🔹 META (chorale + type)
+doc.setFont("helvetica", "normal");
+doc.setFontSize(9);
+doc.setTextColor(75, 85, 99);
 
-  doc.text(`${room.chorale || "-"} • ${room.type || "-"}`, 32, y + 11);
+doc.text(
+  `${room.chorale || "-"} • ${room.type || "-"}`,
+  14 + avatarSize + 4,
+  y + 11
+);
 
+// 🔹 DATE (isolée = important visuellement)
+doc.setTextColor(107, 114, 128);
+doc.text(
+  `Date : ${room.date || "-"}`,
+  14 + avatarSize + 4,
+  y + 16
+);
+
+// 🔹 DESCRIPTION (ligne séparée = premium)
+if (room.description) {
+  doc.setTextColor(107, 114, 128);
   doc.text(
-    `${room.date || "-"} • ${room.description || "-"}`,
-    32,
-    y + 16
+    room.description,
+    14,
+    y + 24
   );
+}
 
-  // Ligne séparation
-  doc.setDrawColor(...line);
-  doc.line(14, y + 22, pageWidth - 14, y + 22);
+// 🔹 LIGNE FINE
+doc.setDrawColor(229, 231, 235);
+doc.line(14, y + 30, pageWidth - 14, y + 30);
 
   // ===============================
   // 📊 TABLE
