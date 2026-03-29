@@ -145,7 +145,7 @@ async function loadHeader() {
   if (title) title.innerText = "Statistiques";
 
 }
-
+console.log("HEADER LOADED");
 // ===============================
 function setText(id, value) {
 
