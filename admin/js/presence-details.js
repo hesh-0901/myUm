@@ -29,11 +29,11 @@ function bindExportButtons() {
     xlsxBtn.onclick = () => exportToXLSX(allPresences);
   }
 
-if (pdfBtn) {
-  pdfBtn.onclick = async () => {
-    await exportAdvancedPDF(allPresences, currentRoom);
-  };
-}
+  if (pdfBtn) {
+    pdfBtn.onclick = async () => {
+      await exportAdvancedPDF(allPresences, currentRoom);
+    };
+  }
 }
 
 // ===============================
