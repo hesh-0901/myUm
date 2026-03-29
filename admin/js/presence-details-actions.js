@@ -12,19 +12,24 @@ let roomId = new URLSearchParams(window.location.search).get("roomId");
 // ===============================
 export function initPresenceActions() {
 
-  document.addEventListener("click", async (e) => {
+  document.body.addEventListener("click", async (e) => {
 
     const btn = e.target.closest(".actionBtn");
-    if (!btn) return;
 
-    const id = btn.dataset.id;
+    if (btn) {
+      e.stopPropagation(); // 🔥 important
 
-    showMenu(btn, id);
+      const id = btn.dataset.id;
+      showMenu(btn, id);
+      return;
+    }
+
+    // 👉 clic ailleurs → ferme menu
+    removeMenu();
 
   });
+
 }
-
-
 // ===============================
 // SHOW MENU
 // ===============================
