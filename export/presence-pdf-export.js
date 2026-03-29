@@ -4,7 +4,25 @@ import autoTableModule from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/
 const autoTable = autoTableModule.default;
 
 // ===============================
-export function exportToPDF(data = [], room = {}) {
+// 🔥 LOAD IMAGE BASE64 (FIX PHOTO)
+// ===============================
+async function loadImageAsBase64(url) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+// ===============================
+export async function exportToPDF(data = [], room = {}) {
 
   if (!data.length) {
     alert("Aucune donnée à exporter");
@@ -17,9 +35,9 @@ export function exportToPDF(data = [], room = {}) {
   // ===============================
   // 🎨 COLORS (PRO)
   // ===============================
-  const dark = [31, 41, 55];     // gris profond
-  const light = [107, 114, 128]; // gris secondaire
-  const line = [229, 231, 235];  // gris clair
+  const dark = [31, 41, 55];
+  const light = [107, 114, 128];
+  const line = [229, 231, 235];
 
   // ===============================
   // 🧾 HEADER PREMIUM
@@ -41,70 +59,58 @@ export function exportToPDF(data = [], room = {}) {
   doc.setFontSize(9);
   doc.text("MyUM Application", 14, 33);
 
-  // Ligne fine
   doc.setDrawColor(...line);
   doc.line(14, 36, pageWidth - 14, 36);
 
-// ===============================
-// 👤 BLOC RESPONSABLE PREMIUM
-// ===============================
-let y = 45;
+  // ===============================
+  // 👤 BLOC RESPONSABLE PREMIUM
+  // ===============================
+  let y = 45;
+  const avatarSize = 16;
 
-// 🔹 PHOTO (safe fallback)
-const avatarSize = 16;
+  try {
+    if (room.photoURL) {
+      const base64 = await loadImageAsBase64(room.photoURL);
 
-try {
-  if (room.photoURL) {
-    // ⚠️ image externe peut échouer → on ignore silencieusement
-    doc.addImage(room.photoURL, "JPEG", 14, y, avatarSize, avatarSize);
-  }
-} catch (e) {
-  // fallback → rien (design reste propre)
-}
+      if (base64) {
+        doc.addImage(base64, "JPEG", 14, y, avatarSize, avatarSize);
+      }
+    }
+  } catch (e) {}
 
-// 🔹 TEXTE PRINCIPAL
-doc.setFont("helvetica", "bold");
-doc.setFontSize(11);
-doc.setTextColor(31, 41, 55);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...dark);
 
-doc.text(
-  (room.createdByName || "Responsable inconnu").toUpperCase(),
-  14 + avatarSize + 4,
-  y + 6
-);
-
-// 🔹 META (chorale + type)
-doc.setFont("helvetica", "normal");
-doc.setFontSize(9);
-doc.setTextColor(75, 85, 99);
-
-doc.text(
-  `${room.chorale || "-"} • ${room.type || "-"}`,
-  14 + avatarSize + 4,
-  y + 11
-);
-
-// 🔹 DATE (isolée = important visuellement)
-doc.setTextColor(107, 114, 128);
-doc.text(
-  `Date : ${room.date || "-"}`,
-  14 + avatarSize + 4,
-  y + 16
-);
-
-// 🔹 DESCRIPTION (ligne séparée = premium)
-if (room.description) {
-  doc.setTextColor(107, 114, 128);
   doc.text(
-    room.description,
-    14,
-    y + 24
+    (room.createdByName || "Responsable inconnu").toUpperCase(),
+    14 + avatarSize + 4,
+    y + 6
   );
-}
 
-// 🔹 LIGNE FINE
-doc.setDrawColor(229, 231, 235);
-doc.line(14, y + 30, pageWidth - 14, y + 30);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(75, 85, 99);
+
+  doc.text(
+    `${room.chorale || "-"} • ${room.type || "-"}`,
+    14 + avatarSize + 4,
+    y + 11
+  );
+
+  doc.setTextColor(...light);
+  doc.text(
+    `Date : ${room.date || "-"}`,
+    14 + avatarSize + 4,
+    y + 16
+  );
+
+  if (room.description) {
+    doc.text(room.description, 14, y + 24);
+  }
+
+  doc.setDrawColor(...line);
+  doc.line(14, y + 30, pageWidth - 14, y + 30);
 
   // ===============================
   // 📊 TABLE
@@ -155,9 +161,6 @@ doc.line(14, y + 30, pageWidth - 14, y + 30);
       const pageHeight = doc.internal.pageSize.getHeight();
       const pageCount = doc.internal.getNumberOfPages();
 
-      // ===============================
-      // ✍️ SIGNATURE
-      // ===============================
       doc.setDrawColor(...line);
       doc.line(14, pageHeight - 25, 80, pageHeight - 25);
 
@@ -165,9 +168,6 @@ doc.line(14, y + 30, pageWidth - 14, y + 30);
       doc.setTextColor(...light);
       doc.text("Signature du responsable", 14, pageHeight - 20);
 
-      // ===============================
-      // 📄 PAGINATION
-      // ===============================
       doc.text(
         `Page ${doc.internal.getCurrentPageInfo().pageNumber}/${pageCount}`,
         pageWidth - 14,
