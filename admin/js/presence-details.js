@@ -12,15 +12,17 @@ import {
 import { openRadar } from "/myUm/partials/js/radar.js";
 import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
 import { initPresenceActions } from "/myUm/admin/js/presence-details-actions.js";
+
 // ===============================
 // import xlsx et pdf
 // ===============================
 import { exportToXLSX } from "../../export/presence-xlsx-export.js";
 import { exportToPDF } from "../../export/presence-pdf-export.js";
 import { exportAdvancedPDF } from "../../export/presence-pdf-export-2.js";
-};
 
+// ===============================
 // Bind après render DOM
+// ===============================
 function bindExportButtons() {
   const xlsxBtn = document.getElementById("exportXlsxBtn");
   const pdfBtn = document.getElementById("exportPdfBtn");
@@ -45,7 +47,6 @@ const presenceCount = document.getElementById("presenceCount");
 
 const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
-
 // ===============================
 // STATS
 // ===============================
