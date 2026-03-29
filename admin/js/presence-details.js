@@ -24,11 +24,11 @@ function bindExportButtons() {
   const pdfBtn = document.getElementById("exportPdfBtn");
 
   if (xlsxBtn) {
-    xlsxBtn.onclick = exportToXLSX;
+    xlsxBtn.onclick = () => exportToXLSX(allPresences);
   }
 
   if (pdfBtn) {
-    pdfBtn.onclick = exportToPDF;
+    pdfBtn.onclick = () => exportToPDF(allPresences);
   }
 }
 
@@ -219,6 +219,8 @@ function renderPresences(list, startIndex = 0) {
     presenceList.appendChild(row);
 
   });
+  // ✅ AJOUT OBLIGATOIRE
+bindExportButtons();
 }
 // ===============================
 // ACTIONS
