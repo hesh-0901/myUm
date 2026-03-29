@@ -62,7 +62,15 @@ function formatTime(timestamp) {
   });
 }
 
+function getStatusLabel(d) {
+  if (!d.status) return "- P";
 
+  if (d.status === "justified") return "- J";
+  if (d.status === "suspended") return "- S";
+  if (d.status === "special") return "- Sp";
+
+  return "- P";
+}
 // ===============================
 // LOAD ROOM
 // ===============================
