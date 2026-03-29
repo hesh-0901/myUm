@@ -10,12 +10,11 @@ import {
 
 import { initExportUsers } from "/myUm/export/export-users-xlsx.js";
 
+// ===============================
 document.addEventListener("DOMContentLoaded", initDashboard);
 
 // ===============================
 async function initDashboard() {
-
-  await loadHeader(); // 🔥 IMPORTANT
 
   await loadStats();
 
@@ -24,6 +23,8 @@ async function initDashboard() {
 
 }
 
+// ===============================
+// LOAD STATS
 // ===============================
 async function loadStats() {
 
@@ -50,7 +51,9 @@ async function loadStats() {
 
   });
 
-  const avg = totalUsers ? Math.round(totalCompletion / totalUsers) : 0;
+  const avg = totalUsers
+    ? Math.round(totalCompletion / totalUsers)
+    : 0;
 
   updateUI({
     totalUsers,
@@ -63,26 +66,30 @@ async function loadStats() {
 }
 
 // ===============================
+// CALCUL COMPLETION
+// ===============================
 function calculateCompletion(user) {
 
   const fields = [
-    "genre","etatCivil","commune","vieSeculiere",
-    "typeMembre","egliseProvenance","anneeBapteme","typeBapteme",
-    "statutAffermissement","responsableMinistere",
-    "registreVoix","groupeMusique"
+    "genre", "etatCivil", "commune", "vieSeculiere",
+    "typeMembre", "egliseProvenance", "anneeBapteme", "typeBapteme",
+    "statutAffermissement", "responsableMinistere",
+    "registreVoix", "groupeMusique"
   ];
 
   let filled = 0;
 
-  fields.forEach(f => {
-    const v = user[f];
-    if (v && v !== "" && v !== "—") filled++;
+  fields.forEach(field => {
+    const value = user[field];
+    if (value && value !== "" && value !== "—") filled++;
   });
 
   return Math.round((filled / fields.length) * 100);
 
 }
 
+// ===============================
+// UPDATE UI
 // ===============================
 function updateUI(data) {
 
@@ -100,6 +107,8 @@ function updateUI(data) {
 
 }
 
+// ===============================
+// SECRET EXPORT (5 TAP)
 // ===============================
 function initSecretExport() {
 
@@ -124,28 +133,7 @@ function initSecretExport() {
 }
 
 // ===============================
-// LOAD BACK HEADER
-// ===============================
-async function loadHeader() {
-
-  const container = document.getElementById("header-container");
-  if (!container) return;
-
-  // charger HTML
-  const res = await fetch("/myUm/partials/header-back.html");
-  const html = await res.text();
-
-  container.innerHTML = html;
-
-  // charger JS du header
-  await import("/myUm/partials/js/back-header.js");
-
-  // injecter le titre
-  const title = container.querySelector("h1");
-  if (title) title.innerText = "Statistiques";
-
-}
-console.log("HEADER LOADED");
+// HELPERS
 // ===============================
 function setText(id, value) {
 
