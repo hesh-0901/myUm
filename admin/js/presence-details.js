@@ -17,6 +17,11 @@ import { initPresenceActions } from "/myUm/admin/js/presence-details-actions.js"
 // ===============================
 import { exportToXLSX } from "../../export/presence-xlsx-export.js";
 import { exportToPDF } from "../../export/presence-pdf-export.js";
+import { exportAdvancedPDF } from "../../export/presence-pdf-export-2.js";
+
+pdfBtn.onclick = async () => {
+  await exportAdvancedPDF(allPresences, currentRoom);
+};
 
 // Bind après render DOM
 function bindExportButtons() {
