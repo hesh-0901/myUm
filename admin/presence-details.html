@@ -43,34 +43,38 @@ tailwind.config = {
 <header id="header-back"></header>
 
 <!-- CONTENT -->
-<main class="flex-1 overflow-y-auto px-4 pt-20 pb-6 space-y-5">
-
-  <!-- ACTIONS -->
-  <div class="flex gap-2">
-
-    <!-- RADAR -->
-    <button id="openRadarBtn"
-    class="flex-1 bg-gradient-to-r from-primary to-medium text-white py-3 rounded-xl text-sm font-semibold active:scale-95 transition flex items-center justify-center gap-2">
-      <i class="bi bi-broadcast"></i>
-      Radar
-    </button>
-
-    <!-- ADD -->
-    <button id="addManualBtn"
-    class="w-14 flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 active:scale-95 transition">
-      <i class="bi bi-plus"></i>
-    </button>
-
-  </div>
+<main class="flex-1 overflow-y-auto px-4 pt-20 pb-6 space-y-4">
 
   <!-- ROOM INFO -->
   <div id="roomInfo" class="space-y-2"></div>
 
-  <!-- COUNT -->
-  <p id="presenceCount" class="text-xs text-gray-400"></p>
+  <!-- HEADER LIST -->
+  <div class="flex items-center justify-between">
+
+    <!-- COUNT -->
+    <p id="presenceCount" class="text-xs text-gray-400"></p>
+
+    <!-- ACTIONS INLINE -->
+    <div class="flex items-center gap-2">
+
+      <!-- RADAR -->
+      <button id="openRadarBtn"
+      class="w-9 h-9 flex items-center justify-center rounded-xl bg-primary/10 text-primary active:scale-95 transition">
+        <i class="bi bi-broadcast text-sm"></i>
+      </button>
+
+      <!-- ADD -->
+      <button id="addManualBtn"
+      class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600 active:scale-95 transition">
+        <i class="bi bi-plus text-sm"></i>
+      </button>
+
+    </div>
+
+  </div>
 
   <!-- LIST -->
-  <div id="presenceList" class="space-y-3"></div>
+  <div id="presenceList" class="space-y-1"></div>
 
 </main>
 
