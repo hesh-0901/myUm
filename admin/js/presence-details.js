@@ -28,7 +28,7 @@ function bindExportButtons() {
   }
 
   if (pdfBtn) {
-    pdfBtn.onclick = () => exportToPDF(allPresences);
+    pdfBtn.onclick = () => exportToPDF(allPresences, currentRoom);
   }
 }
 
@@ -48,6 +48,7 @@ const addManualBtn = document.getElementById("addManualBtn");
 let allPresences = [];
 let currentPage = 1;
 const perPage = 20;
+let currentRoom = {};
 
 // ===============================
 // PARAM
@@ -104,6 +105,7 @@ async function loadRoom() {
   }
 
   const room = snap.data();
+  currentRoom = room;
 
 roomInfo.innerHTML = `
   <div class="flex items-center gap-3">
