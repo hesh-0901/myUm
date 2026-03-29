@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", initDashboard);
 // ===============================
 async function initDashboard() {
 
+  await loadHeader(); // 🔥 IMPORTANT
+
   await loadStats();
 
   initExportUsers();
@@ -118,6 +120,29 @@ function initSecretExport() {
     }
 
   });
+
+}
+
+// ===============================
+// LOAD BACK HEADER
+// ===============================
+async function loadHeader() {
+
+  const container = document.getElementById("header-container");
+  if (!container) return;
+
+  // charger HTML
+  const res = await fetch("/myUm/partials/header-back.html");
+  const html = await res.text();
+
+  container.innerHTML = html;
+
+  // charger JS du header
+  await import("/myUm/partials/js/back-header.js");
+
+  // injecter le titre
+  const title = container.querySelector("h1");
+  if (title) title.innerText = "Statistiques";
 
 }
 
