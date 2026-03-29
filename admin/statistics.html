@@ -6,84 +6,100 @@
 
   <title>Statistiques</title>
 
+  <!-- PWA -->
   <link rel="manifest" href="/myUm/manifest.json">
   <link rel="icon" href="/myUm/assets/favicon.png">
   <meta name="theme-color" content="#1A3668">
 
+  <!-- Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Tailwind (dev) -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- XLSX -->
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 
 <body data-title="Statistiques" class="bg-gray-100 flex justify-center overflow-x-hidden">
 
-<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+  <!-- APP CONTAINER -->
+  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden relative">
 
-<header id="header-container"></header>
+    <!-- HEADER (injecté automatiquement) -->
+    <header id="header-container"></header>
 
-<main class="flex-1 overflow-y-auto p-5 space-y-6">
+    <!-- MAIN -->
+    <main class="flex-1 overflow-y-auto p-5 space-y-6">
 
-  <!-- TITLE -->
-  <div>
-    <h1 class="text-lg font-semibold text-primary">Statistiques</h1>
-    <p class="text-sm text-gray-500">Dashboard administrateur</p>
+      <!-- SUBTITLE -->
+      <div>
+        <p class="text-sm text-gray-500">
+          Dashboard administrateur
+        </p>
+      </div>
+
+      <!-- GLOBAL STATS -->
+      <div class="grid grid-cols-2 gap-4">
+
+        <div class="p-4 rounded-3xl shadow-sm border border-gray-100">
+          <p class="text-xs text-gray-500">Utilisateurs</p>
+          <p id="totalUsers" class="text-xl font-semibold text-primary mt-1">0</p>
+        </div>
+
+        <div class="p-4 rounded-3xl shadow-sm border border-gray-100">
+          <p class="text-xs text-gray-500">Profils complets</p>
+          <p id="completeUsers" class="text-xl font-semibold text-primary mt-1">0</p>
+        </div>
+
+      </div>
+
+      <!-- COMPLETION -->
+      <div class="p-5 rounded-3xl shadow-sm border border-gray-100 space-y-3">
+        <p class="text-sm text-gray-500">Complétion moyenne</p>
+
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="completionBar"
+               class="bg-gradient-to-r from-medium to-lightblue h-2 rounded-full w-0">
+          </div>
+        </div>
+
+        <p id="completionText" class="text-sm text-gray-600">0%</p>
+      </div>
+
+      <!-- DISTRIBUTION -->
+      <div class="p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+
+        <p class="text-sm text-gray-500">Répartition</p>
+
+        <div class="flex justify-between text-sm">
+          <span>Hommes</span>
+          <span id="countHommes">0</span>
+        </div>
+
+        <div class="flex justify-between text-sm">
+          <span>Femmes</span>
+          <span id="countFemmes">0</span>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- NAV -->
+    <footer id="nav-container"></footer>
+
+    <!-- 🔥 SECRET EXPORT BUTTON (fix position propre) -->
+    <button id="exportUsersBtn"
+      class="absolute bottom-4 right-4 w-10 h-10 opacity-0">
+    </button>
+
   </div>
 
-  <!-- GLOBAL STATS -->
-  <div class="grid grid-cols-2 gap-4">
-
-    <div class="p-4 rounded-3xl shadow-sm border">
-      <p class="text-xs text-gray-500">Utilisateurs</p>
-      <p id="totalUsers" class="text-xl font-semibold text-primary mt-1">0</p>
-    </div>
-
-    <div class="p-4 rounded-3xl shadow-sm border">
-      <p class="text-xs text-gray-500">Profils complets</p>
-      <p id="completeUsers" class="text-xl font-semibold text-primary mt-1">0</p>
-    </div>
-
-  </div>
-
-  <!-- COMPLETION -->
-  <div class="p-5 rounded-3xl shadow-sm border">
-    <p class="text-sm text-gray-500">Complétion moyenne</p>
-
-    <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
-      <div id="completionBar" class="bg-gradient-to-r from-medium to-lightblue h-2 rounded-full w-0"></div>
-    </div>
-
-    <p id="completionText" class="text-sm mt-2 text-gray-600">0%</p>
-  </div>
-
-  <!-- DISTRIBUTION -->
-  <div class="p-5 rounded-3xl shadow-sm border space-y-4">
-
-    <p class="text-sm text-gray-500">Répartition</p>
-
-    <div class="flex justify-between text-sm">
-      <span>Hommes</span>
-      <span id="countHommes">0</span>
-    </div>
-
-    <div class="flex justify-between text-sm">
-      <span>Femmes</span>
-      <span id="countFemmes">0</span>
-    </div>
-
-  </div>
-
-  <!-- SECRET BUTTON -->
-  <button id="exportUsersBtn" class="opacity-0 absolute bottom-3 right-3 w-10 h-10"></button>
-
-</main>
-
-<footer id="nav-container"></footer>
-
-</div>
-
-<script type="module" src="/myUm/mains.js/app-init.js"></script>
-<script type="module" src="/myUm/admin/js/statistics.js"></script>
-<script type="module" src="/myUm/partials/js/back-header.js"></script>
+  <!-- SCRIPTS -->
+  <script type="module" src="/myUm/mains.js/app-init.js"></script>
+  <script type="module" src="/myUm/partials/js/back-header.js"></script>
+  <script type="module" src="/myUm/admin/js/statistics.js"></script>
 
 </body>
 </html>
