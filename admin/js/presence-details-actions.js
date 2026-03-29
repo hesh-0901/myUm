@@ -78,9 +78,14 @@ async function handleAction(action, id) {
 
   const ref = doc(db, "presenceRooms", roomId, "attendances", id);
 
-  if (action === "delete") {
-    await deleteDoc(ref);
-  }
+if (action === "delete") {
+
+  const confirmDelete = confirm("Supprimer cette présence ?");
+
+  if (!confirmDelete) return;
+
+  await deleteDoc(ref);
+}
 
   if (action === "justified") {
     await updateDoc(ref, { status: "justified" });
