@@ -153,8 +153,25 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   const choraleMembers = allMembers.filter(
     m => m.chorale === room.chorale
   );
+  // 🔥 autres chorales (VN PC WS)
+const otherChorales = allMembers.filter(m =>
+  ["VN", "PC", "WS"].includes(m.chorale) &&
+  m.chorale !== room.chorale
+);
 
-  const mainRows = choraleMembers.map((m, i) => {
+  const allChoraleCombined = [...choraleMembers, ...otherChorales];
+
+const mainRows = allChoraleCombined.map((m, i) => {
+
+  const attendance = data.find(d => d.username === m.username);
+
+  return [
+    i + 1,
+    m.username,
+    m.fullName,
+    attendance ? "Présent" : "Absent"
+  ];
+});
 
     const attendance = data.find(d => d.username === m.username);
 
