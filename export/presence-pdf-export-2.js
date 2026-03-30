@@ -11,7 +11,7 @@ import { db } from "/myUm/mains.js/firebase-config.js";
 const autoTable = autoTableModule.default;
 
 // ===============================
-// IMAGE BASE64
+// IMAGE
 // ===============================
 async function loadImageAsBase64(url) {
   try {
@@ -26,42 +26,6 @@ async function loadImageAsBase64(url) {
   } catch {
     return null;
   }
-}
-
-// ===============================
-// GET MEMBERS
-// ===============================
-async function getAllMembers() {
-  const usersSnap = await getDocs(collection(db, "users"));
-  const membersSnap = await getDocs(collection(db, "members"));
-
-  const map = new Map();
-
-  usersSnap.forEach(doc => {
-    const d = doc.data();
-    if (!d.username) return;
-
-    map.set(d.username, {
-      username: d.username,
-      fullName: `${d.firstName || ""} ${d.lastName || ""}`.trim(),
-      chorale: d.username.split("-").pop()
-    });
-  });
-
-  membersSnap.forEach(doc => {
-    const d = doc.data();
-    if (!d.matricule) return;
-
-    if (!map.has(d.matricule)) {
-      map.set(d.matricule, {
-        username: d.matricule,
-        fullName: d.fullName,
-        chorale: d.matricule.split("-").pop()
-      });
-    }
-  });
-
-  return Array.from(map.values());
 }
 
 // ===============================
@@ -90,7 +54,158 @@ function getMethod(d) {
 }
 
 // ===============================
-// EXPORT PDF
+// 🔥 BUILD LIST (LOGIQUE MÉTIER)
+// ===============================
+async function buildAttendanceList(data, room) {
+
+  const usersSnap = await getDocs(collection(db, "users"));
+  const membersSnap = await getDocs(collection(db, "members"));
+
+  const map = new Map();
+
+  // USERS PRIORITÉ
+  usersSnap.forEach(doc => {
+    const d = doc.data();
+    if (!d.username) return;
+
+    map.set(d.username, {
+      username: d.username,
+      fullName: `${d.firstName || ""} ${d.lastName || ""}`.trim(),
+      chorale: d.username.split("-").pop()
+    });
+  });
+
+  // MEMBERS fallback
+  membersSnap.forEach(doc => {
+    const d = doc.data();
+    if (!d.matricule) return;
+
+    if (!map.has(d.matricule)) {
+      map.set(d.matricule, {
+        username: d.matricule,
+        fullName: d.fullName,
+        chorale: d.matricule.split("-").pop()
+      });
+    }
+  });
+
+  const allMembers = Array.from(map.values());
+
+  const getAttendance = (username) =>
+    data.find(d => d.username === username);
+
+  // ===============================
+  // CAS UM
+  // ===============================
+  if (room.chorale === "UM") {
+
+    return allMembers.map(m => {
+      const a = getAttendance(m.username);
+
+      return {
+        ...m,
+        status: getStatus(a),
+        time: getTime(a),
+        method: getMethod(a)
+      };
+    });
+  }
+
+  // ===============================
+  // CAS CHORALE
+  // ===============================
+  const main = allMembers.filter(m => m.chorale === room.chorale);
+
+  const otherChoralesPresent = data.filter(d =>
+    ["VN", "PC", "WS"].includes(d.chorale) &&
+    d.chorale !== room.chorale
+  );
+
+  const list = [];
+
+  // PARTIE 1 : chorale principale
+  main.forEach(m => {
+    const a = getAttendance(m.username);
+
+    list.push({
+      ...m,
+      status: getStatus(a),
+      time: getTime(a),
+      method: getMethod(a)
+    });
+  });
+
+  // PARTIE 2 : autres chorales présentes
+  otherChoralesPresent.forEach(d => {
+
+    if (list.some(x => x.username === d.username)) return;
+
+    list.push({
+      username: d.username,
+      fullName: d.fullName,
+      chorale: d.chorale,
+      status: getStatus(d),
+      time: getTime(d),
+      method: getMethod(d)
+    });
+  });
+
+  return list;
+}
+
+// ===============================
+// GROUPES PAGE 2
+// ===============================
+function getSecondaryGroups(data) {
+  return {
+    IN: data.filter(d => d.chorale === "IN"),
+    GT: data.filter(d => d.chorale === "GT"),
+    AD: data.filter(d => d.chorale === "AD")
+  };
+}
+
+// ===============================
+// STATS
+// ===============================
+function computeStats(list, groups) {
+
+  const fullList = [
+    ...list,
+    ...groups.IN,
+    ...groups.GT,
+    ...groups.AD
+  ];
+
+  let stats = {
+    totalMembers: fullList.length,
+    presentCount: 0,
+    absentCount: 0,
+    justifiedCount: 0,
+    suspendedCount: 0,
+    specialCount: 0,
+    displacementCount: 0
+  };
+
+  fullList.forEach(d => {
+
+    if (d.status === "A") stats.absentCount++;
+    else stats.presentCount++;
+
+    if (d.status === "J") stats.justifiedCount++;
+    if (d.status === "S") stats.suspendedCount++;
+    if (d.status === "Sp") stats.specialCount++;
+    if (d.status === "D") stats.displacementCount++;
+  });
+
+  stats.rate = stats.totalMembers
+    ? ((stats.presentCount / stats.totalMembers) * 100).toFixed(2)
+    : "0.00";
+
+  return stats;
+}
+
+// ===============================
+// EXPORT
 // ===============================
 export async function exportAdvancedPDF(data = [], room = {}) {
 
@@ -102,9 +217,6 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   const light = [120, 120, 120];
   const line = [210, 210, 210];
 
-  // ===============================
-  // HEADER
-  // ===============================
   function drawHeader() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
@@ -124,9 +236,6 @@ export async function exportAdvancedPDF(data = [], room = {}) {
     doc.line(14, 30, pageWidth - 14, 30);
   }
 
-  // ===============================
-  // INFO BLOCK
-  // ===============================
   async function drawInfo(y = 36) {
 
     const avatarSize = 16;
@@ -140,18 +249,14 @@ export async function exportAdvancedPDF(data = [], room = {}) {
     doc.setFontSize(11);
     doc.setTextColor(...dark);
 
-    doc.text(
-      (room.createdByName || "").toUpperCase(),
-      14 + avatarSize + 4,
-      y + 6
-    );
+    doc.text((room.createdByName || "").toUpperCase(), 34, y + 6);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(...light);
 
-    doc.text(`${room.chorale || "-"} • ${room.type || "-"}`, 14 + avatarSize + 4, y + 11);
-    doc.text(`Date : ${room.date || "-"}`, 14 + avatarSize + 4, y + 16);
+    doc.text(`${room.chorale || "-"} • ${room.type || "-"}`, 34, y + 11);
+    doc.text(`Date : ${room.date || "-"}`, 34, y + 16);
 
     if (room.description) {
       doc.text(room.description, 14, y + 24);
@@ -164,60 +269,11 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   }
 
   // ===============================
-  // DATA BUILD
+  // 🔥 BUILD DATA
   // ===============================
-  const allMembers = await getAllMembers();
-
-  const mainMembers = allMembers.filter(m => m.chorale === room.chorale);
-
-  const rows = mainMembers.map((m, i) => {
-    const attendance = data.find(d => d.username === m.username);
-
-    return [
-      i + 1,
-      m.username,
-      m.fullName,
-      getStatus(attendance),
-      getTime(attendance),
-      getMethod(attendance)
-    ];
-  });
-
-  // ===============================
-  // STATS
-  // ===============================
-  function computeStats() {
-    let total = mainMembers.length;
-    let present = 0;
-    let justified = 0;
-    let suspended = 0;
-    let special = 0;
-    let displacement = 0;
-
-    mainMembers.forEach(m => {
-      const d = data.find(x => x.username === m.username);
-      const s = getStatus(d);
-
-      if (s !== "A") present++;
-      if (s === "J") justified++;
-      if (s === "S") suspended++;
-      if (s === "Sp") special++;
-      if (s === "D") displacement++;
-    });
-
-    return {
-      total,
-      present,
-      absent: total - present,
-      justified,
-      suspended,
-      special,
-      displacement,
-      rate: total ? Math.round((present / total) * 100) : 0
-    };
-  }
-
-  const stats = computeStats();
+  const mainList = await buildAttendanceList(data, room);
+  const groups = getSecondaryGroups(data);
+  const stats = computeStats(mainList, groups);
 
   // ===============================
   // PAGE 1
@@ -228,48 +284,46 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   autoTable(doc, {
     startY: startY + 2,
     head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
-    body: rows,
-    styles: { fontSize: 8, textColor: dark },
-    headStyles: {
-      fillColor: [240, 240, 240],
-      textColor: dark,
-      lineWidth: 0.1
-    },
-    alternateRowStyles: { fillColor: [250, 250, 250] },
-    margin: { left: 14, right: 14 }
+    body: mainList.map((d, i) => [
+      i + 1,
+      d.username,
+      d.fullName,
+      d.status,
+      d.time,
+      d.method
+    ]),
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [240, 240, 240] },
+    alternateRowStyles: { fillColor: [250, 250, 250] }
   });
 
   let y = doc.lastAutoTable.finalY + 8;
 
   // ===============================
-  // STATS BLOCK
+  // STATS
   // ===============================
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.setTextColor(...dark);
   doc.text("STATISTIQUES", 14, y);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.setTextColor(...light);
 
   y += 5;
 
   [
-    `Total membres : ${stats.total}`,
-    `Présents : ${stats.present}`,
-    `Absents : ${stats.absent}`,
-    `Justifiés : ${stats.justified}`,
-    `Suspendus : ${stats.suspended}`,
-    `Spéciaux : ${stats.special}`,
-    `Déplacements : ${stats.displacement}`,
+    `Total membres : ${stats.totalMembers}`,
+    `Présents : ${stats.presentCount}`,
+    `Absents : ${stats.absentCount}`,
+    `Justifiés : ${stats.justifiedCount}`,
+    `Suspendus : ${stats.suspendedCount}`,
+    `Spéciaux : ${stats.specialCount}`,
+    `Déplacements : ${stats.displacementCount}`,
     `Taux de présence : ${stats.rate}%`
-  ].forEach((t, i) => {
-    doc.text(t, 14, y + i * 5);
-  });
+  ].forEach((t, i) => doc.text(t, 14, y + i * 5));
 
   // ===============================
-  // PAGE 2 (GROUPES)
+  // PAGE 2
   // ===============================
   doc.addPage();
   drawHeader();
@@ -278,24 +332,23 @@ export async function exportAdvancedPDF(data = [], room = {}) {
 
   function drawSection(title, list) {
 
+    if (!list.length) return;
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...dark);
     doc.text(title, 14, posY);
-
-    const rows = list.map((d, i) => [
-      i + 1,
-      d.username,
-      d.fullName,
-      "P",
-      getTime(d),
-      getMethod(d)
-    ]);
 
     autoTable(doc, {
       startY: posY + 2,
       head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
-      body: rows,
+      body: list.map((d, i) => [
+        i + 1,
+        d.username,
+        d.fullName,
+        "P",
+        getTime(d),
+        getMethod(d)
+      ]),
       styles: { fontSize: 8 },
       headStyles: { fillColor: [240, 240, 240] }
     });
@@ -303,27 +356,24 @@ export async function exportAdvancedPDF(data = [], room = {}) {
     posY = doc.lastAutoTable.finalY + 8;
   }
 
-  drawSection("INSTRUMENTISTES", data.filter(d => d.chorale === "IN"));
-  drawSection("VISITEURS", data.filter(d => d.chorale === "GT"));
-  drawSection("ADMINISTRATION", data.filter(d => d.chorale === "AD"));
+  drawSection("INSTRUMENTISTES", groups.IN);
+  drawSection("VISITEURS", groups.GT);
+  drawSection("ADMINISTRATION", groups.AD);
 
   // ===============================
   // FOOTER
   // ===============================
-  const pageCount = doc.internal.getNumberOfPages();
+  const pages = doc.internal.getNumberOfPages();
 
-  for (let i = 1; i <= pageCount; i++) {
+  for (let i = 1; i <= pages; i++) {
     doc.setPage(i);
 
-    doc.setDrawColor(...line);
     doc.line(14, pageHeight - 25, 80, pageHeight - 25);
 
     doc.setFontSize(9);
-    doc.setTextColor(...light);
-
     doc.text("Signature du responsable", 14, pageHeight - 20);
 
-    doc.text(`Page ${i}/${pageCount}`, pageWidth - 14, pageHeight - 10, {
+    doc.text(`Page ${i}/${pages}`, pageWidth - 14, pageHeight - 10, {
       align: "right"
     });
   }
