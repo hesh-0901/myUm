@@ -428,4 +428,22 @@ for (let i = 1; i <= pages; i++) {
   }
 }
 
-doc.save("presence-myum.pdf");
+const now = new Date();
+
+// 📅 Format date YYYY-MM-DD
+const dateStr = now.toISOString().split("T")[0];
+
+// 👤 utilisateur
+const username =
+  window.currentUser?.username ||
+  room.createdBy ||
+  "user";
+
+// 🎵 chorale
+const chorale = room.chorale || "X";
+
+// 🧾 nom fichier final
+const fileName = `presence-${dateStr}-${username}-${chorale}-myum.pdf`;
+
+doc.save(fileName);
+  }
