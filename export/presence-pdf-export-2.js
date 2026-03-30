@@ -173,16 +173,6 @@ const mainRows = allChoraleCombined.map((m, i) => {
   ];
 });
 
-    const attendance = data.find(d => d.username === m.username);
-
-    return [
-      i + 1,
-      m.username,
-      m.fullName,
-      attendance ? "Présent" : "Absent"
-    ];
-  });
-
   // ===============================
   // OTHER GROUPS (present only)
   // ===============================
