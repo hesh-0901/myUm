@@ -4,7 +4,7 @@ import autoTableModule from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/
 const autoTable = autoTableModule.default;
 
 // ===============================
-// 🔥 LOAD IMAGE BASE64 (FIX PHOTO)
+// IMAGE BASE64
 // ===============================
 async function loadImageAsBase64(url) {
   try {
@@ -16,166 +16,258 @@ async function loadImageAsBase64(url) {
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(blob);
     });
-  } catch (e) {
+  } catch {
     return null;
   }
 }
 
 // ===============================
-export async function exportToPDF(data = [], room = {}) {
+// STATUS
+// ===============================
+function getStatus(d) {
+  if (!d) return "A";
+  if (d.status === "justified") return "J";
+  if (d.status === "suspended") return "S";
+  if (d.status === "special") return "Sp";
+  if (d.status === "displacement") return "D";
+  return "P";
+}
+
+function getTime(d) {
+  if (!d?.timestamp) return "";
+  return d.timestamp.toDate().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function getMethod(d) {
+  if (!d) return "";
+  return d.method === "manual" ? "Manuel" : "Radar";
+}
+
+// ===============================
+// EXPORT PDF
+// ===============================
+export async function exportToPDF(data = [], room = {}, members = []) {
 
   if (!data.length) {
-    alert("Aucune donnée à exporter");
+    alert("Aucune donnée");
     return;
   }
 
   const doc = new jsPDF("p", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  // 🎨 palette institutionnelle
+  const dark = [40, 40, 40];
+  const light = [120, 120, 120];
+  const line = [210, 210, 210];
 
   // ===============================
-  // 🎨 COLORS (PRO)
+  // HEADER
   // ===============================
-  const dark = [31, 41, 55];
-  const light = [107, 114, 128];
-  const line = [229, 231, 235];
+  function drawHeader() {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...dark);
 
-  // ===============================
-  // 🧾 HEADER PREMIUM
-  // ===============================
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(...dark);
+    doc.text("UNION MUSICALE LA COMPASSION", 14, 12);
+    doc.text("LUBUMBASHI", 14, 17);
 
-  doc.text("UNION MUSICALE LA COMPASSION", 14, 12);
-  doc.text("LUBUMBASHI", 14, 18);
+    doc.setFontSize(16);
+    doc.text("UM", pageWidth - 14, 14, { align: "right" });
 
-  doc.setFontSize(18);
-  doc.text("UM", pageWidth - 20, 16, { align: "right" });
+    doc.setFontSize(10);
+    doc.setTextColor(...light);
+    doc.text("FEUILLE DE PRÉSENCE - MYUM APP", 14, 26);
 
-  doc.setFontSize(11);
-  doc.setTextColor(...light);
-  doc.text("FEUILLE DE PRÉSENCE", 14, 28);
-
-  doc.setFontSize(9);
-  doc.text("MyUM Application", 14, 33);
-
-  doc.setDrawColor(...line);
-  doc.line(14, 36, pageWidth - 14, 36);
-
-  // ===============================
-  // 👤 BLOC RESPONSABLE PREMIUM
-  // ===============================
-  let y = 45;
-  const avatarSize = 16;
-
-  try {
-    if (room.photoURL) {
-      const base64 = await loadImageAsBase64(room.photoURL);
-
-      if (base64) {
-        doc.addImage(base64, "JPEG", 14, y, avatarSize, avatarSize);
-      }
-    }
-  } catch (e) {}
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(...dark);
-
-  doc.text(
-    (room.createdByName || "Responsable inconnu").toUpperCase(),
-    14 + avatarSize + 4,
-    y + 6
-  );
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(75, 85, 99);
-
-  doc.text(
-    `${room.chorale || "-"} • ${room.type || "-"}`,
-    14 + avatarSize + 4,
-    y + 11
-  );
-
-  doc.setTextColor(...light);
-  doc.text(
-    `Date : ${room.date || "-"}`,
-    14 + avatarSize + 4,
-    y + 16
-  );
-
-  if (room.description) {
-    doc.text(room.description, 14, y + 24);
+    doc.setDrawColor(...line);
+    doc.line(14, 30, pageWidth - 14, 30);
   }
 
-  doc.setDrawColor(...line);
-  doc.line(14, y + 30, pageWidth - 14, y + 30);
+  // ===============================
+  // BLOC INFO
+  // ===============================
+  async function drawInfo(y = 36) {
+
+    const avatarSize = 16;
+
+    if (room.photoURL) {
+      const img = await loadImageAsBase64(room.photoURL);
+      if (img) {
+        doc.addImage(img, "JPEG", 14, y, avatarSize, avatarSize);
+      }
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...dark);
+
+    doc.text(
+      (room.createdByName || "").toUpperCase(),
+      14 + avatarSize + 4,
+      y + 6
+    );
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...light);
+
+    doc.text(
+      `${room.chorale || "-"} • ${room.type || "-"}`,
+      14 + avatarSize + 4,
+      y + 11
+    );
+
+    doc.text(
+      `Date : ${room.date || "-"}`,
+      14 + avatarSize + 4,
+      y + 16
+    );
+
+    if (room.description) {
+      doc.text(room.description, 14, y + 24);
+    }
+
+    doc.setDrawColor(...line);
+    doc.line(14, y + 30, pageWidth - 14, y + 30);
+
+    return y + 34;
+  }
 
   // ===============================
-  // 📊 TABLE
+  // BUILD DATA (présents + absents)
   // ===============================
-  const rows = data.map((d, i) => {
+  const rows = members.map((m, i) => {
 
-    const date = d.timestamp?.toDate();
+    const attendance = data.find(d => d.username === m.username);
 
     return [
       i + 1,
-      d.username || "",
-      d.fullName || "",
-      d.chorale || "",
-      date
-        ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        : "",
-      d.method === "manual" ? "Manuel" : "Radar",
-      d.status === "justified" ? "J" :
-      d.status === "suspended" ? "S" :
-      d.status === "special" ? "Sp" :
-      "P"
+      m.username,
+      m.fullName,
+      getStatus(attendance),
+      getTime(attendance),
+      getMethod(attendance)
     ];
   });
 
+  // ===============================
+  // STATS
+  // ===============================
+  function computeStats() {
+    let total = members.length;
+    let present = 0;
+    let justified = 0;
+    let suspended = 0;
+    let special = 0;
+    let displacement = 0;
+
+    members.forEach(m => {
+      const d = data.find(x => x.username === m.username);
+      const s = getStatus(d);
+
+      if (s !== "A") present++;
+      if (s === "J") justified++;
+      if (s === "S") suspended++;
+      if (s === "Sp") special++;
+      if (s === "D") displacement++;
+    });
+
+    const absent = total - present;
+    const rate = total ? Math.round((present / total) * 100) : 0;
+
+    return { total, present, absent, justified, suspended, special, displacement, rate };
+  }
+
+  const stats = computeStats();
+
+  // ===============================
+  // PAGE 1
+  // ===============================
+  drawHeader();
+  let startY = await drawInfo();
+
   autoTable(doc, {
-    startY: y + 28,
-    head: [[
-      "N°",
-      "Username",
-      "Nom",
-      "Chorale",
-      "Heure",
-      "Méthode",
-      "Statut"
-    ]],
+    startY: startY + 2,
+    head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
     body: rows,
     styles: {
       fontSize: 8,
       textColor: dark
     },
     headStyles: {
-      fillColor: [245, 247, 250],
+      fillColor: [240, 240, 240],
       textColor: dark,
-      lineWidth: 0.2
+      lineWidth: 0.1
     },
-    didDrawPage: function () {
+    alternateRowStyles: {
+      fillColor: [250, 250, 250]
+    },
+    margin: { left: 14, right: 14 }
+  });
 
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const pageCount = doc.internal.getNumberOfPages();
+  let finalY = doc.lastAutoTable.finalY + 8;
+
+  // ===============================
+  // STATS BLOCK
+  // ===============================
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...dark);
+
+  doc.text("STATISTIQUES", 14, finalY);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(...light);
+
+  finalY += 5;
+
+  const statsLines = [
+    `Total membres : ${stats.total}`,
+    `Présents : ${stats.present}`,
+    `Absents : ${stats.absent}`,
+    `Justifiés : ${stats.justified}`,
+    `Suspendus : ${stats.suspended}`,
+    `Spéciaux : ${stats.special}`,
+    `Déplacements : ${stats.displacement}`,
+    `Taux de présence : ${stats.rate}%`
+  ];
+
+  statsLines.forEach((lineText, i) => {
+    doc.text(lineText, 14, finalY + i * 5);
+  });
+
+  // ===============================
+  // FOOTER
+  // ===============================
+  function drawFooter() {
+    const pageCount = doc.internal.getNumberOfPages();
+
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
 
       doc.setDrawColor(...line);
       doc.line(14, pageHeight - 25, 80, pageHeight - 25);
 
       doc.setFontSize(9);
       doc.setTextColor(...light);
+
       doc.text("Signature du responsable", 14, pageHeight - 20);
 
       doc.text(
-        `Page ${doc.internal.getCurrentPageInfo().pageNumber}/${pageCount}`,
+        `Page ${i}/${pageCount}`,
         pageWidth - 14,
         pageHeight - 10,
         { align: "right" }
       );
     }
-  });
+  }
+
+  drawFooter();
 
   doc.save("presence-myum.pdf");
 }
