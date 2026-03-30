@@ -363,20 +363,65 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   // ===============================
   // FOOTER
   // ===============================
-  const pages = doc.internal.getNumberOfPages();
+const pages = doc.internal.getNumberOfPages();
 
-  for (let i = 1; i <= pages; i++) {
-    doc.setPage(i);
+// 🔥 Infos export (horodatage + user)
+const now = new Date();
 
-    doc.line(14, pageHeight - 25, 80, pageHeight - 25);
+const formattedDate = now.toLocaleDateString("fr-FR");
+const formattedTime = now.toLocaleTimeString("fr-FR", {
+  hour: "2-digit",
+  minute: "2-digit"
+});
+
+// ⚠️ adapte selon ton système utilisateur
+const exportedBy = room.createdByName || "Utilisateur";
+
+// ===============================
+for (let i = 1; i <= pages; i++) {
+  doc.setPage(i);
+
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+
+  // ===============================
+  // 📄 Pagination (toutes les pages)
+  // ===============================
+  doc.text(
+    `Page ${i}/${pages}`,
+    pageWidth - 14,
+    pageHeight - 10,
+    { align: "right" }
+  );
+
+  // ===============================
+  // 🕒 Horodatage export (toutes pages)
+  // ===============================
+  doc.text(
+    `Exporté le ${formattedDate} à ${formattedTime}`,
+    14,
+    pageHeight - 10
+  );
+
+  // ===============================
+  // ✍️ Signature uniquement dernière page
+  // ===============================
+  if (i === pages) {
+
+    doc.setDrawColor(210, 210, 210);
+    doc.line(14, pageHeight - 28, 80, pageHeight - 28);
 
     doc.setFontSize(9);
-    doc.text("Signature du responsable", 14, pageHeight - 20);
+    doc.setTextColor(120, 120, 120);
 
-    doc.text(`Page ${i}/${pages}`, pageWidth - 14, pageHeight - 10, {
-      align: "right"
-    });
+    doc.text("Signature du responsable", 14, pageHeight - 23);
+
+    // 👤 Nom responsable
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(40, 40, 40);
+
+    doc.text(exportedBy.toUpperCase(), 14, pageHeight - 17);
   }
-
-  doc.save("presence-myum.pdf");
 }
+
+doc.save("presence-myum.pdf");
