@@ -150,28 +150,58 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   // ===============================
   const allMembers = await getAllMembers();
 
-  const choraleMembers = allMembers.filter(
+let mainRows = [];
+
+if (room.chorale === "UM") {
+
+  // 🔥 MODE UM → tout le monde
+  mainRows = allMembers.map((m, i) => {
+
+    const attendance = data.find(d => d.username === m.username);
+
+    return [
+      i + 1,
+      m.username,
+      m.fullName,
+      attendance ? "Présent" : "Absent"
+    ];
+  });
+
+} else {
+
+  // 🔥 CHORALE PRINCIPALE (TOUS)
+  const mainChorale = allMembers.filter(
     m => m.chorale === room.chorale
   );
-  // 🔥 autres chorales (VN PC WS)
-const otherChorales = allMembers.filter(m =>
-  ["VN", "PC", "WS"].includes(m.chorale) &&
-  m.chorale !== room.chorale
-);
 
-  const allChoraleCombined = [...choraleMembers, ...otherChorales];
+  // 🔥 AUTRES CHORALES UM (présents seulement)
+  const otherChoralesPresent = data.filter(d =>
+    ["VN", "PC", "WS"].includes(d.chorale) &&
+    d.chorale !== room.chorale
+  );
 
-const mainRows = allChoraleCombined.map((m, i) => {
+  // 🔥 FUSION
+  const combined = [
+    ...mainChorale.map(m => ({
+      ...m,
+      present: data.some(d => d.username === m.username)
+    })),
 
-  const attendance = data.find(d => d.username === m.username);
+    ...otherChoralesPresent.map(d => ({
+      username: d.username,
+      fullName: d.fullName,
+      present: true
+    }))
+  ];
 
-  return [
+  // 🔥 BUILD ROWS
+  mainRows = combined.map((m, i) => [
     i + 1,
     m.username,
     m.fullName,
-    attendance ? "Présent" : "Absent"
-  ];
-});
+    m.present ? "Présent" : "Absent"
+  ]);
+}
 
   // ===============================
   // OTHER GROUPS (present only)
