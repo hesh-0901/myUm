@@ -359,27 +359,42 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   drawSection("INSTRUMENTISTES", groups.IN);
   drawSection("VISITEURS", groups.GT);
   drawSection("ADMINISTRATION", groups.AD);
-
-  // ===============================
-  // FOOTER
-  // ===============================
+// ===============================
+// FOOTER
+// ===============================
 const pages = doc.internal.getNumberOfPages();
 
-// 🔥 Infos export (horodatage + user)
+// 🔥 UNE SEULE déclaration
 const now = new Date();
 
+// 📅 formats
 const formattedDate = now.toLocaleDateString("fr-FR");
 const formattedTime = now.toLocaleTimeString("fr-FR", {
   hour: "2-digit",
   minute: "2-digit"
 });
 
-// ⚠️ adapte selon ton système utilisateur
+// 📁 format fichier
+const dateStr = now.toISOString().split("T")[0];
+
+// 👤 utilisateur export
 const exportedBy =
   window.currentUser?.fullName ||
   window.currentUser?.username ||
   room.createdByName ||
   "Utilisateur";
+
+// 👤 username fichier
+const username =
+  window.currentUser?.username ||
+  room.createdBy ||
+  "user";
+
+// 🎵 chorale
+const chorale = room.chorale || "X";
+
+// 🧾 nom fichier
+const fileName = `presence-${dateStr}-${username}-${chorale}-myum.pdf`;
 
 // ===============================
 for (let i = 1; i <= pages; i++) {
@@ -388,9 +403,7 @@ for (let i = 1; i <= pages; i++) {
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
 
-  // ===============================
-  // 📄 Pagination (toutes les pages)
-  // ===============================
+  // 📄 Pagination
   doc.text(
     `Page ${i}/${pages}`,
     pageWidth - 14,
@@ -398,18 +411,14 @@ for (let i = 1; i <= pages; i++) {
     { align: "right" }
   );
 
-  // ===============================
-  // 🕒 Horodatage export (toutes pages)
-  // ===============================
+  // 🕒 Horodatage
   doc.text(
     `Exporté le ${formattedDate} à ${formattedTime}`,
     14,
     pageHeight - 10
   );
 
-  // ===============================
-  // ✍️ Signature uniquement dernière page
-  // ===============================
+  // ✍️ Signature dernière page uniquement
   if (i === pages) {
 
     doc.setDrawColor(210, 210, 210);
@@ -420,7 +429,6 @@ for (let i = 1; i <= pages; i++) {
 
     doc.text("Signature du responsable", 14, pageHeight - 23);
 
-    // 👤 Nom responsable
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
 
@@ -428,22 +436,6 @@ for (let i = 1; i <= pages; i++) {
   }
 }
 
-const now = new Date();
-
-// 📅 Format date YYYY-MM-DD
-const dateStr = now.toISOString().split("T")[0];
-
-// 👤 utilisateur
-const username =
-  window.currentUser?.username ||
-  room.createdBy ||
-  "user";
-
-// 🎵 chorale
-const chorale = room.chorale || "X";
-
-// 🧾 nom fichier final
-const fileName = `presence-${dateStr}-${username}-${chorale}-myum.pdf`;
-
+// 💾 EXPORT FINAL
 doc.save(fileName);
-  }
+}
