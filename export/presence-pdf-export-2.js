@@ -145,6 +145,33 @@ export async function exportAdvancedPDF(data = [], room = {}) {
     return y + 35;
   }
 
+function getStatus(attendance) {
+  if (!attendance) return "A";
+
+  if (attendance.status === "justified") return "J";
+  if (attendance.status === "suspended") return "S";
+  if (attendance.status === "special") return "Sp";
+  if (attendance.status === "displacement") return "D";
+
+  return "P";
+}
+
+function getTime(attendance) {
+  if (!attendance?.timestamp) return "";
+
+  const d = attendance.timestamp.toDate();
+
+  return d.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function getMethod(attendance) {
+  if (!attendance) return "";
+
+  return attendance.method === "manual" ? "Manuel" : "Radar";
+}  
   // ===============================
   // 🔥 BUILD CHORALE FULL LIST
   // ===============================
@@ -194,13 +221,20 @@ if (room.chorale === "UM") {
     }))
   ];
 
-  // 🔥 BUILD ROWS
-  mainRows = combined.map((m, i) => [
+  mainRows = combined.map((m, i) => {
+
+  const attendance = data.find(d => d.username === m.username);
+
+  return [
     i + 1,
     m.username,
     m.fullName,
-    m.present ? "Présent" : "Absent"
-  ]);
+    getStatus(attendance),
+    getTime(attendance),
+    getMethod(attendance)
+  ];
+});
+  
 }
 
   // ===============================
@@ -221,7 +255,7 @@ if (room.chorale === "UM") {
 
   autoTable(doc, {
     startY: startY + 4,
-    head: [["#", "Username", "Nom", "Statut"]],
+    head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
     body: mainRows,
     styles: { fontSize: 8 }
   });
@@ -236,17 +270,30 @@ if (room.chorale === "UM") {
 
   function drawSection(title, list) {
 
-    const rows = list.map((d, i) => [
-      i + 1,
-      d.username,
-      d.fullName
-    ]);
+const rows = list.map((d, i) => {
+
+  const time = d.timestamp?.toDate()?.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  }) || "";
+
+  const method = d.method === "manual" ? "Manuel" : "Radar";
+
+  return [
+    i + 1,
+    d.username,
+    d.fullName,
+    "P",
+    time,
+    method
+  ];
+});
 
     doc.text(title, 14, y);
 
     autoTable(doc, {
       startY: y + 2,
-      head: [["#", "Username", "Nom"]],
+      head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
       body: rows,
       styles: { fontSize: 8 }
     });
