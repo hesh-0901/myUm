@@ -375,7 +375,11 @@ const formattedTime = now.toLocaleTimeString("fr-FR", {
 });
 
 // ⚠️ adapte selon ton système utilisateur
-const exportedBy = room.createdByName || "Utilisateur";
+const exportedBy =
+  window.currentUser?.fullName ||
+  window.currentUser?.username ||
+  room.createdByName ||
+  "Utilisateur";
 
 // ===============================
 for (let i = 1; i <= pages; i++) {
