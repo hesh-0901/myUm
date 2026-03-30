@@ -11,7 +11,7 @@ import { db } from "/myUm/mains.js/firebase-config.js";
 const autoTable = autoTableModule.default;
 
 // ===============================
-// LOAD IMAGE BASE64
+// IMAGE BASE64
 // ===============================
 async function loadImageAsBase64(url) {
   try {
@@ -29,10 +29,9 @@ async function loadImageAsBase64(url) {
 }
 
 // ===============================
-// 🔥 GET ALL MEMBERS
+// GET MEMBERS
 // ===============================
 async function getAllMembers() {
-
   const usersSnap = await getDocs(collection(db, "users"));
   const membersSnap = await getDocs(collection(db, "members"));
 
@@ -66,55 +65,76 @@ async function getAllMembers() {
 }
 
 // ===============================
+// HELPERS
+// ===============================
+function getStatus(d) {
+  if (!d) return "A";
+  if (d.status === "justified") return "J";
+  if (d.status === "suspended") return "S";
+  if (d.status === "special") return "Sp";
+  if (d.status === "displacement") return "D";
+  return "P";
+}
+
+function getTime(d) {
+  if (!d?.timestamp) return "";
+  return d.timestamp.toDate().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function getMethod(d) {
+  if (!d) return "";
+  return d.method === "manual" ? "Manuel" : "Radar";
+}
+
+// ===============================
+// EXPORT PDF
+// ===============================
 export async function exportAdvancedPDF(data = [], room = {}) {
 
   const doc = new jsPDF("p", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-  const dark = [31, 41, 55];
-  const light = [107, 114, 128];
-  const line = [229, 231, 235];
+  const dark = [40, 40, 40];
+  const light = [120, 120, 120];
+  const line = [210, 210, 210];
 
   // ===============================
   // HEADER
   // ===============================
   function drawHeader() {
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(...dark);
 
     doc.text("UNION MUSICALE LA COMPASSION", 14, 12);
-    doc.text("LUBUMBASHI", 14, 18);
+    doc.text("LUBUMBASHI", 14, 17);
 
-    doc.setFontSize(18);
-    doc.text("UM", pageWidth - 20, 16, { align: "right" });
+    doc.setFontSize(16);
+    doc.text("UM", pageWidth - 14, 14, { align: "right" });
 
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setTextColor(...light);
-    doc.text("FEUILLE DE PRÉSENCE", 14, 28);
-
-    doc.setFontSize(9);
-    doc.text("MyUM Application", 14, 33);
+    doc.text("FEUILLE DE PRÉSENCE - MYUM APP", 14, 26);
 
     doc.setDrawColor(...line);
-    doc.line(14, 36, pageWidth - 14, 36);
+    doc.line(14, 30, pageWidth - 14, 30);
   }
 
   // ===============================
-  // ROOM BLOCK
+  // INFO BLOCK
   // ===============================
-  async function drawRoomBlock(y = 45) {
+  async function drawInfo(y = 36) {
 
     const avatarSize = 16;
 
-    try {
-      if (room.photoURL) {
-        const base64 = await loadImageAsBase64(room.photoURL);
-        if (base64) {
-          doc.addImage(base64, "JPEG", 14, y, avatarSize, avatarSize);
-        }
-      }
-    } catch {}
+    if (room.photoURL) {
+      const img = await loadImageAsBase64(room.photoURL);
+      if (img) doc.addImage(img, "JPEG", 14, y, avatarSize, avatarSize);
+    }
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
@@ -128,182 +148,185 @@ export async function exportAdvancedPDF(data = [], room = {}) {
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(75, 85, 99);
-
-    doc.text(
-      `${room.chorale || "-"} • ${room.type || "-"}`,
-      14 + avatarSize + 4,
-      y + 11
-    );
-
     doc.setTextColor(...light);
+
+    doc.text(`${room.chorale || "-"} • ${room.type || "-"}`, 14 + avatarSize + 4, y + 11);
     doc.text(`Date : ${room.date || "-"}`, 14 + avatarSize + 4, y + 16);
+
+    if (room.description) {
+      doc.text(room.description, 14, y + 24);
+    }
 
     doc.setDrawColor(...line);
     doc.line(14, y + 30, pageWidth - 14, y + 30);
 
-    return y + 35;
+    return y + 34;
   }
 
-function getStatus(attendance) {
-  if (!attendance) return "A";
-
-  if (attendance.status === "justified") return "J";
-  if (attendance.status === "suspended") return "S";
-  if (attendance.status === "special") return "Sp";
-  if (attendance.status === "displacement") return "D";
-
-  return "P";
-}
-
-function getTime(attendance) {
-  if (!attendance?.timestamp) return "";
-
-  const d = attendance.timestamp.toDate();
-
-  return d.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-
-function getMethod(attendance) {
-  if (!attendance) return "";
-
-  return attendance.method === "manual" ? "Manuel" : "Radar";
-}  
   // ===============================
-  // 🔥 BUILD CHORALE FULL LIST
+  // DATA BUILD
   // ===============================
   const allMembers = await getAllMembers();
 
-let mainRows = [];
+  const mainMembers = allMembers.filter(m => m.chorale === room.chorale);
 
-if (room.chorale === "UM") {
-
-  // 🔥 MODE UM → tout le monde
-  mainRows = allMembers.map((m, i) => {
-
+  const rows = mainMembers.map((m, i) => {
     const attendance = data.find(d => d.username === m.username);
 
     return [
       i + 1,
       m.username,
       m.fullName,
-      attendance ? "Présent" : "Absent"
+      getStatus(attendance),
+      getTime(attendance),
+      getMethod(attendance)
     ];
   });
 
-} else {
-
-  // 🔥 CHORALE PRINCIPALE (TOUS)
-  const mainChorale = allMembers.filter(
-    m => m.chorale === room.chorale
-  );
-
-  // 🔥 AUTRES CHORALES UM (présents seulement)
-  const otherChoralesPresent = data.filter(d =>
-    ["VN", "PC", "WS"].includes(d.chorale) &&
-    d.chorale !== room.chorale
-  );
-
-  // 🔥 FUSION
-  const combined = [
-    ...mainChorale.map(m => ({
-      ...m,
-      present: data.some(d => d.username === m.username)
-    })),
-
-    ...otherChoralesPresent.map(d => ({
-      username: d.username,
-      fullName: d.fullName,
-      present: true
-    }))
-  ];
-
-  mainRows = combined.map((m, i) => {
-
-  const attendance = data.find(d => d.username === m.username);
-
-  return [
-    i + 1,
-    m.username,
-    m.fullName,
-    getStatus(attendance),
-    getTime(attendance),
-    getMethod(attendance)
-  ];
-});
-  
-}
-
   // ===============================
-  // OTHER GROUPS (present only)
+  // STATS
   // ===============================
-  function filterGroup(code) {
-    return data.filter(d => d.chorale === code);
+  function computeStats() {
+    let total = mainMembers.length;
+    let present = 0;
+    let justified = 0;
+    let suspended = 0;
+    let special = 0;
+    let displacement = 0;
+
+    mainMembers.forEach(m => {
+      const d = data.find(x => x.username === m.username);
+      const s = getStatus(d);
+
+      if (s !== "A") present++;
+      if (s === "J") justified++;
+      if (s === "S") suspended++;
+      if (s === "Sp") special++;
+      if (s === "D") displacement++;
+    });
+
+    return {
+      total,
+      present,
+      absent: total - present,
+      justified,
+      suspended,
+      special,
+      displacement,
+      rate: total ? Math.round((present / total) * 100) : 0
+    };
   }
+
+  const stats = computeStats();
 
   // ===============================
   // PAGE 1
   // ===============================
   drawHeader();
-  let startY = await drawRoomBlock();
-
-  doc.setFontSize(11);
-  doc.text(`CHORALE : ${room.chorale}`, 14, startY);
+  let startY = await drawInfo();
 
   autoTable(doc, {
-    startY: startY + 4,
+    startY: startY + 2,
     head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
-    body: mainRows,
-    styles: { fontSize: 8 }
+    body: rows,
+    styles: { fontSize: 8, textColor: dark },
+    headStyles: {
+      fillColor: [240, 240, 240],
+      textColor: dark,
+      lineWidth: 0.1
+    },
+    alternateRowStyles: { fillColor: [250, 250, 250] },
+    margin: { left: 14, right: 14 }
+  });
+
+  let y = doc.lastAutoTable.finalY + 8;
+
+  // ===============================
+  // STATS BLOCK
+  // ===============================
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...dark);
+  doc.text("STATISTIQUES", 14, y);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(...light);
+
+  y += 5;
+
+  [
+    `Total membres : ${stats.total}`,
+    `Présents : ${stats.present}`,
+    `Absents : ${stats.absent}`,
+    `Justifiés : ${stats.justified}`,
+    `Suspendus : ${stats.suspended}`,
+    `Spéciaux : ${stats.special}`,
+    `Déplacements : ${stats.displacement}`,
+    `Taux de présence : ${stats.rate}%`
+  ].forEach((t, i) => {
+    doc.text(t, 14, y + i * 5);
   });
 
   // ===============================
-  // PAGE 2
+  // PAGE 2 (GROUPES)
   // ===============================
   doc.addPage();
   drawHeader();
 
-  let y = 45;
+  let posY = 40;
 
   function drawSection(title, list) {
 
-const rows = list.map((d, i) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...dark);
+    doc.text(title, 14, posY);
 
-  const time = d.timestamp?.toDate()?.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit"
-  }) || "";
-
-  const method = d.method === "manual" ? "Manuel" : "Radar";
-
-  return [
-    i + 1,
-    d.username,
-    d.fullName,
-    "P",
-    time,
-    method
-  ];
-});
-
-    doc.text(title, 14, y);
+    const rows = list.map((d, i) => [
+      i + 1,
+      d.username,
+      d.fullName,
+      "P",
+      getTime(d),
+      getMethod(d)
+    ]);
 
     autoTable(doc, {
-      startY: y + 2,
+      startY: posY + 2,
       head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
       body: rows,
-      styles: { fontSize: 8 }
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [240, 240, 240] }
     });
 
-    y = doc.lastAutoTable.finalY + 8;
+    posY = doc.lastAutoTable.finalY + 8;
   }
 
-  drawSection("INSTRUMENTISTES (IN)", filterGroup("IN"));
-  drawSection("VISITEURS (GT)", filterGroup("GT"));
-  drawSection("ADMINISTRATION (AD)", filterGroup("AD"));
+  drawSection("INSTRUMENTISTES", data.filter(d => d.chorale === "IN"));
+  drawSection("VISITEURS", data.filter(d => d.chorale === "GT"));
+  drawSection("ADMINISTRATION", data.filter(d => d.chorale === "AD"));
 
-  doc.save("presence-myum-advanced.pdf");
+  // ===============================
+  // FOOTER
+  // ===============================
+  const pageCount = doc.internal.getNumberOfPages();
+
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+
+    doc.setDrawColor(...line);
+    doc.line(14, pageHeight - 25, 80, pageHeight - 25);
+
+    doc.setFontSize(9);
+    doc.setTextColor(...light);
+
+    doc.text("Signature du responsable", 14, pageHeight - 20);
+
+    doc.text(`Page ${i}/${pageCount}`, pageWidth - 14, pageHeight - 10, {
+      align: "right"
+    });
+  }
+
+  doc.save("presence-myum.pdf");
 }
