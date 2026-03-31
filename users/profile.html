@@ -170,6 +170,11 @@ class="mt-8 px-4 space-y-4">
 class="mt-8 px-4">
 </div>
 
+<!-- CHORISTE STATUS -->
+<div id="choriste-status-container"
+class="mt-8 px-4">
+</div>
+
 
 <!-- SECURITY -->
 <div class="mt-8 px-4 pb-32">
@@ -304,6 +309,7 @@ class="fixed inset-0 hidden items-center justify-center bg-black/60 backdrop-blu
 
 import { initInformations } from "/myUm/partials/js/informations.js";
 import { initSidebar } from "/myUm/partials/js/sidebar.js";
+import { initUserQr } from "/myUm/partials/js/user-qr.js";
 
 async function initProfilePage(){
 
@@ -321,9 +327,13 @@ await initInformations();
 const amis = await fetch("/myUm/partials/amis.html");
 document.getElementById("amis-container").innerHTML = await amis.text();
 
+const choriste = await fetch("/myUm/partials/choriste-status.html");
+document.getElementById("choriste-status-container").innerHTML = await choriste.text();
+
 }
 
 initProfilePage();
+initUserQr();
 
 </script>
 <script>
