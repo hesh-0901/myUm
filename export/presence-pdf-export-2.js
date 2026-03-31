@@ -372,29 +372,7 @@ export async function exportAdvancedPDF(data = [], room = {}) {
 
   let y = doc.lastAutoTable.finalY + 8;
 
-  // ===============================
-  // STATS
-  // ===============================
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text("STATISTIQUES", 14, y);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-
-  y += 5;
-
-  [
-    `Total membres : ${stats.totalMembers}`,
-    `Présents : ${stats.presentCount}`,
-    `Absents : ${stats.absentCount}`,
-    `Justifiés : ${stats.justifiedCount}`,
-    `Suspendus : ${stats.suspendedCount}`,
-    `Spéciaux : ${stats.specialCount}`,
-    `Déplacements : ${stats.displacementCount}`,
-    `Taux de présence : ${stats.rate}%`
-  ].forEach((t, i) => doc.text(t, 14, y + i * 5));
-
+  
   // ===============================
   // PAGE 2
   // ===============================
