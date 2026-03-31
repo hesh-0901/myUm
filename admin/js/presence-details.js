@@ -232,9 +232,48 @@ bindExportButtons();
 // ===============================
 // ACTIONS
 // ===============================
-openRadarBtn.addEventListener("click", () => {
+openRadarBtn.addEventListener("click", async () => {
+
   if (!roomId) return;
-  openRadar(roomId);
+
+  try {
+
+    const roomRef = doc(db, "presenceRooms", roomId);
+    const snap = await getDoc(roomRef);
+
+    if (!snap.exists()) {
+      alert("Salon introuvable.");
+      return;
+    }
+
+    const room = snap.data();
+
+    // ✅ CAS 1 : salon actif → ouvrir radar
+    if (room.status === "active") {
+      openRadar(roomId);
+      return;
+    }
+
+    // 🔥 CAS 2 : salon fermé → proposer réouverture
+    const confirmReopen = confirm("Ce salon est fermé. Le réactiver ?");
+
+    if (!confirmReopen) return;
+
+    const newEnd = new Date(Date.now() + 30 * 60000); // 30 min
+
+    await updateDoc(roomRef, {
+      status: "active",
+      startTime: new Date(),
+      endTime: newEnd
+    });
+
+    openRadar(roomId);
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de l'ouverture du radar.");
+  }
+
 });
 
 addManualBtn.addEventListener("click", () => {
