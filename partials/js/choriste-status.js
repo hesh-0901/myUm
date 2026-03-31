@@ -5,33 +5,21 @@ export function initChoristeStatus() {
   const text = document.getElementById("statusText");
   const icon = document.getElementById("statusIcon");
 
-  if (!current || !options || !text || !icon) {
-    console.warn("Choriste status: éléments manquants");
-    return;
-  }
+  if (!current || !options) return;
 
-  // ===============================
-  // TOGGLE (ouvrir / fermer)
-  // ===============================
-  current.addEventListener("click", () => {
+  // ouvrir / fermer
+  current.onclick = () => {
     options.classList.toggle("hidden");
-  });
+  };
 
-  // ===============================
-  // CLICK SUR OPTION
-  // ===============================
-  const allOptions = document.querySelectorAll(".status-option");
+  // sélectionner
+  document.querySelectorAll(".status-option").forEach(option => {
 
-  allOptions.forEach(option => {
-
-    option.addEventListener("click", () => {
+    option.onclick = () => {
 
       const selected = option.dataset.status;
-
-      // 🔥 changer texte
       text.innerText = selected;
 
-      // 🔥 changer icône
       switch (selected) {
 
         case "Actif":
@@ -50,32 +38,19 @@ export function initChoristeStatus() {
           icon.className = "bi bi-moon-fill text-purple-500";
           break;
 
-        default:
-          icon.className = "bi bi-person text-gray-400";
       }
 
-      // 🔒 refermer menu
       options.classList.add("hidden");
 
-      // 🔥 DEBUG
-      console.log("Statut choisi :", selected);
-
-      // 👉 PLUS TARD : Firestore ici
-      // saveUserStatus(selected);
-
-    });
+    };
 
   });
 
-  // ===============================
-  // CLICK OUTSIDE (fermer si clic dehors)
-  // ===============================
+  // fermer si clic dehors
   document.addEventListener("click", (e) => {
-
     if (!current.contains(e.target) && !options.contains(e.target)) {
       options.classList.add("hidden");
     }
-
   });
 
 }
