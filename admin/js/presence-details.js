@@ -50,14 +50,16 @@ const openQrScannerBtn = document.getElementById("openQrScannerBtn");
 const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
 
-const closeQrBtn = document.getElementById("closeQrScanner");
+document.addEventListener("click", async (e) => {
 
-if (closeQrBtn) {
-  closeQrBtn.onclick = async () => {
+  if (e.target && e.target.id === "closeQrScanner") {
+
     const { stopQrScanner } = await import("/myUm/partials/js/qr-scanner.js");
     stopQrScanner();
-  };
-}
+
+  }
+
+});
 
 // ===============================
 // STATS
