@@ -2,7 +2,6 @@ export function initUserQr() {
 
   console.log("QR INIT OK");
 
-  // 🔥 utiliser delegation (important)
   document.addEventListener("click", (e) => {
 
     // =========================
@@ -25,12 +24,15 @@ export function initUserQr() {
         return;
       }
 
-      const userId = storedUser.id;
+      // 🔥 QR DATA (JSON PROPRE)
+      const qrData = JSON.stringify({
+        userId: storedUser.id,
+        ts: Date.now()
+      });
 
       modal.classList.remove("hidden");
 
-      // 🔥 QR global (CDN)
-      QRCode.toCanvas(canvas, userId, {
+      QRCode.toCanvas(canvas, qrData, {
         width: 200
       });
 
