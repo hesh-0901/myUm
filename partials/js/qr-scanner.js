@@ -1,6 +1,12 @@
-// IMPORT dynamique de la librairie
+// ==========================================
+// QR SCANNER MODULE
+// ==========================================
+
 let html5QrCode = null;
 
+// ==========================================
+// OUVRIR SCANNER
+// ==========================================
 export async function openQrScanner(onScanSuccess) {
 
   const modal = document.getElementById("qrScannerModal");
@@ -12,7 +18,9 @@ export async function openQrScanner(onScanSuccess) {
 
   modal.classList.remove("hidden");
 
-  // charger lib si pas encore chargée
+  // ==========================================
+  // LOAD LIB SI NÉCESSAIRE
+  // ==========================================
   if (!window.Html5Qrcode) {
     const script = document.createElement("script");
     script.src = "https://unpkg.com/html5-qrcode";
@@ -23,47 +31,56 @@ export async function openQrScanner(onScanSuccess) {
     });
   }
 
+  // ==========================================
+  // INIT SCANNER
+  // ==========================================
   html5QrCode = new Html5Qrcode("qr-reader");
+
+  let isScanning = true;
 
   try {
 
     await html5QrCode.start(
-      { facingMode: "environment" }, // caméra arrière
+      { facingMode: "environment" },
       {
         fps: 10,
         qrbox: 250
       },
-let isScanning = true;
 
-(decodedText) => {
+      // ==========================================
+      // CALLBACK SCAN
+      // ==========================================
+      (decodedText) => {
 
-  if (!isScanning) return;
-  isScanning = false;
+        // éviter double scan
+        if (!isScanning) return;
+        isScanning = false;
 
-  console.log("QR RAW:", decodedText);
+        console.log("QR RAW:", decodedText);
 
-  stopQrScanner();
+        stopQrScanner();
 
-  let parsed;
+        let parsed;
 
-  try {
-    parsed = JSON.parse(decodedText.trim());
-  } catch (err) {
-    console.error("Parse error:", err, decodedText);
-    alert("QR invalide");
-    return;
-  }
+        try {
+          parsed = JSON.parse(decodedText.trim());
+        } catch (err) {
+          console.error("Parse error:", err, decodedText);
+          alert("QR invalide");
+          return;
+        }
 
-  if (!parsed.userId) {
-    alert("QR invalide (userId manquant)");
-    return;
-  }
+        if (!parsed.userId) {
+          alert("QR invalide (userId manquant)");
+          return;
+        }
 
-  if (onScanSuccess) {
-    onScanSuccess(parsed);
-  }
+        // callback propre
+        if (onScanSuccess) {
+          onScanSuccess(parsed);
+        }
 
-}
+      }
     );
 
   } catch (err) {
@@ -72,12 +89,20 @@ let isScanning = true;
   }
 }
 
+
+// ==========================================
+// STOP SCANNER
+// ==========================================
 export async function stopQrScanner() {
 
-  if (html5QrCode) {
-    await html5QrCode.stop();
-    html5QrCode.clear();
-    html5QrCode = null;
+  try {
+    if (html5QrCode) {
+      await html5QrCode.stop();
+      html5QrCode.clear();
+      html5QrCode = null;
+    }
+  } catch (err) {
+    console.warn("Erreur arrêt scanner:", err);
   }
 
   const modal = document.getElementById("qrScannerModal");
