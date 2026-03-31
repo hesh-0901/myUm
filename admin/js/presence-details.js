@@ -13,6 +13,7 @@ import {
 import { openRadar } from "/myUm/partials/js/radar.js";
 import { openAttendanceModal } from "/myUm/partials/js/add-attendance-modal.js";
 import { initPresenceActions } from "/myUm/admin/js/presence-details-actions.js";
+import { openQrScanner } from "/myUm/partials/js/qr-scanner.js";
 
 // ===============================
 // import xlsx et pdf
@@ -48,6 +49,16 @@ const presenceCount = document.getElementById("presenceCount");
 const openQrScannerBtn = document.getElementById("openQrScannerBtn");
 const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
+
+const closeQrBtn = document.getElementById("closeQrScanner");
+
+if (closeQrBtn) {
+  closeQrBtn.onclick = async () => {
+    const { stopQrScanner } = await import("/myUm/partials/js/qr-scanner.js");
+    stopQrScanner();
+  };
+}
+
 // ===============================
 // STATS
 // ===============================
@@ -282,7 +293,19 @@ addManualBtn.addEventListener("click", () => {
   openAttendanceModal(roomId);
 });
 
+openQrScannerBtn.addEventListener("click", () => {
 
+  if (!roomId) return;
+
+  openQrScanner(async (qrData) => {
+
+    console.log("QR détecté :", qrData);
+
+    alert("QR scanné : " + qrData);
+
+  });
+
+});
 // ===============================
 // MAJ AUTO
 // ===============================
