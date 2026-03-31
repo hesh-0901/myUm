@@ -326,7 +326,6 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   // PAGE 2
   // ===============================
   doc.addPage();
-  drawHeader();
 
   let posY = 40;
 
