@@ -33,14 +33,31 @@ export async function openQrScanner(onScanSuccess) {
         fps: 10,
         qrbox: 250
       },
-      (decodedText) => {
-        // 🎯 QR détecté
-        stopQrScanner();
+(decodedText) => {
 
-        if (onScanSuccess) {
-          onScanSuccess(decodedText);
-        }
-      }
+  stopQrScanner();
+
+  // 🔥 sécuriser + parser
+  let parsed;
+
+  try {
+    parsed = JSON.parse(decodedText);
+  } catch {
+    alert("QR invalide");
+    return;
+  }
+
+  if (!parsed.userId) {
+    alert("QR invalide (userId manquant)");
+    return;
+  }
+
+  // 🔥 passer données propres
+  if (onScanSuccess) {
+    onScanSuccess(parsed);
+  }
+
+}
     );
 
   } catch (err) {
