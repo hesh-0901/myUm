@@ -299,13 +299,54 @@ openQrScannerBtn.addEventListener("click", () => {
 
   if (!roomId) return;
 
-  openQrScanner(async (qrData) => {
+openQrScanner(async (qrData) => {
 
-    console.log("QR détecté :", qrData);
+  try {
 
-    alert("QR scanné : " + qrData);
+    const userId = qrData; // si QR = userId
 
-  });
+    const userSnap = await getDoc(doc(db, "users", userId));
+
+    if (!userSnap.exists()) {
+      alert("Utilisateur inconnu.");
+      return;
+    }
+
+    const userData = userSnap.data();
+
+    const attendanceRef = doc(
+      db,
+      "presenceRooms",
+      roomId,
+      "attendances",
+      userId
+    );
+
+    const existing = await getDoc(attendanceRef);
+
+    if (existing.exists()) {
+      alert("Déjà enregistré.");
+      return;
+    }
+
+    await setDoc(attendanceRef, {
+      userId,
+      username: userData.username,
+      fullName: `${userData.firstName} ${userData.lastName}`,
+      method: "qr",
+      timestamp: new Date()
+    });
+
+    alert("Présence enregistrée ✅");
+
+    window.dispatchEvent(new Event("presenceUpdated"));
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur scan.");
+  }
+
+});
 
 });
 // ===============================
