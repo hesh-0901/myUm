@@ -165,44 +165,117 @@ function getSecondaryGroups(data) {
 }
 
 // ===============================
-// STATS
+// PAGE STATS DASHBOARD
 // ===============================
-function computeStats(list, groups) {
+doc.addPage();
 
-  const fullList = [
-    ...list,
-    ...groups.IN,
-    ...groups.GT,
-    ...groups.AD
-  ];
+let y = 25;
 
-  let stats = {
-    totalMembers: fullList.length,
-    presentCount: 0,
-    absentCount: 0,
-    justifiedCount: 0,
-    suspendedCount: 0,
-    specialCount: 0,
-    displacementCount: 0
-  };
+// ===============================
+// TITLE
+// ===============================
+doc.setFont("helvetica", "bold");
+doc.setFontSize(14);
+doc.setTextColor(40, 40, 40);
+doc.text("TABLEAU DE STATISTIQUES", 14, y);
 
-  fullList.forEach(d => {
+y += 10;
 
-    if (d.status === "A") stats.absentCount++;
-    else stats.presentCount++;
+// ===============================
+// 🎵 CHORALE PRINCIPALE
+// ===============================
+doc.setFontSize(11);
+doc.text(`Chorale : ${room.chorale}`, 14, y);
 
-    if (d.status === "J") stats.justifiedCount++;
-    if (d.status === "S") stats.suspendedCount++;
-    if (d.status === "Sp") stats.specialCount++;
-    if (d.status === "D") stats.displacementCount++;
-  });
+y += 6;
 
-  stats.rate = stats.totalMembers
-    ? ((stats.presentCount / stats.totalMembers) * 100).toFixed(2)
-    : "0.00";
+doc.setFont("helvetica", "normal");
+doc.setFontSize(10);
+doc.setTextColor(80, 80, 80);
 
-  return stats;
-}
+doc.text(`Total membres : ${stats.totalMembers}`, 14, y); y += 5;
+doc.text(`Présents : ${stats.presentCount}`, 14, y); y += 5;
+doc.text(`Absents : ${stats.absentCount}`, 14, y); y += 5;
+
+y += 2;
+
+// statuts détaillés (alignés colonne droite)
+doc.text(`Justifiés : ${stats.justifiedCount}`, 100, y - 15);
+doc.text(`Suspendus : ${stats.suspendedCount}`, 100, y - 10);
+doc.text(`Spéciaux : ${stats.specialCount}`, 100, y - 5);
+doc.text(`Déplacements : ${stats.displacementCount}`, 100, y);
+
+y += 10;
+
+// ===============================
+// 🔥 AUTRES CHORALES (VN PC WS)
+// ===============================
+const otherPresent = data.filter(d =>
+  ["VN", "PC", "WS"].includes(d.chorale) &&
+  d.chorale !== room.chorale
+);
+
+doc.setFont("helvetica", "bold");
+doc.setTextColor(40, 40, 40);
+doc.text("Autres chorales présentes", 14, y);
+
+y += 6;
+
+doc.setFont("helvetica", "normal");
+doc.setTextColor(80, 80, 80);
+doc.text(`Total : ${otherPresent.length}`, 14, y);
+
+y += 10;
+
+// ===============================
+// 🎺 INSTRUMENTISTES
+// ===============================
+doc.setFont("helvetica", "bold");
+doc.setTextColor(40, 40, 40);
+doc.text("Instrumentistes", 14, y);
+
+y += 6;
+
+doc.setFont("helvetica", "normal");
+doc.setTextColor(80, 80, 80);
+doc.text(`Total : ${groups.IN.length}`, 14, y);
+
+y += 10;
+
+// ===============================
+// 📊 TOTAL GLOBAL
+// ===============================
+const totalGlobalPresent =
+  stats.presentCount +
+  otherPresent.length +
+  groups.IN.length +
+  groups.GT.length +
+  groups.AD.length;
+
+doc.setFont("helvetica", "bold");
+doc.setTextColor(40, 40, 40);
+doc.text("Présence globale au culte", 14, y);
+
+y += 6;
+
+doc.setFont("helvetica", "normal");
+doc.setTextColor(80, 80, 80);
+doc.text(`Total présents : ${totalGlobalPresent}`, 14, y);
+
+y += 10;
+
+// ===============================
+// 📈 TAUX
+// ===============================
+doc.setFont("helvetica", "bold");
+doc.setTextColor(40, 40, 40);
+doc.text("Taux de présence (chorale)", 14, y);
+
+y += 6;
+
+doc.setFont("helvetica", "bold");
+doc.setFontSize(12);
+doc.text(`${stats.rate}%`, 14, y);
 
 // ===============================
 // EXPORT
