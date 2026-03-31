@@ -310,6 +310,7 @@ class="fixed inset-0 hidden items-center justify-center bg-black/60 backdrop-blu
 import { initInformations } from "/myUm/partials/js/informations.js";
 import { initSidebar } from "/myUm/partials/js/sidebar.js";
 import { initUserQr } from "/myUm/partials/js/user-qr.js";
+import { initChoristeStatus } from "/myUm/partials/js/choriste-status.js";
 
 async function initProfilePage(){
 
@@ -330,7 +331,10 @@ document.getElementById("amis-container").innerHTML = await amis.text();
 const choriste = await fetch("/myUm/partials/choriste-status.html");
 document.getElementById("choriste-status-container").innerHTML = await choriste.text();
 
-initUserQr();
+setTimeout(() => {
+  initChoristeStatus();
+  initUserQr();
+}, 0);
 
 }
 
