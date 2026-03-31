@@ -1,4 +1,4 @@
-import QRCode from "https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.esm.min.js";
+import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js";
 
 export function initUserQr() {
 
