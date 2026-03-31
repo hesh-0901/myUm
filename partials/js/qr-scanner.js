@@ -33,16 +33,23 @@ export async function openQrScanner(onScanSuccess) {
         fps: 10,
         qrbox: 250
       },
+let isScanning = true;
+
 (decodedText) => {
+
+  if (!isScanning) return;
+  isScanning = false;
+
+  console.log("QR RAW:", decodedText);
 
   stopQrScanner();
 
-  // 🔥 sécuriser + parser
   let parsed;
 
   try {
-    parsed = JSON.parse(decodedText);
-  } catch {
+    parsed = JSON.parse(decodedText.trim());
+  } catch (err) {
+    console.error("Parse error:", err, decodedText);
     alert("QR invalide");
     return;
   }
@@ -52,7 +59,6 @@ export async function openQrScanner(onScanSuccess) {
     return;
   }
 
-  // 🔥 passer données propres
   if (onScanSuccess) {
     onScanSuccess(parsed);
   }
