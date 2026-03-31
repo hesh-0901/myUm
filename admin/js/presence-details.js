@@ -304,7 +304,22 @@ openQrScanner(async (qrData) => {
 
   try {
 
-    const userId = qrData.userId; // si QR = userId
+    console.log("QR DATA:", qrData);
+
+    // 🔥 gérer les 2 formats (string OU objet)
+    const userId = typeof qrData === "string"
+      ? qrData
+      : qrData.userId;
+
+    if (!userId) {
+      alert("QR invalide");
+      return;
+    }
+
+    if (!roomId) {
+      alert("Salon invalide");
+      return;
+    }
 
     const userSnap = await getDoc(doc(db, "users", userId));
 
@@ -329,6 +344,25 @@ openQrScanner(async (qrData) => {
       alert("Déjà enregistré.");
       return;
     }
+
+    await setDoc(attendanceRef, {
+      userId,
+      username: userData.username || "",
+      fullName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim(),
+      method: "qr",
+      timestamp: new Date()
+    });
+
+    alert("Présence enregistrée");
+
+    window.dispatchEvent(new Event("presenceUpdated"));
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur scan.");
+  }
+
+});
 
     await setDoc(attendanceRef, {
       userId,
