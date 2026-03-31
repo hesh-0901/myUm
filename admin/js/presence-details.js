@@ -363,27 +363,8 @@ openQrScanner(async (qrData) => {
   }
 
 });
+  });
 
-    await setDoc(attendanceRef, {
-      userId,
-      username: userData.username,
-      fullName: `${userData.firstName} ${userData.lastName}`,
-      method: "qr",
-      timestamp: new Date()
-    });
-
-    alert("Présence enregistrée ✅");
-
-    window.dispatchEvent(new Event("presenceUpdated"));
-
-  } catch (error) {
-    console.error(error);
-    alert("Erreur scan.");
-  }
-
-});
-
-});
 // ===============================
 // MAJ AUTO
 // ===============================
