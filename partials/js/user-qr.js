@@ -1,5 +1,3 @@
-import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js";
-
 export function initUserQr() {
 
   const btn = document.getElementById("openUserQrBtn");
@@ -22,7 +20,7 @@ export function initUserQr() {
 
     modal.classList.remove("hidden");
 
-    await QRCode.toCanvas(canvas, userId, {
+    QRCode.toCanvas(canvas, userId, {
       width: 200
     });
 
