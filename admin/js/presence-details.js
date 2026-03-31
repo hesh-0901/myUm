@@ -304,7 +304,7 @@ openQrScanner(async (qrData) => {
 
   try {
 
-    const userId = qrData; // si QR = userId
+    const userId = qrData.userId; // si QR = userId
 
     const userSnap = await getDoc(doc(db, "users", userId));
 
