@@ -45,7 +45,7 @@ function bindExportButtons() {
 const roomInfo = document.getElementById("roomInfo");
 const presenceList = document.getElementById("presenceList");
 const presenceCount = document.getElementById("presenceCount");
-
+const openQrScannerBtn = document.getElementById("openQrScannerBtn");
 const openRadarBtn = document.getElementById("openRadarBtn");
 const addManualBtn = document.getElementById("addManualBtn");
 // ===============================
