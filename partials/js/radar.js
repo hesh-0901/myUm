@@ -165,10 +165,12 @@ if (roomData.status !== "active") {
           roomData.longitude
         );
 
-        if (distance > 7) {
-          alert("Vous êtes hors rayon (7m).");
-          return;
-        }
+          const RADAR_RADIUS = 250; // rayon en mètres
+          
+          if (distance > RADAR_RADIUS) {
+            alert(`Vous êtes hors rayon (${RADAR_RADIUS}m).`);
+            return;
+          }
 
         const storedUser = JSON.parse(localStorage.getItem("myum_user"));
         if (!storedUser) return;
