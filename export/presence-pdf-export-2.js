@@ -164,6 +164,45 @@ function getSecondaryGroups(data) {
   };
 }
 
+// ===============================
+// STATS
+// ===============================
+function computeStats(list, groups) {
+
+  const fullList = [
+    ...list,
+    ...groups.IN,
+    ...groups.GT,
+    ...groups.AD
+  ];
+
+  let stats = {
+    totalMembers: list.length, // ⚠️ chorale principale seulement
+    presentCount: 0,
+    absentCount: 0,
+    justifiedCount: 0,
+    suspendedCount: 0,
+    specialCount: 0,
+    displacementCount: 0
+  };
+
+  list.forEach(d => {
+
+    if (d.status === "A") stats.absentCount++;
+    else stats.presentCount++;
+
+    if (d.status === "J") stats.justifiedCount++;
+    if (d.status === "S") stats.suspendedCount++;
+    if (d.status === "Sp") stats.specialCount++;
+    if (d.status === "D") stats.displacementCount++;
+  });
+
+  stats.rate = stats.totalMembers
+    ? ((stats.presentCount / stats.totalMembers) * 100).toFixed(2)
+    : "0.00";
+
+  return stats;
+}
 
 // ===============================
 // EXPORT
