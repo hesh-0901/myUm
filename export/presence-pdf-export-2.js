@@ -276,6 +276,31 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   const stats = computeStats(mainList, groups);
 
   // ===============================
+// TRI A-Z PAR PRÉNOM
+// ===============================
+
+// helper prénom
+function getFirstName(fullName = "") {
+  return fullName.trim().split(" ")[0].toLowerCase();
+}
+
+// séparer
+const presentList = mainList.filter(d => d.status !== "A");
+const absentList = mainList.filter(d => d.status === "A");
+
+// trier A-Z prénom
+presentList.sort((a, b) =>
+  getFirstName(a.fullName).localeCompare(getFirstName(b.fullName))
+);
+
+absentList.sort((a, b) =>
+  getFirstName(a.fullName).localeCompare(getFirstName(b.fullName))
+);
+
+// fusion
+const sortedMainList = [...presentList, ...absentList];
+
+  // ===============================
   // PAGE 1
   // ===============================
   drawHeader();
@@ -284,7 +309,7 @@ export async function exportAdvancedPDF(data = [], room = {}) {
   autoTable(doc, {
     startY: startY + 2,
     head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
-    body: mainList.map((d, i) => [
+    body: sortedMainList.map((d, i) => [
       i + 1,
       d.username,
       d.fullName,
