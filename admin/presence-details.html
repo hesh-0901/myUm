@@ -112,6 +112,22 @@ await loadPartial("add-attendance-modal", "#attendanceModalContainer");
 </script>
 
 <script type="module" src="/myUm/partials/js/add-attendance-modal.js"></script>
+  <!-- QR SCANNER MODAL -->
+<div id="qrScannerModal"
+class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-50">
+
+  <div class="bg-white rounded-2xl p-4 w-full max-w-[420px]">
+
+    <div class="flex justify-between items-center mb-3">
+      <p class="text-sm font-semibold">Scanner QR</p>
+      <button id="closeQrScanner" class="text-gray-400 text-lg">×</button>
+    </div>
+
+    <div id="qr-reader" class="w-full"></div>
+
+  </div>
+
+</div>
 
 </body>
 </html>
