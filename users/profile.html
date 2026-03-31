@@ -330,10 +330,11 @@ document.getElementById("amis-container").innerHTML = await amis.text();
 const choriste = await fetch("/myUm/partials/choriste-status.html");
 document.getElementById("choriste-status-container").innerHTML = await choriste.text();
 
+initUserQr();
+
 }
 
 initProfilePage();
-initUserQr();
 
 </script>
 <script>
