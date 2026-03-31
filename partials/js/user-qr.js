@@ -1,35 +1,51 @@
 export function initUserQr() {
 
-  const btn = document.getElementById("openUserQrBtn");
-  const modal = document.getElementById("userQrModal");
-  const closeBtn = document.getElementById("closeUserQr");
-  const canvas = document.getElementById("userQrCanvas");
+  console.log("QR INIT OK");
 
-  if (!btn || !modal || !canvas) return;
+  // 🔥 utiliser delegation (important)
+  document.addEventListener("click", (e) => {
 
-  btn.onclick = async () => {
+    // =========================
+    // OUVRIR QR
+    // =========================
+    if (e.target.closest("#openUserQrBtn")) {
 
-    const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+      const modal = document.getElementById("userQrModal");
+      const canvas = document.getElementById("userQrCanvas");
 
-    if (!storedUser) {
-      alert("Utilisateur non connecté");
-      return;
+      if (!modal || !canvas) {
+        console.warn("QR modal introuvable");
+        return;
+      }
+
+      const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+
+      if (!storedUser) {
+        alert("Utilisateur non connecté");
+        return;
+      }
+
+      const userId = storedUser.id;
+
+      modal.classList.remove("hidden");
+
+      // 🔥 QR global (CDN)
+      QRCode.toCanvas(canvas, userId, {
+        width: 200
+      });
+
     }
 
-    const userId = storedUser.id;
+    // =========================
+    // FERMER QR
+    // =========================
+    if (e.target.closest("#closeUserQr")) {
 
-    modal.classList.remove("hidden");
+      const modal = document.getElementById("userQrModal");
+      if (modal) modal.classList.add("hidden");
 
-    QRCode.toCanvas(canvas, userId, {
-      width: 200
-    });
+    }
 
-  };
-
-  if (closeBtn) {
-    closeBtn.onclick = () => {
-      modal.classList.add("hidden");
-    };
-  }
+  });
 
 }
