@@ -1,106 +1,44 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <title>MyUm</title>
 
-<link rel="manifest" href="/myUm/manifest.json">
-<link rel="icon" href="/myUm/assets/favicon.png">
-<meta name="theme-color" content="#1A3668">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script> <!-- ✅ AJOUT IMPORTANT -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-<title>Dashboard Admin</title>
-
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-<style>
-.text-primary { color:#1A3668; }
-.bg-primary-light { background:#EEF4FF; }
-</style>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/annonce-admin.css">
 </head>
+<body>
 
-<body 
-class="bg-gray-100 flex justify-center overflow-x-hidden"
-data-title="Dashboard Admin">
+    <div class="container">
+        <h1>Gestion des annonces</h1>
 
-<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+        <!-- Formulaire -->
+        <form id="addForm">
+            <input type="text" id="titre" placeholder="Titre" required>
+            <textarea id="message" placeholder="Message" required></textarea>
+            <input type="text" id="categorie" placeholder="Catégorie" required>
+            <input type="date" id="date_publication" required>
+            <button type="submit">Ajouter</button>
+        </form>
 
-<header id="header-back"></header>
-<main class="flex-1 overflow-y-auto px-4 pt-16 pb-6 space-y-5">
+        <!-- Liste -->
+        <div id="annonces"></div>
 
-<!-- ================= TOTAL ================= -->
-<div class="bg-primary-light rounded-3xl p-5 shadow-sm flex items-center justify-between">
+        <!-- Pagination -->
+        <div class="pagination">
+            <button id="prevBtn">Précédent</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextBtn">Suivant</button>
+        </div>
+    </div>
 
-<div>
-<p class="text-xs text-gray-500">Total choristes</p>
-<p id="totalUsers" class="text-2xl font-semibold text-primary mt-1">0</p>
-</div>
-
-<div class="bg-white p-3 rounded-xl shadow-sm">
-<i class="bi bi-people text-primary text-xl"></i>
-</div>
-
-</div>
-
-<!-- ================= GENRE ================= -->
-<div class="grid grid-cols-3 gap-3">
-
-<!-- HOMMES -->
-<div class="bg-green-50 p-4 rounded-3xl shadow-sm text-center">
-
-<div class="flex justify-center mb-2">
-<i class="bi bi-person-fill text-green-600 text-lg"></i>
-</div>
-
-<p class="text-xs text-gray-500">H</p>
-<p id="countH" class="text-lg font-semibold text-green-600">0</p>
-
-</div>
-
-<!-- FEMMES -->
-<div class="bg-pink-50 p-4 rounded-3xl shadow-sm text-center">
-
-<div class="flex justify-center mb-2">
-<i class="bi bi-person-fill text-pink-600 text-lg"></i>
-</div>
-
-<p class="text-xs text-gray-500">F</p>
-<p id="countM" class="text-lg font-semibold text-pink-600">0</p>
-
-</div>
-
-<!-- NON MENTIONNÉ -->
-<div class="bg-gray-100 p-4 rounded-3xl shadow-sm text-center">
-
-<div class="flex justify-center mb-2">
-<i class="bi bi-person text-gray-600 text-lg"></i>
-</div>
-
-<p class="text-xs text-gray-500">NM</p>
-<p id="countNM" class="text-lg font-semibold text-gray-600">0</p>
-
-</div>
-
-</div>
-
-<!-- ================= CHORALES ================= -->
-<div>
-
-<div class="flex items-center justify-between mb-2">
-<h2 class="text-sm font-semibold text-gray-700">Par chorale</h2>
-<i class="bi bi-bar-chart text-gray-400"></i>
-</div>
-
-<div id="choraleContainer" class="space-y-3"></div>
-
-</div>
-
-</main>
-
-</div>
-
-<script type="module" src="/myUm/mains.js/app-init.js"></script>
-<script type="module" src="/myUm/admin/js/dashboard.js"></script>
+    <!-- JS en bas = SAFE -->
+    <script src="js/annonce-admin.js"></script>
 
 </body>
 </html>
