@@ -6,18 +6,17 @@
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script> <!-- ✅ AJOUT IMPORTANT -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script> <!-- ✅ AJOUT -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <!-- CSS -->
     <link rel="stylesheet" href="css/annonce-admin.css">
 </head>
 <body>
-
     <div class="container">
         <h1>Gestion des annonces</h1>
 
-        <!-- Formulaire -->
+        <!-- Formulaire ajout -->
         <form id="addForm">
             <input type="text" id="titre" placeholder="Titre" required>
             <textarea id="message" placeholder="Message" required></textarea>
@@ -26,7 +25,7 @@
             <button type="submit">Ajouter</button>
         </form>
 
-        <!-- Liste -->
+        <!-- Liste des annonces -->
         <div id="annonces"></div>
 
         <!-- Pagination -->
@@ -37,8 +36,6 @@
         </div>
     </div>
 
-    <!-- JS en bas = SAFE -->
     <script src="js/annonce-admin.js"></script>
-
 </body>
 </html>
