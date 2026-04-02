@@ -11,103 +11,187 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 // 🔹 Pagination
 const pageSize = 3;
 let lastVisible = null;
 let firstVisible = null;
 let currentPage = 1;
-let pages = [];
 
-// 🔹 Ajouter annonce
+// 🔹 MODELE GLOBAL (IMPORTANT)
+const annonceModel = {
+    titre: "",
+    message: "",
+    categorie: "",
+    date_publication: null,
+    vues: 0,
+    likes: 0,
+    user_id: "",
+    statut: "actif" // futur (archivé, supprimé...)
+};
+
+// 🔹 🔐 AUTH CHECK
+function getUser() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Connecte-toi !");
+        throw new Error("Non connecté");
+    }
+    return user;
+}
+
+// 🔹 2. AJOUTER ANNONCE (COMPLET)
 document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const titre = document.getElementById('titre').value;
-    const message = document.getElementById('message').value;
-    const categorie = document.getElementById('categorie').value;
-    const date_publication = document.getElementById('date_publication').value;
+    const user = getUser();
 
-    await db.collection('annonce').add({ titre, message, categorie, date_publication });
-    alert('Annonce ajoutée !');
+    const annonce = {
+        ...annonceModel,
+        titre: document.getElementById('titre').value,
+        message: document.getElementById('message').value,
+        categorie: document.getElementById('categorie').value,
+        date_publication: new Date(document.getElementById('date_publication').value),
+        user_id: user.uid
+    };
 
+    await db.collection('annonces').add(annonce);
+
+    alert('✅ Annonce ajoutée !');
     e.target.reset();
+
     currentPage = 1;
-    pages = [];
     loadAnnonces();
 });
 
-// 🔹 Supprimer annonce
+// 🔹 3. SUPPRIMER ANNONCE
 async function deleteAnnonce(id) {
-    if (confirm("Voulez-vous vraiment supprimer cette annonce ?")) {
-        await db.collection('annonce').doc(id).delete();
+    const user = getUser();
+
+    if (confirm("Supprimer cette annonce ?")) {
+        await db.collection('annonces').doc(id).delete();
         loadAnnonces();
     }
 }
 
-// 🔹 Supprimer annonces dépassées
+// 🔹 4. NETTOYAGE AUTO (ANNONCES EXPIRÉES)
 async function cleanupOldAnnonces() {
-    const today = new Date().toISOString().split('T')[0];
-    const snapshot = await db.collection('annonce').where('date_publication', '<', today).get();
-    snapshot.forEach(doc => doc.ref.delete());
+    const today = new Date();
+
+    const snapshot = await db.collection('annonces')
+        .where('date_publication', '<', today)
+        .get();
+
+    snapshot.forEach(doc => doc.ref.update({ statut: "expiré" }));
 }
 
-// 🔹 Afficher annonces
+// 🔹 5. LIKE (ANTI-SPAM)
+async function likeAnnonce(id) {
+    const user = getUser();
+
+    const likeRef = db.collection("likes");
+
+    const exist = await likeRef
+        .where("user_id", "==", user.uid)
+        .where("annonce_id", "==", id)
+        .get();
+
+    if (!exist.empty) {
+        alert("Déjà liké !");
+        return;
+    }
+
+    await likeRef.add({
+        user_id: user.uid,
+        annonce_id: id,
+        date: new Date()
+    });
+
+    await db.collection("annonces").doc(id).update({
+        likes: firebase.firestore.FieldValue.increment(1)
+    });
+
+    loadAnnonces();
+}
+
+// 🔹 6. VUES (ANTI DOUBLE)
+let vuesLocal = JSON.parse(localStorage.getItem("vues")) || {};
+
+async function addVue(id) {
+    if (vuesLocal[id]) return;
+
+    vuesLocal[id] = true;
+    localStorage.setItem("vues", JSON.stringify(vuesLocal));
+
+    await db.collection("annonces").doc(id).update({
+        vues: firebase.firestore.FieldValue.increment(1)
+    });
+}
+
+// 🔹 7. AFFICHAGE
 function displayAnnonces(docs) {
     const container = document.getElementById('annonces');
     container.innerHTML = '';
 
     if (docs.length === 0) {
-        container.innerHTML = '<p style="text-align:center;">Aucune annonce.</p>';
+        container.innerHTML = '<p>Aucune annonce</p>';
         return;
     }
 
     docs.forEach(doc => {
         const data = doc.data();
+
         const div = document.createElement('div');
         div.className = 'annonce';
+
         div.innerHTML = `
             <h3>${data.titre}</h3>
             <p>${data.message}</p>
-            <small>Catégorie: ${data.categorie} | Publié le: ${data.date_publication}</small>
+            <small>
+                ${data.categorie} | 
+                ${data.date_publication?.toDate().toLocaleDateString()}
+            </small>
+
+            <div>
+                👁 ${data.vues || 0}
+                ❤️ ${data.likes || 0}
+            </div>
+
+            <button onclick="likeAnnonce('${doc.id}')">Like</button>
             <button onclick="deleteAnnonce('${doc.id}')">Supprimer</button>
         `;
+
+        div.onclick = () => addVue(doc.id);
+
         container.appendChild(div);
     });
 
     document.getElementById('pageInfo').innerText = `Page ${currentPage}`;
 }
 
-// 🔹 Charger annonces avec pagination
+// 🔹 8. PAGINATION
 async function loadAnnonces(direction = 'next') {
     await cleanupOldAnnonces();
 
-    let query = db.collection('annonce').orderBy('date_publication', 'desc').limit(pageSize);
+    let query = db.collection('annonces')
+        .where("statut", "==", "actif")
+        .orderBy('date_publication', 'desc')
+        .limit(pageSize);
 
     if (direction === 'next' && lastVisible) {
         query = query.startAfter(lastVisible);
-    } else if (direction === 'prev' && firstVisible) {
-        query = query.endBefore(firstVisible).limitToLast(pageSize);
-        currentPage = currentPage > 1 ? currentPage - 1 : 1;
     }
 
     const snapshot = await query.get();
-    if (snapshot.empty) {
-        if (direction === 'prev') currentPage++;
-        return;
-    }
+
+    if (snapshot.empty) return;
 
     firstVisible = snapshot.docs[0];
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
-    if (direction === 'next') currentPage++;
-
     displayAnnonces(snapshot.docs);
 }
 
-// 🔹 Pagination boutons
-document.getElementById('nextBtn').addEventListener('click', () => loadAnnonces('next'));
-document.getElementById('prevBtn').addEventListener('click', () => loadAnnonces('prev'));
-
-// 🔹 Initialisation
+// 🔹 9. INIT
 loadAnnonces();
