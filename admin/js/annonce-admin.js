@@ -11,7 +11,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
+const auth = firebase.auth(); // ✅ AJOUT
 
 // 🔹 Pagination
 const pageSize = 3;
@@ -19,123 +19,72 @@ let lastVisible = null;
 let firstVisible = null;
 let currentPage = 1;
 
-// 🔹 MODELE GLOBAL (IMPORTANT)
-const annonceModel = {
-    titre: "",
-    message: "",
-    categorie: "",
-    date_publication: null,
-    vues: 0,
-    likes: 0,
-    user_id: "",
-    statut: "actif" // futur (archivé, supprimé...)
-};
-
-// 🔹 🔐 AUTH CHECK
-function getUser() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert("Connecte-toi !");
-        throw new Error("Non connecté");
-    }
-    return user;
-}
-
-// 🔹 2. AJOUTER ANNONCE (COMPLET)
+// 🔹 Ajouter annonce
 document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const user = getUser();
+    console.log("Form soumis ✅");
 
-    const annonce = {
-        ...annonceModel,
-        titre: document.getElementById('titre').value,
-        message: document.getElementById('message').value,
-        categorie: document.getElementById('categorie').value,
-        date_publication: new Date(document.getElementById('date_publication').value),
-        user_id: user.uid
-    };
+    try {
+        const titre = document.getElementById('titre').value;
+        const message = document.getElementById('message').value;
+        const categorie = document.getElementById('categorie').value;
+        const dateInput = document.getElementById('date_publication').value;
 
-    await db.collection('annonces').add(annonce);
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Connecte-toi !");
+            return;
+        }
 
-    alert('✅ Annonce ajoutée !');
-    e.target.reset();
+        await db.collection('annonces').add({ // ✅ CORRECTION
+            titre,
+            message,
+            categorie,
+            date_publication: firebase.firestore.Timestamp.fromDate(new Date(dateInput)), // ✅ CORRECTION
+            vues: 0,
+            likes: 0,
+            user_id: user.uid
+        });
 
-    currentPage = 1;
-    loadAnnonces();
+        alert('Annonce ajoutée !');
+
+        e.target.reset();
+        currentPage = 1;
+        loadAnnonces();
+
+    } catch (err) {
+        console.error(err);
+        alert("Erreur : " + err.message);
+    }
 });
 
-// 🔹 3. SUPPRIMER ANNONCE
+// 🔹 Supprimer annonce
 async function deleteAnnonce(id) {
-    const user = getUser();
-
-    if (confirm("Supprimer cette annonce ?")) {
-        await db.collection('annonces').doc(id).delete();
+    if (confirm("Voulez-vous vraiment supprimer cette annonce ?")) {
+        await db.collection('annonces').doc(id).delete(); // ✅ CORRECTION
         loadAnnonces();
     }
 }
 
-// 🔹 4. NETTOYAGE AUTO (ANNONCES EXPIRÉES)
+// 🔹 Supprimer annonces dépassées
 async function cleanupOldAnnonces() {
     const today = new Date();
 
-    const snapshot = await db.collection('annonces')
+    const snapshot = await db.collection('annonces') // ✅ CORRECTION
         .where('date_publication', '<', today)
         .get();
 
-    snapshot.forEach(doc => doc.ref.update({ statut: "expiré" }));
+    snapshot.forEach(doc => doc.ref.delete());
 }
 
-// 🔹 5. LIKE (ANTI-SPAM)
-async function likeAnnonce(id) {
-    const user = getUser();
-
-    const likeRef = db.collection("likes");
-
-    const exist = await likeRef
-        .where("user_id", "==", user.uid)
-        .where("annonce_id", "==", id)
-        .get();
-
-    if (!exist.empty) {
-        alert("Déjà liké !");
-        return;
-    }
-
-    await likeRef.add({
-        user_id: user.uid,
-        annonce_id: id,
-        date: new Date()
-    });
-
-    await db.collection("annonces").doc(id).update({
-        likes: firebase.firestore.FieldValue.increment(1)
-    });
-
-    loadAnnonces();
-}
-
-// 🔹 6. VUES (ANTI DOUBLE)
-let vuesLocal = JSON.parse(localStorage.getItem("vues")) || {};
-
-async function addVue(id) {
-    if (vuesLocal[id]) return;
-
-    vuesLocal[id] = true;
-    localStorage.setItem("vues", JSON.stringify(vuesLocal));
-
-    await db.collection("annonces").doc(id).update({
-        vues: firebase.firestore.FieldValue.increment(1)
-    });
-}
-
-// 🔹 7. AFFICHAGE
+// 🔹 Afficher annonces
 function displayAnnonces(docs) {
     const container = document.getElementById('annonces');
     container.innerHTML = '';
 
     if (docs.length === 0) {
-        container.innerHTML = '<p>Aucune annonce</p>';
+        container.innerHTML = '<p style="text-align:center;">Aucune annonce.</p>';
         return;
     }
 
@@ -149,20 +98,11 @@ function displayAnnonces(docs) {
             <h3>${data.titre}</h3>
             <p>${data.message}</p>
             <small>
-                ${data.categorie} | 
-                ${data.date_publication?.toDate().toLocaleDateString()}
+                Catégorie: ${data.categorie} | 
+                Publié le: ${data.date_publication?.toDate().toLocaleDateString()}
             </small>
-
-            <div>
-                👁 ${data.vues || 0}
-                ❤️ ${data.likes || 0}
-            </div>
-
-            <button onclick="likeAnnonce('${doc.id}')">Like</button>
             <button onclick="deleteAnnonce('${doc.id}')">Supprimer</button>
         `;
-
-        div.onclick = () => addVue(doc.id);
 
         container.appendChild(div);
     });
@@ -170,28 +110,41 @@ function displayAnnonces(docs) {
     document.getElementById('pageInfo').innerText = `Page ${currentPage}`;
 }
 
-// 🔹 8. PAGINATION
+// 🔹 Charger annonces avec pagination
 async function loadAnnonces(direction = 'next') {
+
     await cleanupOldAnnonces();
 
-    let query = db.collection('annonces')
-        .where("statut", "==", "actif")
+    let query = db.collection('annonces') // ✅ CORRECTION
         .orderBy('date_publication', 'desc')
         .limit(pageSize);
 
     if (direction === 'next' && lastVisible) {
         query = query.startAfter(lastVisible);
+    } 
+    else if (direction === 'prev' && firstVisible) {
+        query = query.endBefore(firstVisible).limitToLast(pageSize);
+        currentPage = currentPage > 1 ? currentPage - 1 : 1;
     }
 
     const snapshot = await query.get();
 
-    if (snapshot.empty) return;
+    if (snapshot.empty) {
+        if (direction === 'prev') currentPage++;
+        return;
+    }
 
     firstVisible = snapshot.docs[0];
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
+    if (direction === 'next') currentPage++;
+
     displayAnnonces(snapshot.docs);
 }
 
-// 🔹 9. INIT
+// 🔹 Pagination boutons
+document.getElementById('nextBtn').addEventListener('click', () => loadAnnonces('next'));
+document.getElementById('prevBtn').addEventListener('click', () => loadAnnonces('prev'));
+
+// 🔹 Initialisation
 loadAnnonces();
