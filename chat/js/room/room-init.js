@@ -1,4 +1,4 @@
-import { getRoomDom } from "./room-ui.js";
+import { getRoomDom, bindSmartButton } from "./room-ui.js";
 import { sendMessage } from "./room-service.js";
 import { listenMessages } from "./room-listener.js";
 
@@ -29,8 +29,11 @@ if (!friendId) {
 }
 
 /* INIT */
-export function initRoom() {
+function initRoom() {
   const dom = getRoomDom();
+
+  // 🔥 smart button
+  bindSmartButton(dom.messageInput, dom.sendBtnIcon);
 
   // envoyer message
   dom.sendBtn.addEventListener("click", () => {
@@ -47,5 +50,4 @@ export function initRoom() {
   listenMessages(myId, friendId, dom.messagesEl);
 }
 
-/* AUTO START */
 initRoom();
