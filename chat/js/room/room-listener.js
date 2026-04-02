@@ -25,6 +25,9 @@ export function listenMessages(myId, friendId, container) {
       );
     });
 
-    container.scrollTop = container.scrollHeight;
+    // 🔥 scroll propre mobile
+    setTimeout(() => {
+      container.scrollTop = container.scrollHeight;
+    }, 50);
   });
 }
