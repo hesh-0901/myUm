@@ -21,7 +21,7 @@ export function renderMessage(container, message, isMine) {
   container.appendChild(div);
 }
 
-/* 🔥 SMART BUTTON */
+/* SMART BUTTON */
 export function bindSmartButton(input, btnIcon) {
   function update() {
     const hasText = input.value.trim().length > 0;
@@ -32,6 +32,5 @@ export function bindSmartButton(input, btnIcon) {
   }
 
   input.addEventListener("input", update);
-
-  update(); // init
+  update();
 }
