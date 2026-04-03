@@ -503,15 +503,16 @@ const exportedBy =
 
 // 👤 username fichier
 const username =
+  room.createdByName ||
+  window.currentUser?.fullName ||
   window.currentUser?.username ||
-  room.createdBy ||
   "user";
 
 // 🎵 chorale
 const chorale = room.chorale || "X";
 
 // 🧾 nom fichier
-const fileName = `presence-${dateStr}-${username}-${chorale}-myum.pdf`;
+const fileName = `presence-${dateStr}-${safeUsername}-${chorale}-myum.pdf`;
 
 // ===============================
 for (let i = 1; i <= pages; i++) {
