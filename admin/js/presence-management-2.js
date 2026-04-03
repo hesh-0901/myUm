@@ -1,4 +1,8 @@
 import { rooms, filteredRooms, renderRooms } from "./presence-management-1.js";
+import { setPage, getPaginationInfo } from "./presence-management-1.js";
+
+const prevPage = document.getElementById("prevPage");
+const nextPage = document.getElementById("nextPage");
 
 const searchBtn = document.getElementById("searchBtn");
 const searchContainer = document.getElementById("searchContainer");
@@ -96,3 +100,25 @@ function applyFilter(base) {
   renderRooms();
 
 }
+// ===============================
+// PAGINATION
+// ===============================
+prevPage.addEventListener("click", () => {
+
+  const { current } = getPaginationInfo();
+
+  if (current > 0) {
+    setPage(current - 1);
+  }
+
+});
+
+nextPage.addEventListener("click", () => {
+
+  const { current, total } = getPaginationInfo();
+
+  if (current < total - 1) {
+    setPage(current + 1);
+  }
+
+});
