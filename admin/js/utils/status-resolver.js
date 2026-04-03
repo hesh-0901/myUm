@@ -2,11 +2,7 @@
 // STATUS DICTIONARY
 // ===============================
 
-// ⚠️ On ne met PAS "Actif": "P"
-// Actif = état normal, pas présence
-
 export const STATUS_MAP = {
-  "Suspendu": "S",
   "En déplacement": "D",
   "Repos autorisé": "R"
 };
@@ -16,10 +12,11 @@ export const STATUS_MAP = {
 // ===============================
 export const STATUS_LABEL = {
   "P": "Présent",
-  "S": "Suspendu",
+  "A": "Absent",
   "D": "En déplacement",
   "R": "Repos autorisé",
-  "A": "Absent"
+  "(S)P": "Suspendu (présent)",
+  "(S)A": "Suspendu (absent)"
 };
 
 // ===============================
@@ -27,14 +24,27 @@ export const STATUS_LABEL = {
 // ===============================
 export function resolveStatus(isPresent, userStatus = "Actif") {
 
-  // ✔ Présent réel
+  // ===============================
+  // CAS SPÉCIAL : SUSPENDU
+  // ===============================
+  if (userStatus === "Suspendu") {
+    return isPresent ? "(S)P" : "(S)A";
+  }
+
+  // ===============================
+  // PRÉSENCE NORMALE
+  // ===============================
   if (isPresent) return "P";
 
-  // ✔ Statuts spéciaux (absence justifiée)
+  // ===============================
+  // AUTRES STATUTS
+  // ===============================
   if (STATUS_MAP[userStatus]) {
     return STATUS_MAP[userStatus];
   }
 
-  // ✔ Absent simple
+  // ===============================
+  // ABSENT PAR DÉFAUT
+  // ===============================
   return "A";
 }
