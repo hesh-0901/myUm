@@ -155,9 +155,6 @@ list.push({
   time: getTime(d),
   method: getMethod(d)
 });
-      time: getTime(d),
-      method: getMethod(d)
-    });
   });
 
   return list;
