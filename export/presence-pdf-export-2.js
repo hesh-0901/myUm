@@ -212,8 +212,8 @@ function computeStats(list, groups) {
   return stats;
 }
 
-  async function drawInfo(y = 36) {
-  export async function exportAdvancedPDF(data = [], room = {}) {
+
+export async function exportAdvancedPDF(data = [], room = {}) {
 
   const doc = new jsPDF("p", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -222,6 +222,33 @@ function computeStats(list, groups) {
   const dark = [40, 40, 40];
   const light = [120, 120, 120];
   const line = [210, 210, 210];
+
+  // ===============================
+  // HEADER
+  // ===============================
+  function drawHeader() {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...dark);
+
+    doc.text("UNION MUSICALE LA COMPASSION", 14, 12);
+    doc.text("LUBUMBASHI", 14, 17);
+
+    doc.setFontSize(16);
+    doc.text("UM", pageWidth - 14, 14, { align: "right" });
+
+    doc.setFontSize(10);
+    doc.setTextColor(...light);
+    doc.text("FEUILLE DE PRÉSENCE - MYUM APP", 14, 26);
+
+    doc.setDrawColor(...line);
+    doc.line(14, 30, pageWidth - 14, 30);
+  }
+
+  // ===============================
+  // INFOS
+  // ===============================
+  async function drawInfo(y = 36) {
 
     const avatarSize = 16;
 
@@ -334,14 +361,21 @@ if (hasGroups) {
     autoTable(doc, {
       startY: posY + 2,
       head: [["#", "Username", "Nom", "Statut", "Heure", "Mode"]],
-      body: list.map((d, i) => [
-        i + 1,
-        d.username,
-        d.fullName,
-        "P",
-        getTime(d),
-        getMethod(d)
-      ]),
+body: list.map((d, i) => {
+
+  const isPresent = true;
+  const userStatus = d.status || "Actif";
+
+  return [
+    i + 1,
+    d.username,
+    d.fullName,
+    resolveStatus(isPresent, userStatus),
+    getTime(d),
+    getMethod(d)
+  ];
+
+}),
       styles: { fontSize: 8 },
       headStyles: { fillColor: [240, 240, 240] }
     });
