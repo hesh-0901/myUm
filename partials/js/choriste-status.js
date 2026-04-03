@@ -1,4 +1,5 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export function initChoristeStatus() {
@@ -102,4 +103,49 @@ export function initChoristeStatus() {
     }
   });
 
+}
+
+async function loadUserStatus(text, icon) {
+
+  try {
+
+    const roomId = new URLSearchParams(window.location.search).get("roomId");
+    const user = window.currentUser;
+
+    if (!roomId || !user) return;
+
+    const ref = doc(db, "presenceRooms", roomId, "attendance", user.username);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    const status = data.status;
+
+    // 🔥 appliquer UI
+    text.innerText = status;
+
+    switch (status) {
+
+      case "Actif":
+        icon.className = "bi bi-check-circle-fill text-green-500";
+        break;
+
+      case "Suspendu":
+        icon.className = "bi bi-pause-circle-fill text-red-500";
+        break;
+
+      case "En déplacement":
+        icon.className = "bi bi-geo-alt-fill text-blue-500";
+        break;
+
+      case "Repos autorisé":
+        icon.className = "bi bi-moon-fill text-purple-500";
+        break;
+
+    }
+
+  } catch (err) {
+    console.error("❌ Erreur chargement statut:", err);
+  }
 }
