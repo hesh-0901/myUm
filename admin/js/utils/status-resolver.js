@@ -14,7 +14,6 @@ export const STATUS_MAP = {
 // REVERSE (optionnel)
 // ===============================
 export const STATUS_LABEL = {
-  "P": "Actif",
   "S": "Suspendu",
   "D": "En déplacement",
   "R": "Repos autorisé",
