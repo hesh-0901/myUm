@@ -1,6 +1,5 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export function initChoristeStatus() {
 
@@ -11,7 +10,9 @@ export function initChoristeStatus() {
 
   if (!current || !options) return;
 
-  // mapping
+  // ===============================
+  // MAPPING
+  // ===============================
   function mapStatusToFirestore(status) {
     switch (status) {
       case "Actif":
@@ -27,19 +28,70 @@ export function initChoristeStatus() {
     }
   }
 
-  // ouvrir / fermer
+  // ===============================
+  // LOAD STATUS (AU DÉMARRAGE)
+  // ===============================
+  async function loadUserStatus() {
+
+    try {
+
+      const roomId = new URLSearchParams(window.location.search).get("roomId");
+      const user = window.currentUser;
+
+      if (!roomId || !user) return;
+
+      const ref = doc(db, "presenceRooms", roomId, "attendance", user.username);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+      const status = data.status;
+
+      text.innerText = status;
+
+      switch (status) {
+
+        case "Actif":
+          icon.className = "bi bi-check-circle-fill text-green-500";
+          break;
+
+        case "Suspendu":
+          icon.className = "bi bi-pause-circle-fill text-red-500";
+          break;
+
+        case "En déplacement":
+          icon.className = "bi bi-geo-alt-fill text-blue-500";
+          break;
+
+        case "Repos autorisé":
+          icon.className = "bi bi-moon-fill text-purple-500";
+          break;
+
+      }
+
+    } catch (err) {
+      console.error("❌ Erreur chargement statut:", err);
+    }
+  }
+
+  // ===============================
+  // OUVRIR / FERMER
+  // ===============================
   current.onclick = () => {
     options.classList.toggle("hidden");
   };
 
-  // sélectionner
+  // ===============================
+  // SÉLECTION + SAVE FIRESTORE
+  // ===============================
   document.querySelectorAll(".status-option").forEach(option => {
 
     option.onclick = async () => {
 
       const selected = option.dataset.status;
 
-      // UI update
+      // UI
       text.innerText = selected;
 
       switch (selected) {
@@ -64,7 +116,7 @@ export function initChoristeStatus() {
 
       options.classList.add("hidden");
 
-      // 🔥 FIRESTORE
+      // 🔥 FIRESTORE SAVE
       try {
 
         const roomId = new URLSearchParams(window.location.search).get("roomId");
@@ -96,56 +148,20 @@ export function initChoristeStatus() {
 
   });
 
-  // fermer si clic dehors
+  // ===============================
+  // FERMER SI CLIC DEHORS
+  // ===============================
   document.addEventListener("click", (e) => {
     if (!current.contains(e.target) && !options.contains(e.target)) {
       options.classList.add("hidden");
     }
   });
 
-}
+  // ===============================
+  // INIT LOAD (IMPORTANT)
+  // ===============================
+  setTimeout(() => {
+    loadUserStatus();
+  }, 300);
 
-async function loadUserStatus(text, icon) {
-
-  try {
-
-    const roomId = new URLSearchParams(window.location.search).get("roomId");
-    const user = window.currentUser;
-
-    if (!roomId || !user) return;
-
-    const ref = doc(db, "presenceRooms", roomId, "attendance", user.username);
-    const snap = await getDoc(ref);
-
-    if (!snap.exists()) return;
-
-    const data = snap.data();
-    const status = data.status;
-
-    // 🔥 appliquer UI
-    text.innerText = status;
-
-    switch (status) {
-
-      case "Actif":
-        icon.className = "bi bi-check-circle-fill text-green-500";
-        break;
-
-      case "Suspendu":
-        icon.className = "bi bi-pause-circle-fill text-red-500";
-        break;
-
-      case "En déplacement":
-        icon.className = "bi bi-geo-alt-fill text-blue-500";
-        break;
-
-      case "Repos autorisé":
-        icon.className = "bi bi-moon-fill text-purple-500";
-        break;
-
-    }
-
-  } catch (err) {
-    console.error("❌ Erreur chargement statut:", err);
-  }
 }
