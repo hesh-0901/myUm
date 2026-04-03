@@ -491,21 +491,24 @@ const username =
   window.currentUser?.username ||
   "user";
 
-// 🔒 nettoyage nom fichier
-const safeUsername = username
+// 🔒 nettoyage nom fichier (sécurisé)
+const safeUsername = String(username)
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "") // enlever accents
   .replace(/\s+/g, "-")
   .toLowerCase();
 
-// 🎵 chorale
-const chorale = room.chorale || "X";
+// 🎵 chorale (sécurisé aussi)
+const chorale = String(room.chorale || "X")
+  .replace(/\s+/g, "-")
+  .toUpperCase();
 
 // 🧾 nom fichier
 const fileName = `presence-${dateStr}-${safeUsername}-${chorale}-myum.pdf`;
 
 // ===============================
 for (let i = 1; i <= pages; i++) {
+
   doc.setPage(i);
 
   doc.setFontSize(9);
