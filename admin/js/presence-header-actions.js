@@ -43,7 +43,11 @@ function injectDeleteButton() {
         flex items-center gap-2
       `;
 
-      header.appendChild(actionsContainer);
+      const headerInner = header.firstElementChild;
+
+      if (!headerInner) return;
+      
+      headerInner.appendChild(actionsContainer);
     }
 
     // ✅ éviter doublon
