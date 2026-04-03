@@ -3,51 +3,64 @@ import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/
 
 export function initChoristeStatus() {
 
+  console.log("🚀 initChoristeStatus lancé");
+
   const current = document.getElementById("currentStatus");
   const options = document.getElementById("statusOptions");
   const text = document.getElementById("statusText");
   const icon = document.getElementById("statusIcon");
 
-  if (!current || !options) return;
+  if (!current || !options) {
+    console.log("❌ éléments DOM manquants");
+    return;
+  }
 
   // ===============================
   // MAPPING
   // ===============================
   function mapStatusToFirestore(status) {
-    switch (status) {
-      case "Actif":
-        return "Actif";
-      case "Suspendu":
-        return "Suspendu";
-      case "En déplacement":
-        return "En déplacement";
-      case "Repos autorisé":
-        return "Repos autorisé";
-      default:
-        return "Actif";
-    }
+    console.log("📌 mapping status:", status);
+    return status;
   }
 
   // ===============================
-  // LOAD STATUS (AU DÉMARRAGE)
+  // LOAD STATUS
   // ===============================
   async function loadUserStatus() {
+
+    console.log("🔄 loadUserStatus appelé");
 
     try {
 
       const roomId = new URLSearchParams(window.location.search).get("roomId");
       const user = window.currentUser;
 
-      if (!roomId || !user) return;
+      console.log("📍 roomId:", roomId);
+      console.log("👤 user:", user);
+
+      if (!roomId || !user) {
+        console.log("❌ roomId ou user manquant");
+        return;
+      }
 
       const ref = doc(db, "presenceRooms", roomId, "attendance", user.username);
+      console.log("📡 lecture Firestore:", ref.path);
+
       const snap = await getDoc(ref);
 
-      if (!snap.exists()) return;
+      if (!snap.exists()) {
+        console.log("⚠️ aucun statut trouvé en base");
+        return;
+      }
 
       const data = snap.data();
+      console.log("📦 data Firestore:", data);
+
       const status = data.status;
 
+      console.log("✅ statut récupéré:", status);
+
+      // UI
       text.innerText = status;
 
       switch (status) {
@@ -76,20 +89,23 @@ export function initChoristeStatus() {
   }
 
   // ===============================
-  // OUVRIR / FERMER
+  // TOGGLE
   // ===============================
   current.onclick = () => {
+    console.log("🖱️ toggle dropdown");
     options.classList.toggle("hidden");
   };
 
   // ===============================
-  // SÉLECTION + SAVE FIRESTORE
+  // CLICK OPTION
   // ===============================
   document.querySelectorAll(".status-option").forEach(option => {
 
     option.onclick = async () => {
 
       const selected = option.dataset.status;
+
+      console.log("🎯 statut sélectionné:", selected);
 
       // UI
       text.innerText = selected;
@@ -116,15 +132,28 @@ export function initChoristeStatus() {
 
       options.classList.add("hidden");
 
-      // 🔥 FIRESTORE SAVE
+      // ===============================
+      // SAVE FIRESTORE
+      // ===============================
       try {
 
         const roomId = new URLSearchParams(window.location.search).get("roomId");
         const user = window.currentUser;
 
-        if (!roomId || !user) return;
+        console.log("📍 SAVE roomId:", roomId);
+        console.log("👤 SAVE user:", user);
+
+        if (!roomId || !user) {
+          console.log("❌ save annulé (roomId/user manquant)");
+          return;
+        }
 
         const statusValue = mapStatusToFirestore(selected);
+
+        console.log("📤 envoi Firestore:", {
+          username: user.username,
+          status: statusValue
+        });
 
         await setDoc(
           doc(db, "presenceRooms", roomId, "attendance", user.username),
@@ -138,10 +167,10 @@ export function initChoristeStatus() {
           { merge: true }
         );
 
-        console.log("✅ Statut sauvegardé");
+        console.log("✅ Statut sauvegardé avec succès");
 
       } catch (err) {
-        console.error("❌ Erreur statut:", err);
+        console.error("❌ Erreur statut (save):", err);
       }
 
     };
@@ -149,7 +178,7 @@ export function initChoristeStatus() {
   });
 
   // ===============================
-  // FERMER SI CLIC DEHORS
+  // CLICK OUTSIDE
   // ===============================
   document.addEventListener("click", (e) => {
     if (!current.contains(e.target) && !options.contains(e.target)) {
@@ -158,9 +187,10 @@ export function initChoristeStatus() {
   });
 
   // ===============================
-  // INIT LOAD (IMPORTANT)
+  // INIT LOAD
   // ===============================
   setTimeout(() => {
+    console.log("⏳ tentative load après délai");
     loadUserStatus();
   }, 300);
 
