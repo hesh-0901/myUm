@@ -99,9 +99,11 @@ export function initChoristeStatus() {
   // ===============================
   // CLICK OPTION
   // ===============================
-  document.querySelectorAll(".status-option").forEach(option => {
+document.querySelectorAll(".status-option").forEach(option => {
+  option.addEventListener("click", async () => {
 
-    option.onclick = async () => {
+    console.log("CLICK STATUS"); // 👈 AJOUTE ÇA
+
 
       const selected = option.dataset.status;
 
