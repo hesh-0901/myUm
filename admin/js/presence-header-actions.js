@@ -24,33 +24,31 @@ export function initPresenceHeaderActions(roomId) {
 function injectDeleteButton() {
 
   const header = document.getElementById("header-back");
-
   if (!header) return;
 
-  // 🔥 fonction d'injection réelle
   function inject() {
 
-    let actionsContainer = header.querySelector(".header-actions");
+    // 🔥 attendre que le header soit chargé
+    const headerInner = header.querySelector("div");
 
-    // ✅ si pas de container → on le crée
+    if (!headerInner) return;
+
+    let actionsContainer = headerInner.querySelector(".header-actions");
+
+    // ✅ créer container si absent
     if (!actionsContainer) {
 
       actionsContainer = document.createElement("div");
 
       actionsContainer.className = `
         header-actions
-        absolute right-4 top-1/2 -translate-y-1/2
         flex items-center gap-2
       `;
 
-      const headerInner = header.firstElementChild;
-
-      if (!headerInner) return;
-      
       headerInner.appendChild(actionsContainer);
     }
 
-    // ✅ éviter doublon
+    // éviter doublon
     if (actionsContainer.querySelector(".deletePresenceBtn")) return;
 
     const btn = document.createElement("button");
@@ -71,14 +69,14 @@ function injectDeleteButton() {
     actionsContainer.appendChild(btn);
   }
 
-  // 👀 observer (cas async du partial)
+  // 👀 observer pour attendre le partial
   const observer = new MutationObserver(() => {
     inject();
   });
 
   observer.observe(header, { childList: true, subtree: true });
 
-  // 🔥 injection immédiate (IMPORTANT)
+  // 🔥 tentative immédiate
   inject();
 }
 
