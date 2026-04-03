@@ -509,12 +509,19 @@ const exportedBy =
   room.createdByName ||
   "Utilisateur";
 
-// 👤 username fichier
+// 👤 username fichier (source)
 const username =
   room.createdByName ||
   window.currentUser?.fullName ||
   window.currentUser?.username ||
   "user";
+
+// 🔒 nettoyage nom fichier
+const safeUsername = username
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "") // enlever accents
+  .replace(/\s+/g, "-")
+  .toLowerCase();
 
 // 🎵 chorale
 const chorale = room.chorale || "X";
