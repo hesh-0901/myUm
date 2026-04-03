@@ -1,6 +1,6 @@
 import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 import autoTableModule from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
-import { resolveStatus } from "./utils/status-resolver.js";
+import { resolveStatus } from "../admin/js/utils/status-resolver.js";
 
 import {
   collection,
