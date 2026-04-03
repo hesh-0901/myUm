@@ -165,6 +165,13 @@ item.innerHTML = `
   </div>
 `;
 
+    const indicator = document.getElementById("pageIndicator");
+
+if (indicator) {
+  const total = paginatedWeeks.length || 1;
+  indicator.textContent = `${currentPage + 1}/${total}`;
+}
+
     // NAVIGATION
     item.addEventListener("click", () => {
       window.location.href = `/myUm/admin/presence-details.html?roomId=${room.id}`;
@@ -176,7 +183,7 @@ item.innerHTML = `
 
 }
 
-    // PAGINATION PAR SEMAINE
+// PAGINATION PAR SEMAINE
 function paginateByWeek() {
 
   const map = {};
@@ -193,7 +200,14 @@ function paginateByWeek() {
 
   });
 
-  paginatedWeeks = Object.values(map);
+  paginatedWeeks = Object.keys(map)
+    .sort((a, b) => new Date(b) - new Date(a))
+    .map(key => map[key]);
+
+  // 🔒 sécurité pagination
+  if (currentPage >= paginatedWeeks.length) {
+    currentPage = 0;
+  }
 }
 
 // ===============================
@@ -209,3 +223,15 @@ window.addEventListener("scroll", () => {
   }
 
 });
+
+export function setPage(page) {
+  currentPage = page;
+  renderRooms();
+}
+
+export function getPaginationInfo() {
+  return {
+    current: currentPage,
+    total: paginatedWeeks.length
+  };
+}
