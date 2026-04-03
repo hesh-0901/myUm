@@ -1,6 +1,7 @@
 import { db } from "/myUm/mains.js/firebase-config.js";
 import { updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initPresenceHeaderActions } from "./presence-header-actions.js";
 
 import {
   doc,
@@ -62,6 +63,7 @@ document.addEventListener("click", async (e) => {
 
 });
 
+
 // ===============================
 // STATS
 // ===============================
@@ -76,6 +78,14 @@ let currentRoom = {};
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get("roomId");
 
+// ===============================
+// INIT HEADER ACTIONS
+// ===============================
+initPresenceHeaderActions({
+  roomId,
+  delete: true,
+  export: true
+});
 
 // ===============================
 // FORMAT
