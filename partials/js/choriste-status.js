@@ -141,11 +141,9 @@ try {
   const roomId = new URLSearchParams(window.location.search).get("roomId");
   const user = JSON.parse(localStorage.getItem("myum_user"));
 
-  // 🔥 DEBUG
   console.log("SAVE ROOM ID:", roomId);
   console.log("SAVE USER:", user);
 
-  // 🔥 VALIDATION PROPRE
   if (!roomId) {
     console.warn("❌ save annulé: roomId manquant");
     return;
@@ -163,7 +161,6 @@ try {
     status: statusValue
   });
 
-  // 🔥 CORRECTION ICI (attendances)
   await setDoc(
     doc(db, "presenceRooms", roomId, "attendances", user.username),
     {
@@ -183,20 +180,27 @@ try {
   console.error("❌ Erreur save:", err);
 }
 
-  // ===============================
-  // CLICK OUTSIDE
-  // ===============================
-  document.addEventListener("click", (e) => {
-    if (!current.contains(e.target) && !options.contains(e.target)) {
-      options.classList.add("hidden");
-    }
-  });
+// ✅ FERMETURES MANQUANTES ICI
+}); // ferme addEventListener
 
-  // ===============================
-  // INIT LOAD
-  // ===============================
-  setTimeout(() => {
-    loadUserStatus();
-  }, 300);
+}); // ferme forEach
+
+
+
+// ===============================
+// CLICK OUTSIDE
+// ===============================
+document.addEventListener("click", (e) => {
+  if (!current.contains(e.target) && !options.contains(e.target)) {
+    options.classList.add("hidden");
+  }
+});
+
+// ===============================
+// INIT LOAD
+// ===============================
+setTimeout(() => {
+  loadUserStatus();
+}, 300);
 
 }
