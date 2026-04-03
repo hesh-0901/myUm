@@ -328,6 +328,13 @@ const sortedMainList = [...presentList, ...absentList];
   // ===============================
   // PAGE 2
   // ===============================
+const hasGroups =
+  groups.IN.length ||
+  groups.GT.length ||
+  groups.AD.length;
+
+if (hasGroups) {
+
   doc.addPage();
 
   let posY = 40;
@@ -361,6 +368,7 @@ const sortedMainList = [...presentList, ...absentList];
   drawSection("INSTRUMENTISTES", groups.IN);
   drawSection("VISITEURS", groups.GT);
   drawSection("ADMINISTRATION", groups.AD);
+}
 
   // ===============================
 // PAGE STATS DASHBOARD
