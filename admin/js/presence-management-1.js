@@ -11,6 +11,8 @@ import {
 let lastDoc = null;
 let isLoading = false;
 let hasMore = true;
+let paginatedWeeks = [];
+let currentPage = 0;
 
 
 const roomsList = document.getElementById("roomsList");
@@ -32,7 +34,17 @@ function formatDate(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
+function getWeekKey(dateStr) {
 
+  if (!dateStr) return "unknown";
+
+  const date = new Date(dateStr);
+
+  const firstDay = new Date(date);
+  firstDay.setDate(date.getDate() - date.getDay());
+
+  return firstDay.toISOString().split("T")[0];
+}
 // ===============================
 // LOAD ROOMS
 // ===============================
@@ -96,14 +108,18 @@ export async function loadRooms(initial = false) {
 // ===============================
 export function renderRooms() {
 
+  paginateByWeek();
+
   roomsList.innerHTML = "";
 
-  if (filteredRooms.length === 0) {
+  const currentRooms = paginatedWeeks[currentPage] || [];
+
+  if (currentRooms.length === 0) {
     roomsList.innerHTML = "<p class='text-sm text-gray-500'>Aucun salon</p>";
     return;
   }
 
-  filteredRooms.forEach(room => {
+  currentRooms.forEach(room => {
 
     const item = document.createElement("div");
 
@@ -160,6 +176,25 @@ item.innerHTML = `
 
 }
 
+    // PAGINATION PAR SEMAINE
+function paginateByWeek() {
+
+  const map = {};
+
+  filteredRooms.forEach(room => {
+
+    const key = getWeekKey(room.date);
+
+    if (!map[key]) map[key] = [];
+
+    if (map[key].length < 10) {
+      map[key].push(room);
+    }
+
+  });
+
+  paginatedWeeks = Object.values(map);
+}
 
 // ===============================
 loadRooms(true);
