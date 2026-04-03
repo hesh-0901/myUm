@@ -23,58 +23,78 @@ export function initChoristeStatus() {
     return status;
   }
 
-  // ===============================
-  // LOAD STATUS
-  // ===============================
-  async function loadUserStatus() {
+// ===============================
+// LOAD STATUS
+// ===============================
+async function loadUserStatus() {
 
-    console.log("🔄 loadUserStatus appelé");
+  console.log("🔄 loadUserStatus appelé");
 
-    try {
+  try {
 
-      const roomId = new URLSearchParams(window.location.search).get("roomId");
-      const user = JSON.parse(localStorage.getItem("myum_user"));
+    const roomId = new URLSearchParams(window.location.search).get("roomId");
+    const user = JSON.parse(localStorage.getItem("myum_user"));
 
-      if (!roomId || !user) {
-        console.log("❌ roomId ou user manquant");
-        return;
-      }
+    // 🔥 DEBUG CLAIR
+    console.log("ROOM ID DEBUG:", roomId);
+    console.log("USER DEBUG:", user);
 
-      const ref = doc(db, "presenceRooms", roomId, "attendance", user.username);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        console.log("⚠️ aucun statut trouvé en base");
-        return;
-      }
-
-      const data = snap.data();
-      const status = data.status;
-
-      console.log("✅ statut récupéré:", status);
-
-      text.innerText = status;
-
-      switch (status) {
-        case "Actif":
-          icon.className = "bi bi-check-circle-fill text-green-500";
-          break;
-        case "Suspendu":
-          icon.className = "bi bi-pause-circle-fill text-red-500";
-          break;
-        case "En déplacement":
-          icon.className = "bi bi-geo-alt-fill text-blue-500";
-          break;
-        case "Repos autorisé":
-          icon.className = "bi bi-moon-fill text-purple-500";
-          break;
-      }
-
-    } catch (err) {
-      console.error("❌ Erreur chargement statut:", err);
+    // 🔥 VALIDATION RENFORCÉE
+    if (!roomId) {
+      console.warn("❌ roomId manquant dans l'URL");
+      return;
     }
-  }
 
+    if (!user || !user.username) {
+      console.warn("❌ utilisateur invalide ou non connecté");
+      return;
+    }
+
+    // 🔥 ATTENTION : collection correcte = attendances (comme le reste de ton app)
+    const ref = doc(db, "presenceRooms", roomId, "attendances", user.username);
+
+    console.log("📡 lecture Firestore:", ref.path);
+
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      console.log("⚠️ aucun statut trouvé en base");
+      return;
+    }
+
+    const data = snap.data();
+    const status = data.status;
+
+    console.log("✅ statut récupéré:", status);
+
+    if (!status) return;
+
+    // ===============================
+    // UI UPDATE
+    // ===============================
+    text.innerText = status;
+
+    switch (status) {
+      case "Actif":
+        icon.className = "bi bi-check-circle-fill text-green-500";
+        break;
+      case "Suspendu":
+        icon.className = "bi bi-pause-circle-fill text-red-500";
+        break;
+      case "En déplacement":
+        icon.className = "bi bi-geo-alt-fill text-blue-500";
+        break;
+      case "Repos autorisé":
+        icon.className = "bi bi-moon-fill text-purple-500";
+        break;
+      default:
+        console.warn("⚠️ statut inconnu:", status);
+    }
+
+  } catch (err) {
+    console.error("❌ Erreur chargement statut:", err);
+  }
+}
   // ===============================
   // TOGGLE
   // ===============================
@@ -113,41 +133,55 @@ export function initChoristeStatus() {
 
       options.classList.add("hidden");
 
-      // ===============================
-      // SAVE FIRESTORE
-      // ===============================
-      try {
+// ===============================
+// SAVE FIRESTORE
+// ===============================
+try {
 
-        const roomId = new URLSearchParams(window.location.search).get("roomId");
-        const user = JSON.parse(localStorage.getItem("myum_user"));
+  const roomId = new URLSearchParams(window.location.search).get("roomId");
+  const user = JSON.parse(localStorage.getItem("myum_user"));
 
-        if (!roomId || !user) {
-          console.log("❌ save annulé");
-          return;
-        }
+  // 🔥 DEBUG
+  console.log("SAVE ROOM ID:", roomId);
+  console.log("SAVE USER:", user);
 
-        const statusValue = mapStatusToFirestore(selected);
+  // 🔥 VALIDATION PROPRE
+  if (!roomId) {
+    console.warn("❌ save annulé: roomId manquant");
+    return;
+  }
 
-        await setDoc(
-          doc(db, "presenceRooms", roomId, "attendance", user.username),
-          {
-            username: user.username,
-            fullName: user.fullName,
-            chorale: user.chorale,
-            status: statusValue,
-            updatedAt: new Date()
-          },
-          { merge: true }
-        );
+  if (!user || !user.username) {
+    console.warn("❌ save annulé: user invalide");
+    return;
+  }
 
-        console.log("✅ Statut sauvegardé");
+  const statusValue = mapStatusToFirestore(selected);
 
-      } catch (err) {
-        console.error("❌ Erreur save:", err);
-      }
-
-    });
+  console.log("📤 envoi Firestore:", {
+    userId: user.username,
+    status: statusValue
   });
+
+  // 🔥 CORRECTION ICI (attendances)
+  await setDoc(
+    doc(db, "presenceRooms", roomId, "attendances", user.username),
+    {
+      userId: user.username,
+      username: user.username,
+      fullName: user.fullName || "",
+      chorale: user.chorale || "",
+      status: statusValue,
+      updatedAt: new Date()
+    },
+    { merge: true }
+  );
+
+  console.log("✅ Statut sauvegardé");
+
+} catch (err) {
+  console.error("❌ Erreur save:", err);
+}
 
   // ===============================
   // CLICK OUTSIDE
