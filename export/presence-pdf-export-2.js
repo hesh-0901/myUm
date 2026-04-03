@@ -32,28 +32,6 @@ async function loadImageAsBase64(url) {
 // ===============================
 // HELPERS
 // ===============================
-function getStatus(d) {
-
-  if (!d) return "A"; // absent total
-
-  switch (d.status) {
-
-    case "Suspendu":
-      return "S";
-
-    case "En déplacement":
-      return "D";
-
-    case "Repos autorisé":
-      return "R";
-
-    case "Actif":
-      return "P";
-
-    default:
-      return "P";
-  }
-}
 
 function getTime(d) {
   if (!d?.timestamp) return "";
@@ -86,7 +64,8 @@ async function buildAttendanceList(data, room) {
     map.set(d.username, {
       username: d.username,
       fullName: `${d.firstName || ""} ${d.lastName || ""}`.trim(),
-      chorale: d.username.split("-").pop()
+      chorale: d.username.split("-").pop(),
+      userStatus: d.status || "Actif" // 🔥 AJOUT
     });
   });
 
@@ -117,12 +96,15 @@ async function buildAttendanceList(data, room) {
     return allMembers.map(m => {
       const a = getAttendance(m.username);
 
-      return {
-        ...m,
-        status: getStatus(a),
-        time: getTime(a),
-        method: getMethod(a)
-      };
+const isPresent = !!a;
+const userStatus = m.userStatus || "Actif";
+
+return {
+  ...m,
+  status: resolveStatus(isPresent, userStatus),
+  time: getTime(a),
+  method: getMethod(a)
+};
     });
   }
 
@@ -139,27 +121,40 @@ async function buildAttendanceList(data, room) {
   const list = [];
 
   // PARTIE 1 : chorale principale
-  main.forEach(m => {
-    const a = getAttendance(m.username);
+main.forEach(m => {
 
-    list.push({
-      ...m,
-      status: getStatus(a),
-      time: getTime(a),
-      method: getMethod(a)
-    });
+  const a = getAttendance(m.username);
+
+  const isPresent = !!a;
+  const userStatus = m.userStatus || "Actif";
+
+  const finalStatus = resolveStatus(isPresent, userStatus);
+
+  list.push({
+    ...m,
+    status: finalStatus,
+    time: getTime(a),
+    method: getMethod(a)
   });
+
+});
 
   // PARTIE 2 : autres chorales présentes
   otherChoralesPresent.forEach(d => {
 
     if (list.some(x => x.username === d.username)) return;
 
-    list.push({
-      username: d.username,
-      fullName: d.fullName,
-      chorale: d.chorale,
-      status: getStatus(d),
+const isPresent = true;
+const userStatus = d.status || "Actif";
+
+list.push({
+  username: d.username,
+  fullName: d.fullName,
+  chorale: d.chorale,
+  status: resolveStatus(isPresent, userStatus),
+  time: getTime(d),
+  method: getMethod(d)
+});
       time: getTime(d),
       method: getMethod(d)
     });
@@ -203,8 +198,8 @@ function computeStats(list, groups) {
 
   list.forEach(d => {
 
-    if (d.status === "A") stats.absentCount++;
-    else stats.presentCount++;
+if (d.status === "Absent" || d.status === "(S)A") stats.absentCount++;
+else stats.presentCount++;
 
     if (d.status === "J") stats.justifiedCount++;
     if (d.status === "S") stats.suspendedCount++;
@@ -300,9 +295,8 @@ function getFirstName(fullName = "") {
 }
 
 // séparer
-const presentList = mainList.filter(d => d.status !== "A");
-const absentList = mainList.filter(d => d.status === "A");
-
+const presentList = mainList.filter(d => d.status !== "Absent" && d.status !== "(S)A");
+const absentList = mainList.filter(d => d.status === "Absent" || d.status === "(S)A");
 // trier A-Z prénom
 presentList.sort((a, b) =>
   getFirstName(a.fullName).localeCompare(getFirstName(b.fullName))
