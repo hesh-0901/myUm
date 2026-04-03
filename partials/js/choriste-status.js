@@ -35,17 +35,12 @@ export function initChoristeStatus() {
       const roomId = new URLSearchParams(window.location.search).get("roomId");
       const user = window.currentUser;
 
-      console.log("📍 roomId:", roomId);
-      console.log("👤 user:", user);
-
       if (!roomId || !user) {
         console.log("❌ roomId ou user manquant");
         return;
       }
 
       const ref = doc(db, "presenceRooms", roomId, "attendance", user.username);
-      console.log("📡 lecture Firestore:", ref.path);
-
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
@@ -54,33 +49,25 @@ export function initChoristeStatus() {
       }
 
       const data = snap.data();
-      console.log("📦 data Firestore:", data);
-
       const status = data.status;
 
       console.log("✅ statut récupéré:", status);
 
-      // UI
       text.innerText = status;
 
       switch (status) {
-
         case "Actif":
           icon.className = "bi bi-check-circle-fill text-green-500";
           break;
-
         case "Suspendu":
           icon.className = "bi bi-pause-circle-fill text-red-500";
           break;
-
         case "En déplacement":
           icon.className = "bi bi-geo-alt-fill text-blue-500";
           break;
-
         case "Repos autorisé":
           icon.className = "bi bi-moon-fill text-purple-500";
           break;
-
       }
 
     } catch (err) {
@@ -92,44 +79,36 @@ export function initChoristeStatus() {
   // TOGGLE
   // ===============================
   current.onclick = () => {
-    console.log("🖱️ toggle dropdown");
     options.classList.toggle("hidden");
   };
 
   // ===============================
   // CLICK OPTION
   // ===============================
-document.querySelectorAll(".status-option").forEach(option => {
-  option.addEventListener("click", async () => {
+  document.querySelectorAll(".status-option").forEach(option => {
+    option.addEventListener("click", async () => {
 
-    console.log("CLICK STATUS"); // 👈 AJOUTE ÇA
-
+      console.log("CLICK STATUS");
 
       const selected = option.dataset.status;
-
       console.log("🎯 statut sélectionné:", selected);
 
-      // UI
+      // UI update
       text.innerText = selected;
 
       switch (selected) {
-
         case "Actif":
           icon.className = "bi bi-check-circle-fill text-green-500";
           break;
-
         case "Suspendu":
           icon.className = "bi bi-pause-circle-fill text-red-500";
           break;
-
         case "En déplacement":
           icon.className = "bi bi-geo-alt-fill text-blue-500";
           break;
-
         case "Repos autorisé":
           icon.className = "bi bi-moon-fill text-purple-500";
           break;
-
       }
 
       options.classList.add("hidden");
@@ -142,20 +121,12 @@ document.querySelectorAll(".status-option").forEach(option => {
         const roomId = new URLSearchParams(window.location.search).get("roomId");
         const user = window.currentUser;
 
-        console.log("📍 SAVE roomId:", roomId);
-        console.log("👤 SAVE user:", user);
-
         if (!roomId || !user) {
-          console.log("❌ save annulé (roomId/user manquant)");
+          console.log("❌ save annulé");
           return;
         }
 
         const statusValue = mapStatusToFirestore(selected);
-
-        console.log("📤 envoi Firestore:", {
-          username: user.username,
-          status: statusValue
-        });
 
         await setDoc(
           doc(db, "presenceRooms", roomId, "attendance", user.username),
@@ -169,14 +140,13 @@ document.querySelectorAll(".status-option").forEach(option => {
           { merge: true }
         );
 
-        console.log("✅ Statut sauvegardé avec succès");
+        console.log("✅ Statut sauvegardé");
 
       } catch (err) {
-        console.error("❌ Erreur statut (save):", err);
+        console.error("❌ Erreur save:", err);
       }
 
-    };
-
+    });
   });
 
   // ===============================
@@ -192,7 +162,6 @@ document.querySelectorAll(".status-option").forEach(option => {
   // INIT LOAD
   // ===============================
   setTimeout(() => {
-    console.log("⏳ tentative load après délai");
     loadUserStatus();
   }, 300);
 
