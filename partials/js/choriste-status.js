@@ -15,86 +15,69 @@ export function initChoristeStatus() {
     return;
   }
 
-  // ================================
+  // ===============================
   // MAPPING
   // ===============================
   function mapStatusToFirestore(status) {
-    console.log("📌 mapping status:", status);
     return status;
   }
 
-// ===============================
-// LOAD STATUS
-// ===============================
-async function loadUserStatus() {
+  // ===============================
+  // LOAD STATUS (USER LEVEL)
+  // ===============================
+  async function loadUserStatus() {
 
-  console.log("🔄 loadUserStatus appelé");
+    console.log("🔄 loadUserStatus appelé");
 
-  try {
+    try {
 
-    const roomId = new URLSearchParams(window.location.search).get("roomId");
-    const user = JSON.parse(localStorage.getItem("myum_user"));
+      const user = JSON.parse(localStorage.getItem("myum_user"));
 
-    // 🔥 DEBUG CLAIR
-    console.log("ROOM ID DEBUG:", roomId);
-    console.log("USER DEBUG:", user);
+      console.log("USER DEBUG:", user);
 
-    // 🔥 VALIDATION RENFORCÉE
-    if (!roomId) {
-      console.warn("❌ roomId manquant dans l'URL");
-      return;
+      if (!user || !user.id) {
+        console.warn("❌ utilisateur invalide");
+        return;
+      }
+
+      const ref = doc(db, "users", user.id);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        console.log("⚠️ aucun statut trouvé");
+        return;
+      }
+
+      const data = snap.data();
+      const status = data.status;
+
+      console.log("✅ statut récupéré:", status);
+
+      if (!status) return;
+
+      // UI UPDATE
+      text.innerText = status;
+
+      switch (status) {
+        case "Actif":
+          icon.className = "bi bi-check-circle-fill text-green-500";
+          break;
+        case "Suspendu":
+          icon.className = "bi bi-pause-circle-fill text-red-500";
+          break;
+        case "En déplacement":
+          icon.className = "bi bi-geo-alt-fill text-blue-500";
+          break;
+        case "Repos autorisé":
+          icon.className = "bi bi-moon-fill text-purple-500";
+          break;
+      }
+
+    } catch (err) {
+      console.error("❌ Erreur load:", err);
     }
-
-    if (!user || !user.username) {
-      console.warn("❌ utilisateur invalide ou non connecté");
-      return;
-    }
-
-    // 🔥 ATTENTION : collection correcte = attendances (comme le reste de ton app)
-    const ref = doc(db, "presenceRooms", roomId, "attendances", user.username);
-
-    console.log("📡 lecture Firestore:", ref.path);
-
-    const snap = await getDoc(ref);
-
-    if (!snap.exists()) {
-      console.log("⚠️ aucun statut trouvé en base");
-      return;
-    }
-
-    const data = snap.data();
-    const status = data.status;
-
-    console.log("✅ statut récupéré:", status);
-
-    if (!status) return;
-
-    // ===============================
-    // UI UPDATE
-    // ===============================
-    text.innerText = status;
-
-    switch (status) {
-      case "Actif":
-        icon.className = "bi bi-check-circle-fill text-green-500";
-        break;
-      case "Suspendu":
-        icon.className = "bi bi-pause-circle-fill text-red-500";
-        break;
-      case "En déplacement":
-        icon.className = "bi bi-geo-alt-fill text-blue-500";
-        break;
-      case "Repos autorisé":
-        icon.className = "bi bi-moon-fill text-purple-500";
-        break;
-      default:
-        console.warn("⚠️ statut inconnu:", status);
-    }
-
-  } catch (err) {
-    console.error("❌ Erreur chargement statut:", err);
   }
-}
+
   // ===============================
   // TOGGLE
   // ===============================
@@ -132,57 +115,55 @@ async function loadUserStatus() {
       }
 
       options.classList.add("hidden");
-        // ===============================
-        // SAVE FIRESTORE (USER LEVEL)
-        // ===============================
-        try {
-        
-          const user = JSON.parse(localStorage.getItem("myum_user"));
-        
-          console.log("SAVE USER:", user);
-        
-          if (!user || !user.id) {
-            console.warn("❌ save annulé: user invalide");
-            return;
-          }
-        
-          const statusValue = mapStatusToFirestore(selected);
-        
-          console.log("📤 envoi Firestore:", {
-            userId: user.id,
-            status: statusValue
-          });
-        
-          await setDoc(
-            doc(db, "users", user.id),
-            {
-              status: statusValue,
-              statusUpdatedAt: new Date()
-            },
-            { merge: true }
-          );
-        
-          console.log("✅ Statut utilisateur sauvegardé");
-        
-        } catch (err) {
-          console.error("❌ Erreur save:", err);
+
+      // ===============================
+      // SAVE FIRESTORE (USER LEVEL)
+      // ===============================
+      try {
+
+        const user = JSON.parse(localStorage.getItem("myum_user"));
+
+        console.log("SAVE USER:", user);
+
+        if (!user || !user.id) {
+          console.warn("❌ save annulé: user invalide");
+          return;
         }
-        
 
-// ===============================
-// CLICK OUTSIDE
-// ===============================
-document.addEventListener("click", (e) => {
-  if (!current.contains(e.target) && !options.contains(e.target)) {
-    options.classList.add("hidden");
-  }
-});
+        const statusValue = mapStatusToFirestore(selected);
 
-// ===============================
-// INIT LOAD
-// ===============================
-setTimeout(() => {
-  loadUserStatus();
-}, 300);
+        await setDoc(
+          doc(db, "users", user.id),
+          {
+            status: statusValue,
+            statusUpdatedAt: new Date()
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Statut utilisateur sauvegardé");
+
+      } catch (err) {
+        console.error("❌ Erreur save:", err);
+      }
+
+    });
+  });
+
+  // ===============================
+  // CLICK OUTSIDE
+  // ===============================
+  document.addEventListener("click", (e) => {
+    if (!current.contains(e.target) && !options.contains(e.target)) {
+      options.classList.add("hidden");
+    }
+  });
+
+  // ===============================
+  // INIT LOAD
+  // ===============================
+  setTimeout(() => {
+    loadUserStatus();
+  }, 300);
 
 }
