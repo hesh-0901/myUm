@@ -33,7 +33,7 @@ export function initChoristeStatus() {
     try {
 
       const roomId = new URLSearchParams(window.location.search).get("roomId");
-      const user = window.currentUser;
+      const user = JSON.parse(localStorage.getItem("myum_user"));
 
       if (!roomId || !user) {
         console.log("❌ roomId ou user manquant");
@@ -119,7 +119,7 @@ export function initChoristeStatus() {
       try {
 
         const roomId = new URLSearchParams(window.location.search).get("roomId");
-        const user = window.currentUser;
+        const user = JSON.parse(localStorage.getItem("myum_user"));
 
         if (!roomId || !user) {
           console.log("❌ save annulé");
