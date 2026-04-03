@@ -213,14 +213,6 @@ function computeStats(list, groups) {
 }
 
   async function drawInfo(y = 36) {
-
-    const avatarSize = 16;
-
-    if (room.photoURL) {
-      const img = await loadImageAsBase64(room.photoURL);
-      if (img) doc.addImage(img, "JPEG", 14, y, avatarSize, avatarSize);
-    }
-
   export async function exportAdvancedPDF(data = [], room = {}) {
 
   const doc = new jsPDF("p", "mm", "a4");
@@ -230,6 +222,13 @@ function computeStats(list, groups) {
   const dark = [40, 40, 40];
   const light = [120, 120, 120];
   const line = [210, 210, 210];
+
+    const avatarSize = 16;
+
+    if (room.photoURL) {
+      const img = await loadImageAsBase64(room.photoURL);
+      if (img) doc.addImage(img, "JPEG", 14, y, avatarSize, avatarSize);
+    }
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
