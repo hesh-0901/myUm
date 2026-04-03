@@ -1,6 +1,6 @@
 import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 import autoTableModule from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
-import { resolveStatus } from "../admin/js/utils/status-resolver.js";
+import { resolveStatus } from "../utils/status-resolver.js";
 
 import {
   collection,
@@ -220,6 +220,16 @@ function computeStats(list, groups) {
       const img = await loadImageAsBase64(room.photoURL);
       if (img) doc.addImage(img, "JPEG", 14, y, avatarSize, avatarSize);
     }
+
+  export async function exportAdvancedPDF(data = [], room = {}) {
+
+  const doc = new jsPDF("p", "mm", "a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  const dark = [40, 40, 40];
+  const light = [120, 120, 120];
+  const line = [210, 210, 210];
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
