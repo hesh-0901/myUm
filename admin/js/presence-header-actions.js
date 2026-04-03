@@ -10,11 +10,14 @@ import { db } from "/myUm/mains.js/firebase-config.js";
 // ===============================
 // INIT HEADER ACTIONS
 // ===============================
-export function initPresenceHeaderActions(roomId) {
+export function initPresenceHeaderActions(config) {
 
-  injectDeleteButton();
+  const { roomId, delete: enableDelete } = config;
 
-  bindDeleteEvent(roomId);
+  if (enableDelete) {
+    injectDeleteButton();
+    bindDeleteEvent(roomId);
+  }
 
 }
 
@@ -42,7 +45,7 @@ function injectDeleteButton() {
 
       actionsContainer.className = `
         header-actions
-        flex items-center gap-2
+        ml-auto flex items-center gap-2
       `;
 
       headerInner.appendChild(actionsContainer);
@@ -56,6 +59,7 @@ function injectDeleteButton() {
     btn.className = `
       deletePresenceBtn
       text-gray-400
+      hover:text-red-500
       active:scale-95
       transition
     `;
@@ -84,6 +88,8 @@ function injectDeleteButton() {
 // DELETE LOGIC
 // ===============================
 function bindDeleteEvent(roomId) {
+
+  if (!roomId) return;
 
   window.addEventListener("deleteAllPresences", async () => {
 
