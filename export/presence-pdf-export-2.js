@@ -32,12 +32,26 @@ async function loadImageAsBase64(url) {
 // HELPERS
 // ===============================
 function getStatus(d) {
-  if (!d) return "A";
-  if (d.status === "justified") return "J";
-  if (d.status === "suspended") return "S";
-  if (d.status === "special") return "Sp";
-  if (d.status === "displacement") return "D";
-  return "P";
+
+  if (!d) return "A"; // absent total
+
+  switch (d.status) {
+
+    case "Suspendu":
+      return "S";
+
+    case "En déplacement":
+      return "D";
+
+    case "Repos autorisé":
+      return "R";
+
+    case "Actif":
+      return "P";
+
+    default:
+      return "P";
+  }
 }
 
 function getTime(d) {
