@@ -545,8 +545,10 @@ for (let i = 1; i <= pages; i++) {
 
     doc.text(exportedBy.toUpperCase(), 14, pageHeight - 17);
   }
-}
+
+} // ← UNE SEULE fermeture du for
 
 // 💾 EXPORT FINAL
 doc.save(fileName);
-}
+
+} // ← fermeture de la fonction
