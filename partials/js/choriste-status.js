@@ -15,7 +15,7 @@ export function initChoristeStatus() {
     return;
   }
 
-  // ===============================
+  // ================================
   // MAPPING
   // ===============================
   function mapStatusToFirestore(status) {
