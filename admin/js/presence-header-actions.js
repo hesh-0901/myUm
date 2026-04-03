@@ -145,7 +145,7 @@ function bindDeleteEvent(roomId) {
       alert("Salon supprimé");
 
       // 🔥 redirection propre (IMPORTANT UX)
-      window.location.href = "/myUm/admin/presence.html";
+window.location.href = "/myUm/admin/presence-management.html";
 
     } catch (err) {
       console.error(err);
