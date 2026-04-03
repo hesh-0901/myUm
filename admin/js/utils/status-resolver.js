@@ -26,9 +26,14 @@ export const STATUS_LABEL = {
 // ===============================
 export function resolveStatus(isPresent, userStatus = "Actif") {
 
-  // Présent → toujours P
+  // ✔ présent réel
   if (isPresent) return "P";
 
-  // Absent → dépend du statut profil
-  return STATUS_MAP[userStatus] || "A";
+  // ✔ statuts spéciaux
+  if (STATUS_MAP[userStatus]) {
+    return STATUS_MAP[userStatus];
+  }
+
+  // ✔ absent normal
+  return "A";
 }
