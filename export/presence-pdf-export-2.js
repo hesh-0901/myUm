@@ -195,51 +195,22 @@ function computeStats(list, groups) {
 
   list.forEach(d => {
 
-if (d.status === "A") stats.absentCount++;
-else stats.presentCount++;
+    if (d.status === "A") stats.absentCount++;
+    else stats.presentCount++;
 
-if (d.status === "S") stats.suspendedCount++;
-if (d.status === "R") stats.specialCount++;
-if (d.status === "D") stats.displacementCount++;
+    if (d.status === "S") stats.suspendedCount++;
+    if (d.status === "R") stats.specialCount++;
+    if (d.status === "D") stats.displacementCount++;
 
+  });
+
+  // ✅ calcul après la boucle
   stats.rate = stats.totalMembers
     ? ((stats.presentCount / stats.totalMembers) * 100).toFixed(2)
     : "0.00";
 
   return stats;
 }
-
-// ===============================
-// EXPORT
-// ===============================
-export async function exportAdvancedPDF(data = [], room = {}) {
-
-  const doc = new jsPDF("p", "mm", "a4");
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  const dark = [40, 40, 40];
-  const light = [120, 120, 120];
-  const line = [210, 210, 210];
-
-  function drawHeader() {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(...dark);
-
-    doc.text("UNION MUSICALE LA COMPASSION", 14, 12);
-    doc.text("LUBUMBASHI", 14, 17);
-
-    doc.setFontSize(16);
-    doc.text("UM", pageWidth - 14, 14, { align: "right" });
-
-    doc.setFontSize(10);
-    doc.setTextColor(...light);
-    doc.text("FEUILLE DE PRÉSENCE - MYUM APP", 14, 26);
-
-    doc.setDrawColor(...line);
-    doc.line(14, 30, pageWidth - 14, 30);
-  }
 
   async function drawInfo(y = 36) {
 
