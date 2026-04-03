@@ -99,23 +99,53 @@ function bindDeleteEvent(roomId) {
 
     try {
 
-      const snap = await getDocs(
-        collection(db, "presenceRooms", roomId, "attendances")
+      const attendancesRef = collection(
+        db,
+        "presenceRooms",
+        roomId,
+        "attendances"
       );
 
-      const promises = [];
+      const snap = await getDocs(attendancesRef);
 
-      snap.forEach(docSnap => {
-        promises.push(
-          deleteDoc(
-            doc(db, "presenceRooms", roomId, "attendances", docSnap.id)
-          )
-        );
-      });
+      // ===============================
+      // CAS 1 : IL Y A DES PRÉSENCES
+      // ===============================
+      if (!snap.empty) {
 
-      await Promise.all(promises);
+        const promises = [];
 
-      window.dispatchEvent(new Event("presenceUpdated"));
+        snap.forEach(docSnap => {
+          promises.push(
+            deleteDoc(
+              doc(db, "presenceRooms", roomId, "attendances", docSnap.id)
+            )
+          );
+        });
+
+        await Promise.all(promises);
+
+        alert("Présences supprimées");
+
+        window.dispatchEvent(new Event("presenceUpdated"));
+        return;
+      }
+
+      // ===============================
+      // CAS 2 : AUCUNE PRÉSENCE → DELETE ROOM
+      // ===============================
+      const confirmRoomDelete = confirm(
+        "Aucune présence. Supprimer complètement le salon ?"
+      );
+
+      if (!confirmRoomDelete) return;
+
+      await deleteDoc(doc(db, "presenceRooms", roomId));
+
+      alert("Salon supprimé");
+
+      // 🔥 redirection propre (IMPORTANT UX)
+      window.location.href = "/myUm/admin/presence.html";
 
     } catch (err) {
       console.error(err);
