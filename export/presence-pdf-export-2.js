@@ -195,14 +195,12 @@ function computeStats(list, groups) {
 
   list.forEach(d => {
 
-if (d.status === "Absent" || d.status === "(S)A") stats.absentCount++;
+if (d.status === "A") stats.absentCount++;
 else stats.presentCount++;
 
-    if (d.status === "J") stats.justifiedCount++;
-    if (d.status === "S") stats.suspendedCount++;
-    if (d.status === "Sp") stats.specialCount++;
-    if (d.status === "D") stats.displacementCount++;
-  });
+if (d.status === "S") stats.suspendedCount++;
+if (d.status === "R") stats.specialCount++;
+if (d.status === "D") stats.displacementCount++;
 
   stats.rate = stats.totalMembers
     ? ((stats.presentCount / stats.totalMembers) * 100).toFixed(2)
@@ -292,8 +290,8 @@ function getFirstName(fullName = "") {
 }
 
 // séparer
-const presentList = mainList.filter(d => d.status !== "Absent" && d.status !== "(S)A");
-const absentList = mainList.filter(d => d.status === "Absent" || d.status === "(S)A");
+const presentList = mainList.filter(d => d.status === "P");
+const absentList = mainList.filter(d => d.status !== "P");
 // trier A-Z prénom
 presentList.sort((a, b) =>
   getFirstName(a.fullName).localeCompare(getFirstName(b.fullName))
