@@ -1,41 +1,34 @@
-// ==========================================
-// STATUS RESOLVER (PDF / EXPORT)
-// ==========================================
+// ===============================
+// STATUS DICTIONARY
+// ===============================
 
-/**
- * Retourne le statut final à afficher dans le PDF
- * @param {boolean} isPresent
- * @param {string} userStatus
- * @returns {string}
- */
-export function resolveStatus(isPresent, userStatus) {
+export const STATUS_MAP = {
+  "Actif": "P",
+  "Suspendu": "S",
+  "En déplacement": "D",
+  "Repos autorisé": "R",
+  "Absent": "A"
+};
 
-  // 🔥 sécurité
-  if (!userStatus) userStatus = "Actif";
+// ===============================
+// REVERSE (optionnel)
+// ===============================
+export const STATUS_LABEL = {
+  "P": "Actif",
+  "S": "Suspendu",
+  "D": "En déplacement",
+  "R": "Repos autorisé",
+  "A": "Absent"
+};
 
-  // =========================
-  // CAS SUSPENDU
-  // =========================
-  if (userStatus === "Suspendu") {
-    return isPresent ? "(S)P" : "(S)A";
-  }
+// ===============================
+// CORE FUNCTION
+// ===============================
+export function resolveStatus(isPresent, userStatus = "Actif") {
 
-  // =========================
-  // CAS PRÉSENT
-  // =========================
-  if (isPresent) {
-    return "Présent";
-  }
+  // Présent → toujours P
+  if (isPresent) return "P";
 
-  // =========================
-  // CAS ABSENT + ACTIF
-  // =========================
-  if (userStatus === "Actif") {
-    return "Absent";
-  }
-
-  // =========================
-  // CAS ABSENT + AUTRE STATUT
-  // =========================
-  return userStatus;
+  // Absent → dépend du statut profil
+  return STATUS_MAP[userStatus] || "A";
 }
