@@ -1,3 +1,6 @@
+import { db } from "/myUm/mains.js/firebase-config.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 export function initChoristeStatus() {
 
   const current = document.getElementById("currentStatus");
@@ -7,6 +10,22 @@ export function initChoristeStatus() {
 
   if (!current || !options) return;
 
+  // mapping
+  function mapStatusToFirestore(status) {
+    switch (status) {
+      case "Actif":
+        return "Actif";
+      case "Suspendu":
+        return "Suspendu";
+      case "En déplacement":
+        return "En déplacement";
+      case "Repos autorisé":
+        return "Repos autorisé";
+      default:
+        return "Actif";
+    }
+  }
+
   // ouvrir / fermer
   current.onclick = () => {
     options.classList.toggle("hidden");
@@ -15,9 +34,11 @@ export function initChoristeStatus() {
   // sélectionner
   document.querySelectorAll(".status-option").forEach(option => {
 
-    option.onclick = () => {
+    option.onclick = async () => {
 
       const selected = option.dataset.status;
+
+      // UI update
       text.innerText = selected;
 
       switch (selected) {
@@ -41,6 +62,34 @@ export function initChoristeStatus() {
       }
 
       options.classList.add("hidden");
+
+      // 🔥 FIRESTORE
+      try {
+
+        const roomId = new URLSearchParams(window.location.search).get("roomId");
+        const user = window.currentUser;
+
+        if (!roomId || !user) return;
+
+        const statusValue = mapStatusToFirestore(selected);
+
+        await setDoc(
+          doc(db, "presenceRooms", roomId, "attendance", user.username),
+          {
+            username: user.username,
+            fullName: user.fullName,
+            chorale: user.chorale,
+            status: statusValue,
+            updatedAt: new Date()
+          },
+          { merge: true }
+        );
+
+        console.log("✅ Statut sauvegardé");
+
+      } catch (err) {
+        console.error("❌ Erreur statut:", err);
+      }
 
     };
 
