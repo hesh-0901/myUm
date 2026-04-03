@@ -132,60 +132,42 @@ async function loadUserStatus() {
       }
 
       options.classList.add("hidden");
-
-// ===============================
-// SAVE FIRESTORE
-// ===============================
-try {
-
-  const roomId = new URLSearchParams(window.location.search).get("roomId");
-  const user = JSON.parse(localStorage.getItem("myum_user"));
-
-  console.log("SAVE ROOM ID:", roomId);
-  console.log("SAVE USER:", user);
-
-  if (!roomId) {
-    console.warn("❌ save annulé: roomId manquant");
-    return;
-  }
-
-  if (!user || !user.username) {
-    console.warn("❌ save annulé: user invalide");
-    return;
-  }
-
-  const statusValue = mapStatusToFirestore(selected);
-
-  console.log("📤 envoi Firestore:", {
-    userId: user.username,
-    status: statusValue
-  });
-
-  await setDoc(
-    doc(db, "presenceRooms", roomId, "attendances", user.username),
-    {
-      userId: user.username,
-      username: user.username,
-      fullName: user.fullName || "",
-      chorale: user.chorale || "",
-      status: statusValue,
-      updatedAt: new Date()
-    },
-    { merge: true }
-  );
-
-  console.log("✅ Statut sauvegardé");
-
-} catch (err) {
-  console.error("❌ Erreur save:", err);
-}
-
-// ✅ FERMETURES MANQUANTES ICI
-}); // ferme addEventListener
-
-}); // ferme forEach
-
-
+        // ===============================
+        // SAVE FIRESTORE (USER LEVEL)
+        // ===============================
+        try {
+        
+          const user = JSON.parse(localStorage.getItem("myum_user"));
+        
+          console.log("SAVE USER:", user);
+        
+          if (!user || !user.id) {
+            console.warn("❌ save annulé: user invalide");
+            return;
+          }
+        
+          const statusValue = mapStatusToFirestore(selected);
+        
+          console.log("📤 envoi Firestore:", {
+            userId: user.id,
+            status: statusValue
+          });
+        
+          await setDoc(
+            doc(db, "users", user.id),
+            {
+              status: statusValue,
+              statusUpdatedAt: new Date()
+            },
+            { merge: true }
+          );
+        
+          console.log("✅ Statut utilisateur sauvegardé");
+        
+        } catch (err) {
+          console.error("❌ Erreur save:", err);
+        }
+        
 
 // ===============================
 // CLICK OUTSIDE
