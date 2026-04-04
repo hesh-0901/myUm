@@ -1,139 +1,168 @@
+// ======================================
+// IMPORTS
+// ======================================
+
 import { db } from "../../mains.js/firebase-config.js";
+
 import {
   collection,
-  addDoc,
-  getDocs,
-  serverTimestamp,
   query,
-  orderBy
+  orderBy,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-let currentUser = null;
-
-// ==========================
+// ======================================
 // INIT
-// ==========================
-async function init() {
-  loadUser();
-  await loadHeader();
-  initEvents();
-  loadPosts();
-}
+// ======================================
 
-// ==========================
-// USER SESSION (comme profil)
-// ==========================
-function loadUser() {
-  const storedUser = localStorage.getItem("myum_user");
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadPosts();
+});
 
-  if (!storedUser) {
-    window.location.href = "/myUm/users/login.html";
-    return;
-  }
+// ======================================
+// LOAD POSTS
+// ======================================
 
-  currentUser = JSON.parse(storedUser);
+async function loadPosts() {
 
-  const photo = document.getElementById("userPhoto");
+  const container = document.getElementById("posts-container");
 
-  photo.src = currentUser.photoURL
-    ? currentUser.photoURL
-    : `https://ui-avatars.com/api/?name=${currentUser.firstName}+${currentUser.lastName}&background=1A3668&color=fff`;
-}
-
-// ==========================
-// HEADER BACK (V4 compliant)
-// ==========================
-async function loadHeader() {
-  const headerHTML = await fetch("/myUm/partials/header-back.html").then(r => r.text());
-  document.getElementById("header-container").innerHTML = headerHTML;
-
-  await import("/myUm/partials/js/back-header.js");
-
-  document.querySelector("header").setAttribute("data-title", "Posts");
-}
-
-// ==========================
-// CREATE POST
-// ==========================
-async function createPost() {
-  const input = document.getElementById("postInput");
-  const content = input.value.trim();
-
-  if (!content) return;
+  container.innerHTML = `
+    <div class="text-center text-sm text-gray-400">
+      Chargement...
+    </div>
+  `;
 
   try {
-    await addDoc(collection(db, "posts"), {
-      content,
-      userId: currentUser.id,
-      firstName: currentUser.firstName,
-      lastName: currentUser.lastName,
-      photoURL: currentUser.photoURL || "",
-      createdAt: serverTimestamp()
-    });
 
-    input.value = "";
-    loadPosts();
+    const q = query(
+      collection(db, "posts"),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      container.innerHTML = `
+        <div class="text-center text-sm text-gray-400">
+          Aucun post pour le moment
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = "";
+
+    for (const docSnap of snapshot.docs) {
+
+      const post = docSnap.data();
+
+      const postEl = createPostElement(post);
+
+      container.appendChild(postEl);
+    }
 
   } catch (error) {
-    console.error("Erreur post:", error);
+
+    console.error("Erreur chargement posts :", error);
+
+    container.innerHTML = `
+      <div class="text-center text-sm text-red-500">
+        Erreur de chargement
+      </div>
+    `;
   }
+
 }
 
-// ==========================
-// RENDER POST (UI propre)
-// ==========================
-function renderPost(post) {
+// ======================================
+// CREATE POST UI (FLAT DESIGN)
+// ======================================
+
+function createPostElement(post) {
+
   const div = document.createElement("div");
 
-  div.className = "bg-white rounded-2xl p-4 shadow-sm";
+  div.className = "pb-4 border-b border-gray-100";
+
+  const time = formatDate(post.createdAt);
 
   div.innerHTML = `
-    <div class="flex items-center space-x-3 mb-2">
-      <img src="${post.photoURL || `https://ui-avatars.com/api/?name=${post.firstName}+${post.lastName}&background=1A3668&color=fff`}" 
-           class="w-10 h-10 rounded-full object-cover" />
+    
+    <!-- HEADER -->
+    <div class="flex items-center gap-3">
 
-      <div>
-        <p class="text-sm font-semibold">
-          ${post.firstName} ${post.lastName}
-        </p>
+      <img src="${post.userPhoto || getDefaultAvatar(post.userName)}"
+      class="w-10 h-10 rounded-full object-cover">
+
+      <div class="flex flex-col">
+
+        <span class="text-sm font-semibold text-gray-800">
+          ${post.userName || "Utilisateur"}
+        </span>
+
+        <span class="text-xs text-gray-400">
+          ${time}
+        </span>
+
       </div>
+
     </div>
 
-    <p class="text-sm text-gray-800">
-      ${post.content}
-    </p>
+    <!-- CONTENT -->
+    <div class="mt-3 text-sm text-gray-800 leading-relaxed">
+      ${post.content || ""}
+    </div>
+
+    <!-- IMAGE -->
+    ${post.image ? `
+      <div class="mt-3">
+        <img src="${post.image}"
+        class="w-full rounded-xl object-cover">
+      </div>
+    ` : ""}
+
+    <!-- ACTIONS -->
+    <div class="flex items-center gap-6 mt-3 text-gray-400 text-sm">
+
+      <button class="flex items-center gap-1 active:scale-95 transition">
+        <i class="bi bi-heart"></i>
+        <span>${post.likes || 0}</span>
+      </button>
+
+      <button class="flex items-center gap-1 active:scale-95 transition">
+        <i class="bi bi-chat"></i>
+        <span>0</span>
+      </button>
+
+    </div>
+
   `;
 
   return div;
 }
 
-// ==========================
-// LOAD POSTS
-// ==========================
-async function loadPosts() {
-  const container = document.getElementById("postsList");
-  container.innerHTML = "";
+// ======================================
+// HELPERS
+// ======================================
 
-  try {
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
+function formatDate(timestamp) {
 
-    snap.forEach(doc => {
-      container.appendChild(renderPost(doc.data()));
-    });
+  if (!timestamp) return "";
 
-  } catch (error) {
-    console.error("Erreur chargement:", error);
-  }
+  const date = timestamp.toDate();
+
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+
+  if (diff < 60) return "à l’instant";
+  if (diff < 3600) return Math.floor(diff / 60) + " min";
+  if (diff < 86400) return Math.floor(diff / 3600) + " h";
+
+  return date.toLocaleDateString();
 }
 
-// ==========================
-// EVENTS
-// ==========================
-function initEvents() {
-  document
-    .getElementById("sendPostBtn")
-    .addEventListener("click", createPost);
-}
+function getDefaultAvatar(name = "") {
 
-init();
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1A3668&color=fff`;
+}
