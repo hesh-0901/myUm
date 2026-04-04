@@ -11,6 +11,13 @@
 <link rel="manifest" href="/myUm/manifest.json">
 <meta name="theme-color" content="#1A3668">
 
+<!-- PREFETCH NAVIGATION -->
+<link rel="prefetch" href="/myUm/public/dashboard.html">
+<link rel="prefetch" href="/myUm/posts/index.html">
+<link rel="prefetch" href="/myUm/chat/index.html">
+<link rel="prefetch" href="/myUm/users/profile.html">
+<link rel="prefetch" href="/myUm/users/presence.html">
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="stylesheet"
@@ -27,24 +34,19 @@ rel="stylesheet">
 
 <header id="header-container"></header>
 
-<main id="posts-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+<main class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
 
   <!-- CREATE POST -->
   <div id="create-post" class="flex items-start gap-3 pb-4 border-b border-gray-100">
 
-    <!-- AVATAR -->
-    <img id="userAvatar"
-      class="w-10 h-10 rounded-full object-cover">
+    <img id="userAvatar" class="w-10 h-10 rounded-full object-cover">
 
-    <!-- INPUT AREA -->
     <div class="flex-1">
 
       <textarea id="postInput"
         placeholder="Exprime-toi..."
-        class="w-full text-sm text-gray-800 placeholder-gray-400
-               resize-none outline-none"></textarea>
+        class="w-full text-sm text-gray-800 placeholder-gray-400 resize-none outline-none"></textarea>
 
-      <!-- ACTIONS -->
       <div class="flex justify-between items-center mt-2">
 
         <div class="flex gap-4 text-gray-400">
@@ -70,7 +72,7 @@ rel="stylesheet">
 
   </div>
 
-  <!-- POSTS LIST -->
+  <!-- POSTS -->
   <div id="posts-list" class="space-y-4"></div>
 
 </main>
@@ -79,16 +81,12 @@ rel="stylesheet">
 
 </div>
 
-<!-- HEADER BACK -->
+<!-- HEADER -->
 <script type="module">
-
 const header = await fetch("/myUm/partials/header-back.html");
 document.getElementById("header-container").innerHTML = await header.text();
-
 await import("/myUm/partials/js/back-header.js");
-
 document.querySelector("header").setAttribute("data-title", "Posts");
-
 </script>
 
 <!-- NAV -->
@@ -97,7 +95,10 @@ const nav = await fetch("/myUm/partials/nav.html");
 document.getElementById("nav-container").innerHTML = await nav.text();
 </script>
 
+<!-- PAGE JS -->
 <script type="module" src="/myUm/posts/js/posts.js"></script>
+
+<!-- CORE APP -->
 <script type="module" src="/myUm/mains.js/app-init.js"></script>
 
 </body>
