@@ -6,8 +6,6 @@ import { db } from "../../mains.js/firebase-config.js";
 
 import {
   collection,
-  query,
-  orderBy,
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -35,12 +33,9 @@ async function loadPosts() {
 
   try {
 
-    const q = query(
-      collection(db, "posts"),
-      orderBy("createdAt", "desc")
-    );
+    const snapshot = await getDocs(collection(db, "posts"));
 
-    const snapshot = await getDocs(q);
+    console.log("POSTS:", snapshot.docs.map(d => d.data()));
 
     if (snapshot.empty) {
       container.innerHTML = `
@@ -53,14 +48,15 @@ async function loadPosts() {
 
     container.innerHTML = "";
 
-    for (const docSnap of snapshot.docs) {
+    snapshot.forEach(docSnap => {
 
       const post = docSnap.data();
 
       const postEl = createPostElement(post);
 
       container.appendChild(postEl);
-    }
+
+    });
 
   } catch (error) {
 
@@ -148,7 +144,7 @@ function createPostElement(post) {
 
 function formatDate(timestamp) {
 
-  if (!timestamp) return "";
+  if (!timestamp || !timestamp.toDate) return "";
 
   const date = timestamp.toDate();
 
