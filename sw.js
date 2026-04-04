@@ -268,21 +268,6 @@ statusText:"Offline"
 
 }
 
-self.addEventListener("message", event => {
-
-  if (event.data === "SKIP_WAITING") {
-    console.log("⚡ SKIP WAITING RECEIVED");
-    self.skipWaiting();
-  }
-
-  if (event.data === "GET_VERSION") {
-    event.source.postMessage({
-      type: "VERSION",
-      version: VERSION
-    });
-  }
-
-});
 /* =========================
    GET VERSION (CLIENT)
 ========================= */
