@@ -3,6 +3,10 @@
 // ======================================
 
 import { db } from "../../mains.js/firebase-config.js";
+import {
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {
   collection,
@@ -14,7 +18,11 @@ import {
 // ======================================
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadPosts();
+
+  await initCreatePost();   // 👈 NOUVEAU
+  initPublishPost();        // 👈 NOUVEAU
+  await loadPosts();        // 👈 EXISTANT
+
 });
 
 // ======================================
@@ -156,6 +164,62 @@ function formatDate(timestamp) {
   if (diff < 86400) return Math.floor(diff / 3600) + " h";
 
   return date.toLocaleDateString();
+}
+
+async function initCreatePost() {
+
+  const storedUser = localStorage.getItem("myum_user");
+
+  if (!storedUser) return;
+
+  const user = JSON.parse(storedUser);
+
+  const avatar = document.getElementById("userAvatar");
+
+  if (!avatar) return;
+
+  avatar.src = user.photoURL || getDefaultAvatar(user.username);
+
+}
+
+function initPublishPost() {
+
+  const btn = document.getElementById("publishBtn");
+  const input = document.getElementById("postInput");
+
+  if (!btn || !input) return;
+
+  btn.addEventListener("click", async () => {
+
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    const storedUser = JSON.parse(localStorage.getItem("myum_user"));
+
+    try {
+
+      await addDoc(collection(db, "posts"), {
+        userId: storedUser.id,
+        userName: storedUser.username,
+        userPhoto: storedUser.photoURL || "",
+        content,
+        likes: 0,
+        createdAt: serverTimestamp()
+      });
+
+      input.value = "";
+
+      await loadPosts(); // refresh
+
+    } catch (error) {
+
+      console.error("Erreur création post :", error);
+
+    }
+
+  });
+
 }
 
 function getDefaultAvatar(name = "") {
