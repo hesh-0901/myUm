@@ -1,69 +1,58 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Posts</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- PWA -->
-  <link rel="manifest" href="/myUm/manifest.json">
-  <link rel="icon" href="/myUm/assets/favicon.png">
-  <meta name="theme-color" content="#1A3668">
+<title>Posts - MyUm</title>
 
-  <!-- Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="icon" href="/myUm/assets/favicon.png">
+<link rel="manifest" href="/myUm/manifest.json">
+<meta name="theme-color" content="#1A3668">
 
-  <!-- CSS --->
-  <link rel="stylesheet" href="/myUm/assets/css/output.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+rel="stylesheet">
+
 </head>
 
-<body class="bg-gray-100 flex justify-center overflow-x-hidden">
+<body class="bg-gray-100 flex justify-center font-display">
 
-  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
+<div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col overflow-hidden">
 
-    <!-- HEADER -->
-    <div id="header-container"></div>
+<header id="header-container"></header>
 
-    <!-- MAIN -->
-    <main class="flex-1 overflow-y-auto">
+<main id="posts-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4"></main>
 
-      <!-- COMPOSER -->
-      <section class="p-4 border-b">
+<footer id="nav-container"></footer>
 
-        <div class="flex items-center space-x-3">
+</div>
 
-          <img id="userPhoto" class="w-10 h-10 rounded-full object-cover" />
+<!-- HEADER BACK -->
+<script type="module">
+import { initHeaderBack } from "/myUm/partials/js/back-header.js";
 
-          <input
-            id="postInput"
-            type="text"
-            placeholder="Exprime-toi..."
-            class="flex-1 bg-gray-100 text-sm px-3 py-2 rounded-full outline-none"
-          />
+const header = await fetch("/myUm/partials/header-back.html");
+document.getElementById("header-container").innerHTML = await header.text();
 
-        </div>
+initHeaderBack({
+  title: "Posts"
+});
+</script>
 
-        <button
-          id="sendPostBtn"
-          class="w-full mt-3 bg-gradient-to-r from-medium to-lightblue text-white py-2 rounded-xl text-sm font-semibold active:scale-95 transition">
-          Publier
-        </button>
+<!-- NAV -->
+<script type="module">
+const nav = await fetch("/myUm/partials/nav.html");
+document.getElementById("nav-container").innerHTML = await nav.text();
+</script>
 
-      </section>
-
-      <!-- FEED -->
-      <section id="postsList" class="space-y-3 p-3"></section>
-
-    </main>
-
-  </div>
-
-  <!-- GLOBAL INIT -->
-  <script type="module" src="/myUm/mains.js/app-init.js"></script>
-
-  <!-- PAGE JS -->
-  <script type="module" src="./js/posts.js"></script>
+<script type="module" src="/myUm/posts/js/posts.js"></script>
+<script type="module" src="/myUm/mains.js/app-init.js"></script>
 
 </body>
 </html>
