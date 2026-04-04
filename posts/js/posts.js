@@ -13,6 +13,12 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+import {
+  updateDoc,
+  doc,
+  arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 // ======================================
 // INIT
 // ======================================
@@ -137,19 +143,131 @@ function createPostElement(post) {
     <!-- ACTIONS -->
     <div class="flex items-center gap-6 mt-3 text-gray-400 text-sm">
 
-      <button class="flex items-center gap-1 active:scale-95 transition">
+      <button class="like-btn flex items-center gap-1 active:scale-95 transition">
         <i class="bi bi-heart"></i>
         <span>${post.likes || 0}</span>
       </button>
 
-      <button class="flex items-center gap-1 active:scale-95 transition">
+      <button class="comment-toggle flex items-center gap-1 active:scale-95 transition">
         <i class="bi bi-chat"></i>
-        <span>0</span>
+        <span>${(post.comments || []).length}</span>
       </button>
 
     </div>
 
+    <!-- COMMENTS -->
+    <div class="comments hidden mt-3 space-y-2 text-sm"></div>
+
+    <!-- COMMENT INPUT -->
+    <div class="comment-box hidden mt-2 flex gap-2">
+      <input type="text" placeholder="Commenter..."
+        class="flex-1 text-sm border rounded-lg px-2 py-1 outline-none">
+      <button class="send-comment text-primary text-sm">Envoyer</button>
+    </div>
+
   `;
+
+  // =========================
+  // LIKE
+  // =========================
+
+  const likeBtn = div.querySelector(".like-btn");
+
+  likeBtn.addEventListener("click", async () => {
+
+    try {
+
+      const postRef = doc(db, "posts", post.id);
+
+      const newLikes = (post.likes || 0) + 1;
+
+      await updateDoc(postRef, {
+        likes: newLikes
+      });
+
+      likeBtn.querySelector("span").innerText = newLikes;
+      post.likes = newLikes;
+
+    } catch (error) {
+      console.error("Erreur like :", error);
+    }
+
+  });
+
+  // =========================
+  // COMMENTS
+  // =========================
+
+  const toggleBtn = div.querySelector(".comment-toggle");
+  const commentsDiv = div.querySelector(".comments");
+  const commentBox = div.querySelector(".comment-box");
+  const sendBtn = div.querySelector(".send-comment");
+  const input = commentBox.querySelector("input");
+
+  toggleBtn.addEventListener("click", () => {
+
+    commentsDiv.classList.toggle("hidden");
+    commentBox.classList.toggle("hidden");
+
+    renderComments();
+
+  });
+
+  function renderComments() {
+
+    commentsDiv.innerHTML = "";
+
+    (post.comments || []).forEach(c => {
+
+      const el = document.createElement("div");
+
+      el.innerHTML = `
+        <span class="font-semibold">${c.userName}</span>
+        <span>${c.text}</span>
+      `;
+
+      commentsDiv.appendChild(el);
+
+    });
+
+  }
+
+  // =========================
+  // SEND COMMENT
+  // =========================
+
+  sendBtn.addEventListener("click", async () => {
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    const user = JSON.parse(localStorage.getItem("myum_user"));
+
+    const newComment = {
+      userName: user.username,
+      text,
+      createdAt: new Date()
+    };
+
+    try {
+
+      await updateDoc(doc(db, "posts", post.id), {
+        comments: arrayUnion(newComment)
+      });
+
+      post.comments = [...(post.comments || []), newComment];
+
+      input.value = "";
+
+      renderComments();
+
+    } catch (error) {
+
+      console.error("Erreur commentaire :", error);
+
+    }
+
+  });
 
   return div;
 }
