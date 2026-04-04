@@ -8,7 +8,6 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// USER
 let currentUser = null;
 
 // ==========================
@@ -22,7 +21,7 @@ async function init() {
 }
 
 // ==========================
-// LOAD USER (comme profil)
+// USER SESSION (comme profil)
 // ==========================
 function loadUser() {
   const storedUser = localStorage.getItem("myum_user");
@@ -34,27 +33,19 @@ function loadUser() {
 
   currentUser = JSON.parse(storedUser);
 
-  // Photo
   const photo = document.getElementById("userPhoto");
 
-  if (currentUser.photoURL) {
-    photo.src = currentUser.photoURL;
-  } else {
-    photo.src =
-      "https://ui-avatars.com/api/?name=" +
-      currentUser.firstName +
-      "+" +
-      currentUser.lastName +
-      "&background=1A3668&color=fff";
-  }
+  photo.src = currentUser.photoURL
+    ? currentUser.photoURL
+    : `https://ui-avatars.com/api/?name=${currentUser.firstName}+${currentUser.lastName}&background=1A3668&color=fff`;
 }
 
 // ==========================
-// HEADER BACK
+// HEADER BACK (V4 compliant)
 // ==========================
 async function loadHeader() {
-  const header = await fetch("/myUm/partials/header-back.html").then(r => r.text());
-  document.getElementById("header-container").innerHTML = header;
+  const headerHTML = await fetch("/myUm/partials/header-back.html").then(r => r.text());
+  document.getElementById("header-container").innerHTML = headerHTML;
 
   await import("/myUm/partials/js/back-header.js");
 
@@ -66,13 +57,13 @@ async function loadHeader() {
 // ==========================
 async function createPost() {
   const input = document.getElementById("postInput");
-  const text = input.value.trim();
+  const content = input.value.trim();
 
-  if (!text) return;
+  if (!content) return;
 
   try {
     await addDoc(collection(db, "posts"), {
-      content: text,
+      content,
       userId: currentUser.id,
       firstName: currentUser.firstName,
       lastName: currentUser.lastName,
@@ -83,13 +74,41 @@ async function createPost() {
     input.value = "";
     loadPosts();
 
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Erreur post:", error);
   }
 }
 
 // ==========================
-// LOAD POSTS (STYLE FB)
+// RENDER POST (UI propre)
+// ==========================
+function renderPost(post) {
+  const div = document.createElement("div");
+
+  div.className = "bg-white rounded-2xl p-4 shadow-sm";
+
+  div.innerHTML = `
+    <div class="flex items-center space-x-3 mb-2">
+      <img src="${post.photoURL || `https://ui-avatars.com/api/?name=${post.firstName}+${post.lastName}&background=1A3668&color=fff`}" 
+           class="w-10 h-10 rounded-full object-cover" />
+
+      <div>
+        <p class="text-sm font-semibold">
+          ${post.firstName} ${post.lastName}
+        </p>
+      </div>
+    </div>
+
+    <p class="text-sm text-gray-800">
+      ${post.content}
+    </p>
+  `;
+
+  return div;
+}
+
+// ==========================
+// LOAD POSTS
 // ==========================
 async function loadPosts() {
   const container = document.getElementById("postsList");
@@ -100,33 +119,11 @@ async function loadPosts() {
     const snap = await getDocs(q);
 
     snap.forEach(doc => {
-      const post = doc.data();
-
-      const div = document.createElement("div");
-      div.className = "p-4";
-
-      div.innerHTML = `
-        <div class="flex items-center space-x-3 mb-2">
-          <img src="${post.photoURL || `https://ui-avatars.com/api/?name=${post.firstName}+${post.lastName}&background=1A3668&color=fff`}" 
-               class="w-10 h-10 rounded-full object-cover" />
-
-          <div>
-            <p class="text-sm font-semibold">
-              ${post.firstName} ${post.lastName}
-            </p>
-          </div>
-        </div>
-
-        <p class="text-sm text-gray-800">
-          ${post.content}
-        </p>
-      `;
-
-      container.appendChild(div);
+      container.appendChild(renderPost(doc.data()));
     });
 
-  } catch (err) {
-    console.error("Erreur posts:", err);
+  } catch (error) {
+    console.error("Erreur chargement:", error);
   }
 }
 
