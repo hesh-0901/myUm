@@ -28,6 +28,46 @@ rel="stylesheet">
 <header id="header-container"></header>
 
 <main id="posts-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4"></main>
+<!-- CREATE POST -->
+<div id="create-post" class="flex items-start gap-3 pb-4 border-b border-gray-100">
+
+  <!-- AVATAR -->
+  <img id="userAvatar"
+    class="w-10 h-10 rounded-full object-cover">
+
+  <!-- INPUT AREA -->
+  <div class="flex-1">
+
+    <textarea id="postInput"
+      placeholder="Exprime-toi..."
+      class="w-full text-sm text-gray-800 placeholder-gray-400
+             resize-none outline-none"></textarea>
+
+    <!-- ACTIONS -->
+    <div class="flex justify-between items-center mt-2">
+
+      <div class="flex gap-4 text-gray-400">
+
+        <button id="addImageBtn" class="active:scale-95">
+          <i class="bi bi-image"></i>
+        </button>
+
+        <button id="addVideoBtn" class="active:scale-95">
+          <i class="bi bi-camera-video"></i>
+        </button>
+
+      </div>
+
+      <button id="publishBtn"
+        class="text-sm font-semibold text-primary active:scale-95 transition">
+        Publier
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
 <footer id="nav-container"></footer>
 
