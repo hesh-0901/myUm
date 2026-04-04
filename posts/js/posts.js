@@ -17,11 +17,15 @@ import {
 // INIT
 // ======================================
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-  await initCreatePost();   // 👈 NOUVEAU
-  initPublishPost();        // 👈 NOUVEAU
-  await loadPosts();        // 👈 EXISTANT
+  setTimeout(async () => {
+
+    await initCreatePost();
+    initPublishPost();
+    await loadPosts();
+
+  }, 0);
 
 });
 
@@ -30,8 +34,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ======================================
 
 async function loadPosts() {
-
 const container = document.getElementById("posts-list");
+
+if (!container) {
+  console.error("posts-list introuvable");
+  return;
+}
 
   container.innerHTML = `
     <div class="text-center text-sm text-gray-400">
