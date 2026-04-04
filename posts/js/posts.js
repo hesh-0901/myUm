@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadPosts() {
 
-  const container = document.getElementById("posts-container");
+const container = document.getElementById("posts-list");
 
   container.innerHTML = `
     <div class="text-center text-sm text-gray-400">
