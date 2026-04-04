@@ -35,14 +35,16 @@ rel="stylesheet">
 
 <!-- HEADER BACK -->
 <script type="module">
-import { initHeaderBack } from "/myUm/partials/js/back-header.js";
 
 const header = await fetch("/myUm/partials/header-back.html");
 document.getElementById("header-container").innerHTML = await header.text();
 
-initHeaderBack({
-  title: "Posts"
-});
+// ✅ On laisse le JS du partial gérer lui-même
+await import("/myUm/partials/js/back-header.js");
+
+// ✅ On passe le titre via attribut (V4 compliant)
+document.querySelector("header").setAttribute("data-title", "Posts");
+
 </script>
 
 <!-- NAV --->
