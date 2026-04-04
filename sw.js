@@ -33,6 +33,8 @@ const STATIC_ASSETS = [
 "/myUm/users/profile.html",
 "/myUm/users/presence.html",
 "/myUm/users/enreg.html",
+ /* posts */  
+"/myUm/posts/index.html",
 
 /* chat */
 "/myUm/chat/room.html",
