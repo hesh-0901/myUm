@@ -1,6 +1,7 @@
 import { getRoomDom, bindSmartButton } from "./room-ui.js";
 import { sendMessage } from "./room-service.js";
 import { listenMessages } from "./room-listener.js";
+import { listenHeader } from "./room-header.js";
 
 /* SESSION */
 function getUser() {
@@ -32,7 +33,7 @@ if (!friendId) {
 function initRoom() {
   const dom = getRoomDom();
 
-  // 🔥 smart button
+  // smart button
   bindSmartButton(dom.messageInput, dom.sendBtnIcon);
 
   // envoyer message
@@ -46,8 +47,11 @@ function initRoom() {
     }
   });
 
-  // écouter messages
+  // 🔥 messages realtime
   listenMessages(myId, friendId, dom.messagesEl);
+
+  // 🔥 header realtime
+  listenHeader(friendId, dom);
 }
 
 initRoom();
