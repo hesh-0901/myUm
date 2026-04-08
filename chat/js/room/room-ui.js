@@ -3,7 +3,12 @@ export function getRoomDom() {
     messagesEl: document.getElementById("messages"),
     messageInput: document.getElementById("messageInput"),
     sendBtn: document.getElementById("sendBtn"),
-    sendBtnIcon: document.getElementById("sendBtnIcon")
+    sendBtnIcon: document.getElementById("sendBtnIcon"),
+
+    // header
+    roomTitle: document.getElementById("roomTitle"),
+    roomSub: document.getElementById("roomSub"),
+    roomAvatar: document.getElementById("roomAvatar")
   };
 }
 
@@ -21,7 +26,6 @@ export function renderMessage(container, message, isMine) {
   container.appendChild(div);
 }
 
-/* SMART BUTTON */
 export function bindSmartButton(input, btnIcon) {
   function update() {
     const hasText = input.value.trim().length > 0;
