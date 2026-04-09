@@ -94,6 +94,7 @@ return {
   "Date de naissance": formatBirthday(user.birthday),
   "Âge": user.age || "",
   "Fonction": user.fonction || ""
+  "Statut": user.etatCivil || ""
 
 };
   
