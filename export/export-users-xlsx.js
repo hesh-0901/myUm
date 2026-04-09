@@ -70,6 +70,7 @@ return {
 
   "Genre": user.genre || "",
   "Commune": user.commune || "",
+  "Avenue": user.avenue || "",
 
   "Type membre": user.typeMembre || "",
 
