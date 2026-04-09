@@ -61,32 +61,41 @@ function formatUser(user, id) {
     user.anneeAdhesionDepartement
   );
 
-  return {
+return {
 
-    "User ID": id,
+  "User ID": id,
 
-    "Nom complet": `${user.firstName || ""} ${user.lastName || ""}`,
-    "Username": user.username || "",
+  "Nom complet": `${user.firstName || ""} ${user.lastName || ""}`,
+  "Username": user.username || "",
 
-    "Genre": user.genre || "",
-    "Commune": user.commune || "",
+  "Genre": user.genre || "",
+  "Commune": user.commune || "",
 
-    "Type membre": user.typeMembre || "",
+  "Type membre": user.typeMembre || "",
 
-    // 🔥 ÉGLISE
-    "Année adhésion église": eglise.year,
-    "Date adhésion église": eglise.date,
+  // 🔥 ÉGLISE
+  "Année adhésion église": eglise.year,
+  "Date adhésion église": eglise.date,
 
-    // 🔥 DÉPARTEMENT
-    "Année adhésion département": departement.year,
-    "Date adhésion département": departement.date,
+  // 🔥 DÉPARTEMENT
+  "Année adhésion département": departement.year,
+  "Date adhésion département": departement.date,
 
-    "Statut affermissement": user.statutAffermissement || "",
-    "Responsable ministère": user.responsableMinistere || "",
-    "Groupe musique": user.groupeMusique || ""
+  "Statut affermissement": user.statutAffermissement || "",
+  "Responsable ministère": user.responsableMinistere || "",
+  "Groupe musique": user.groupeMusique || "",
 
-  };
+  // ===============================
+  // 🔥 NOUVEAUX CHAMPS INFORMATIONS
+  // ===============================
+  "Bio": user.bio || "",
+  "Téléphone": user.phone || "",
+  "Date de naissance": formatBirthday(user.birthday),
+  "Âge": user.age || "",
+  "Fonction": user.fonction || ""
 
+};
+  
 }
 
 // ===============================
