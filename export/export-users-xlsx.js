@@ -131,6 +131,24 @@ function splitDate(dateValue, yearValue) {
 
 }
 
+function formatBirthday(value) {
+
+  if (!value) return "";
+
+  let date;
+
+  if (value.seconds) {
+    date = new Date(value.seconds * 1000);
+  } else {
+    date = new Date(value);
+  }
+
+  if (isNaN(date)) return "";
+
+  return date.toLocaleDateString("fr-FR");
+
+}
+
 // ===============================
 function generateXLSX(data) {
 
