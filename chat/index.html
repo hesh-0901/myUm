@@ -1,1 +1,42 @@
-<script type="module" src="./js/home/home-init.js?v=1"></script>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Messagerie</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+</head>
+
+<body class="bg-gray-100 flex justify-center">
+
+  <div class="w-full max-w-[420px] min-h-screen bg-white flex flex-col">
+
+    <!-- HEADER -->
+    <div class="p-4 border-b font-semibold">
+      Messagerie
+    </div>
+
+    <!-- LIST -->
+    <div id="chatList" class="flex-1 p-3 space-y-2"></div>
+
+    <!-- EMPTY -->
+    <div id="chatEmptyState"
+      class="hidden text-center text-gray-500 text-sm py-6">
+      Aucune conversation
+    </div>
+
+  </div>
+
+  <!-- 🔥 SCRIPT -->
+  <script type="module" src="./js/home/home-init.js?v=2"></script>
+
+</body>
+</html>
