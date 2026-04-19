@@ -152,25 +152,27 @@ if (roomData.status !== "active") {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
+        navigator.geolocation.getCurrentPosition(
+  async (position) => {
 
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
+    const userLat = position.coords.latitude;
+    const userLng = position.coords.longitude;
 
-        const distance = getDistance(
-          userLat,
-          userLng,
-          roomData.latitude,
-          roomData.longitude
-        );
+    const distance = getDistance(
+      userLat,
+      userLng,
+      roomData.latitude,
+      roomData.longitude
+    );
 
-          const RADAR_RADIUS = 250; // rayon en mètres
-          
-          if (distance > RADAR_RADIUS) {
-            alert(`Vous êtes hors rayon (${RADAR_RADIUS}m).`);
-            return;
-          }
+    const RADAR_RADIUS = 250; // rayon en mètres
+
+    console.log("Distance réelle :", distance, "m");
+
+    if (distance > RADAR_RADIUS) {
+      alert(`Vous êtes hors rayon (${RADAR_RADIUS}m).`);
+      return;
+    }
 
         const storedUser = JSON.parse(localStorage.getItem("myum_user"));
         if (!storedUser) return;
