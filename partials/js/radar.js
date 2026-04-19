@@ -210,11 +210,16 @@ if (roomData.status !== "active") {
           timestamp: serverTimestamp()
         });
 
-      },
-      () => {
-        alert("Géolocalisation refusée.");
-      }
-    );
+ },
+  () => {
+    alert("Géolocalisation refusée.");
+  },
+  {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+  }
+);
 
   };
 }
