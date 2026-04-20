@@ -8,8 +8,8 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-function buildChatId(a, b) {
-  return [a, b].sort().join("_");
+export function buildChatId(a, b) {
+  return [a, b].sort().join("_"); // ⚠️ IMPORTANT
 }
 
 export function getMessagesRef(myId, friendId) {
@@ -25,14 +25,16 @@ export async function sendMessage(myId, friendId, inputEl) {
   const messagesRef = collection(db, "chats", chatId, "messages");
   const chatRef = doc(db, "chats", chatId);
 
-  // 🔥 1. créer message
+  console.log("SEND TO CHAT:", chatId);
+
+  // 🔥 message
   await addDoc(messagesRef, {
     senderId: myId,
     text,
     createdAt: serverTimestamp()
   });
 
-  // 🔥 2. mettre à jour chat (ou créer)
+  // 🔥 chat doc
   const snap = await getDoc(chatRef);
 
   if (!snap.exists()) {
@@ -47,7 +49,6 @@ export async function sendMessage(myId, friendId, inputEl) {
     });
   } else {
     const data = snap.data();
-
     const currentUnread = data.unreadCount?.[friendId] || 0;
 
     await setDoc(chatRef, {
