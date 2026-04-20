@@ -1,57 +1,40 @@
-import { getRoomDom, bindSmartButton } from "./room-ui.js";
-import { sendMessage } from "./room-service.js";
-import { listenMessages } from "./room-listener.js";
-import { listenHeader } from "./room-header.js";
+import { onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getMessagesRef, sendMessage } from "./services/room-service.js";
+import { getRoomDom } from "./room-ui.js";
 
-/* SESSION */
-function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem("myum_user"));
-  } catch {
-    return null;
-  }
-}
+export function initRoom(myId, friendId) {
+  console.log("INIT ROOM:", myId, friendId);
 
-const user = getUser();
-const myId = user?.id;
+  const {
+    messagesEl,
+    messageInput,
+    sendBtn
+  } = getRoomDom();
 
-if (!myId) {
-  alert("Session invalide");
-  location.href = "../../users/login.html";
-}
+  const messagesRef = getMessagesRef(myId, friendId);
 
-/* PARAMS */
-const params = new URLSearchParams(window.location.search);
-const friendId = params.get("uid");
+  const q = query(messagesRef, orderBy("createdAt", "asc"));
 
-if (!friendId) {
-  alert("Aucun utilisateur");
-  history.back();
-}
+  // 🔥 LISTENER
+  onSnapshot(q, (snapshot) => {
+    console.log("MESSAGES COUNT:", snapshot.size);
 
-/* INIT */
-function initRoom() {
-  const dom = getRoomDom();
+    messagesEl.innerHTML = "";
 
-  // smart button
-  bindSmartButton(dom.messageInput, dom.sendBtnIcon);
+    snapshot.forEach(doc => {
+      const m = doc.data();
 
-  // envoyer message
-  dom.sendBtn.addEventListener("click", () => {
-    sendMessage(myId, friendId, dom.messageInput);
+      const div = document.createElement("div");
+      div.className = "p-2 bg-gray-200 rounded-xl text-sm";
+
+      div.textContent = m.text || "…";
+
+      messagesEl.appendChild(div);
+    });
   });
 
-  dom.messageInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      sendMessage(myId, friendId, dom.messageInput);
-    }
+  // 🔥 SEND
+  sendBtn.addEventListener("click", () => {
+    sendMessage(myId, friendId, messageInput);
   });
-
-  // 🔥 messages realtime
-  listenMessages(myId, friendId, dom.messagesEl);
-
-  // 🔥 header realtime
-  listenHeader(friendId, dom);
 }
-
-initRoom();
