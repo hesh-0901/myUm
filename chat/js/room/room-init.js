@@ -1,5 +1,5 @@
 import { onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getMessagesRef, sendMessage } from "./services/room-service.js";
+import { getMessagesRef, sendMessage } from "./room/room-service.js";
 import { getRoomDom } from "./room-ui.js";
 
 export function initRoom(myId, friendId) {
