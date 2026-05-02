@@ -266,7 +266,7 @@ if(distanceDisplay){
 distanceDisplay.innerText =
 `Distance : ${distance.toFixed(1)} m`;
 
-if(distance > 30){
+if(distance > 250){
 distanceDisplay.classList.add("text-red-500");
 }
 else{
