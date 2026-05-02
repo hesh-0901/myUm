@@ -96,7 +96,7 @@ if(!distanceDot) return;
 const maxRadius = 120;
 
 /* distance max autorisée */
-const maxDistance = 30;
+const maxDistance = 250;
 
 /* normalisation distance */
 let ratio = Math.min(distance / maxDistance,1);
@@ -479,7 +479,7 @@ alert("Position GPS inconnue.");
 return;
 }
 
-if(currentDistance > 30){
+if(currentDistance > 250){
 alert("Vous êtes trop loin du lieu de présence.");
 return;
 }
